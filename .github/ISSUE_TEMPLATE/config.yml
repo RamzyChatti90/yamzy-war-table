@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Questions ouvertes
+    url: https://github.com/RamzyChatti90/yamzy-war-table/discussions
+    about: Discuter d'une idée avant d'ouvrir une issue
+  - name: 📖 Documentation
+    url: https://github.com/RamzyChatti90/yamzy-war-table/blob/main/README.md
+    about: Lire le guide d'utilisation et d'installation
+  - name: 🔒 Vulnérabilité de sécurité
+    url: https://github.com/RamzyChatti90/yamzy-war-table/security/advisories/new
+    about: Signaler en privé une vulnérabilité (pas une issue publique)
