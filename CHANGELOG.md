@@ -4,6 +4,30 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ## [Unreleased]
 
+---
+
+## [1.0.2] — 2026-05-30
+
+### Added
+- 🎨 **3D Background** : `alchemy_table.glb` (24 MB) animé en rotation lente derrière tout le studio (Three.js + GLTFLoader, lazy-chargés via CDN)
+- Composant `WarTableBg3dComponent` standalone full-screen `z-index:0 pointer-events:none`
+- Glassmorphism sur les panels : `backdrop-filter: blur(10px)` + opacité ajustable
+- Hemisphere light + 7 sources d'éclairage (ambient + key + fill chaud + 3 point lights + top) pour rendu doux
+
+### Changed
+- Panels opacité réduite (`.82` → `.55`) — laisse voir la table 3D plus nettement
+- Sidebars opacité réduite (`.7` → `.5`)
+- `toneMappingExposure: 0.85` → `1.35` (rendu beaucoup plus lumineux)
+- Lighting : key 1.0 → 0.7 (moins dur), ambient 0.5 → 0.95, fill violet → doré chaud
+- Overlay sombre passé de `.55-.78` à `.15-.35` (3D beaucoup plus visible)
+
+### Fixed
+- Chaîne wrapper transparente (43 sélecteurs CSS) : `wt-main`, `wt-sk-dash`, `wt-shell-main`, `wt-body` etc. n'opacifient plus le 3D
+
+---
+
+## [1.0.1] — 2026-05-30
+
 ### Added
 - Endpoint `/api/extensions/{name}/updates` pour notification de nouvelles versions
 - Endpoint `/api/extensions/{name}/refs` listant branches + tags
@@ -13,10 +37,13 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ### Changed
 - Backend `start()` : `CI=true` + preflight port + `freePort()` automatique
-- Frontend polling jusqu'à RUNNING (max 60s, refresh 2s) au lieu d'un seul refresh à 1.5s
+- Spawn `node ng.js` direct (bypass `npm.cmd` Windows qui mourrait silencieusement)
+- Frontend polling jusqu'à RUNNING (max 60s, refresh 2s)
+- Install async avec progress réel (Phase Copy 5-25% + npm 28-95% + done 100%)
 
 ### Fixed
-- `ERR_USE_AFTER_CLOSE` quand `ng serve` rencontre un port déjà pris (Angular CLI maintenant non-interactif en background)
+- `ERR_USE_AFTER_CLOSE` quand `ng serve` rencontre un port déjà pris
+- Uninstall Windows-safe avec `taskkill /F /T` + `cmd /c rmdir /S /Q`
 
 ---
 

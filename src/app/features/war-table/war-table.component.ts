@@ -10,13 +10,14 @@ import { WarTableApi, PosProject, PosTicket, ImportResult } from './war-table.ap
 import { AuthService } from '../../core/services/auth.service';
 import { WAR_TABLE_PAGES, PageDef as SharedPageDef } from './war-table.pages';
 import { WarTableSplashComponent } from './war-table-splash.component';
+import { WarTableBg3dComponent } from './war-table-bg-3d.component';
 
 interface PageDef { id: string; label: string; icon: string; cat: string; }
 
 @Component({
   selector: 'app-war-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, WarTableSplashComponent],
+  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent],
   templateUrl: './war-table.component.html',
   styleUrls: ['./war-table.component.css'],
 })

@@ -904,3 +904,90 @@
   text-shadow: 0 0 8px rgba(0,0,0,.5);
   box-shadow: 0 4px 14px rgba(139,127,214,.5), inset 0 1px 0 rgba(255,255,255,.2);
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   ═══ BG-3D v29 — alchemy_table en background, chaîne transparente     ═══
+   ════════════════════════════════════════════════════════════════════════ */
+.wt-shell-bg-3d { background: transparent !important; position: relative; z-index: 1; }
+.wt-shell-bg-3d .wt-bg,
+.wt-shell-bg-3d .wt-bg-aurora,
+.wt-shell-bg-3d .wt-bg-stars,
+.wt-shell-bg-3d .wt-vignette { display: none !important; }
+
+/* Chrome avec glassmorphism (sidebar, topbar, drawer) */
+.wt-shell-bg-3d .wt-topbar { background: rgba(39,32,66,.45) !important; backdrop-filter: blur(14px); }
+.wt-shell-bg-3d .wt-sk-nav { background: rgba(52,46,89,.5) !important; backdrop-filter: blur(12px); }
+.wt-shell-bg-3d .wt-sk-drawer { background: rgba(52,46,89,.58) !important; backdrop-filter: blur(14px); }
+.wt-shell-bg-3d .wt-skin-rsidebar { background: rgba(39,32,66,.5) !important; backdrop-filter: blur(12px); }
+
+/* Cards en glassmorphism */
+.wt-shell-bg-3d .wt-panel,
+.wt-shell-bg-3d .wt-kpi,
+.wt-shell-bg-3d .wt-sprint-card,
+.wt-shell-bg-3d .wt-quarter-card,
+.wt-shell-bg-3d .wt-sh-card,
+.wt-shell-bg-3d .wt-retro-card,
+.wt-shell-bg-3d .wt-tpl-card,
+.wt-shell-bg-3d .wt-param,
+.wt-shell-bg-3d .wt-adr-card,
+.wt-shell-bg-3d .wt-detail-card,
+.wt-shell-bg-3d .wt-guide-card,
+.wt-shell-bg-3d .wt-table-wrap,
+.wt-shell-bg-3d .wt-hero,
+.wt-shell-bg-3d .wt-sk-news-card,
+.wt-shell-bg-3d .wt-pager,
+.wt-shell-bg-3d .wt-modal,
+.wt-shell-bg-3d .wt-versions-panel {
+  background: rgba(52,46,89,.55) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.wt-shell-bg-3d .wt-cal-cell { background: rgba(52,46,89,.5) !important; backdrop-filter: blur(8px); }
+
+/* CHAÎNE TRANSPARENTE — tous les wrappers entre wt-shell et les vraies cards */
+.wt-shell-bg-3d .wt-shell-main,
+.wt-shell-bg-3d .wt-body,
+.wt-shell-bg-3d .wt-main,
+.wt-shell-bg-3d .wt-sk-dash,
+.wt-shell-bg-3d .wt-sk-dash-row,
+.wt-shell-bg-3d .wt-sk-video-wrap,
+.wt-shell-bg-3d .wt-sk-news,
+.wt-shell-bg-3d .wt-sk-top,
+.wt-shell-bg-3d .wt-sk-top-head,
+.wt-shell-bg-3d .wt-sk-top-body,
+.wt-shell-bg-3d .wt-sk-cats,
+.wt-shell-bg-3d .wt-sk-projects,
+.wt-shell-bg-3d .wt-sk-proj-card,
+.wt-shell-bg-3d .wt-sk-proj-info,
+.wt-shell-bg-3d .wt-sk-proj-meta,
+.wt-shell-bg-3d .wt-sk-video-overlay,
+.wt-shell-bg-3d .wt-sk-video-top,
+.wt-shell-bg-3d .wt-sk-video-bottom,
+.wt-shell-bg-3d .wt-page-header,
+.wt-shell-bg-3d .wt-dash,
+.wt-shell-bg-3d .wt-generic,
+.wt-shell-bg-3d .wt-backlog,
+.wt-shell-bg-3d .wt-sprints,
+.wt-shell-bg-3d .wt-sprint-cards,
+.wt-shell-bg-3d .wt-table-tools,
+.wt-shell-bg-3d .wt-kpi-grid,
+.wt-shell-bg-3d .wt-dash-cols,
+.wt-shell-bg-3d .wt-hero-chips,
+.wt-shell-bg-3d .wt-hero-mid,
+.wt-shell-bg-3d .wt-quarters,
+.wt-shell-bg-3d .wt-statbars,
+.wt-shell-bg-3d .wt-cal-month,
+.wt-shell-bg-3d .wt-cal-grid,
+.wt-shell-bg-3d .wt-cal-legend,
+.wt-shell-bg-3d .wt-cal-row,
+.wt-shell-bg-3d .wt-g2-head,
+.wt-shell-bg-3d .wt-g2-body,
+.wt-shell-bg-3d .wt-g2-row,
+.wt-shell-bg-3d .wt-g2-track,
+.wt-shell-bg-3d .wt-bars,
+.wt-shell-bg-3d .wt-tpl-grid,
+.wt-shell-bg-3d .wt-param-grid,
+.wt-shell-bg-3d .wt-sh-cards,
+.wt-shell-bg-3d .wt-check-section { background: transparent !important; }
+
+body { background: #0a0820 !important; }

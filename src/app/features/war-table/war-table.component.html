@@ -1,9 +1,12 @@
+<!-- ═══ 3D Background — alchemy_table.glb en rotation lente (z-index 0) ═══ -->
+<app-war-table-bg-3d *ngIf="!splashVisible()"></app-war-table-bg-3d>
+
 <!-- ═══ SPLASH SCREEN — animation d'ouverture du studio (3-4s + progress réel) ═══ -->
 <app-war-table-splash *ngIf="splashVisible()"
                       [dataReady]="splashDataReady()"
                       (ready)="onSplashReady()"></app-war-table-splash>
 
-<div class="wt-shell wt-shell-row">
+<div class="wt-shell wt-shell-row wt-shell-bg-3d">
   <!-- Cosmic background -->
   <div class="wt-bg"></div>
   <div class="wt-bg-aurora"></div>
