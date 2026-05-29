@@ -1,0 +1,58 @@
+<div class="splash-host"
+     [style.background-image]="bgUrl()"
+     [class.splash-leaving]="leaving()">
+
+  <!-- Vignette + halo violet -->
+  <div class="splash-vignette"></div>
+  <div class="splash-halo"></div>
+
+  <!-- Particules sparkle -->
+  <span *ngFor="let p of particles" class="splash-particle"
+        [style.left.%]="p.x"
+        [style.animation-delay.s]="p.d"
+        [style.animation-duration.s]="p.u">✦</span>
+
+  <!-- Top : brand -->
+  <div class="splash-top">
+    <div class="splash-logo">
+      <span class="splash-logo-emoji">⚔</span>
+      <span class="splash-logo-name">WAR TABLE</span>
+    </div>
+    <div class="splash-top-meta">
+      <span class="splash-meta-tag">⏳ PLANNING STUDIO</span>
+      <span class="splash-meta-version">v1.0</span>
+    </div>
+  </div>
+
+  <!-- Greeting card -->
+  <div class="splash-card">
+    <div class="splash-card-emoji">⚔</div>
+    <div class="splash-card-text">
+      <div class="splash-greeting">Bonjour <strong>{{ playerName() }}</strong></div>
+      <div class="splash-sub">La table t'attend, Stratège</div>
+    </div>
+  </div>
+
+  <!-- Title -->
+  <div class="splash-title-wrap">
+    <div class="splash-title-deco-left">━━━</div>
+    <h1 class="splash-title">PLANIFICATION TEMPORELLE</h1>
+    <div class="splash-title-deco-right">━━━</div>
+  </div>
+  <div class="splash-tagline">Sphère armillaire · Cycles · Sablier des Sprints</div>
+
+  <!-- Bottom : loading bar -->
+  <div class="splash-bottom">
+    <div class="splash-loading-label">
+      <span class="splash-stage-num">{{ stageIdx() + 1 }}/{{ stages.length }}</span>
+      {{ stage() }}
+    </div>
+    <div class="splash-bar">
+      <div class="splash-bar-fill" [style.width.%]="progress()"></div>
+      <div class="splash-bar-glow" [style.left.%]="progress() - 5"></div>
+    </div>
+    <div class="splash-hint">{{ hint() }} · {{ progress() }}%</div>
+  </div>
+
+  <div class="splash-disclaimer">Ouverture du studio · ARCHITECT prépare ta table de planification</div>
+</div>

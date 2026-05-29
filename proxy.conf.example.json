@@ -1,0 +1,9 @@
+{
+  "_comment": "Copie ce fichier en proxy.conf.local.json et adapte pour ton env local (gitignored).",
+  "/api": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "$schema": "https://yamzy.world/schemas/extension.v1.json",
+  "name": "war-table",
+  "displayName": "WAR TABLE ⚔",
+  "tagline": "Planning Organisator Studio — 42 pages Scrum, Gantt, Excel round-trip",
+  "version": "1.0.0-private",
+  "author": "RamzyChatti90",
+  "license": "PROPRIETARY",
+  "visibility": "private",
+  "homepage": "local-only",
+  "icon": "⚔",
+  "category": "planning",
+  "keywords": ["scrum", "planning", "excel", "gantt", "sprint", "backlog"],
+
+  "frontend": {
+    "source": "local",
+    "localPath": "../yamzy-war-table-frontend",
+    "buildCmd": "npm ci && npm run build",
+    "distDir": "dist/war-table/browser",
+    "devCmd": "npm start",
+    "port": 4201,
+    "route": "/war-table"
+  },
+
+  "backend": {
+    "source": "monolith",
+    "_comment": "Pour l'instant : utilise le backend du monolithe Yamzy World (:8080). Plus tard : JAR autonome.",
+    "monolithUrl": "http://localhost:8080",
+    "endpointPrefix": "/api/pos",
+    "javaVersion": "21",
+    "healthCheck": "/actuator/health"
+  },
+
+  "database": {
+    "shared": true,
+    "schema": "public",
+    "migrations": "classpath:db/migration",
+    "tables": [
+      "pos_project", "pos_ticket", "pos_phase", "pos_sprint",
+      "pos_risk", "pos_tech_debt", "pos_lesson", "pos_adr",
+      "pos_glossary", "pos_stakeholder", "pos_stakeholder_feedback",
+      "pos_overtime", "pos_milestone", "pos_quarter", "pos_daily_standup",
+      "pos_capacity_member", "pos_retrospective", "pos_dod_dor_check",
+      "pos_checklist_launch", "pos_planning_version", "pos_project_template"
+    ]
+  },
+
+  "auth": {
+    "provider": "yamzy-sso",
+    "jwtBridgeUrl": "/auth/bridge",
+    "scopes": ["read:projects", "write:tickets"]
+  },
+
+  "menu": {
+    "label": "WAR TABLE ⚔",
+    "icon": "⚔",
+    "shellPath": "/war-table-ext",
+    "iframe": false,
+    "newTab": true,
+    "showInSidebar": true,
+    "showInDashboardCard": true,
+    "color": "#d99a51"
+  },
+
+  "permissions": [
+    "extension:install",
+    "extension:start",
+    "extension:stop",
+    "db:write",
+    "fs:read:user-uploads"
+  ],
+
+  "screenshots": [
+    "https://github.com/RamzyChatti90/yamzy-war-table/raw/main/docs/dashboard.png",
+    "https://github.com/RamzyChatti90/yamzy-war-table/raw/main/docs/backlog.png",
+    "https://github.com/RamzyChatti90/yamzy-war-table/raw/main/docs/gantt.png"
+  ],
+
+  "compatibleWith": {
+    "yamzy-world": ">=1.2.0",
+    "node": ">=18.0.0",
+    "java": ">=21"
+  }
+}

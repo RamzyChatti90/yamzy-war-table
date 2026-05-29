@@ -1,0 +1,44 @@
+# docker-compose pour lancer l'extension WAR TABLE en autonome
+# Usage :  docker compose up -d
+# Frontend : http://localhost:4201
+# Backend  : http://localhost:8090
+
+services:
+  war-table-backend:
+    image: ghcr.io/ramzychatti90/yamzy-war-table-backend:1.0.0
+    container_name: war-table-backend
+    ports:
+      - "8090:8090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=extension
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://yamzy-postgres:5432/yamzy_world
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-yamzy}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASS:-carnival_secret}
+      - YAMZY_JWT_SECRET=${YAMZY_JWT_SECRET}
+    networks:
+      - yamzy-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  war-table-frontend:
+    build: .
+    container_name: war-table-frontend
+    ports:
+      - "4201:4201"
+    environment:
+      - BACKEND_URL=http://war-table-backend:8090
+    depends_on:
+      war-table-backend:
+        condition: service_healthy
+    networks:
+      - yamzy-net
+    restart: unless-stopped
+
+networks:
+  yamzy-net:
+    external: true
+    name: yamzy-world_default

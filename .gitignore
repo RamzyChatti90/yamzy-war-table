@@ -1,0 +1,50 @@
+# ════════════════════════════════════════════════════════════════════
+#  WAR TABLE Extension — .gitignore
+#  Rien ne doit fuiter : secrets, JWT, DB creds, URL Yamzy interne, etc.
+# ════════════════════════════════════════════════════════════════════
+
+# Node / Angular
+/node_modules
+/dist
+/out-tsc
+/.angular
+*.log
+ng-serve.log
+
+# Environnement local
+.env
+.env.local
+.env.*.local
+src/environments/environment.local.ts
+src/environments/environment.private.ts
+
+# Configs avec secrets éventuels (toujours utiliser .example pour le repo)
+src/assets/config.json
+src/assets/yamzy-prod.json
+proxy.conf.local.json
+
+# IDE / OS
+.idea/
+.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json.example
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Build outputs
+*.tsbuildinfo
+
+# Tests
+/coverage
+/.nyc_output
+
+# Yamzy registry local (contient les paths absolus de l'utilisateur)
+.yamzy/
+yamzy-extensions-local.json
+
+# Image splash si elle contient des données personnelles
+# (commenter la ligne suivante pour publier l'image)
+# src/assets/splash/war-table.png
