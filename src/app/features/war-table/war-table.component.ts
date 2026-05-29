@@ -11,13 +11,16 @@ import { AuthService } from '../../core/services/auth.service';
 import { WAR_TABLE_PAGES, PageDef as SharedPageDef } from './war-table.pages';
 import { WarTableSplashComponent } from './war-table-splash.component';
 import { WarTableBg3dComponent } from './war-table-bg-3d.component';
+import { I18nService } from '../../core/i18n/i18n.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { LangSwitcherComponent } from '../../core/i18n/lang-switcher.component';
 
 interface PageDef { id: string; label: string; icon: string; cat: string; }
 
 @Component({
   selector: 'app-war-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent],
+  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, TranslatePipe, LangSwitcherComponent],
   templateUrl: './war-table.component.html',
   styleUrls: ['./war-table.component.css'],
 })
@@ -27,6 +30,23 @@ export class WarTableComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private san = inject(DomSanitizer);
+  i18n = inject(I18nService);
+
+  /** Helpers i18n exposés au template. */
+  pageLabel(p: PageDef | null | undefined): string {
+    if (!p) return '';
+    return this.i18n.t('page.' + p.id) || p.label;
+  }
+  catLabel(cat: string): string {
+    return this.i18n.t('cat.' + cat) || cat;
+  }
+  /** 7 jours abrégés (calendrier) — bascule FR/EN. */
+  weekdays = computed<string[]>(() => {
+    this.i18n.lang(); this.i18n.version();
+    return this.i18n.lang() === 'en'
+      ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+      : ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  });
 
   // ── Skin chrome (utilisateur + sprint actif + KPIs côté droit) ──
   user = computed(() => this.auth.currentUser());
@@ -50,16 +70,20 @@ export class WarTableComponent implements OnInit {
 
   kpiTiles = computed(() => {
     const d = this.dash() || {};
+    // touch i18n signals so tile recomputes when lang flips
+    this.i18n.lang();
+    this.i18n.version();
+    const dayUnit = this.i18n.lang() === 'fr' ? 'j' : 'd';
     const fmt = (n: any, suf = '') => {
       if (n == null) return '—';
       const v = typeof n === 'number' ? (Number.isInteger(n) ? String(n) : n.toFixed(1)) : String(n);
       return v + suf;
     };
     return [
-      { bg: '#4a8cda', label: 'V', value: fmt(d.velocity?.average ?? d.velocityAvg ?? d.velocity), tip: 'Vélocité (SP/sprint)' },
-      { bg: '#de4f5f', label: 'T', value: fmt(d.throughputPerSprint ?? d.throughputPerWeek), tip: 'Throughput' },
-      { bg: '#d99b52', label: 'C', value: fmt(d.avgCycleTimeDays ?? d.cycleTimeAvg, 'j'), tip: 'Cycle Time' },
-      { bg: '#6348b1', label: 'L', value: fmt(d.avgLeadTimeDays ?? d.leadTimeAvg, 'j'), tip: 'Lead Time' },
+      { bg: '#4a8cda', label: 'V', value: fmt(d.velocity?.average ?? d.velocityAvg ?? d.velocity),     tip: this.i18n.t('dash.kpi_velocity') },
+      { bg: '#de4f5f', label: 'T', value: fmt(d.throughputPerSprint ?? d.throughputPerWeek),           tip: this.i18n.t('dash.kpi_throughput') },
+      { bg: '#d99b52', label: 'C', value: fmt(d.avgCycleTimeDays ?? d.cycleTimeAvg, dayUnit),          tip: this.i18n.t('dash.kpi_cycle') },
+      { bg: '#6348b1', label: 'L', value: fmt(d.avgLeadTimeDays ?? d.leadTimeAvg, dayUnit),            tip: this.i18n.t('dash.kpi_lead') },
     ];
   });
 
@@ -121,8 +145,17 @@ export class WarTableComponent implements OnInit {
   }
 
   // ════════════════ SKIN SIDEBAR (4 icônes + MORE drawer) ════════════════
-  /** Sidebar gauche skin : 0=Dashboard, 1=Plannings, 2=Backlog, 3=Analytics. */
-  readonly navLabels = ['DASHBOARD', 'PLANNINGS', 'BACKLOG', 'ANALYTICS'];
+  /** Sidebar gauche skin : 0=Dashboard, 1=Plannings, 2=Backlog, 3=Analytics.
+   *  Réactif au switch FR/EN via signals. */
+  navLabels = computed(() => {
+    this.i18n.lang(); this.i18n.version();
+    return [
+      this.i18n.t('nav.dashboard'),
+      this.i18n.t('nav.plannings'),
+      this.i18n.t('nav.backlog'),
+      this.i18n.t('nav.analytics'),
+    ];
+  });
   morePanelOpen = signal(false);
 
   /** Mapping page → section (calcule l'icône active selon la page courante). */
@@ -232,9 +265,17 @@ export class WarTableComponent implements OnInit {
     else if (n.page) this.setPage(n.page);
   }
 
-  // Top Selection : 4 chips de filtre
+  // Top Selection : 4 chips de filtre — labels réactifs FR/EN
   catActiveSkin = signal(1);
-  readonly catsSkin = ['Tous', 'Actifs', 'Archivés', 'Templates'];
+  catsSkin = computed(() => {
+    this.i18n.lang(); this.i18n.version();
+    return [
+      this.i18n.t('dash.cat_all'),
+      this.i18n.t('dash.cat_active'),
+      this.i18n.t('dash.cat_archived'),
+      this.i18n.t('dash.cat_templates'),
+    ];
+  });
   filteredProjectsSkin = computed(() => {
     const c = this.catActiveSkin();
     const all = this.api.projects();

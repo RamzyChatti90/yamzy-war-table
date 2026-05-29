@@ -26,14 +26,14 @@
     <div class="wt-brand">
       <div class="wt-brand-logo"><div class="wt-stub-logo">⚔</div></div>
       <div class="wt-brand-text">
-        <div class="wt-brand-title-skin">WAR<span class="wt-brand-accent">TABLE</span> <span class="wt-brand-cross">⚔</span></div>
-        <div class="wt-brand-sub-skin">PLANNING STUDIO</div>
+        <div class="wt-brand-title-skin">{{ 'brand.title_war' | t }}<span class="wt-brand-accent">{{ 'brand.title_table' | t }}</span> <span class="wt-brand-cross">⚔</span></div>
+        <div class="wt-brand-sub-skin">{{ 'brand.subtitle' | t }}</div>
       </div>
     </div>
 
     <!-- SEARCH (skin style) -->
     <div class="wt-skin-search-wrap">
-      <input class="wt-skin-search" type="text" placeholder="Rechercher une page ou un ticket…"
+      <input class="wt-skin-search" type="text" [placeholder]="'topbar.search_placeholder' | t"
              [ngModel]="headerSearch()" (ngModelChange)="headerSearch.set($event)" />
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="wt-skin-search-ico">
         <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
@@ -46,56 +46,58 @@
     </div>
 
     <div class="wt-topbar-right">
+      <!-- Language switcher FR / EN -->
+      <app-lang-switcher></app-lang-switcher>
       <!-- Bell : risques -->
-      <button class="wt-skin-icon-btn" *ngIf="api.selectedProjectId()" (click)="setPage('risks')" [title]="risks().length + ' risque(s)'">
+      <button class="wt-skin-icon-btn" *ngIf="api.selectedProjectId()" (click)="setPage('risks')" [title]="'topbar.risks_title' | t:{ n: risks().length }">
         <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
         <span *ngIf="risks().length > 0" class="wt-skin-badge">{{ risks().length }}</span>
       </button>
       <!-- Chat : daily -->
-      <button class="wt-skin-icon-btn" *ngIf="api.selectedProjectId()" (click)="setPage('daily')" title="Daily standup">
+      <button class="wt-skin-icon-btn" *ngIf="api.selectedProjectId()" (click)="setPage('daily')" [title]="'topbar.daily_title' | t">
         <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M2 5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H11C11.5304 3 12.0391 3.21071 12.4142 3.58579C12.7893 3.96086 13 4.46957 13 5V9C13 9.53043 12.7893 10.0391 12.4142 10.4142C12.0391 10.7893 11.5304 11 11 11H9L6 14V11H4C3.46957 11 2.96086 10.7893 2.58579 10.4142C2.21071 10.0391 2 9.53043 2 9V5Z"/><path d="M15 7V9C15 10.0609 14.5786 11.0783 13.8284 11.8284C13.0783 12.5786 12.0609 13 11 13H9.828L8.062 14.767C8.342 14.916 8.661 15 9 15H11L14 18V15H16C16.5304 15 17.0391 14.7893 17.4142 14.4142C17.7893 14.0391 18 13.5304 18 13V9C18 8.46957 17.7893 7.96086 17.4142 7.58579C17.0391 7.21071 16.5304 7 16 7H15Z"/></svg>
       </button>
       <!-- REALM picker (compact skin) -->
       <select class="wt-skin-realm" [ngModel]="api.selectedProjectId()" (ngModelChange)="selectProject($event)">
-        <option [ngValue]="null" disabled>— Planning —</option>
+        <option [ngValue]="null" disabled>{{ 'topbar.planning_picker' | t }}</option>
         <option *ngFor="let p of api.projects()" [ngValue]="p.id">{{ p.code }} · {{ p.name }}</option>
       </select>
-      <button class="wt-skin-icon-btn" *ngIf="api.selectedProjectId()" title="Supprimer ce planning" (click)="deletePlanning()">🗑</button>
-      <button class="wt-btn-versions" *ngIf="api.selectedProjectId()" (click)="toggleVersions()" title="Versions du planning">
+      <button class="wt-skin-icon-btn" *ngIf="api.selectedProjectId()" [title]="'topbar.delete_planning' | t" (click)="deletePlanning()">🗑</button>
+      <button class="wt-btn-versions" *ngIf="api.selectedProjectId()" (click)="toggleVersions()" [title]="'topbar.versions' | t">
         🏷 <span *ngIf="versions().length">{{ versions().length }}</span>
       </button>
       <button class="wt-btn-export" *ngIf="api.selectedProjectId()" [disabled]="exporting()" (click)="doExport()">
-        {{ exporting() ? '⟳' : '⬇' }} Excel
+        {{ exporting() ? '⟳' : '⬇' }} {{ 'topbar.export' | t }}
       </button>
-      <button class="wt-btn-import" (click)="importOpen.set(true)">⬆ Importer</button>
+      <button class="wt-btn-import" (click)="importOpen.set(true)">{{ 'topbar.import' | t }}</button>
     </div>
   </header>
 
   <!-- ═══ VERSIONS PANEL ═══ -->
   <div *ngIf="versionsOpen()" class="wt-versions-panel">
     <div class="wt-versions-head">
-      <span>🏷 Versions du planning</span>
+      <span>{{ 'versions.title' | t }}</span>
       <button class="wt-icon-btn" (click)="versionsOpen.set(false)">✕</button>
     </div>
     <div class="wt-versions-save">
-      <input class="wt-ver-input" placeholder="Nom de la version…" [(ngModel)]="newVersionLabel"/>
-      <button class="wt-btn-save-ver" (click)="saveVersion()">💾 Sauvegarder l'état actuel</button>
+      <input class="wt-ver-input" [placeholder]="'versions.name_placeholder' | t" [(ngModel)]="newVersionLabel"/>
+      <button class="wt-btn-save-ver" (click)="saveVersion()">{{ 'versions.save_now' | t }}</button>
     </div>
     <div class="wt-versions-list">
       <div *ngFor="let v of versions()" class="wt-version-row" [class.active]="v.isActive">
         <div class="wt-ver-info">
           <span class="wt-ver-src" [attr.data-src]="v.source">{{ v.source === 'IMPORT' ? '⬆' : '💾' }}</span>
           <div>
-            <div class="wt-ver-label">{{ v.label }} <span class="wt-ver-active-tag" *ngIf="v.isActive">ACTIVE</span></div>
-            <div class="wt-ver-meta">{{ v.ticketCount }} quêtes · {{ v.createdAt | date:'dd/MM HH:mm' }}</div>
+            <div class="wt-ver-label">{{ v.label }} <span class="wt-ver-active-tag" *ngIf="v.isActive">{{ 'versions.active' | t }}</span></div>
+            <div class="wt-ver-meta">{{ 'versions.tickets' | t:{ n: v.ticketCount } }} · {{ v.createdAt | date:'dd/MM HH:mm' }}</div>
           </div>
         </div>
         <div class="wt-ver-actions">
-          <button class="wt-icon-btn" *ngIf="!v.isActive" title="Restaurer cette version" (click)="restoreVersion(v)">↩</button>
-          <button class="wt-icon-btn" title="Supprimer" (click)="deleteVersion(v)">🗑</button>
+          <button class="wt-icon-btn" *ngIf="!v.isActive" [title]="'versions.restore' | t" (click)="restoreVersion(v)">↩</button>
+          <button class="wt-icon-btn" [title]="'versions.delete' | t" (click)="deleteVersion(v)">🗑</button>
         </div>
       </div>
-      <div *ngIf="!versions().length" class="wt-muted">Aucune version. Importe ou sauvegarde pour créer la première.</div>
+      <div *ngIf="!versions().length" class="wt-muted">{{ 'versions.empty' | t }}</div>
     </div>
   </div>
 
@@ -106,34 +108,34 @@
               class="wt-sk-nav-item"
               [class.wt-sk-nav-active]="navActive() === i && !morePanelOpen()"
               (click)="onNavClick(i)"
-              [title]="navLabels[i]">
+              [title]="navLabels()[i]">
         <span class="wt-sk-nav-ico" [innerHTML]="navIconHtml(i)"></span>
-        <span class="wt-sk-nav-label">{{ navLabels[i] }}</span>
+        <span class="wt-sk-nav-label">{{ navLabels()[i] }}</span>
       </button>
       <div class="wt-sk-nav-spacer"></div>
       <!-- MORE : drawer 42 pages -->
       <button class="wt-sk-nav-item wt-sk-nav-more"
               [class.wt-sk-nav-active]="morePanelOpen()"
               (click)="morePanelOpen.set(!morePanelOpen())"
-              title="Toutes les pages (42)">
+              [title]="'nav.all_pages_short' | t">
         <span class="wt-sk-nav-ico" [innerHTML]="moreIconHtml()"></span>
-        <span class="wt-sk-nav-label">MORE</span>
+        <span class="wt-sk-nav-label">{{ 'nav.more' | t }}</span>
       </button>
     </aside>
 
     <!-- ═══ DRAWER : accordéon 42 pages (skin style) ═══ -->
     <aside *ngIf="morePanelOpen()" class="wt-sidebar wt-sk-drawer">
       <div class="wt-sk-drawer-head">
-        <span class="wt-sk-drawer-title">📚 TOUTES LES PAGES</span>
+        <span class="wt-sk-drawer-title">{{ 'nav.all_pages' | t }}</span>
         <button class="wt-icon-btn" (click)="morePanelOpen.set(false)">✕</button>
       </div>
       <div class="wt-sk-drawer-hint">
-        💡 Utilise la barre de recherche du header pour tout filtrer (pages, tickets, projets).
+        {{ 'nav.search_hint' | t }}
       </div>
       <nav class="wt-nav">
         <div *ngFor="let cat of categories" class="wt-cat" [class.wt-cat-open]="isCatOpen(cat)">
           <button class="wt-cat-head" (click)="toggleCat(cat)">
-            <span class="wt-cat-name">{{ cat }}</span>
+            <span class="wt-cat-name">{{ catLabel(cat) }}</span>
             <span class="wt-cat-count">{{ pagesInCat(cat).length }}</span>
             <span class="wt-cat-arrow" [class.open]="isCatOpen(cat)">›</span>
           </button>
@@ -144,7 +146,7 @@
                     (click)="setPage(pg.id); morePanelOpen.set(false)">
               <span class="wt-page-bar"></span>
               <span class="wt-page-icon">{{ pg.icon }}</span>
-              <span class="wt-page-label">{{ pg.label }}</span>
+              <span class="wt-page-label">{{ pageLabel(pg) }}</span>
             </button>
           </div>
         </div>
@@ -167,16 +169,16 @@
                              [rotate]="true" [emissiveBoost]="0.25" fallbackSigil="⚔"></app-agent-card-3d>
           <div class="wt-empty-ring"></div>
         </div>
-        <h2 class="wt-cinematic-title">LA TABLE T'ATTEND, STRATÈGE</h2>
-        <p>Importe ton classeur Excel de pilotage — ARCHITECT mappera chaque feuille en quête, sprint et jalon sur la WAR TABLE.</p>
-        <button class="wt-btn-major" (click)="importOpen.set(true)">⬆ Invoquer mon Realm</button>
+        <h2 class="wt-cinematic-title">{{ 'empty.title' | t }}</h2>
+        <p>{{ 'empty.subtitle' | t }}</p>
+        <button class="wt-btn-major" (click)="importOpen.set(true)">{{ 'empty.import_cta' | t }}</button>
       </div>
 
       <ng-container *ngIf="api.selectedProjectId() as pid">
         <!-- Page header (masqué sur le dashboard skin pour ne pas dupliquer le titre Mes Plannings) -->
         <div class="wt-page-header" *ngIf="!isDashboardSkin()">
-          <h1 class="wt-page-title">{{ currentPageDef()?.icon }} {{ currentPageDef()?.label }}</h1>
-          <span class="wt-page-cat-badge">{{ currentPageDef()?.cat }}</span>
+          <h1 class="wt-page-title">{{ currentPageDef()?.icon }} {{ pageLabel(currentPageDef()) }}</h1>
+          <span class="wt-page-cat-badge">{{ catLabel(currentPageDef()?.cat || '') }}</span>
         </div>
 
         <!-- ── DASHBOARD (layout SKIN : Video + News + Top Selection) ── -->
@@ -188,43 +190,43 @@
                 <div class="wt-sk-video-overlay">
                   <div class="wt-sk-video-top">
                     <div class="min-w-0">
-                      <div class="wt-sk-tag">PROJET EN COURS</div>
+                      <div class="wt-sk-tag">{{ 'dash.tag_in_progress' | t }}</div>
                       <ng-container *ngIf="selectedProjectInfo() as p; else noProjSk">
                         <div class="wt-sk-video-code">{{ p.code }}</div>
                         <div class="wt-sk-video-name">{{ p.name }}</div>
                       </ng-container>
                       <ng-template #noProjSk>
-                        <div class="wt-sk-video-code">Aucun planning</div>
-                        <div class="wt-sk-video-name">Importez votre Excel pour démarrer.</div>
+                        <div class="wt-sk-video-code">{{ 'empty.no_planning' | t }}</div>
+                        <div class="wt-sk-video-name">{{ 'empty.import_to_start' | t }}</div>
                       </ng-template>
                     </div>
                     <div class="wt-sk-video-right">
-                      <div class="wt-sk-tag">AVANCEMENT</div>
+                      <div class="wt-sk-tag">{{ 'dash.tag_progress' | t }}</div>
                       <div class="wt-sk-video-pct">{{ projectProgress() }}<span class="wt-sk-pct-suf">%</span></div>
                     </div>
                   </div>
                   <div class="wt-sk-video-bottom">
                     <ng-container *ngIf="activeSprint() as s">
                       <div class="min-w-0">
-                        <div class="wt-sk-tag">SPRINT EN COURS</div>
+                        <div class="wt-sk-tag">{{ 'dash.tag_current_sprint' | t }}</div>
                         <div class="wt-sk-sprint-name">Sprint {{ s.number }}<span *ngIf="s.name"> — {{ s.name }}</span></div>
                         <div *ngIf="s.goal" class="wt-sk-sprint-goal">{{ s.goal }}</div>
                       </div>
                     </ng-container>
                     <div *ngIf="sprintDayInfo() as di" class="wt-sk-video-right">
-                      <div class="wt-sk-tag">JOUR</div>
+                      <div class="wt-sk-tag">{{ 'dash.tag_day' | t }}</div>
                       <div class="wt-sk-sprint-day">{{ di.day }}<span class="wt-sk-pct-suf">/{{ di.total }}</span></div>
                     </div>
                   </div>
                 </div>
               </div>
               <!-- Play (→ Roadmap) + LIVE ping -->
-              <div class="wt-sk-player-wrap" (click)="setPage('roadmap')" title="Ouvrir la Roadmap">
+              <div class="wt-sk-player-wrap" (click)="setPage('roadmap')" [title]="'dash.open_roadmap' | t">
                 <div class="wt-sk-player-rel">
                   <div *ngIf="sprintDayInfo()" class="wt-sk-ping"></div>
                   <div class="wt-sk-player">
                     <div class="wt-sk-play-btn">▶</div>
-                    <div class="wt-sk-play-label">ROADMAP</div>
+                    <div class="wt-sk-play-label">{{ 'dash.roadmap' | t }}</div>
                   </div>
                 </div>
               </div>
@@ -245,8 +247,8 @@
               <div *ngIf="newsList().length === 0" class="wt-sk-news-card">
                 <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#514a7b,#3b3363)"></div>
                 <div class="wt-sk-news-body">
-                  <div class="wt-sk-news-title">Aucune activité</div>
-                  <div class="wt-sk-news-sub">Importe ton planning pour voir le flux ici.</div>
+                  <div class="wt-sk-news-title">{{ 'empty.no_activity_title' | t }}</div>
+                  <div class="wt-sk-news-sub">{{ 'empty.no_activity_sub' | t }}</div>
                 </div>
               </div>
             </div>
@@ -255,15 +257,15 @@
           <!-- ⑤ TOP SELECTION : Mes Plannings -->
           <div class="wt-sk-top">
             <div class="wt-sk-top-head">
-              <div class="wt-sk-top-title">Mes Plannings</div>
+              <div class="wt-sk-top-title">{{ 'dash.my_plannings' | t }}</div>
               <div class="wt-sk-live-pill">
                 <div class="wt-sk-live-dot"></div>
-                <div class="wt-sk-live-lbl">Live</div>
+                <div class="wt-sk-live-lbl">{{ 'common.live' | t }}</div>
               </div>
             </div>
             <div class="wt-sk-top-body">
               <div class="wt-sk-cats">
-                <div *ngFor="let c of catsSkin; let i = index"
+                <div *ngFor="let c of catsSkin(); let i = index"
                      class="wt-sk-cat-row"
                      [class.wt-sk-cat-active]="catActiveSkin() === i"
                      (click)="catActiveSkin.set(i)">
@@ -293,7 +295,7 @@
                   </div>
                 </div>
                 <div *ngIf="filteredProjectsSkin().length === 0" class="wt-sk-empty">
-                  Aucun planning dans cette catégorie.
+                  {{ 'empty.no_planning_in_cat' | t }}
                 </div>
               </div>
             </div>
@@ -303,16 +305,16 @@
         <!-- ── BACKLOG (éditable inline + auto-save + pagination lazy) ── -->
         <section *ngIf="activePage() === 'backlog'" class="wt-backlog">
           <div class="wt-table-tools">
-            <input class="wt-filter" placeholder="Filtrer titre/ID…" [(ngModel)]="ticketFilter" (ngModelChange)="currentPage.set(0)"/>
-            <span class="wt-count">{{ filteredTickets().length }} quêtes</span>
-            <span class="wt-edit-hint">✎ Édite les cellules — sauvegarde auto en base</span>
+            <input class="wt-filter" [placeholder]="'filter.title_id' | t" [(ngModel)]="ticketFilter" (ngModelChange)="currentPage.set(0)"/>
+            <span class="wt-count">{{ filteredTickets().length }} {{ 'common.quests' | t }}</span>
+            <span class="wt-edit-hint">{{ 'common.edit_hint' | t }}</span>
           </div>
           <div class="wt-table-wrap">
             <table class="wt-table">
               <thead>
                 <tr>
-                  <th>ID</th><th>Titre</th><th>Type</th><th>Sprint</th><th>Priorité</th>
-                  <th>Statut</th><th>Est.(h)</th><th>SP</th><th>Avanc.</th><th>Assigné</th><th></th>
+                  <th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.type' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.priority' | t }}</th>
+                  <th>{{ 'table.status' | t }}</th><th>{{ 'table.est_h' | t }}</th><th>{{ 'table.sp' | t }}</th><th>{{ 'table.progress' | t }}</th><th>{{ 'table.assignee' | t }}</th><th></th>
                 </tr>
               </thead>
               <tbody>
@@ -349,17 +351,17 @@
           </div>
           <!-- Pagination Backlog -->
           <div class="wt-pager" *ngIf="filteredTickets().length > pageSize()">
-            <button class="wt-pager-btn" (click)="goToPage(0, filteredTickets())" [disabled]="currentPage() === 0" title="Première page">«</button>
+            <button class="wt-pager-btn" (click)="goToPage(0, filteredTickets())" [disabled]="currentPage() === 0" [title]="'pager.first' | t">«</button>
             <button class="wt-pager-btn" (click)="goToPage(currentPage() - 1, filteredTickets())" [disabled]="currentPage() === 0">‹</button>
-            <span class="wt-pager-info">Page {{ currentPage() + 1 }}/{{ totalPages(filteredTickets()) }} · {{ pageRange(filteredTickets()) }}</span>
+            <span class="wt-pager-info">{{ 'pager.page_of' | t:{ n: currentPage() + 1, total: totalPages(filteredTickets()) } }} · {{ pageRange(filteredTickets()) }}</span>
             <button class="wt-pager-btn" (click)="goToPage(currentPage() + 1, filteredTickets())" [disabled]="currentPage() >= totalPages(filteredTickets()) - 1">›</button>
             <button class="wt-pager-btn" (click)="goToPage(totalPages(filteredTickets()) - 1, filteredTickets())" [disabled]="currentPage() >= totalPages(filteredTickets()) - 1">»</button>
             <select class="wt-pager-size" [ngModel]="pageSize()" (ngModelChange)="pageSize.set(+$event); currentPage.set(0)">
-              <option [ngValue]="10">10 / page</option>
-              <option [ngValue]="15">15 / page</option>
-              <option [ngValue]="25">25 / page</option>
-              <option [ngValue]="50">50 / page</option>
-              <option [ngValue]="100">100 / page</option>
+              <option [ngValue]="10">{{ 'pager.per_page' | t:{ n: 10 } }}</option>
+              <option [ngValue]="15">{{ 'pager.per_page' | t:{ n: 15 } }}</option>
+              <option [ngValue]="25">{{ 'pager.per_page' | t:{ n: 25 } }}</option>
+              <option [ngValue]="50">{{ 'pager.per_page' | t:{ n: 50 } }}</option>
+              <option [ngValue]="100">{{ 'pager.per_page' | t:{ n: 100 } }}</option>
             </select>
           </div>
         </section>
@@ -371,9 +373,9 @@
               <div class="wt-sprint-num">Sprint {{ s.number }}</div>
               <div class="wt-sprint-dates">{{ s.startDate }} → {{ s.endDate }}</div>
               <div class="wt-sprint-goal">{{ s.goal || '—' }}</div>
-              <div class="wt-sprint-cap">Capacité : {{ s.capacityHours || '—' }}h</div>
+              <div class="wt-sprint-cap">{{ 'table.capacity_h' | t }} : {{ s.capacityHours || '—' }}h</div>
             </div>
-            <div *ngIf="!sprints().length" class="wt-muted">Aucun sprint importé.</div>
+            <div *ngIf="!sprints().length" class="wt-muted">{{ 'empty.no_sprint_imported' | t }}</div>
           </div>
           <ng-container *ngTemplateOutlet="pager; context: { list: sprints() }"></ng-container>
         </section>
@@ -381,17 +383,17 @@
         <!-- ── BURNDOWN ── -->
         <section *ngIf="activePage() === 'burndown'" class="wt-burndown">
           <div class="wt-panel" *ngIf="burndown() as b">
-            <h3>📉 Burndown — {{ b.totalHours }}h total</h3>
+            <h3>{{ 'burndown.title' | t:{ h: b.totalHours } }}</h3>
             <div class="wt-bars">
               <div *ngFor="let pt of b.points" class="wt-bar-col">
                 <div class="wt-bar-pair">
-                  <div class="wt-bar ideal" [style.height.%]="barPct(pt.ideal, b.totalHours)" title="Idéal {{pt.ideal}}h"></div>
-                  <div class="wt-bar actual" [style.height.%]="barPct(pt.actual, b.totalHours)" title="Réel {{pt.actual}}h"></div>
+                  <div class="wt-bar ideal" [style.height.%]="barPct(pt.ideal, b.totalHours)" [title]="('burndown.ideal' | t) + ' ' + pt.ideal + 'h'"></div>
+                  <div class="wt-bar actual" [style.height.%]="barPct(pt.actual, b.totalHours)" [title]="('burndown.actual' | t) + ' ' + pt.actual + 'h'"></div>
                 </div>
                 <div class="wt-bar-label">{{ pt.sprint }}</div>
               </div>
             </div>
-            <div class="wt-legend"><span class="wt-leg ideal">Idéal</span><span class="wt-leg actual">Réel</span></div>
+            <div class="wt-legend"><span class="wt-leg ideal">{{ 'burndown.ideal' | t }}</span><span class="wt-leg actual">{{ 'burndown.actual' | t }}</span></div>
           </div>
         </section>
 
@@ -400,7 +402,7 @@
           <ng-container *ngIf="ganttModel() as g">
             <!-- En-tête mois -->
             <div class="wt-g2-head">
-              <div class="wt-g2-head-label">Quête</div>
+              <div class="wt-g2-head-label">{{ 'gantt.quest' | t }}</div>
               <div class="wt-g2-head-tl">
                 <div class="wt-g2-month" *ngFor="let m of g.months" [style.width.%]="m.widthPct">{{ m.label }}</div>
               </div>
@@ -419,7 +421,7 @@
                   </div>
                 </div>
               </div>
-              <div *ngIf="!g.rows.length" class="wt-muted">Aucune quête datée.</div>
+              <div *ngIf="!g.rows.length" class="wt-muted">{{ 'empty.no_quest_dated' | t }}</div>
             </div>
             <div class="wt-cal-legend" *ngIf="sprintLegend().length">
               <span *ngFor="let s of sprintLegend()" class="wt-cal-leg-item">
@@ -433,7 +435,7 @@
         <section *ngIf="activePage() === 'risks'" class="wt-generic">
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>ID</th><th>Risque</th><th>Type</th><th>Proba</th><th>Gravité</th><th>Score</th><th>Statut</th></tr></thead>
+              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.risk' | t }}</th><th>{{ 'table.type' | t }}</th><th>{{ 'table.proba' | t }}</th><th>{{ 'table.severity' | t }}</th><th>{{ 'table.score' | t }}</th><th>{{ 'table.status' | t }}</th></tr></thead>
               <tbody>
                 <tr *ngFor="let r of paged(risks())">
                   <td class="wt-mono">{{ r.riskId }}</td><td>{{ r.description }}</td><td>{{ r.type }}</td>
@@ -451,7 +453,7 @@
         <section *ngIf="activePage() === 'tech-debt'" class="wt-generic">
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>ID</th><th>Titre</th><th>Catégorie</th><th>Sévérité</th><th>Coût(h)</th><th>Statut</th></tr></thead>
+              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.category' | t }}</th><th>{{ 'table.severity' | t }}</th><th>{{ 'table.cost_h' | t }}</th><th>{{ 'table.status' | t }}</th></tr></thead>
               <tbody>
                 <tr *ngFor="let d of paged(techDebt())">
                   <td class="wt-mono">{{ d.debtId }}</td><td>{{ d.title }}</td><td>{{ d.category }}</td>
@@ -467,7 +469,7 @@
         <section *ngIf="activePage() === 'lessons'" class="wt-generic">
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>ID</th><th>Catégorie</th><th>Apprentissage</th><th>Recommandation</th><th>Type</th></tr></thead>
+              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.category' | t }}</th><th>{{ 'table.lesson' | t }}</th><th>{{ 'table.reco' | t }}</th><th>{{ 'table.type' | t }}</th></tr></thead>
               <tbody>
                 <tr *ngFor="let l of paged(lessons())">
                   <td class="wt-mono">{{ l.lessonId }}</td><td>{{ l.category }}</td><td>{{ l.lesson }}</td>
@@ -483,7 +485,7 @@
         <section *ngIf="activePage() === 'backlog-tma'" class="wt-backlog">
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>ID</th><th>Titre</th><th>Type</th><th>Composant</th><th>Priorité</th><th>Statut</th><th>Est.(h)</th><th>SP</th></tr></thead>
+              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.type' | t }}</th><th>{{ 'table.component' | t }}</th><th>{{ 'table.priority' | t }}</th><th>{{ 'table.status' | t }}</th><th>{{ 'table.est_h' | t }}</th><th>{{ 'table.sp' | t }}</th></tr></thead>
               <tbody>
                 <tr *ngFor="let t of paged(tmaTickets())" [class]="rowClass(t)">
                   <td class="wt-mono">{{ t.ticketId }}</td><td class="wt-title-cell">{{ t.title }}</td>
@@ -492,7 +494,7 @@
                   <td><span class="wt-status" [attr.data-st]="statusKey(t.status)">{{ t.status }}</span></td>
                   <td class="wt-num">{{ t.estimationHours }}</td><td class="wt-num"><span class="wt-sp">{{ t.storyPoints }}</span></td>
                 </tr>
-                <tr *ngIf="!tmaTickets().length"><td colspan="8" class="wt-muted">Aucun ticket TMA (préfixe TMA-).</td></tr>
+                <tr *ngIf="!tmaTickets().length"><td colspan="8" class="wt-muted">{{ 'empty.no_tma' | t }}</td></tr>
               </tbody>
             </table>
           </div>
@@ -502,7 +504,7 @@
         <!-- ── PROJETS (portefeuille) ── -->
         <section *ngIf="activePage() === 'projets'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>Code</th><th>Nom</th><th>Début</th><th>Fin</th><th>Alloués(j)</th><th>Consommés(j)</th><th>Statut</th></tr></thead>
+            <thead><tr><th>{{ 'table.code' | t }}</th><th>{{ 'table.name' | t }}</th><th>{{ 'table.start' | t }}</th><th>{{ 'table.end' | t }}</th><th>{{ 'table.allocated_d' | t }}</th><th>{{ 'table.consumed_d' | t }}</th><th>{{ 'table.status' | t }}</th></tr></thead>
             <tbody>
               <tr *ngFor="let p of paged(allProjects())" (click)="selectProject(p.id)" style="cursor:pointer">
                 <td class="wt-mono">{{ p.code }}</td><td>{{ p.name }}</td><td>{{ p.startDate }}</td><td>{{ p.endDate }}</td>
@@ -516,10 +518,10 @@
         <!-- ── PHASES ── -->
         <section *ngIf="activePage() === 'phases'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>Phase</th><th>Jours prévus</th><th>Jours consommés</th></tr></thead>
+            <thead><tr><th>{{ 'table.phase' | t }}</th><th>{{ 'table.planned_d' | t }}</th><th>{{ 'table.consumed_days' | t }}</th></tr></thead>
             <tbody>
               <tr *ngFor="let ph of paged(phases())"><td>{{ ph.name }}</td><td class="wt-num">{{ ph.plannedDays }}</td><td class="wt-num">{{ ph.consumedDays }}</td></tr>
-              <tr *ngIf="!phases().length"><td colspan="3" class="wt-muted">Aucune phase.</td></tr>
+              <tr *ngIf="!phases().length"><td colspan="3" class="wt-muted">{{ 'empty.no_phase' | t }}</td></tr>
             </tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: phases() }"></ng-container>
@@ -528,14 +530,14 @@
         <!-- ── CAPACITY PLANNING ── -->
         <section *ngIf="activePage() === 'capacity'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>Personne</th><th>Rôle</th><th>% Alloc</th><th>h/jour</th><th>Sprints (h)</th></tr></thead>
+            <thead><tr><th>{{ 'table.person' | t }}</th><th>{{ 'table.role' | t }}</th><th>{{ 'table.alloc_pct' | t }}</th><th>{{ 'table.h_per_day' | t }}</th><th>{{ 'table.sprints_h' | t }}</th></tr></thead>
             <tbody>
               <tr *ngFor="let m of paged(capacity())">
                 <td>{{ m.memberName }}</td><td>{{ m.role }}</td><td class="wt-num">{{ m.allocationPercent }}%</td>
                 <td class="wt-num">{{ m.hoursPerDay }}</td>
                 <td><span *ngFor="let kv of objEntries(m.sprintHours)" class="wt-mini-chip">{{ kv[0] }}:{{ kv[1] }}</span></td>
               </tr>
-              <tr *ngIf="!capacity().length"><td colspan="5" class="wt-muted">Aucune capacité importée.</td></tr>
+              <tr *ngIf="!capacity().length"><td colspan="5" class="wt-muted">{{ 'empty.no_capacity_imported' | t }}</td></tr>
             </tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: capacity() }"></ng-container>
@@ -543,7 +545,7 @@
 
         <!-- ── ROADMAP ── -->
         <section *ngIf="activePage() === 'roadmap'" class="wt-generic">
-          <h3 class="wt-sub">🗺 Trimestres</h3>
+          <h3 class="wt-sub">{{ 'roadmap_p.quarters' | t }}</h3>
           <div class="wt-quarters">
             <div *ngFor="let q of paged(quarters())" class="wt-quarter-card">
               <div class="wt-q-head">{{ q.quarter }} · <span>{{ q.theme }}</span></div>
@@ -551,28 +553,28 @@
               <div class="wt-q-deliv">{{ q.deliverables }}</div>
               <span class="wt-chip">{{ q.status }}</span>
             </div>
-            <div *ngIf="!quarters().length" class="wt-muted">Aucun trimestre.</div>
+            <div *ngIf="!quarters().length" class="wt-muted">{{ 'empty.no_quarter' | t }}</div>
           </div>
           <ng-container *ngTemplateOutlet="pager; context: { list: quarters() }"></ng-container>
-          <h3 class="wt-sub">🏁 Jalons</h3>
+          <h3 class="wt-sub">{{ 'roadmap_p.milestones' | t }}</h3>
           <div *ngFor="let m of paged(milestones())" class="wt-mini-row">
             <span class="wt-mini-date">{{ m.date }}</span><span class="wt-mini-title">{{ m.title }}</span><span class="wt-chip">{{ m.status }}</span>
           </div>
-          <div *ngIf="!milestones().length" class="wt-muted">Aucun jalon.</div>
+          <div *ngIf="!milestones().length" class="wt-muted">{{ 'empty.no_milestone' | t }}</div>
           <ng-container *ngTemplateOutlet="pager; context: { list: milestones() }"></ng-container>
         </section>
 
         <!-- ── HEURES SUP ── -->
         <section *ngIf="activePage() === 'overtime'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>Date</th><th>Jour</th><th>Prévu(h)</th><th>Réel(h)</th><th>Humeur</th></tr></thead>
+            <thead><tr><th>{{ 'table.date' | t }}</th><th>{{ 'table.day' | t }}</th><th>{{ 'table.planned_h' | t }}</th><th>{{ 'table.real_h' | t }}</th><th>{{ 'table.mood' | t }}</th></tr></thead>
             <tbody>
               <tr *ngFor="let o of paged(overtime())" [class.row-blocked]="o.actualHours > o.plannedHours + 2 || o.moodScore < 3">
                 <td class="wt-mono">{{ o.date }}</td><td>{{ o.dayLabel }}</td>
                 <td class="wt-num">{{ o.plannedHours }}</td><td class="wt-num">{{ o.actualHours }}</td>
                 <td>{{ moodEmoji(o.moodScore) }}</td>
               </tr>
-              <tr *ngIf="!overtime().length"><td colspan="5" class="wt-muted">Aucune saisie d'heures.</td></tr>
+              <tr *ngIf="!overtime().length"><td colspan="5" class="wt-muted">{{ 'empty.no_hours' | t }}</td></tr>
             </tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: overtime() }"></ng-container>
@@ -583,29 +585,29 @@
           <div *ngFor="let r of paged(retros())" class="wt-retro-card">
             <h4>Sprint {{ r.sprintNumber }}</h4>
             <div class="wt-retro-grid">
-              <div class="wt-retro-col keep"><span>✅ Garder</span><p>{{ r.keepDoing || '—' }}</p></div>
-              <div class="wt-retro-col improve"><span>🔧 Améliorer</span><p>{{ r.improve || '—' }}</p></div>
-              <div class="wt-retro-col start"><span>🚀 Démarrer</span><p>{{ r.startDoing || '—' }}</p></div>
-              <div class="wt-retro-col stop"><span>🛑 Arrêter</span><p>{{ r.stopDoing || '—' }}</p></div>
+              <div class="wt-retro-col keep"><span>{{ 'retro.keep' | t }}</span><p>{{ r.keepDoing || '—' }}</p></div>
+              <div class="wt-retro-col improve"><span>{{ 'retro.improve' | t }}</span><p>{{ r.improve || '—' }}</p></div>
+              <div class="wt-retro-col start"><span>{{ 'retro.start' | t }}</span><p>{{ r.startDoing || '—' }}</p></div>
+              <div class="wt-retro-col stop"><span>{{ 'retro.stop' | t }}</span><p>{{ r.stopDoing || '—' }}</p></div>
             </div>
           </div>
-          <div *ngIf="!retros().length" class="wt-muted">Aucune rétrospective.</div>
+          <div *ngIf="!retros().length" class="wt-muted">{{ 'empty.no_retro' | t }}</div>
           <ng-container *ngTemplateOutlet="pager; context: { list: retros() }"></ng-container>
         </section>
 
         <!-- ── KNOWLEDGE BASE ── -->
         <section *ngIf="activePage() === 'knowledge'" class="wt-generic">
-          <h3 class="wt-sub">🏛 ADR — Décisions d'architecture</h3>
+          <h3 class="wt-sub">{{ 'kb.adr_title' | t }}</h3>
           <div *ngFor="let a of paged(adrs())" class="wt-adr-card">
             <div class="wt-adr-head"><span class="wt-mono">{{ a.adrId }}</span> · {{ a.date }} — <strong>{{ a.decision }}</strong></div>
             <div class="wt-adr-body">{{ a.rationale }}</div>
-            <div class="wt-adr-alt" *ngIf="a.alternativesConsidered">Alternatives : {{ a.alternativesConsidered }}</div>
+            <div class="wt-adr-alt" *ngIf="a.alternativesConsidered">{{ 'kb.alternatives' | t }} : {{ a.alternativesConsidered }}</div>
           </div>
-          <div *ngIf="!adrs().length" class="wt-muted">Aucun ADR.</div>
+          <div *ngIf="!adrs().length" class="wt-muted">{{ 'empty.no_adr' | t }}</div>
           <ng-container *ngTemplateOutlet="pager; context: { list: adrs() }"></ng-container>
-          <h3 class="wt-sub">📖 Glossaire</h3>
+          <h3 class="wt-sub">{{ 'kb.glossary' | t }}</h3>
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>Terme</th><th>Définition</th><th>Contexte</th></tr></thead>
+            <thead><tr><th>{{ 'table.term' | t }}</th><th>{{ 'table.definition' | t }}</th><th>{{ 'table.context' | t }}</th></tr></thead>
             <tbody><tr *ngFor="let g of paged(glossary())"><td><strong>{{ g.term }}</strong></td><td>{{ g.definition }}</td><td>{{ g.context }}</td></tr></tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: glossary() }"></ng-container>
@@ -613,7 +615,7 @@
 
         <!-- ── CFD & VELOCITY ── -->
         <section *ngIf="activePage() === 'cfd-velocity'" class="wt-generic">
-          <h3 class="wt-sub">📊 Cumulative Flow (par sprint)</h3>
+          <h3 class="wt-sub">{{ 'cfd.title' | t }}</h3>
           <div class="wt-bars">
             <div *ngFor="let c of cfd()" class="wt-bar-col">
               <div class="wt-cfd-stack" [title]="c.sprint">
@@ -626,9 +628,9 @@
               <div class="wt-bar-label">{{ c.sprint }}</div>
             </div>
           </div>
-          <h3 class="wt-sub">🏃 Velocity — Engagé vs Réalisé (SP)</h3>
+          <h3 class="wt-sub">{{ 'cfd.velocity' | t }}</h3>
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>Sprint</th><th>Engagé SP</th><th>Réalisé SP</th><th>% Réussite</th><th>Carry-over</th></tr></thead>
+            <thead><tr><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.committed_sp' | t }}</th><th>{{ 'table.done_sp' | t }}</th><th>{{ 'table.success_pct' | t }}</th><th>{{ 'table.carryover' | t }}</th></tr></thead>
             <tbody><tr *ngFor="let v of paged(velocity())">
               <td>{{ v.sprint }}</td><td class="wt-num">{{ v.committedPoints }}</td><td class="wt-num">{{ v.donePoints }}</td>
               <td class="wt-num">{{ v.successRate }}%</td><td class="wt-num">{{ v.carryOver }}</td>
@@ -640,11 +642,11 @@
         <!-- ── DÉPENDANCES ── -->
         <section *ngIf="activePage() === 'dependances'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>Ticket</th><th>Titre</th><th>Dépend de</th><th>Statut dép.</th><th>Risque</th></tr></thead>
+            <thead><tr><th>{{ 'table.ticket' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.depends_on' | t }}</th><th>{{ 'table.dep_status' | t }}</th><th>{{ 'table.risk' | t }}</th></tr></thead>
             <tbody>
               <tr *ngFor="let d of paged(deps())"><td class="wt-mono">{{ d.ticketA }}</td><td class="wt-title-cell">{{ d.titleA }}</td>
                 <td class="wt-mono">{{ d.dependsOn }}</td><td>{{ d.statusB }}</td><td>{{ d.risk }}</td></tr>
-              <tr *ngIf="!deps().length"><td colspan="5" class="wt-muted">Aucune dépendance déclarée.</td></tr>
+              <tr *ngIf="!deps().length"><td colspan="5" class="wt-muted">{{ 'empty.no_dep_declared' | t }}</td></tr>
             </tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: deps() }"></ng-container>
@@ -662,7 +664,7 @@
         </section>
         <section *ngIf="activePage() === 'vue-reviewer'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>ID</th><th>Titre</th><th>Sprint</th><th>Statut</th><th>PR/Notes</th><th>Verdict</th></tr></thead>
+            <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.status' | t }}</th><th>{{ 'table.pr_notes' | t }}</th><th>{{ 'table.verdict' | t }}</th></tr></thead>
             <tbody><tr *ngFor="let t of paged(tickets())">
               <td class="wt-mono">{{ t.ticketId }}</td><td class="wt-title-cell">{{ t.title }}</td><td>{{ t.sprint }}</td>
               <td><span class="wt-status" [attr.data-st]="statusKey(t.status)">{{ t.status }}</span></td>
@@ -675,7 +677,7 @@
         <!-- ── VUE PAR SPRINT / SPRINT REVIEW / SPRINT PLANNING ── -->
         <section *ngIf="activePage() === 'vue-sprint'" class="wt-generic">
           <div *ngFor="let grp of ticketsBySprint()" class="wt-sprint-group">
-            <h4 class="wt-sub">{{ grp.sprint }} <span class="wt-muted">({{ grp.tickets.length }} quêtes)</span></h4>
+            <h4 class="wt-sub">{{ grp.sprint }} <span class="wt-muted">({{ grp.tickets.length }} {{ 'common.quests' | t }})</span></h4>
             <div *ngFor="let t of grp.tickets" class="wt-mini-row">
               <span class="wt-mini-id">{{ t.ticketId }}</span><span class="wt-mini-title">{{ t.title }}</span>
               <span class="wt-status" [attr.data-st]="statusKey(t.status)">{{ t.status }}</span>
@@ -684,7 +686,7 @@
         </section>
         <section *ngIf="activePage() === 'sprint-review'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>Sprint</th><th>Période</th><th>Goal</th><th>Capacité(h)</th></tr></thead>
+            <thead><tr><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.period' | t }}</th><th>{{ 'table.goal' | t }}</th><th>{{ 'table.capacity_h' | t }}</th></tr></thead>
             <tbody><tr *ngFor="let s of paged(sprints())"><td>Sprint {{ s.number }}</td><td>{{ s.startDate }} → {{ s.endDate }}</td>
               <td>{{ s.goal }}</td><td class="wt-num">{{ s.capacityHours }}</td></tr></tbody>
           </table></div>
@@ -692,29 +694,29 @@
         </section>
         <section *ngIf="activePage() === 'sprint-planning'" class="wt-generic">
           <div class="wt-plan-head">
-            <label>Sprint :</label>
+            <label>{{ 'plan.sprint' | t }}</label>
             <select [ngModel]="sprintFilter()" (ngModelChange)="sprintFilter.set($event); currentPage.set(0)">
-              <option value="">Tous</option>
+              <option value="">{{ 'plan.all' | t }}</option>
               <option *ngFor="let s of sprints()" [value]="'Sprint ' + s.number">Sprint {{ s.number }}</option>
             </select>
           </div>
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>ID</th><th>Titre</th><th>Priorité</th><th>Est.(h)</th><th>SP</th></tr></thead>
+            <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.priority' | t }}</th><th>{{ 'table.est_h' | t }}</th><th>{{ 'table.sp' | t }}</th></tr></thead>
             <tbody><tr *ngFor="let t of paged(planTickets())"><td class="wt-mono">{{ t.ticketId }}</td><td class="wt-title-cell">{{ t.title }}</td>
               <td><span class="wt-chip" [attr.data-pri]="t.priority">{{ t.priority }}</span></td>
               <td class="wt-num">{{ t.estimationHours }}</td><td class="wt-num">{{ t.storyPoints }}</td></tr></tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: planTickets() }"></ng-container>
-          <div class="wt-plan-total">Total : {{ planTotalHours() }}h · {{ planTickets().length }} quêtes</div>
+          <div class="wt-plan-total">{{ 'plan.total_h_quests' | t:{ h: planTotalHours(), n: planTickets().length } }}</div>
         </section>
 
         <!-- ── CALENDRIER ── -->
         <section *ngIf="activePage() === 'calendrier'" class="wt-calendar">
-          <div *ngIf="!calendarMonths().length" class="wt-muted">Aucune date planifiée.</div>
+          <div *ngIf="!calendarMonths().length" class="wt-muted">{{ 'empty.no_date_planned' | t }}</div>
           <div *ngFor="let m of calendarMonths()" class="wt-cal-month">
             <h3 class="wt-cal-month-title">{{ m.label }}</h3>
             <div class="wt-cal-grid">
-              <div class="wt-cal-dow" *ngFor="let d of ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']">{{ d }}</div>
+              <div class="wt-cal-dow" *ngFor="let d of weekdays()">{{ d }}</div>
               <div *ngFor="let cell of m.cells"
                    class="wt-cal-cell"
                    [class.empty]="!cell.day"
@@ -742,7 +744,7 @@
         <!-- ── DoD / DoR (depuis Excel, coches persistées) ── -->
         <section *ngIf="activePage() === 'dod' || activePage() === 'dor'" class="wt-generic">
           <div class="wt-check-progress" *ngIf="dodDorList().length">
-            {{ dodDorDone() }}/{{ dodDorList().length }} critères validés
+            {{ 'checks.criteria_done' | t:{ done: dodDorDone(), total: dodDorList().length } }}
             <div class="wt-progress"><div class="wt-progress-fill" [style.width.%]="dodDorList().length ? dodDorDone()*100/dodDorList().length : 0"></div></div>
           </div>
           <div *ngFor="let grp of dodDorBySection()" class="wt-check-section">
@@ -753,13 +755,13 @@
               <span class="wt-check-desc">{{ c.label }}</span>
             </label>
           </div>
-          <div *ngIf="!dodDorList().length" class="wt-muted">Aucun critère importé — ré-importe l'Excel.</div>
+          <div *ngIf="!dodDorList().length" class="wt-muted">{{ 'empty.no_dod_imported' | t }}</div>
         </section>
 
         <!-- ── CHECK-UP LANCEMENT (depuis Excel, coches persistées) ── -->
         <section *ngIf="activePage() === 'checkup'" class="wt-generic">
           <div class="wt-check-progress" *ngIf="checklistList().length">
-            {{ checklistDone() }}/{{ checklistList().length }} actions faites
+            {{ 'checks.actions_done' | t:{ done: checklistDone(), total: checklistList().length } }}
             <div class="wt-progress"><div class="wt-progress-fill" [style.width.%]="checklistList().length ? checklistDone()*100/checklistList().length : 0"></div></div>
           </div>
           <div *ngFor="let grp of checklistBySection()" class="wt-check-section">
@@ -770,7 +772,7 @@
               <span class="wt-check-desc">{{ c.description }}</span>
             </label>
           </div>
-          <div *ngIf="!checklistList().length" class="wt-muted">Aucune action importée — ré-importe l'Excel.</div>
+          <div *ngIf="!checklistList().length" class="wt-muted">{{ 'empty.no_checklist_imported' | t }}</div>
         </section>
 
         <!-- ── TEMPLATES TICKETS ── -->
@@ -786,14 +788,14 @@
         <!-- ── PARAMÈTRES ── -->
         <section *ngIf="activePage() === 'parametres'" class="wt-generic">
           <div class="wt-param-grid" *ngIf="currentProject() as p">
-            <div class="wt-param"><span>Code</span><strong>{{ p.code }}</strong></div>
-            <div class="wt-param"><span>Nom</span><strong>{{ p.name }}</strong></div>
-            <div class="wt-param"><span>Product Goal</span><strong>{{ p.productGoal || '—' }}</strong></div>
-            <div class="wt-param"><span>Date début</span><strong>{{ p.startDate || '—' }}</strong></div>
-            <div class="wt-param"><span>Date fin</span><strong>{{ p.endDate || '—' }}</strong></div>
-            <div class="wt-param"><span>Heures / jour</span><strong>{{ p.hoursPerDay }}</strong></div>
-            <div class="wt-param"><span>Jours / sprint</span><strong>{{ p.daysPerSprint }}</strong></div>
-            <div class="wt-param"><span>Capacité sprint (h)</span><strong>{{ p.sprintCapacityHours }}</strong></div>
+            <div class="wt-param"><span>{{ 'params.code' | t }}</span><strong>{{ p.code }}</strong></div>
+            <div class="wt-param"><span>{{ 'params.name' | t }}</span><strong>{{ p.name }}</strong></div>
+            <div class="wt-param"><span>{{ 'params.product_goal' | t }}</span><strong>{{ p.productGoal || '—' }}</strong></div>
+            <div class="wt-param"><span>{{ 'params.start_date' | t }}</span><strong>{{ p.startDate || '—' }}</strong></div>
+            <div class="wt-param"><span>{{ 'params.end_date' | t }}</span><strong>{{ p.endDate || '—' }}</strong></div>
+            <div class="wt-param"><span>{{ 'params.h_per_day' | t }}</span><strong>{{ p.hoursPerDay }}</strong></div>
+            <div class="wt-param"><span>{{ 'params.d_per_sprint' | t }}</span><strong>{{ p.daysPerSprint }}</strong></div>
+            <div class="wt-param"><span>{{ 'params.sprint_capacity_h' | t }}</span><strong>{{ p.sprintCapacityHours }}</strong></div>
           </div>
         </section>
 
@@ -805,15 +807,15 @@
               <div class="wt-sh-info"><div class="wt-sh-name">{{ s.name }}</div><div class="wt-sh-role">{{ s.role }}</div></div>
               <div class="wt-sh-score" *ngIf="avgScore(s.id) as sc" [style.color]="scoreColor(sc)">{{ sc }}<small>/10</small></div>
             </div>
-            <div *ngIf="!stakeholdersList().length" class="wt-muted">Aucun stakeholder importé.</div>
+            <div *ngIf="!stakeholdersList().length" class="wt-muted">{{ 'empty.no_stakeholder_imported' | t }}</div>
           </div>
           <ng-container *ngTemplateOutlet="pager; context: { list: stakeholdersList() }"></ng-container>
-          <h3 class="wt-sub" *ngIf="stakeholderFb().length">😊 Satisfaction par sprint</h3>
+          <h3 class="wt-sub" *ngIf="stakeholderFb().length">{{ 'stakeholder.title_sat' | t }}</h3>
           <div class="wt-table-wrap" *ngIf="stakeholderFb().length"><table class="wt-table">
-            <thead><tr><th>Stakeholder</th><th>Sprint</th><th>Note</th><th>Commentaire</th><th>Action</th></tr></thead>
+            <thead><tr><th>{{ 'table.stakeholder' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.note' | t }}</th><th>{{ 'table.comment' | t }}</th><th>{{ 'table.action' | t }}</th></tr></thead>
             <tbody>
               <tr *ngFor="let f of paged(stakeholderFb())">
-                <td>{{ stakeholderName(f.stakeholderId) }}</td><td>Sprint {{ f.sprintNumber }}</td>
+                <td>{{ stakeholderName(f.stakeholderId) }}</td><td>{{ 'table.sprint' | t }} {{ f.sprintNumber }}</td>
                 <td><span class="wt-score" [style.color]="scoreColor(f.score)">{{ f.score ?? '—' }}</span></td>
                 <td>{{ f.comment || '—' }}</td><td>{{ f.actionNeeded || '—' }}</td>
               </tr>
@@ -834,40 +836,40 @@
               </div>
             </div>
             <div class="wt-hero-chips">
-              <div class="wt-stat-chip ok"><span class="wt-chip-ico">✓</span><span class="wt-chip-val">{{ d.done }}</span><span class="wt-chip-lbl">livrées</span></div>
-              <div class="wt-stat-chip"><span class="wt-chip-ico">📋</span><span class="wt-chip-val">{{ d.totalTickets }}</span><span class="wt-chip-lbl">quêtes</span></div>
-              <div class="wt-stat-chip late" *ngIf="d.blocked"><span class="wt-chip-ico">🛑</span><span class="wt-chip-val">{{ d.blocked }}</span><span class="wt-chip-lbl">bloquées</span></div>
+              <div class="wt-stat-chip ok"><span class="wt-chip-ico">✓</span><span class="wt-chip-val">{{ d.done }}</span><span class="wt-chip-lbl">{{ 'stakeholder.delivered' | t }}</span></div>
+              <div class="wt-stat-chip"><span class="wt-chip-ico">📋</span><span class="wt-chip-val">{{ d.totalTickets }}</span><span class="wt-chip-lbl">{{ 'common.quests' | t }}</span></div>
+              <div class="wt-stat-chip late" *ngIf="d.blocked"><span class="wt-chip-ico">🛑</span><span class="wt-chip-val">{{ d.blocked }}</span><span class="wt-chip-lbl">{{ 'stakeholder.blocked' | t }}</span></div>
             </div>
           </div>
           <div class="wt-dash-cols" *ngIf="dash() as d">
             <div class="wt-panel">
-              <h3>📦 Prochaines livraisons</h3>
+              <h3>{{ 'stakeholder.next_deliveries' | t }}</h3>
               <div *ngFor="let t of d.nextDeliveries" class="wt-mini-row">
                 <span class="wt-mini-id">{{ t.ticketId }}</span><span class="wt-mini-title">{{ t.title }}</span><span class="wt-mini-date">{{ t.deliveryDate }}</span>
               </div>
               <div *ngIf="!d.nextDeliveries?.length" class="wt-muted">—</div>
             </div>
             <div class="wt-panel">
-              <h3>🎯 Objectifs de sprint</h3>
+              <h3>{{ 'stakeholder.sprint_goals' | t }}</h3>
               <div *ngFor="let s of sprints()" class="wt-mini-row">
                 <span class="wt-mini-id">S{{ s.number }}</span><span class="wt-mini-title">{{ s.goal || '—' }}</span>
               </div>
             </div>
           </div>
-          <button class="wt-btn-export" (click)="printExport()">🖨 Exporter cette vue (PDF)</button>
+          <button class="wt-btn-export" (click)="printExport()">{{ 'stakeholder.export_pdf' | t }}</button>
         </section>
         <section *ngIf="activePage() === 'export-stakeholder'" class="wt-generic">
           <div class="wt-panel">
-            <h3>📤 Export Stakeholder</h3>
-            <p class="wt-muted">Génère un rapport exécutif print-friendly.</p>
-            <button class="wt-btn-import" (click)="printExport()">🖨 Imprimer / PDF</button>
+            <h3>{{ 'stakeholder.export_title' | t }}</h3>
+            <p class="wt-muted">{{ 'stakeholder.export_desc' | t }}</p>
+            <button class="wt-btn-import" (click)="printExport()">{{ 'stakeholder.print' | t }}</button>
           </div>
         </section>
 
         <!-- ── ALLOCATION / CHARGE ── -->
         <section *ngIf="activePage() === 'allocation' || activePage() === 'charge'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>Phase</th><th>Jours prévus</th><th>Jours consommés</th><th>Reste</th></tr></thead>
+            <thead><tr><th>{{ 'table.phase' | t }}</th><th>{{ 'table.planned_d' | t }}</th><th>{{ 'table.consumed_days' | t }}</th><th>{{ 'table.rest' | t }}</th></tr></thead>
             <tbody><tr *ngFor="let ph of paged(phases())"><td>{{ ph.name }}</td><td class="wt-num">{{ ph.plannedDays }}</td>
               <td class="wt-num">{{ ph.consumedDays }}</td><td class="wt-num">{{ ph.plannedDays - ph.consumedDays }}</td></tr></tbody>
           </table></div>
@@ -877,19 +879,19 @@
         <!-- ── DASHBOARD PARAMÉTRÉ : KPIs + recherche/filtre tickets ── -->
         <section *ngIf="activePage() === 'dashboard-param'" class="wt-dash">
           <div class="wt-kpi-grid" *ngIf="dash() as d" style="grid-template-columns:repeat(5,1fr)">
-            <div class="wt-kpi"><div class="wt-kpi-label">Avancement</div><div class="wt-kpi-value">{{ d.progressPercent }}%</div></div>
-            <div class="wt-kpi"><div class="wt-kpi-label">Throughput</div><div class="wt-kpi-value">{{ d.throughputPerSprint }}</div></div>
-            <div class="wt-kpi"><div class="wt-kpi-label">Cycle Time</div><div class="wt-kpi-value">{{ d.avgCycleTimeDays ?? '—' }}<small>j</small></div></div>
-            <div class="wt-kpi"><div class="wt-kpi-label">Lead Time</div><div class="wt-kpi-value">{{ d.avgLeadTimeDays ?? '—' }}<small>j</small></div></div>
+            <div class="wt-kpi"><div class="wt-kpi-label">{{ 'dash.tag_progress' | t }}</div><div class="wt-kpi-value">{{ d.progressPercent }}%</div></div>
+            <div class="wt-kpi"><div class="wt-kpi-label">{{ 'dash.kpi_throughput' | t }}</div><div class="wt-kpi-value">{{ d.throughputPerSprint }}</div></div>
+            <div class="wt-kpi"><div class="wt-kpi-label">{{ 'dash.kpi_cycle' | t }}</div><div class="wt-kpi-value">{{ d.avgCycleTimeDays ?? '—' }}<small>{{ i18n.lang() === 'fr' ? 'j' : 'd' }}</small></div></div>
+            <div class="wt-kpi"><div class="wt-kpi-label">{{ 'dash.kpi_lead' | t }}</div><div class="wt-kpi-value">{{ d.avgLeadTimeDays ?? '—' }}<small>{{ i18n.lang() === 'fr' ? 'j' : 'd' }}</small></div></div>
             <div class="wt-kpi"><div class="wt-kpi-label">Aging WIP</div><div class="wt-kpi-value" [class.late]="d.agingWip>0">{{ d.agingWip }}</div></div>
           </div>
           <div class="wt-table-tools">
-            <input class="wt-filter" placeholder="🔍 Rechercher un ticket (titre/ID)…" [(ngModel)]="ticketFilter" (ngModelChange)="currentPage.set(0)"/>
-            <span class="wt-count">{{ filteredTickets().length }} résultats</span>
+            <input class="wt-filter" [placeholder]="'filter.ticket_search' | t" [(ngModel)]="ticketFilter" (ngModelChange)="currentPage.set(0)"/>
+            <span class="wt-count">{{ filteredTickets().length }} {{ 'common.results' | t }}</span>
           </div>
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>ID</th><th>Titre</th><th>Sprint</th><th>Statut</th><th>SP</th><th>Avanc.</th><th>Livraison</th></tr></thead>
+              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.status' | t }}</th><th>{{ 'table.sp' | t }}</th><th>{{ 'table.progress' | t }}</th><th>{{ 'table.delivery' | t }}</th></tr></thead>
               <tbody>
                 <tr *ngFor="let t of paged(filteredTickets())" [class]="rowClass(t)">
                   <td class="wt-mono">{{ t.ticketId }}</td><td class="wt-title-cell">{{ t.title }}</td><td>{{ t.sprint }}</td>
@@ -905,18 +907,18 @@
         <!-- ── DASHBOARD (legacy) : répartition par statut ── -->
         <section *ngIf="activePage() === 'dashboard-legacy'" class="wt-dash">
           <div class="wt-panel" *ngIf="dash() as d">
-            <h3>📈 Répartition des quêtes par statut</h3>
+            <h3>{{ 'dashleg.title' | t }}</h3>
             <div class="wt-statbars">
-              <div class="wt-statbar-row"><span class="wt-statbar-lbl">✓ Terminé</span><div class="wt-statbar"><div class="wt-statbar-fill ok" [style.width.%]="d.totalTickets ? d.done*100/d.totalTickets : 0"></div></div><span class="wt-statbar-n">{{ d.done }}</span></div>
-              <div class="wt-statbar-row"><span class="wt-statbar-lbl">⚡ En cours</span><div class="wt-statbar"><div class="wt-statbar-fill wip" [style.width.%]="d.totalTickets ? d.inProgress*100/d.totalTickets : 0"></div></div><span class="wt-statbar-n">{{ d.inProgress }}</span></div>
-              <div class="wt-statbar-row"><span class="wt-statbar-lbl">👁 En revue</span><div class="wt-statbar"><div class="wt-statbar-fill rev" [style.width.%]="d.totalTickets ? d.review*100/d.totalTickets : 0"></div></div><span class="wt-statbar-n">{{ d.review }}</span></div>
-              <div class="wt-statbar-row"><span class="wt-statbar-lbl">○ À faire</span><div class="wt-statbar"><div class="wt-statbar-fill todo" [style.width.%]="d.totalTickets ? d.todo*100/d.totalTickets : 0"></div></div><span class="wt-statbar-n">{{ d.todo }}</span></div>
-              <div class="wt-statbar-row"><span class="wt-statbar-lbl">🛑 Bloqué</span><div class="wt-statbar"><div class="wt-statbar-fill late" [style.width.%]="d.totalTickets ? d.blocked*100/d.totalTickets : 0"></div></div><span class="wt-statbar-n">{{ d.blocked }}</span></div>
+              <div class="wt-statbar-row"><span class="wt-statbar-lbl">{{ 'dashleg.done' | t }}</span><div class="wt-statbar"><div class="wt-statbar-fill ok" [style.width.%]="d.totalTickets ? d.done*100/d.totalTickets : 0"></div></div><span class="wt-statbar-n">{{ d.done }}</span></div>
+              <div class="wt-statbar-row"><span class="wt-statbar-lbl">{{ 'dashleg.wip' | t }}</span><div class="wt-statbar"><div class="wt-statbar-fill wip" [style.width.%]="d.totalTickets ? d.inProgress*100/d.totalTickets : 0"></div></div><span class="wt-statbar-n">{{ d.inProgress }}</span></div>
+              <div class="wt-statbar-row"><span class="wt-statbar-lbl">{{ 'dashleg.review' | t }}</span><div class="wt-statbar"><div class="wt-statbar-fill rev" [style.width.%]="d.totalTickets ? d.review*100/d.totalTickets : 0"></div></div><span class="wt-statbar-n">{{ d.review }}</span></div>
+              <div class="wt-statbar-row"><span class="wt-statbar-lbl">{{ 'dashleg.todo' | t }}</span><div class="wt-statbar"><div class="wt-statbar-fill todo" [style.width.%]="d.totalTickets ? d.todo*100/d.totalTickets : 0"></div></div><span class="wt-statbar-n">{{ d.todo }}</span></div>
+              <div class="wt-statbar-row"><span class="wt-statbar-lbl">{{ 'dashleg.blocked' | t }}</span><div class="wt-statbar"><div class="wt-statbar-fill late" [style.width.%]="d.totalTickets ? d.blocked*100/d.totalTickets : 0"></div></div><span class="wt-statbar-n">{{ d.blocked }}</span></div>
             </div>
             <div class="wt-legacy-totals">
-              <span>Total : <b>{{ d.totalTickets }}</b> quêtes</span>
-              <span>Heures : <b>{{ d.spentHours }}</b>/{{ d.estimatedHours }}h</span>
-              <span>Reste : <b>{{ d.remainingHours }}</b>h</span>
+              <span>{{ 'dashleg.total' | t }} <b>{{ d.totalTickets }}</b> {{ 'dashleg.quests_word' | t }}</span>
+              <span>{{ 'dashleg.hours' | t }} <b>{{ d.spentHours }}</b>/{{ d.estimatedHours }}h</span>
+              <span>{{ 'dashleg.rest' | t }} <b>{{ d.remainingHours }}</b>h</span>
             </div>
           </div>
         </section>
@@ -925,7 +927,7 @@
         <section *ngIf="activePage() === 'daily'" class="wt-generic">
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>Date</th><th>Sprint</th><th>⬅ Hier</th><th>➡ Aujourd'hui</th><th>🛑 Bloqueurs</th></tr></thead>
+              <thead><tr><th>{{ 'table.date' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.yesterday' | t }}</th><th>{{ 'table.today' | t }}</th><th>{{ 'table.blockers' | t }}</th></tr></thead>
               <tbody>
                 <tr *ngFor="let s of paged(standupsList())" [class.wt-row-today]="isToday(s.date)">
                   <td class="wt-mono">{{ s.date }}</td>
@@ -934,7 +936,7 @@
                   <td><input class="wt-cell-input" [value]="s.today || ''" readonly/></td>
                   <td><input class="wt-cell-input" [value]="s.blockers || ''" readonly/></td>
                 </tr>
-                <tr *ngIf="!standupsList().length"><td colspan="5" class="wt-muted">Aucun daily importé.</td></tr>
+                <tr *ngIf="!standupsList().length"><td colspan="5" class="wt-muted">{{ 'empty.no_daily_imported' | t }}</td></tr>
               </tbody>
             </table>
           </div>
@@ -960,7 +962,7 @@
         <ng-template #fallbackAv><div class="wt-skin-avatar-fb"></div></ng-template>
       </div>
     </div>
-    <div class="wt-skin-username">{{ user()?.githubLogin || 'Guest' }}</div>
+    <div class="wt-skin-username">{{ user()?.githubLogin || ('common.guest' | t) }}</div>
 
     <!-- KPI tiles V / T / C / L -->
     <button *ngFor="let s of kpiTiles(); let i = index"
@@ -990,17 +992,17 @@
   <!-- ═══ TEMPLATE PARTAGÉ : pager réutilisable pour tous les tableaux ═══ -->
   <ng-template #pager let-list="list">
     <div class="wt-pager" *ngIf="(list?.length || 0) > pageSize()">
-      <button class="wt-pager-btn" (click)="goToPage(0, list)" [disabled]="currentPage() === 0" title="Première page">«</button>
+      <button class="wt-pager-btn" (click)="goToPage(0, list)" [disabled]="currentPage() === 0" [title]="'pager.first' | t">«</button>
       <button class="wt-pager-btn" (click)="goToPage(currentPage() - 1, list)" [disabled]="currentPage() === 0">‹</button>
-      <span class="wt-pager-info">Page {{ currentPage() + 1 }}/{{ totalPages(list) }} · {{ pageRange(list) }}</span>
+      <span class="wt-pager-info">{{ 'pager.page_of' | t:{ n: currentPage() + 1, total: totalPages(list) } }} · {{ pageRange(list) }}</span>
       <button class="wt-pager-btn" (click)="goToPage(currentPage() + 1, list)" [disabled]="currentPage() >= totalPages(list) - 1">›</button>
       <button class="wt-pager-btn" (click)="goToPage(totalPages(list) - 1, list)" [disabled]="currentPage() >= totalPages(list) - 1">»</button>
       <select class="wt-pager-size" [ngModel]="pageSize()" (ngModelChange)="pageSize.set(+$event); currentPage.set(0)">
-        <option [ngValue]="10">10 / page</option>
-        <option [ngValue]="15">15 / page</option>
-        <option [ngValue]="25">25 / page</option>
-        <option [ngValue]="50">50 / page</option>
-        <option [ngValue]="100">100 / page</option>
+        <option [ngValue]="10">{{ 'pager.per_page' | t:{ n: 10 } }}</option>
+        <option [ngValue]="15">{{ 'pager.per_page' | t:{ n: 15 } }}</option>
+        <option [ngValue]="25">{{ 'pager.per_page' | t:{ n: 25 } }}</option>
+        <option [ngValue]="50">{{ 'pager.per_page' | t:{ n: 50 } }}</option>
+        <option [ngValue]="100">{{ 'pager.per_page' | t:{ n: 100 } }}</option>
       </select>
     </div>
   </ng-template>
@@ -1009,8 +1011,8 @@
   <div *ngIf="importOpen()" class="wt-modal-backdrop" (click)="importOpen.set(false)">
     <div class="wt-modal" (click)="$event.stopPropagation()">
       <button class="wt-modal-close" (click)="importOpen.set(false)">✕</button>
-      <h2 class="wt-modal-title">⬆ Importer un projet Excel</h2>
-      <p class="wt-modal-sub">Glisse ton classeur <code>.xlsx</code> de pilotage Scrum. WAR TABLE mappe tout en base.</p>
+      <h2 class="wt-modal-title">{{ 'import.title' | t }}</h2>
+      <p class="wt-modal-sub">{{ 'import.subtitle' | t }}</p>
 
       <label class="wt-dropzone" [class.dragging]="dragging()"
              (dragover)="$event.preventDefault(); dragging.set(true)"
@@ -1019,23 +1021,23 @@
         <input type="file" accept=".xlsx,.xlsm" hidden (change)="onFilePick($event)"/>
         <div class="wt-dropzone-inner">
           <div class="wt-dropzone-icon">📊</div>
-          <div *ngIf="!pickedFile()">Clique ou dépose ton fichier ici</div>
+          <div *ngIf="!pickedFile()">{{ 'import.dropzone_idle' | t }}</div>
           <div *ngIf="pickedFile() as f" class="wt-picked">{{ f.name }} · {{ (f.size/1024) | number:'1.0-0' }} Ko</div>
         </div>
       </label>
 
       <button class="wt-btn-major" [disabled]="!pickedFile() || importing()" (click)="doImport()">
-        {{ importing() ? '⟳ Import en cours…' : '⚔ Invoquer le projet' }}
+        {{ importing() ? ('import.running' | t) : ('import.submit' | t) }}
       </button>
 
       <div *ngIf="importError()" class="wt-import-error">⚠ {{ importError() }}</div>
       <div *ngIf="importResult() as r" class="wt-import-result">
-        <div class="wt-import-ok">✓ Import réussi !</div>
+        <div class="wt-import-ok">{{ 'import.ok' | t }}</div>
         <div class="wt-import-stats">
-          <span>{{ r.projects }} projets</span><span>{{ r.tickets }} quêtes</span>
-          <span>{{ r.sprints }} sprints</span><span>{{ r.phases }} phases</span>
-          <span>{{ r.risks }} risques</span><span>{{ r.techDebt }} dettes</span>
-          <span>{{ r.lessons }} lessons</span><span>{{ r.adrs }} ADR</span>
+          <span>{{ 'import.projects' | t:{ n: r.projects } }}</span><span>{{ 'import.tickets_n' | t:{ n: r.tickets } }}</span>
+          <span>{{ 'import.sprints' | t:{ n: r.sprints } }}</span><span>{{ 'import.phases' | t:{ n: r.phases } }}</span>
+          <span>{{ 'import.risks' | t:{ n: r.risks } }}</span><span>{{ 'import.tech_debt' | t:{ n: r.techDebt } }}</span>
+          <span>{{ 'import.lessons' | t:{ n: r.lessons } }}</span><span>{{ 'import.adrs' | t:{ n: r.adrs } }}</span>
         </div>
         <div *ngFor="let w of r.warnings" class="wt-import-warn">⚠ {{ w }}</div>
       </div>

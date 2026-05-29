@@ -6,6 +6,28 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.3] — 2026-05-30
+
+### Added
+- 🌐 **i18n FR / EN runtime** : système de bascule de langue à chaud, sans reload
+- `I18nService` signal-based avec persistance `localStorage` (`wt_lang`) + auto-détection navigator
+- `TranslatePipe` impur (`{{ 'cle.path' | t }}`) avec interpolation `{n}` params
+- `LangSwitcherComponent` : pill toggle 🇫🇷 FR / 🇬🇧 EN dans le topbar
+- 2 dictionnaires JSON complets `assets/i18n/{fr,en}.json` couvrant : sidebar, topbar, 42 pages, 15 catégories, colonnes de tables, modals, splash, empty states, KPI tiles
+- Méthodes `pageLabel(p)` + `catLabel(c)` + `weekdays()` réactives au signal `lang`
+
+### Changed
+- `navLabels` et `catsSkin` passés en `computed()` (réactifs au switch FR/EN)
+- `kpiTiles.tip` traduit (Vélocité / Velocity, Cycle Time, etc.)
+- Tous les `<th>` des tableaux, `<placeholder>`, `<title>`, et empty states branchés sur `| t`
+- Jours du calendrier (Lun/Mar... ↔ Mon/Tue...) basculent avec la langue
+- `<html lang>` mis à jour automatiquement à chaque switch
+
+### Fixed
+- Plus aucune chaîne dure FR dans le shell — bascule EN instantanée et complète
+
+---
+
 ## [1.0.2] — 2026-05-30
 
 ### Added
