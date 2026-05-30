@@ -109,6 +109,94 @@ export class WarTableComponent implements OnInit {
   // ═══ YAMZY COMPANION v1.0.17 — Avatar 3D animé fixé sur la gauche, présent partout ═══
   // (Guide panel retiré sur demande utilisateur — juste le gros avatar avec toutes les anims)
 
+  // ═══ YAMZY POSITION EDITOR v1.0.25 — Drag + Copy CSS coords ═══
+  // Permet à l'utilisateur de positionner avatar + carousel manuellement
+  // puis de copier les coords pour les communiquer à Claude.
+  // Defaults rapprochés : carousel à 380 au lieu de 440 (plus proche de l'avatar)
+  fabLeft = signal(100);
+  fabBottom = signal(20);
+  fabSize = signal(320);
+  ycLeft = signal(380);    // était 440 — rapproché de 60px
+  ycBottom = signal(50);
+  ycWidth = signal(360);   // était 380 — légèrement réduit pour rapprochement visuel
+  positionMode = signal(false);
+  togglePositionMode(): void { this.positionMode.update(v => !v); }
+
+  private dragTarget: 'fab' | 'yc' | null = null;
+  private dragStart = { x: 0, y: 0, origLeft: 0, origBottom: 0 };
+
+  startDrag(target: 'fab' | 'yc', ev: MouseEvent): void {
+    if (!this.positionMode()) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    this.dragTarget = target;
+    this.dragStart = {
+      x: ev.clientX,
+      y: ev.clientY,
+      origLeft: target === 'fab' ? this.fabLeft() : this.ycLeft(),
+      origBottom: target === 'fab' ? this.fabBottom() : this.ycBottom(),
+    };
+    document.addEventListener('mousemove', this.onDragMove);
+    document.addEventListener('mouseup', this.onDragEnd);
+  }
+  private onDragMove = (ev: MouseEvent) => {
+    if (!this.dragTarget) return;
+    const dx = ev.clientX - this.dragStart.x;
+    const dy = ev.clientY - this.dragStart.y;
+    const newLeft = Math.max(0, this.dragStart.origLeft + dx);
+    const newBottom = Math.max(0, this.dragStart.origBottom - dy); // axe Y inversé
+    if (this.dragTarget === 'fab') {
+      this.fabLeft.set(Math.round(newLeft));
+      this.fabBottom.set(Math.round(newBottom));
+    } else {
+      this.ycLeft.set(Math.round(newLeft));
+      this.ycBottom.set(Math.round(newBottom));
+    }
+  };
+  private onDragEnd = () => {
+    this.dragTarget = null;
+    document.removeEventListener('mousemove', this.onDragMove);
+    document.removeEventListener('mouseup', this.onDragEnd);
+  };
+
+  async copyYamzyPositions(): Promise<void> {
+    const css =
+      `.wt-yamzy-fab { left: ${this.fabLeft()}px; bottom: ${this.fabBottom()}px; width: ${this.fabSize()}px; height: ${this.fabSize()}px; }\n` +
+      `.wt-yc { left: ${this.ycLeft()}px; bottom: ${this.ycBottom()}px; width: ${this.ycWidth()}px; }`;
+    try {
+      await navigator.clipboard.writeText(css);
+      await this.dialog.alert({
+        title: '📋 Coordonnées copiées',
+        message: 'Le CSS est dans ton presse-papier. Colle-le dans le chat avec Claude pour qu\'il fixe la position.',
+        kind: 'success',
+        details: [
+          { label: 'YAMZY left',       value: this.fabLeft() + 'px' },
+          { label: 'YAMZY bottom',     value: this.fabBottom() + 'px' },
+          { label: 'YAMZY size',       value: this.fabSize() + 'px' },
+          { label: 'Carousel left',    value: this.ycLeft() + 'px' },
+          { label: 'Carousel bottom',  value: this.ycBottom() + 'px' },
+          { label: 'Carousel width',   value: this.ycWidth() + 'px' },
+        ],
+      });
+    } catch (e) {
+      // Fallback : afficher quand même les coords si le clipboard fail
+      await this.dialog.alert({
+        title: 'Coordonnées (copie manuelle)',
+        message: css,
+        kind: 'info'
+      });
+    }
+  }
+
+  resetYamzyPositions(): void {
+    this.fabLeft.set(100);
+    this.fabBottom.set(20);
+    this.fabSize.set(320);
+    this.ycLeft.set(380);
+    this.ycBottom.set(50);
+    this.ycWidth.set(360);
+  }
+
   // ═══ YAMZY CAROUSEL v1.0.23 — Carrousel 3D vertical à côté de l'avatar ═══
   // Inspiré du Team Carousel codepen : center/up-1/up-2/down-1/down-2/hidden
   // Affiche les "messages" que Yamzy lance : événements, alertes, tickets prio

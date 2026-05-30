@@ -3217,16 +3217,205 @@ body { background: #0a0820 !important; }
 
 .wt-yamzy-fab {
   position: fixed;
-  /* v1.0.23 : z-index astronomique pour battre tous les stacking contexts */
+  /* v1.0.25 : defaults via inline style, draggable en mode position */
   bottom: 20px;
   left: 100px;
   width: 320px;
   height: 320px;
-  z-index: 99999;       /* au-dessus de tout, modals incluses */
-  isolation: isolate;   /* nouveau stacking context propre */
-  pointer-events: none;
+  z-index: 99999;
+  isolation: isolate;
+  pointer-events: none; /* défaut décoratif */
   filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.45))
           drop-shadow(0 0 22px rgba(217, 154, 81, 0.20));
+}
+/* v1.0.25 : mode édition — drag activé + outline visuel */
+.wt-yamzy-fab.is-edit {
+  pointer-events: auto !important;
+  cursor: move !important;
+  outline: 2px dashed #d99a51;
+  outline-offset: -10px;
+  border-radius: 18px;
+}
+.wt-yamzy-fab.is-edit::after {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(217, 154, 81, 0.35);
+  border-radius: 12px;
+  background: rgba(217, 154, 81, 0.06);
+  pointer-events: none;
+}
+.wt-pos-label {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d99a51;
+  color: #1d172e;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 100000;
+}
+
+/* Bouton toggle mode position — toujours visible bottom-right */
+.wt-pos-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(217, 154, 81, 0.45);
+  background: rgba(46, 35, 84, 0.92);
+  color: #d99a51;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+.wt-pos-toggle:hover {
+  background: #d99a51;
+  color: #1d172e;
+  transform: scale(1.08);
+}
+.wt-pos-toggle.is-on {
+  background: #d99a51;
+  color: #1d172e;
+  box-shadow: 0 0 24px rgba(217, 154, 81, 0.65);
+}
+
+/* Panel de contrôle position */
+.wt-pos-panel {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  width: 320px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(46, 35, 84, 0.96), rgba(29, 23, 46, 0.98));
+  border: 1px solid rgba(217, 154, 81, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  z-index: 99999;
+  color: #ece6ff;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 12px;
+  backdrop-filter: blur(12px);
+}
+.wt-pos-panel-head {
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #d99a51;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(217, 154, 81, 0.25);
+}
+.wt-pos-panel-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 11px;
+}
+.wt-pos-lbl {
+  color: #d99a51;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.wt-pos-val {
+  font-family: monospace;
+  color: rgba(236, 230, 255, 0.85);
+  font-size: 11px;
+}
+.wt-pos-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+  padding: 10px 0;
+  border-top: 1px solid rgba(217, 154, 81, 0.18);
+  border-bottom: 1px solid rgba(217, 154, 81, 0.18);
+}
+.wt-pos-sliders label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(236, 230, 255, 0.75);
+}
+.wt-pos-sliders input[type="range"] {
+  flex: 1;
+  accent-color: #d99a51;
+}
+.wt-pos-sliders label span {
+  font-family: monospace;
+  color: #d99a51;
+  min-width: 42px;
+  text-align: right;
+  font-size: 10px;
+}
+.wt-pos-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.wt-pos-btn-major,
+.wt-pos-btn {
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(217, 154, 81, 0.45);
+  background: rgba(217, 154, 81, 0.12);
+  color: #d99a51;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.wt-pos-btn-major {
+  background: #d99a51;
+  color: #1d172e;
+  flex: 2;
+}
+.wt-pos-btn { flex: 1; }
+.wt-pos-btn-major:hover {
+  box-shadow: 0 4px 12px rgba(217, 154, 81, 0.5);
+  transform: translateY(-1px);
+}
+.wt-pos-btn:hover { background: #d99a51; color: #1d172e; }
+.wt-pos-hint {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: rgba(217, 154, 81, 0.08);
+  border-left: 2px solid #d99a51;
+  border-radius: 4px;
+  font-size: 10px;
+  color: rgba(236, 230, 255, 0.7);
+  line-height: 1.5;
+  font-style: italic;
+}
+
+/* Carrousel : mode édition aussi */
+.wt-yc.is-edit {
+  pointer-events: auto !important;
+  cursor: move !important;
+  outline: 2px dashed #d99a51;
+  outline-offset: -4px;
+  border-radius: 18px;
 }
 
 .wt-yamzy-fab app-yamzy-avatar-3d {
@@ -3333,13 +3522,13 @@ body { background: #0a0820 !important; }
 
 .wt-yc {
   position: fixed;
-  /* À côté du FAB : left = 100 (FAB left) + 320 (FAB width) + 20 = 440 */
-  left: 440px;
+  /* v1.0.25 : defaults via inline style binding (signals) — rapproché de l'avatar */
+  left: 380px;
   bottom: 50px;
-  width: 380px;
+  width: 360px;
   height: 480px;
-  z-index: 99998; /* juste sous le FAB pour que l'avatar passe au-dessus si chevauchement */
-  pointer-events: none; /* la track gère les events */
+  z-index: 99998;
+  pointer-events: none;
   perspective: 1000px;
   display: flex;
   flex-direction: column;

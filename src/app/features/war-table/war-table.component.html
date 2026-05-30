@@ -1899,16 +1899,60 @@
   <app-wt-dialog></app-wt-dialog>
 </div>
 
-<!-- ═══ v1.0.23 — YAMZY companion + carrousel 3D vertical à côté ═══ -->
-<div class="wt-yamzy-fab" *ngIf="!splashVisible()">
+<!-- ═══ v1.0.25 — YAMZY companion (draggable en mode position) ═══ -->
+<div class="wt-yamzy-fab"
+     [class.is-edit]="positionMode()"
+     [style.left.px]="fabLeft()"
+     [style.bottom.px]="fabBottom()"
+     [style.width.px]="fabSize()"
+     [style.height.px]="fabSize()"
+     (mousedown)="startDrag('fab', $event)"
+     *ngIf="!splashVisible()">
   <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb"
                        [rotate]="false"
                        [bob]="true"
                        [playGlbAnim]="true"></app-yamzy-avatar-3d>
+  <div *ngIf="positionMode()" class="wt-pos-label">YAMZY · ({{ fabLeft() }}, {{ fabBottom() }})</div>
+</div>
+
+<!-- v1.0.25 : Bouton toggle mode position (toujours visible bottom-right) -->
+<button class="wt-pos-toggle" *ngIf="!splashVisible()"
+        [class.is-on]="positionMode()"
+        (click)="togglePositionMode()"
+        [title]="positionMode() ? 'Quitter mode position' : 'Mode positionnement : drag YAMZY + copie les coords'">
+  <span *ngIf="!positionMode()">⚙</span>
+  <span *ngIf="positionMode()">✕</span>
+</button>
+
+<!-- v1.0.25 : Panel de contrôle position -->
+<div class="wt-pos-panel" *ngIf="positionMode() && !splashVisible()">
+  <div class="wt-pos-panel-head">📐 Mode position</div>
+  <div class="wt-pos-panel-row">
+    <span class="wt-pos-lbl">YAMZY</span>
+    <span class="wt-pos-val">L {{ fabLeft() }} · B {{ fabBottom() }} · S {{ fabSize() }}</span>
+  </div>
+  <div class="wt-pos-panel-row">
+    <span class="wt-pos-lbl">Carousel</span>
+    <span class="wt-pos-val">L {{ ycLeft() }} · B {{ ycBottom() }} · W {{ ycWidth() }}</span>
+  </div>
+  <div class="wt-pos-sliders">
+    <label>YAMZY size : <input type="range" min="120" max="500" step="10" [value]="fabSize()" (input)="fabSize.set(+$any($event.target).value)"/> <span>{{ fabSize() }}px</span></label>
+    <label>Carousel W : <input type="range" min="220" max="500" step="10" [value]="ycWidth()" (input)="ycWidth.set(+$any($event.target).value)"/> <span>{{ ycWidth() }}px</span></label>
+  </div>
+  <div class="wt-pos-actions">
+    <button class="wt-pos-btn-major" (click)="copyYamzyPositions()">📋 Copier coords</button>
+    <button class="wt-pos-btn" (click)="resetYamzyPositions()">↺ Reset</button>
+  </div>
+  <div class="wt-pos-hint">💡 Drag YAMZY ou le carousel. Puis "Copier" et colle dans le chat.</div>
 </div>
 
 <!-- ═══ v1.0.23 — Carrousel 3D vertical "Yamzy launches messages" ═══ -->
-<div class="wt-yc" *ngIf="!splashVisible() && yamzyCarouselCards().length">
+<div class="wt-yc" *ngIf="!splashVisible() && yamzyCarouselCards().length"
+     [class.is-edit]="positionMode()"
+     [style.left.px]="ycLeft()"
+     [style.bottom.px]="ycBottom()"
+     [style.width.px]="ycWidth()"
+     (mousedown)="startDrag('yc', $event)">
   <button class="wt-yc-arrow up" (click)="yamzyCarouselUp()" title="Précédent">▲</button>
 
   <div class="wt-yc-track">
