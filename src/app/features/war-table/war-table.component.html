@@ -226,7 +226,7 @@
     </aside>
 
     <!-- ═══ MAIN AREA ═══ -->
-    <main class="wt-main">
+    <main class="wt-main" [class.is-preview]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()">
       <!-- v1.0.42 — Header PS hero générique sur TOUTES les pages (sauf dashboard qui a le sien) -->
       <header *ngIf="api.selectedProjectId() && studioLevel() === 'section' && activePage() !== 'dashboard'"
               class="wt-ps-header wt-page-ps-header">
@@ -251,6 +251,12 @@
           <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
         </div>
       </aside>
+
+      <!-- v1.0.47 — Hint clavier en mode preview : seul header + cockpit visibles -->
+      <div *ngIf="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
+           class="wt-preview-hint">
+        <kbd>Entrée</kbd> ou <kbd>Click dot</kbd> pour ouvrir la page · <kbd>Échap</kbd> pour retour
+      </div>
 
       <!-- No project yet -->
       <div *ngIf="!api.selectedProjectId()" class="wt-empty">

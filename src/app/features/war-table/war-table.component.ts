@@ -144,6 +144,38 @@ export class WarTableComponent implements OnInit {
   private stopAutoScroll(): void { /* disabled */ }
   private resetAutoScroll(): void { /* disabled */ }
 
+  // ═══ PAGE PREVIEW MODE v1.0.47 — Header + cockpit visible, contenu masqué par défaut ═══
+  /** Si false → mode preview (seul header + cockpit visibles). True → contenu de la page ouvert. */
+  pageContentOpen = signal(false);
+  openPageContent(): void { this.pageContentOpen.set(true); }
+  closePageContent(): void { this.pageContentOpen.set(false); }
+
+  /** Keyboard handlers : Escape = back, Enter = open page content */
+  private setupKeyboardHandlers(): void {
+    document.addEventListener('keydown', (ev: KeyboardEvent) => {
+      // Ignore quand l'utilisateur tape dans un input/textarea
+      const target = ev.target as HTMLElement;
+      const tag = target?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || target?.isContentEditable) return;
+      // Ignore quand position mode actif (drag)
+      if (this.positionMode()) return;
+
+      if (ev.key === 'Escape') {
+        ev.preventDefault();
+        if (this.pageContentOpen()) {
+          this.closePageContent();          // 1er Échap : ferme le contenu
+        } else if (this.studioLevel() === 'section') {
+          this.returnHome();                 // 2e Échap : retour home
+        }
+      } else if (ev.key === 'Enter') {
+        if (!this.pageContentOpen() && this.studioLevel() === 'section') {
+          ev.preventDefault();
+          this.openPageContent();
+        }
+      }
+    });
+  }
+
   // ═══ PAGE HEADER v1.0.42 — Header PS hero générique sur toutes les pages ═══
   /** Header info adapté à la page active. */
   pageHeaderInfo = computed(() => {
@@ -200,6 +232,7 @@ export class WarTableComponent implements OnInit {
   returnHome(): void {
     this.studioLevel.set('home');
     this.yamzyCarouselIndex.set(0);
+    this.pageContentOpen.set(false); // v1.0.47 — back en preview mode
   }
 
   // ═══ YAMZY POSITION EDITOR v1.0.25 — Drag + Copy CSS coords ═══
@@ -440,6 +473,7 @@ export class WarTableComponent implements OnInit {
   setYamzyCarouselIndex(i: number): void {
     this.yamzyCarouselIndex.set(i);
     this.applyCenterAction(); // dot click = immédiat
+    this.openPageContent();    // v1.0.47 — click sur dot = sélection explicite = ouvre la page
     this.resetAutoScroll();
   }
 
@@ -1997,6 +2031,8 @@ export class WarTableComponent implements OnInit {
     setTimeout(() => this.markSplashReady(), 6000);
     // v1.0.44 — Charge la 1ère page (Dashboard) sans démarrer d'auto-scroll
     setTimeout(() => this.applyCenterAction(), 800);
+    // v1.0.47 — Setup keyboard handlers : Escape = back, Enter = open page content
+    this.setupKeyboardHandlers();
 
     // Réagit aux navigations venant de /war-table-skin
     // ?section=backlog → navigue ; ?import=1 → ouvre le modal d'import

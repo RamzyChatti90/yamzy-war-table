@@ -3991,6 +3991,53 @@ body { background: #0a0820 !important; }
    Garde le ng-template #cockpitNewsBlock défini pour usage sur autres pages. */
 .is-hidden-section { display: none !important; }
 
+/* v1.0.47 — Preview mode : seul header PS + cockpit visibles, sections cachées */
+.wt-main.is-preview > section:not(.wt-sk-dash) {
+  display: none !important;
+}
+/* Sur dashboard en preview : cache uniquement "Mes Plannings" (Top Selection),
+   garde PS hero + cockpit visibles */
+.wt-main.is-preview > section.wt-sk-dash .wt-sk-top {
+  display: none !important;
+}
+/* Cache aussi le petit .wt-page-header (breadcrumb) en preview */
+.wt-main.is-preview > div.wt-page-header,
+.wt-main.is-preview ng-container > .wt-page-header {
+  display: none !important;
+}
+
+/* Hint clavier flottant en preview */
+.wt-preview-hint {
+  margin: 16px 0 24px;
+  padding: 10px 16px;
+  text-align: center;
+  background: rgba(217, 154, 81, 0.08);
+  border: 1px dashed rgba(217, 154, 81, 0.35);
+  border-radius: 10px;
+  font-size: 12px;
+  color: rgba(236, 230, 255, 0.7);
+  letter-spacing: 0.3px;
+  font-family: 'Poppins', sans-serif;
+  animation: previewHintPulse 2.5s ease-in-out infinite;
+}
+@keyframes previewHintPulse {
+  0%, 100% { border-color: rgba(217, 154, 81, 0.35); }
+  50%      { border-color: rgba(217, 154, 81, 0.65); }
+}
+.wt-preview-hint kbd {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 0 3px;
+  background: rgba(217, 154, 81, 0.18);
+  border: 1px solid rgba(217, 154, 81, 0.45);
+  border-radius: 4px;
+  color: #d99a51;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    PAGE COCKPIT ASIDE v1.0.45 — cockpit + news en haut de chaque page
    (hors dashboard qui a son propre layout colonne 280px à droite)
