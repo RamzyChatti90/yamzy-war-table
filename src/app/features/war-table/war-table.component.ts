@@ -16,13 +16,15 @@ import { YamzyAvatar3dComponent } from './yamzy-avatar-3d.component';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { LangSwitcherComponent } from '../../core/i18n/lang-switcher.component';
+import { WtDialogService } from '../../core/dialog/dialog.service';
+import { WtDialogComponent } from '../../core/dialog/wt-dialog.component';
 
 interface PageDef { id: string; label: string; icon: string; cat: string; }
 
 @Component({
   selector: 'app-war-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, YamzyAvatar3dComponent, TranslatePipe, LangSwitcherComponent],
+  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, YamzyAvatar3dComponent, TranslatePipe, LangSwitcherComponent, WtDialogComponent],
   templateUrl: './war-table.component.html',
   styleUrls: ['./war-table.component.css'],
 })
@@ -33,6 +35,7 @@ export class WarTableComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private san = inject(DomSanitizer);
   i18n = inject(I18nService);
+  dialog = inject(WtDialogService);
 
   /** Helpers i18n exposés au template. */
   pageLabel(p: PageDef | null | undefined): string {
@@ -130,14 +133,14 @@ export class WarTableComponent implements OnInit {
   }
 
   /** Click sur le bouton play : décide entre lancer / interrompre / terminer selon l'état. */
-  doLaunchSprint(): void {
+  async doLaunchSprint(): Promise<void> {
     const info = this.launchableInfo();
     const pid = this.api.selectedProjectId();
     if (!info?.sprintId || !pid) return;
 
     // ── État ACTIVE : sprint EN_COURS → propose interrompre OU terminer ──
     if (info.state === 'ACTIVE') {
-      this.doSprintInProgress(info, pid);
+      await this.doSprintInProgress(info, pid);
       return;
     }
 
@@ -145,88 +148,124 @@ export class WarTableComponent implements OnInit {
     const dateLabel = info.isToday ? 'AUJOURD\'HUI'
                     : info.isOverdue ? `il y a ${Math.abs(info.daysUntilStart || 0)} jour(s) — retard`
                     : `dans ${info.daysUntilStart} jour(s)`;
-    if (!confirm(
-      `▶ Lancer le sprint "${info.sprintName}" ?\n\n`
-      + `Démarrage prévu : ${dateLabel}\n\n`
-      + `Action :\n`
-      + `  • Status → EN_COURS\n`
-      + `  • launched_at = maintenant\n`
-      + `  • Crée un Daily Stand-up du jour\n`
-      + `  • Génère les ticketKey "YC-{PROJ}-S{N}-{seq}" pour les tickets sans ID\n`
-      + `  • Trigger l'export Excel\n\n`
-      + `Confirmer ?`
-    )) return;
+    const ok = await this.dialog.confirm({
+      title: `Lancer le sprint **${info.sprintName}** ?`,
+      message: `Le Sage Yamzy s'apprête à activer la quête. Voici ce qui va se passer :`,
+      kind: 'question',
+      confirmLabel: '▶ Lancer maintenant',
+      cancelLabel: 'Plus tard',
+      details: [
+        { label: 'Démarrage prévu', value: dateLabel },
+        { label: 'Status', value: 'PLANNED → EN_COURS' },
+        { label: 'Daily Stand-up', value: 'Créé pour aujourd\'hui' },
+        { label: 'Tickets', value: 'ID régénérés YC-{PROJ}-S{N}-{seq}' },
+        { label: 'Excel', value: 'Auto-régénéré dans ~/.yamzy/exports/' },
+      ]
+    });
+    if (!ok) return;
     this.launchingSprint.set(true);
     this.api.launchSprint(info.sprintId).subscribe({
-      next: r => {
+      next: async r => {
         this.launchingSprint.set(false);
-        alert(
-          `✓ Sprint "${r.sprintName}" lancé !\n\n`
-          + `Status : ${r.previousStatus} → ${r.newStatus}\n`
-          + `Lancé à : ${new Date(r.launchedAt).toLocaleString('fr-FR')}\n`
-          + `Daily créé : ${r.dailyCreated ? 'oui' : 'non (existait déjà)'}\n`
-          + `Tickets re-keyed : ${r.ticketKeysGenerated} (pattern ${r.keyPattern})\n`
-          + `Excel : auto-régénéré\n\n`
-          + `Bon sprint !`
-        );
+        await this.dialog.alert({
+          title: `Sprint **${r.sprintName}** lancé — Bon sprint !`,
+          message: `Le Cycle est officiellement actif. Que la quête commence.`,
+          kind: 'success',
+          details: [
+            { label: 'Status', value: `${r.previousStatus} → ${r.newStatus}` },
+            { label: 'Lancé à', value: new Date(r.launchedAt).toLocaleString('fr-FR') },
+            { label: 'Daily Stand-up', value: r.dailyCreated ? 'créé' : 'existait déjà' },
+            { label: 'Tickets re-keyed', value: `${r.ticketKeysGenerated} (${r.keyPattern})` },
+            { label: 'Excel', value: 'auto-régénéré' },
+          ]
+        });
         this.reloadAfterSprintAction(pid);
       },
-      error: err => {
+      error: async err => {
         this.launchingSprint.set(false);
-        alert('Échec lancement sprint : ' + (err?.error?.message || err?.message || 'erreur inconnue'));
+        await this.dialog.alert({
+          title: 'Échec du lancement',
+          message: err?.error?.message || err?.message || 'Erreur inconnue.',
+          kind: 'error'
+        });
       }
     });
   }
 
   /** Quand le sprint est EN_COURS : prompt pour choisir interrompre / terminer / annuler. */
-  private doSprintInProgress(info: any, pid: number): void {
+  private async doSprintInProgress(info: any, pid: number): Promise<void> {
     const dayLabel = info.dayIndex != null
       ? `Jour ${info.dayIndex}${info.totalDays ? '/' + info.totalDays : ''}`
       : 'En cours';
     const launchedAt = info.launchedAt ? new Date(info.launchedAt).toLocaleString('fr-FR') : 'date inconnue';
-    const choice = prompt(
-      `⏸ Sprint "${info.sprintName}" EN COURS\n`
-      + `${dayLabel} — lancé le ${launchedAt}\n\n`
-      + `Que veux-tu faire ?\n\n`
-      + `  1 — Interrompre (status → PLANNED, réutilisable)\n`
-      + `  2 — Terminer (status → TERMINE, sprint clos)\n`
-      + `  0 ou Annuler — Ne rien faire\n\n`
-      + `Tape 1, 2 ou 0 :`,
-      '0'
-    );
-    if (choice === '1') {
-      if (!confirm(`Vraiment interrompre "${info.sprintName}" ?\n\n` +
-                    `Le sprint repassera en PLANNED et tu pourras le relancer plus tard.`)) return;
+    const choice = await this.dialog.prompt({
+      title: `Sprint **${info.sprintName}** EN COURS`,
+      message: `Le Sage attend ton signal. Quelle action souhaites-tu mener sur ce Cycle ?`,
+      kind: 'question',
+      details: [
+        { label: 'Jour actuel', value: dayLabel },
+        { label: 'Lancé le', value: launchedAt },
+      ],
+      choices: [
+        { value: 'interrupt', label: '⏸ Interrompre', kind: 'primary',
+          hint: 'Le sprint repasse en PLANNED. Tu pourras le relancer plus tard.' },
+        { value: 'complete',  label: '⏹ Terminer', kind: 'danger',
+          hint: 'Le sprint passe en TERMINE. endDate = aujourd\'hui. Action de clôture officielle.' },
+      ],
+    });
+    if (choice === 'interrupt') {
+      const ok = await this.dialog.confirm({
+        title: `Interrompre **${info.sprintName}** ?`,
+        message: `Le sprint repassera en PLANNED. Toutes les données sont conservées et tu pourras le relancer.`,
+        kind: 'warning',
+        confirmLabel: '⏸ Oui, interrompre',
+      });
+      if (!ok) return;
       this.launchingSprint.set(true);
       this.api.interruptSprint(info.sprintId).subscribe({
-        next: r => {
+        next: async r => {
           this.launchingSprint.set(false);
-          alert(`⏸ Sprint "${r.sprintName}" interrompu.\nStatus : ${r.previousStatus} → ${r.newStatus}\n\nTu peux le relancer plus tard via ▶ LANCER.`);
+          await this.dialog.alert({
+            title: `Sprint **${r.sprintName}** interrompu`,
+            message: `Tu peux le relancer plus tard via le bouton ▶ LANCER.`,
+            kind: 'success',
+            details: [{ label: 'Status', value: `${r.previousStatus} → ${r.newStatus}` }],
+          });
           this.reloadAfterSprintAction(pid);
         },
-        error: err => {
+        error: async err => {
           this.launchingSprint.set(false);
-          alert('Échec interruption : ' + (err?.error?.message || err?.message || 'erreur inconnue'));
+          await this.dialog.alert({ title: 'Échec interruption',
+            message: err?.error?.message || err?.message || 'Erreur inconnue.', kind: 'error' });
         }
       });
-    } else if (choice === '2') {
-      if (!confirm(`Vraiment terminer "${info.sprintName}" ?\n\n` +
-                    `Le sprint passera en TERMINE et endDate = aujourd'hui.\n` +
-                    `Cette action signifie que le sprint est officiellement clos.`)) return;
+    } else if (choice === 'complete') {
+      const ok = await this.dialog.confirm({
+        title: `Terminer **${info.sprintName}** ?`,
+        message: `Le sprint sera officiellement clos. endDate = aujourd'hui si pas déjà définie.\nLe Sage Yamzy proposera ensuite le sprint suivant en lancement.`,
+        kind: 'warning',
+        confirmLabel: '⏹ Oui, terminer',
+      });
+      if (!ok) return;
       this.launchingSprint.set(true);
       this.api.completeSprint(info.sprintId).subscribe({
-        next: r => {
+        next: async r => {
           this.launchingSprint.set(false);
-          alert(`✓ Sprint "${r.sprintName}" terminé.\nStatus : ${r.previousStatus} → ${r.newStatus}\n\nLe prochain sprint sera proposé en lancement.`);
+          await this.dialog.alert({
+            title: `Sprint **${r.sprintName}** terminé`,
+            message: `Le Cycle est clos. Bravo pour cette quête !`,
+            kind: 'success',
+            details: [{ label: 'Status', value: `${r.previousStatus} → ${r.newStatus}` }],
+          });
           this.reloadAfterSprintAction(pid);
         },
-        error: err => {
+        error: async err => {
           this.launchingSprint.set(false);
-          alert('Échec terminer : ' + (err?.error?.message || err?.message || 'erreur inconnue'));
+          await this.dialog.alert({ title: 'Échec terminer',
+            message: err?.error?.message || err?.message || 'Erreur inconnue.', kind: 'error' });
         }
       });
     }
-    // choice 0 ou null = annulation
   }
 
   private reloadAfterSprintAction(pid: number): void {
@@ -287,8 +326,14 @@ export class WarTableComponent implements OnInit {
       error: (err) => console.warn('[wt] op failed', err)
     });
   }
-  private delEntity<T>(fn: () => Observable<T>): void {
-    if (!confirm('Supprimer cette ligne ?')) return;
+  private async delEntity<T>(fn: () => Observable<T>): Promise<void> {
+    const ok = await this.dialog.confirm({
+      title: 'Supprimer cette ligne ?',
+      message: 'L\'action est irréversible. Voulez-vous continuer ?',
+      kind: 'warning',
+      confirmLabel: '🗑 Oui, supprimer',
+    });
+    if (!ok) return;
     const pid = this.api.selectedProjectId();
     fn().subscribe({
       next: () => { this.refreshActivePage(); if (pid) this.notifyExcelChanged(pid); },
@@ -329,51 +374,91 @@ export class WarTableComponent implements OnInit {
   delSprint(s: any): void { this.delEntity(() => this.api.deleteSprint(s.id)); }
   saveSprint(s: any, field: string, value: any): void { this.patchEntity(this.api.updateSprint.bind(this.api), s, field, value); }
   /** Reset & archive : renomme + sauvegarde Excel propre + delete projet. */
-  resetAndArchive(): void {
+  async resetAndArchive(): Promise<void> {
     const pid = this.api.selectedProjectId();
     if (!pid) return;
     const proj = this.currentProject();
     const code = proj?.code || '?';
-    if (!confirm(
-      `⚠ RESET COMPLET du projet "${code}"\n\n`
-      + `Cette action va :\n`
-      + `  1) Renommer tous les "Sprint N" → "${code.replace(/[^A-Za-z0-9]/g, '').toUpperCase().substring(0, 6)}-S{N}"\n`
-      + `  2) Sauvegarder un Excel propre dans ~/.yamzy/exports/\n`
-      + `  3) SUPPRIMER le projet de la base (cascade : tickets, sprints, risques, etc.)\n\n`
-      + `Tu pourras réimporter l'Excel sauvegardé ensuite.\n\n`
-      + `Confirmer ?`
-    )) return;
-    if (!confirm(`Vraiment sûr ? "${code}" sera SUPPRIMÉ.`)) return;
+    const prefix = code.replace(/[^A-Za-z0-9]/g, '').toUpperCase().substring(0, 6);
+    const ok = await this.dialog.confirm({
+      title: `RESET COMPLET du projet **${code}**`,
+      message: `Cette opération clôt définitivement le projet après en avoir sauvegardé un Excel propre.`,
+      kind: 'warning',
+      confirmLabel: '🔄 Lancer le reset',
+      details: [
+        { label: 'Étape 1', value: `Rebrand "Sprint N" → "${prefix}-S{N}"` },
+        { label: 'Étape 2', value: 'Sauvegarde Excel dans ~/.yamzy/exports/' },
+        { label: 'Étape 3', value: 'Suppression projet (cascade tickets/sprints/risks/etc)' },
+        { label: 'Réversible', value: 'Oui via ré-import du .xlsx archivé' },
+      ]
+    });
+    if (!ok) return;
+    const sure = await this.dialog.confirm({
+      title: `Vraiment sûr ? **${code}** sera supprimé.`,
+      message: `Dernière vérification avant action destructive.`,
+      kind: 'error',
+      confirmLabel: 'Oui, j\'archive et supprime',
+    });
+    if (!sure) return;
     this.api.resetAndArchive(pid).subscribe({
-      next: (r) => {
-        alert(
-          `✓ Reset terminé.\n\n`
-          + `📊 ${r.sprintsRenamed} sprint(s) renommé(s)\n`
-          + `💾 Excel archivé :\n${r.archivePath}\n\n`
-          + `Tu peux maintenant le réimporter via ⬆ Importer.`
-        );
-        // Recharge la liste de projets (le picker va se vider)
+      next: async (r) => {
+        await this.dialog.alert({
+          title: 'Reset terminé — projet archivé',
+          message: `Tu peux maintenant ré-importer l'Excel archivé via le bouton ⬆ Importer.`,
+          kind: 'success',
+          details: [
+            { label: 'Sprints renommés', value: String(r.sprintsRenamed) },
+            { label: 'Excel archivé', value: r.archivePath || '—' },
+          ]
+        });
         this.api.listProjects().subscribe(list => {
           this.api.projects.set(list);
           this.api.selectedProjectId.set(null);
         });
       },
-      error: (err) => alert('Échec reset : ' + (err?.error?.message || err?.message))
+      error: async (err) => await this.dialog.alert({
+        title: 'Échec du reset',
+        message: err?.error?.message || err?.message || 'Erreur inconnue.',
+        kind: 'error'
+      })
     });
   }
 
   /** One-click : rebrand tous les "Sprint N" existants → "{PROJ}-S{N}". */
-  rebrandSprints(): void {
+  async rebrandSprints(): Promise<void> {
     const pid = this.api.selectedProjectId();
     if (!pid) return;
-    if (!confirm('Renommer tous les "Sprint N" en "{CODE_PROJET}-S{N}" ? (Idempotent — les noms personnalisés sont préservés.)')) return;
+    const ok = await this.dialog.confirm({
+      title: 'Rebrand des sprints',
+      message: `Renomme tous les sprints au format **{CODE_PROJET}-S{N}** (pattern Yamzy).`,
+      kind: 'question',
+      confirmLabel: '🏷 Rebrand',
+      details: [
+        { label: 'Pattern cible', value: '{PROJ_CLEAN}-S{N}' },
+        { label: 'Idempotent', value: 'Oui — skip si déjà au bon format' },
+        { label: 'Propagation', value: 'Tickets t.sprint mis à jour aussi' },
+      ]
+    });
+    if (!ok) return;
     this.api.rebrandSprints(pid).subscribe({
-      next: (r) => {
-        alert(`✓ ${r.renamed} sprint(s) renommé(s) sur ${r.total}.`);
+      next: async (r) => {
+        await this.dialog.alert({
+          title: 'Rebrand terminé',
+          message: `Les noms personnalisés ont été préservés.`,
+          kind: 'success',
+          details: [
+            { label: 'Sprints renommés', value: `${r.renamed} sur ${r.total}` },
+            { label: 'Tickets mis à jour', value: String((r as any).ticketsUpdated ?? '—') },
+          ]
+        });
         this.api.sprints(pid).subscribe({ next: s => this.sprints.set(s) });
         this.notifyExcelChanged(pid);
       },
-      error: (err) => alert('Échec rebrand : ' + (err?.error?.message || err?.message))
+      error: async (err) => await this.dialog.alert({
+        title: 'Échec rebrand',
+        message: err?.error?.message || err?.message || 'Erreur inconnue.',
+        kind: 'error'
+      })
     });
   }
 
@@ -1307,24 +1392,51 @@ export class WarTableComponent implements OnInit {
       error: () => {}
     });
   }
-  restoreVersion(v: any): void {
-    if (!confirm(`Restaurer la version "${v.label}" ? L'état actuel sera remplacé (sauvegarde-le d'abord si besoin).`)) return;
+  async restoreVersion(v: any): Promise<void> {
+    const ok = await this.dialog.confirm({
+      title: `Restaurer la version **${v.label}** ?`,
+      message: `L'état actuel du planning sera remplacé. Pense à le sauvegarder d'abord si besoin.`,
+      kind: 'warning',
+      confirmLabel: '↩ Restaurer',
+      details: [
+        { label: 'Source', value: v.source || 'SNAPSHOT' },
+        { label: 'Quêtes', value: String(v.ticketCount || 0) },
+        { label: 'Créée le', value: v.createdAt ? new Date(v.createdAt).toLocaleString('fr-FR') : '—' },
+      ]
+    });
+    if (!ok) return;
     this.api.restoreVersion(v.id).subscribe({
       next: () => { this.reloadVersions(); this.loadActiveData(); },
       error: () => {}
     });
   }
-  deleteVersion(v: any): void {
-    if (!confirm(`Supprimer la version "${v.label}" ?`)) return;
+  async deleteVersion(v: any): Promise<void> {
+    const ok = await this.dialog.confirm({
+      title: `Supprimer la version **${v.label}** ?`,
+      message: `Ce snapshot sera perdu définitivement.`,
+      kind: 'warning',
+      confirmLabel: '🗑 Supprimer',
+    });
+    if (!ok) return;
     this.api.deleteVersion(v.id).subscribe({ next: () => this.reloadVersions(), error: () => {} });
   }
 
   /** Supprime le planning courant. */
-  deletePlanning(): void {
+  async deletePlanning(): Promise<void> {
     const pid = this.api.selectedProjectId();
     const proj = this.currentProject();
     if (!pid || !proj) return;
-    if (!confirm(`Supprimer le planning "${proj.code} · ${proj.name}" et TOUTES ses données (quêtes, sprints, versions) ? Irréversible.`)) return;
+    const ok = await this.dialog.confirm({
+      title: `Supprimer le planning **${proj.code} · ${proj.name}** ?`,
+      message: `Toutes les données associées seront perdues définitivement. Action **irréversible**.`,
+      kind: 'error',
+      confirmLabel: '🗑 Supprimer définitivement',
+      details: [
+        { label: 'Code', value: proj.code },
+        { label: 'Sera supprimé', value: 'quêtes, sprints, versions, risks, etc.' },
+      ]
+    });
+    if (!ok) return;
     this.api.deleteProject(pid).subscribe({
       next: () => {
         this.api.selectedProjectId.set(null);
