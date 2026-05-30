@@ -94,6 +94,16 @@ export class WarTableComponent implements OnInit {
   } | null>(null);
   launchingSprint = signal(false);
 
+  /** Tooltip plein du bouton topbar (apostrophe gérée en TS pour éviter l'escape Angular). */
+  launchTooltip(): string {
+    const li = this.launchableInfo();
+    if (!li) return '';
+    const when = li.isToday ? "AUJOURD'HUI"
+               : li.isOverdue ? `${Math.abs(li.daysUntilStart || 0)} j de retard`
+               : `dans ${li.daysUntilStart} j`;
+    return `${li.sprintName} — ${when}`;
+  }
+
   /** Re-fetch l'info du sprint lançable pour le projet courant (appelé au load + après launch). */
   refreshLaunchable(): void {
     const pid = this.api.selectedProjectId();

@@ -72,6 +72,20 @@
       <button class="wt-btn-import" (click)="importOpen.set(true)">{{ 'topbar.import' | t }}</button>
       <!-- 🆕 v1.0.4 : Nouveau projet -->
       <button class="wt-btn-import" (click)="openNewProject()" [title]="'Nouveau projet (Realm vide)'">🆕</button>
+      <!-- 🚀 v1.0.7 : Lancer sprint — compact topbar (visible toutes pages) -->
+      <button *ngIf="launchableInfo() as li"
+              class="wt-btn-launch-topbar"
+              [class.is-today]="li.isToday"
+              [class.is-overdue]="li.isOverdue"
+              [disabled]="launchingSprint()"
+              (click)="doLaunchSprint()"
+              [title]="launchTooltip()">
+        <span class="wt-launch-topbar-rocket">{{ launchingSprint() ? '⟳' : '🚀' }}</span>
+        <span class="wt-launch-topbar-label">{{ li.sprintName }}</span>
+        <span *ngIf="li.isToday" class="wt-launch-topbar-when today">NOW</span>
+        <span *ngIf="li.isOverdue" class="wt-launch-topbar-when overdue">{{ -1 * (li.daysUntilStart || 0) }}j</span>
+        <span *ngIf="!li.isToday && !li.isOverdue" class="wt-launch-topbar-when soon">J-{{ li.daysUntilStart }}</span>
+      </button>
       <!-- 🔄 v1.0.5 : Reset & archive (rebrand + export + delete) -->
       <button class="wt-skin-icon-btn" *ngIf="api.selectedProjectId()" (click)="resetAndArchive()"
               [title]="'Reset complet : rebrand sprints + export Excel propre + suppression projet (pour ré-import)'"
