@@ -198,8 +198,12 @@
 
           <div class="wt-sk-dash-row">
             <!-- ③ v1.0.8 — Carte hero style PlayStation Store (Spider-Man) avec avatar Yamzy 3D -->
-            <header class="wt-ps-header wt-sk-video-wrap">
-              <!-- Tag rouge "New" (couleur fixe — kept simple comme la maquette) -->
+            <header class="wt-ps-header wt-sk-video-wrap"
+                    [class.is-launchable]="launchableInfo()?.state === 'LAUNCHABLE'"
+                    [class.is-active]="launchableInfo()?.state === 'ACTIVE'"
+                    [class.is-today]="launchableInfo()?.isToday"
+                    [class.is-overdue]="launchableInfo()?.isOverdue">
+              <!-- Tag dynamique (couleur change avec l'état) -->
               <div class="wt-ps-tag">
                 <span *ngIf="launchableInfo()?.state === 'ACTIVE'">EN COURS</span>
                 <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE'">{{ launchableInfo()?.isOverdue ? 'EN RETARD' : (launchableInfo()?.isToday ? 'AUJOURD\'HUI' : 'À LANCER') }}</span>

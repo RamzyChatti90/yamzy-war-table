@@ -1578,3 +1578,53 @@ body { background: #0a0820 !important; }
 @media (max-width: 600px) {
   .wt-ps-spiderman-img { top: 0; right: -50px; }
 }
+
+/* === v1.0.8 — Variantes de couleur transparentes par état du sprint === */
+
+/* LAUNCHABLE upcoming → vert */
+.wt-ps-header.is-launchable {
+  background-image:
+    radial-gradient(ellipse at top, rgba(112, 185, 68, 0.55), rgba(0, 0, 0, 0.55)),
+    radial-gradient(ellipse at top, #3a3c47, rgba(0, 0, 0, 0.6));
+  border-color: rgba(112, 185, 68, 0.40);
+}
+.wt-ps-header.is-launchable .wt-ps-tag { background-color: #70b944; }
+.wt-ps-header.is-launchable .wt-ps-btn { background-color: #70b944; }
+.wt-ps-header.is-launchable .wt-ps-btn::after { background-color: #70b944; }
+
+/* LAUNCHABLE today → doré */
+.wt-ps-header.is-today {
+  background-image:
+    radial-gradient(ellipse at top, rgba(217, 154, 81, 0.55), rgba(0, 0, 0, 0.55)),
+    radial-gradient(ellipse at top, #3a3c47, rgba(0, 0, 0, 0.6));
+  border-color: rgba(217, 154, 81, 0.50);
+}
+.wt-ps-header.is-today .wt-ps-tag { background-color: #d99a51; color: #1d172e; }
+.wt-ps-header.is-today .wt-ps-btn { background-color: #d99a51; color: #1d172e; }
+.wt-ps-header.is-today .wt-ps-btn::after { background-color: #d99a51; }
+
+/* LAUNCHABLE overdue → rouge */
+.wt-ps-header.is-overdue {
+  background-image:
+    radial-gradient(ellipse at top, rgba(222, 79, 95, 0.55), rgba(0, 0, 0, 0.55)),
+    radial-gradient(ellipse at top, #3a3c47, rgba(0, 0, 0, 0.6));
+  border-color: rgba(222, 79, 95, 0.45);
+}
+.wt-ps-header.is-overdue .wt-ps-tag { background-color: #de4f5f; }
+.wt-ps-header.is-overdue .wt-ps-btn { background-color: #de4f5f; }
+.wt-ps-header.is-overdue .wt-ps-btn::after { background-color: #de4f5f; }
+
+/* ACTIVE → cyan */
+.wt-ps-header.is-active {
+  background-image:
+    radial-gradient(ellipse at top, rgba(46, 161, 203, 0.55), rgba(0, 0, 0, 0.55)),
+    radial-gradient(ellipse at top, #3a3c47, rgba(0, 0, 0, 0.6));
+  border-color: rgba(46, 161, 203, 0.45);
+}
+.wt-ps-header.is-active .wt-ps-tag { background-color: #2ea1cb; }
+.wt-ps-header.is-active .wt-ps-btn { background-color: #2ea1cb; }
+.wt-ps-header.is-active .wt-ps-btn::after { background-color: #2ea1cb; }
+
+/* is-overdue prime sur is-launchable (cumulés) — overdue wins */
+.wt-ps-header.is-launchable.is-overdue { border-color: rgba(222, 79, 95, 0.45); }
+
