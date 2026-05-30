@@ -195,24 +195,41 @@
       <div class="wt-sk-drawer-hint">
         {{ 'nav.search_hint' | t }}
       </div>
-      <nav class="wt-nav">
-        <div *ngFor="let cat of categories" class="wt-cat" [class.wt-cat-open]="isCatOpen(cat)">
-          <button class="wt-cat-head" (click)="toggleCat(cat)">
-            <span class="wt-cat-name">{{ catLabel(cat) }}</span>
-            <span class="wt-cat-count">{{ pagesInCat(cat).length }}</span>
-            <span class="wt-cat-arrow" [class.open]="isCatOpen(cat)">›</span>
+      <!-- v1.0.61 — Navigation hiérarchique 2 niveaux : 5 super-cats > sous-cats > pages -->
+      <nav class="wt-nav wt-nav-supercats">
+        <div *ngFor="let sc of superCats"
+             class="wt-supercat"
+             [class.wt-supercat-open]="isSuperCatOpen(sc.id)"
+             [class.wt-supercat-active]="activeSuperCat() === sc.id">
+          <button class="wt-supercat-head" (click)="toggleSuperCat(sc.id)"
+                  [style.--sc-color]="sc.color">
+            <span class="wt-supercat-icon">{{ sc.icon }}</span>
+            <span class="wt-supercat-info">
+              <span class="wt-supercat-label">{{ sc.label }}</span>
+              <span class="wt-supercat-desc">{{ sc.desc }}</span>
+            </span>
+            <span class="wt-supercat-count">{{ pagesInSuperCat(sc.id).length }}</span>
+            <span class="wt-supercat-arrow" [class.open]="isSuperCatOpen(sc.id)">›</span>
           </button>
-          <div class="wt-cat-pages" *ngIf="isCatOpen(cat)">
-            <button *ngFor="let pg of pagesInCat(cat)"
-                    class="wt-page-link"
-                    [class.active]="activePage() === pg.id"
-                    [wtTooltip]="pg.id"
-                    wtTooltipPos="right"
-                    (click)="setPage(pg.id); morePanelOpen.set(false)">
-              <span class="wt-page-bar"></span>
-              <span class="wt-page-icon">{{ pg.icon }}</span>
-              <span class="wt-page-label">{{ pageLabel(pg) }}</span>
-            </button>
+          <div class="wt-supercat-body" *ngIf="isSuperCatOpen(sc.id)">
+            <div *ngFor="let cat of subCatsForSuperCat(sc.id)" class="wt-cat wt-cat-nested">
+              <div class="wt-cat-head wt-cat-head-nested">
+                <span class="wt-cat-name">{{ catLabel(cat) }}</span>
+                <span class="wt-cat-count">{{ pagesInSubCat(sc.id, cat).length }}</span>
+              </div>
+              <div class="wt-cat-pages">
+                <button *ngFor="let pg of pagesInSubCat(sc.id, cat)"
+                        class="wt-page-link"
+                        [class.active]="activePage() === pg.id"
+                        [wtTooltip]="pg.id"
+                        wtTooltipPos="right"
+                        (click)="setPage(pg.id); morePanelOpen.set(false)">
+                  <span class="wt-page-bar"></span>
+                  <span class="wt-page-icon">{{ pg.icon }}</span>
+                  <span class="wt-page-label">{{ pageLabel(pg) }}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </nav>

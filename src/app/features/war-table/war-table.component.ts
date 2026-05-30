@@ -9,7 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { WarTableApi, PosProject, PosTicket, ImportResult } from './war-table.api';
 import { AuthService } from '../../core/services/auth.service';
-import { WAR_TABLE_PAGES, PageDef as SharedPageDef } from './war-table.pages';
+import { WAR_TABLE_PAGES, PageDef as SharedPageDef, SUPER_CATS, SuperCat, SuperCatDef } from './war-table.pages';
 import { WarTableSplashComponent } from './war-table-splash.component';
 import { WarTableBg3dComponent } from './war-table-bg-3d.component';
 import { YamzyAvatar3dComponent } from './yamzy-avatar-3d.component';
@@ -21,7 +21,7 @@ import { WtDialogComponent } from '../../core/dialog/wt-dialog.component';
 import { WtTooltipDirective } from '../../core/tooltip/wt-tooltip.directive';
 import { TOOLTIP_GUIDE } from '../../core/tooltip/tooltip-guide';
 
-interface PageDef { id: string; label: string; icon: string; cat: string; }
+interface PageDef { id: string; label: string; icon: string; cat: string; superCat: SuperCat; }
 
 @Component({
   selector: 'app-war-table',
@@ -1900,9 +1900,46 @@ export class WarTableComponent implements OnInit {
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">${this.catSkinIcons[i] || ''}</svg>`);
   }
 
-  // ─── 42 pages en 15 catégories — source unique partagée avec le skin ───
+  // ─── 43 pages en 5 super-cats + 15 sous-cats — source unique partagée avec le skin ───
   readonly pages: PageDef[] = WAR_TABLE_PAGES;
   readonly categories = [...new Set(this.pages.map(p => p.cat))];
+  /** v1.0.61 — 5 grandes catégories de navigation. */
+  readonly superCats: SuperCatDef[] = SUPER_CATS;
+  /** Sous-cats par super-cat (ordre préservé). */
+  subCatsForSuperCat(sc: SuperCat): string[] {
+    const seen = new Set<string>();
+    const list: string[] = [];
+    for (const p of this.pages) {
+      if (p.superCat === sc && !seen.has(p.cat)) { seen.add(p.cat); list.push(p.cat); }
+    }
+    return list;
+  }
+  /** Pages d'une super-cat (filtrées par recherche). */
+  pagesInSuperCat(sc: SuperCat): PageDef[] {
+    const f = this.search.toLowerCase().trim();
+    return this.pages.filter(p => p.superCat === sc && (!f || p.label.toLowerCase().includes(f)));
+  }
+  /** Pages dans une super-cat + sous-cat. */
+  pagesInSubCat(sc: SuperCat, cat: string): PageDef[] {
+    const f = this.search.toLowerCase().trim();
+    return this.pages.filter(p => p.superCat === sc && p.cat === cat && (!f || p.label.toLowerCase().includes(f)));
+  }
+  /** État d'ouverture des super-cats (1 ouverte par défaut : Dashboard). */
+  openSuperCats = signal<Set<SuperCat>>(new Set<SuperCat>(['Dashboard']));
+  isSuperCatOpen(sc: SuperCat): boolean {
+    if (this.search.trim()) return this.pagesInSuperCat(sc).length > 0;
+    return this.openSuperCats().has(sc);
+  }
+  toggleSuperCat(sc: SuperCat): void {
+    const s = new Set(this.openSuperCats());
+    s.has(sc) ? s.delete(sc) : s.add(sc);
+    this.openSuperCats.set(s);
+  }
+  /** Super-cat de la page active (pour highlight). */
+  activeSuperCat = computed<SuperCat | null>(() => {
+    const p = this.pages.find(p => p.id === this.activePage());
+    return p ? p.superCat : null;
+  });
   /** Pages déjà implémentées (sinon placeholder). */
   readonly implemented = new Set([
     'dashboard', 'backlog', 'backlog-tma', 'sprints', 'burndown', 'gantt', 'risks', 'tech-debt', 'lessons',
