@@ -72,6 +72,10 @@
       <button class="wt-btn-import" (click)="importOpen.set(true)">{{ 'topbar.import' | t }}</button>
       <!-- 🆕 v1.0.4 : Nouveau projet -->
       <button class="wt-btn-import" (click)="openNewProject()" [title]="'Nouveau projet (Realm vide)'">🆕</button>
+      <!-- 🔄 v1.0.5 : Reset & archive (rebrand + export + delete) -->
+      <button class="wt-skin-icon-btn" *ngIf="api.selectedProjectId()" (click)="resetAndArchive()"
+              [title]="'Reset complet : rebrand sprints + export Excel propre + suppression projet (pour ré-import)'"
+              style="background:linear-gradient(135deg,#de4f5f,#d99a51);color:#fff">🔄</button>
       <!-- 🔒/🔓 v1.0.4 : Mode édition (active inline edit + boutons CRUD partout) -->
       <button class="wt-skin-icon-btn" (click)="toggleEditMode()"
               [class.wt-edit-on]="editMode()"
@@ -217,7 +221,7 @@
                     <ng-container *ngIf="activeSprint() as s">
                       <div class="min-w-0">
                         <div class="wt-sk-tag">{{ 'dash.tag_current_sprint' | t }}</div>
-                        <div class="wt-sk-sprint-name">Sprint {{ s.number }}<span *ngIf="s.name"> — {{ s.name }}</span></div>
+                        <div class="wt-sk-sprint-name">{{ s.name || ('Sprint ' + s.number) }}</div>
                         <div *ngIf="s.goal" class="wt-sk-sprint-goal">{{ s.goal }}</div>
                       </div>
                     </ng-container>
@@ -382,10 +386,11 @@
         <section *ngIf="activePage() === 'sprints'" class="wt-sprints">
           <div *ngIf="editMode()" class="wt-crud-bar">
             <button class="wt-btn-add" (click)="addSprint()">+ Ajouter un sprint</button>
+            <button class="wt-btn-add" style="background:linear-gradient(135deg,#6647bf,#c25d8d)" (click)="rebrandSprints()" title="Renomme 'Sprint N' → '{CODE}-S{N}'">🏷 Rebrand</button>
           </div>
           <div class="wt-sprint-cards">
             <div *ngFor="let s of paged(sprints())" class="wt-sprint-card">
-              <div class="wt-sprint-num">Sprint {{ s.number }} <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delSprint(s)" style="float:right">🗑</button></div>
+              <div class="wt-sprint-num">{{ s.name || ('Sprint ' + s.number) }} <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delSprint(s)" style="float:right">🗑</button></div>
               <div class="wt-sprint-dates">{{ s.startDate }} → {{ s.endDate }}</div>
               <div class="wt-sprint-goal">{{ s.goal || '—' }}</div>
               <div class="wt-sprint-cap">{{ 'table.capacity_h' | t }} : {{ s.capacityHours || '—' }}h</div>
@@ -618,7 +623,7 @@
         <section *ngIf="activePage() === 'retros'" class="wt-generic">
           <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addRetro()">+ Rétro</button></div>
           <div *ngFor="let r of paged(retros())" class="wt-retro-card">
-            <h4>Sprint {{ r.sprintNumber }} <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delRetro(r)" style="float:right">🗑</button></h4>
+            <h4>{{ sprintNameByNumber(r.sprintNumber) }} <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delRetro(r)" style="float:right">🗑</button></h4>
             <div class="wt-retro-grid">
               <div class="wt-retro-col keep"><span>{{ 'retro.keep' | t }}</span><p>{{ r.keepDoing || '—' }}</p></div>
               <div class="wt-retro-col improve"><span>{{ 'retro.improve' | t }}</span><p>{{ r.improve || '—' }}</p></div>
@@ -726,7 +731,7 @@
         <section *ngIf="activePage() === 'sprint-review'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
             <thead><tr><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.period' | t }}</th><th>{{ 'table.goal' | t }}</th><th>{{ 'table.capacity_h' | t }}</th></tr></thead>
-            <tbody><tr *ngFor="let s of paged(sprints())"><td>Sprint {{ s.number }}</td><td>{{ s.startDate }} → {{ s.endDate }}</td>
+            <tbody><tr *ngFor="let s of paged(sprints())"><td>{{ s.name || ('Sprint ' + s.number) }}</td><td>{{ s.startDate }} → {{ s.endDate }}</td>
               <td>{{ s.goal }}</td><td class="wt-num">{{ s.capacityHours }}</td></tr></tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: sprints() }"></ng-container>
@@ -736,7 +741,7 @@
             <label>{{ 'plan.sprint' | t }}</label>
             <select [ngModel]="sprintFilter()" (ngModelChange)="sprintFilter.set($event); currentPage.set(0)">
               <option value="">{{ 'plan.all' | t }}</option>
-              <option *ngFor="let s of sprints()" [value]="'Sprint ' + s.number">Sprint {{ s.number }}</option>
+              <option *ngFor="let s of sprints()" [value]="s.name || ('Sprint ' + s.number)">{{ s.name || ('Sprint ' + s.number) }}</option>
             </select>
           </div>
           <div class="wt-table-wrap"><table class="wt-table">
@@ -859,7 +864,7 @@
             <thead><tr><th>{{ 'table.stakeholder' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.note' | t }}</th><th>{{ 'table.comment' | t }}</th><th>{{ 'table.action' | t }}</th></tr></thead>
             <tbody>
               <tr *ngFor="let f of paged(stakeholderFb())">
-                <td>{{ stakeholderName(f.stakeholderId) }}</td><td>{{ 'table.sprint' | t }} {{ f.sprintNumber }}</td>
+                <td>{{ stakeholderName(f.stakeholderId) }}</td><td>{{ sprintNameByNumber(f.sprintNumber) }}</td>
                 <td><span class="wt-score" [style.color]="scoreColor(f.score)">{{ f.score ?? '—' }}</span></td>
                 <td>{{ f.comment || '—' }}</td><td>{{ f.actionNeeded || '—' }}</td>
               </tr>
@@ -896,7 +901,7 @@
             <div class="wt-panel">
               <h3>{{ 'stakeholder.sprint_goals' | t }}</h3>
               <div *ngFor="let s of sprints()" class="wt-mini-row">
-                <span class="wt-mini-id">S{{ s.number }}</span><span class="wt-mini-title">{{ s.goal || '—' }}</span>
+                <span class="wt-mini-id">{{ s.name || ('S' + s.number) }}</span><span class="wt-mini-title">{{ s.goal || '—' }}</span>
               </div>
             </div>
           </div>

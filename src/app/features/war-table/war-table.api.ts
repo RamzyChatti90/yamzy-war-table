@@ -130,6 +130,14 @@ export class WarTableApi {
   createSprint(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/sprints`, body); }
   updateSprint(sprintId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/sprints/${sprintId}`, body); }
   deleteSprint(sprintId: number): Observable<void> { return this.http.delete<void>(`${this.base}/sprints/${sprintId}`); }
+  /** Renomme en masse les "Sprint N" existants → "{PROJ}-S{N}" (idempotent). */
+  rebrandSprints(projectId: number): Observable<{ renamed: number; total: number }> {
+    return this.http.post<{ renamed: number; total: number }>(`${this.base}/projects/${projectId}/sprints/rebrand`, {});
+  }
+  /** Reset complet : rebrand → export Excel archivé → suppression projet. Retourne le path. */
+  resetAndArchive(projectId: number): Observable<{ projectCode: string; projectName: string; sprintsRenamed: number; archivePath: string; deleted: boolean }> {
+    return this.http.post<any>(`${this.base}/projects/${projectId}/reset-and-archive`, {});
+  }
 
   createPhase(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/phases`, body); }
   updatePhase(phaseId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/phases/${phaseId}`, body); }
