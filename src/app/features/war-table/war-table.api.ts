@@ -203,4 +203,24 @@ export class WarTableApi {
   regenerateExcel(projectId: number): Observable<{ path: string }> {
     return this.http.post<{ path: string }>(`${this.base}/projects/${projectId}/regenerate-excel`, {});
   }
+
+  // ═══ SPRINT LAUNCH v1.0.7 ═══
+
+  /** Détecte le sprint lançable aujourd'hui. */
+  launchableSprint(projectId: number): Observable<{
+    launchable: boolean; sprintId?: number; sprintName?: string; sprintNumber?: number;
+    startDate?: string; status?: string; daysUntilStart?: number; isToday?: boolean;
+    isOverdue?: boolean; reason?: string;
+  }> {
+    return this.http.get<any>(`${this.base}/projects/${projectId}/sprints/launchable`);
+  }
+
+  /** Lance un sprint : status=EN_COURS + daily auto + ticketKeys YC-* + auto-export. */
+  launchSprint(sprintId: number): Observable<{
+    sprintId: number; sprintName: string; previousStatus: string; newStatus: string;
+    launchedAt: string; dailyCreated: boolean; dailyId?: number;
+    ticketKeysGenerated: number; keyPattern: string; excelAutoExportTriggered: boolean;
+  }> {
+    return this.http.post<any>(`${this.base}/sprints/${sprintId}/launch`, {});
+  }
 }

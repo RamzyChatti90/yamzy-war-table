@@ -6,6 +6,38 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.7] — 2026-05-31
+
+### Added — Sprint Launch Flow
+- 🚀 **Banner "Lancer Sprint"** sur le Dashboard quand un sprint est lançable aujourd'hui (PLANNED dont startDate ≤ today, ou prochain à venir)
+  - 3 modes visuels : `is-today` (doré chaud), `is-overdue` (rouge), `upcoming` (violet/bleu)
+  - Animation rocket float + pulse box-shadow
+- 🆕 **Endpoint `POST /api/pos/sprints/{id}/launch`** : workflow complet
+  1. Status → `EN_COURS` + `launched_at = now`
+  2. Crée auto un **Daily Stand-up du jour** (idempotent, pas de doublon si existant)
+  3. Génère **ticketKey `YC-{PROJ}-S{N}-{seq}`** pour tickets sans ID propre (placeholder `NEW-*` ou pattern non-Yamzy)
+  4. Trigger l'auto-export Excel
+- 🆕 **Endpoint `GET /api/pos/projects/{id}/sprints/launchable`** : détecte le prochain sprint lançable + `daysUntilStart` + flags `isToday`/`isOverdue`
+- 📦 **Flyway V61** : ajoute `status` + `launched_at` à `pos_sprints`. Backfill auto basé sur les dates :
+  - `end_date < today` → `TERMINE`
+  - `start_date ≤ today ≤ end_date` → `EN_COURS`
+  - reste → `PLANNED`
+- 🚀 **Launcher `start-war-table.bat`** : 1 double-clic démarre Postgres-check + backend + studio + ouvre browser sur :4201
+
+### Fixed — Audit incréments
+- 🐛 **Auto-génération IDs côté backend** (max+1 au lieu de length+1, robust contre delete au milieu) :
+  - `createRisk` → si `riskId` blank, génère `R-{NNN}` basé sur `max(numericSuffix)+1`
+  - `createDebt` → idem avec `TD-{NNN}`
+  - `createLesson` → idem avec `L-{NNN}`
+  - `createAdr` → idem avec `ADR-{NNN}`
+- Helper `nextBusinessId(existing, prefix)` réutilisable + tested
+
+### Changed
+- `selectProject(id)` re-déclenche `refreshLaunchable()` auto
+- PosSprint entity : nouveau champ `status` (default `PLANNED`) + `launchedAt`
+
+---
+
 ## [1.0.6] — 2026-05-30
 
 ### Fixed

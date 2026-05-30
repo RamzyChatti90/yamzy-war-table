@@ -193,6 +193,27 @@
           <span class="wt-page-cat-badge">{{ catLabel(currentPageDef()?.cat || '') }}</span>
         </div>
 
+        <!-- ═══ v1.0.7 — Sprint Launch Banner ═══ -->
+        <div *ngIf="launchableInfo() as li" class="wt-launch-banner"
+             [class.wt-launch-today]="li.isToday"
+             [class.wt-launch-overdue]="li.isOverdue">
+          <div class="wt-launch-rocket">🚀</div>
+          <div class="wt-launch-body">
+            <div class="wt-launch-headline">
+              <span *ngIf="li.isToday">Aujourd'hui c'est le jour !</span>
+              <span *ngIf="li.isOverdue">Sprint en retard de {{ -1 * (li.daysUntilStart || 0) }} jour(s)</span>
+              <span *ngIf="!li.isToday && !li.isOverdue">Prochain sprint dans {{ li.daysUntilStart }} jour(s)</span>
+            </div>
+            <div class="wt-launch-sprint">
+              <strong>{{ li.sprintName }}</strong>
+              <span class="wt-launch-date">démarrage prévu {{ li.startDate }}</span>
+            </div>
+          </div>
+          <button class="wt-btn-launch-sprint" [disabled]="launchingSprint()" (click)="doLaunchSprint()">
+            {{ launchingSprint() ? '⟳ Lancement…' : '🚀 Lancer Sprint' }}
+          </button>
+        </div>
+
         <!-- ── DASHBOARD (layout SKIN : Video + News + Top Selection) ── -->
         <section *ngIf="activePage() === 'dashboard'" class="wt-sk-dash">
           <div class="wt-sk-dash-row">

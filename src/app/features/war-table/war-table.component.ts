@@ -80,6 +80,76 @@ export class WarTableComponent implements OnInit {
     return t.path.split(/[\\/]/).pop() || t.path;
   });
 
+  // ═══ SPRINT LAUNCH v1.0.7 ═══
+  /** Info du sprint lançable aujourd'hui (banner du dashboard). */
+  launchableInfo = signal<{
+    launchable: boolean;
+    sprintId?: number;
+    sprintName?: string;
+    sprintNumber?: number;
+    startDate?: string;
+    daysUntilStart?: number;
+    isToday?: boolean;
+    isOverdue?: boolean;
+  } | null>(null);
+  launchingSprint = signal(false);
+
+  /** Re-fetch l'info du sprint lançable pour le projet courant (appelé au load + après launch). */
+  refreshLaunchable(): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) { this.launchableInfo.set(null); return; }
+    this.api.launchableSprint(pid).subscribe({
+      next: info => this.launchableInfo.set(info.launchable ? info : null),
+      error: () => this.launchableInfo.set(null)
+    });
+  }
+
+  /** Click sur le bouton "🚀 Lancer Sprint". */
+  doLaunchSprint(): void {
+    const info = this.launchableInfo();
+    const pid = this.api.selectedProjectId();
+    if (!info?.sprintId || !pid) return;
+    const dateLabel = info.isToday ? 'AUJOURD\'HUI'
+                    : info.isOverdue ? `il y a ${Math.abs(info.daysUntilStart || 0)} jour(s) — retard`
+                    : `dans ${info.daysUntilStart} jour(s)`;
+    if (!confirm(
+      `🚀 Lancer le sprint "${info.sprintName}" ?\n\n`
+      + `Démarrage prévu : ${dateLabel}\n\n`
+      + `Action :\n`
+      + `  • Status → EN_COURS\n`
+      + `  • launched_at = maintenant\n`
+      + `  • Crée un Daily Stand-up du jour\n`
+      + `  • Génère les ticketKey "YC-{PROJ}-S{N}-{seq}" pour les tickets sans ID\n`
+      + `  • Trigger l'export Excel\n\n`
+      + `Confirmer ?`
+    )) return;
+    this.launchingSprint.set(true);
+    this.api.launchSprint(info.sprintId).subscribe({
+      next: r => {
+        this.launchingSprint.set(false);
+        alert(
+          `✓ Sprint "${r.sprintName}" lancé !\n\n`
+          + `Status : ${r.previousStatus} → ${r.newStatus}\n`
+          + `Lancé à : ${new Date(r.launchedAt).toLocaleString('fr-FR')}\n`
+          + `Daily créé : ${r.dailyCreated ? 'oui' : 'non (existait déjà)'}\n`
+          + `Tickets re-keyed : ${r.ticketKeysGenerated} (pattern ${r.keyPattern})\n`
+          + `Excel : auto-régénéré\n\n`
+          + `Bon sprint !`
+        );
+        // Recharge tout
+        this.refreshLaunchable();
+        this.refreshActivePage();
+        this.api.sprints(pid).subscribe({ next: s => this.sprints.set(s) });
+        this.api.tickets(pid).subscribe({ next: t => this.tickets.set(t) });
+        this.notifyExcelChanged(pid);
+      },
+      error: err => {
+        this.launchingSprint.set(false);
+        alert('Échec lancement sprint : ' + (err?.error?.message || err?.message || 'erreur inconnue'));
+      }
+    });
+  }
+
   // ═══ NEW PROJECT MODAL v1.0.4 ═══
   newProjectOpen = signal<boolean>(false);
   newProjectDraft: Partial<PosProject> = {};
@@ -758,6 +828,7 @@ export class WarTableComponent implements OnInit {
   selectProject(id: number): void {
     this.api.selectedProjectId.set(id);
     this.loadActiveData();
+    this.refreshLaunchable();
   }
 
   /** Change de page + lazy-load des données spécifiques. */
