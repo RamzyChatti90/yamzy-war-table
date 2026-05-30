@@ -45,6 +45,65 @@ export class WarTableComponent implements OnInit {
     return Math.round((est - spent) * 10) / 10;
   }
 
+  // ═══ TEAM MEMBERS v1.0.13 (avatars + identité + futur réseau Yamzy) ═══
+  memberColorPalette = ['#d99a51','#70b944','#4696b9','#c25d8d','#9d8ad6','#2ea1cb','#fb923c','#22d3ee','#ec4899','#a78bfa','#f59e0b','#10b981'];
+  /** Hash stable d'un nom → index palette. */
+  private hashStr(s: string): number {
+    let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return Math.abs(h);
+  }
+  memberColor(m: any): string {
+    if (!m) return '#6b6396';
+    if (m.colorHex) return m.colorHex;
+    const name = m.memberName || m.name || '?';
+    return this.memberColorPalette[this.hashStr(name) % this.memberColorPalette.length];
+  }
+  memberInitials(m: any): string {
+    if (!m) return '?';
+    if (m.initials) return m.initials.toUpperCase();
+    const name = (m.memberName || m.name || '?').trim();
+    if (!name) return '?';
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+    return name.substring(0, 2).toUpperCase();
+  }
+  teamMemberEdit = signal<any | null>(null);
+  teamMemberDraft: any = {};
+  editTeamMember(m: any): void {
+    this.teamMemberDraft = { ...m };
+    this.teamMemberEdit.set(m);
+  }
+  closeTeamMemberEdit(): void {
+    this.teamMemberEdit.set(null);
+    this.teamMemberDraft = {};
+  }
+  saveTeamMember(): void {
+    const orig = this.teamMemberEdit();
+    if (!orig?.id) { this.closeTeamMemberEdit(); return; }
+    // Auto-fill initials if empty
+    if (!this.teamMemberDraft.initials && this.teamMemberDraft.memberName) {
+      this.teamMemberDraft.initials = this.memberInitials({ memberName: this.teamMemberDraft.memberName });
+    }
+    if (!this.teamMemberDraft.colorHex) {
+      this.teamMemberDraft.colorHex = this.memberColor({ memberName: this.teamMemberDraft.memberName });
+    }
+    this.api.updateCapacity(orig.id, this.teamMemberDraft).subscribe({
+      next: updated => {
+        this.capacity.update(arr => arr.map(x => x.id === orig.id ? updated : x));
+        this.closeTeamMemberEdit();
+      },
+      error: err => this.dialog.alert({ title: 'Erreur', message: 'Sauvegarde échouée', kind: 'error', details: [{ label: 'Erreur', value: String(err?.message || err) }] })
+    });
+  }
+
+  // ═══ TIME ALLOCATION v1.0.13 ═══
+  timeAllocation = signal<any>(null);
+  refreshTimeAllocation(): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) { this.timeAllocation.set(null); return; }
+    this.api.timeAllocation(pid).subscribe({ next: d => this.timeAllocation.set(d), error: () => this.timeAllocation.set(null) });
+  }
+
   // ═══ COCKPIT WIDGET v1.0.12 (style "Chicago" — 4 onglets en carrousel) ═══
   cockpitTab = signal<'action' | 'upcoming' | 'tickets' | 'alerts'>('action');
   cockpitTabs = [
@@ -209,18 +268,48 @@ export class WarTableComponent implements OnInit {
       scheduledEnd: this.toDatetimeLocal(inHour),
       attendees: []
     };
+    this.selectedAttendees = [];
     this.newEventOpen.set(true);
   }
-  cancelNewEvent(): void { this.newEventOpen.set(false); }
+  cancelNewEvent(): void { this.newEventOpen.set(false); this.selectedAttendees = []; }
+
+  // v1.0.13 — Multi-select attendees from team
+  selectedAttendees: any[] = [];
+  isAttendeeSelected(m: any): boolean { return this.selectedAttendees.some(a => a.memberId === m.id); }
+  toggleAttendee(m: any): void {
+    const idx = this.selectedAttendees.findIndex(a => a.memberId === m.id);
+    if (idx >= 0) {
+      this.selectedAttendees.splice(idx, 1);
+    } else {
+      this.selectedAttendees.push({
+        memberId: m.id,
+        name: m.memberName,
+        role: m.role,
+        email: m.email,
+        color: this.memberColor(m),
+        emoji: m.avatarEmoji,
+        initials: this.memberInitials(m),
+        yamzyHandle: m.yamzyHandle,
+        response: 'PENDING'
+      });
+    }
+  }
+
   submitNewEvent(): void {
     const pid = this.api.selectedProjectId();
     if (!pid) return;
     const draft = { ...this.newEventDraft,
       scheduledStart: new Date(this.newEventDraft.scheduledStart).toISOString(),
       scheduledEnd: new Date(this.newEventDraft.scheduledEnd).toISOString(),
+      attendees: this.selectedAttendees.length ? this.selectedAttendees : null,
     };
     this.api.createEvent(pid, draft).subscribe({
-      next: () => { this.newEventOpen.set(false); this.refreshEvents(); this.notifyExcelChanged(pid); }
+      next: () => {
+        this.newEventOpen.set(false);
+        this.selectedAttendees = [];
+        this.refreshEvents();
+        this.notifyExcelChanged(pid);
+      }
     });
   }
 
@@ -1526,6 +1615,7 @@ export class WarTableComponent implements OnInit {
     this.startReminderPoll();
     this.refreshEvents();
     this.startEventPoll();
+    this.refreshTimeAllocation();
   }
 
   /** Change de page + lazy-load des données spécifiques. */
@@ -1762,10 +1852,54 @@ export class WarTableComponent implements OnInit {
     return isNaN(d.getTime()) ? null : d;
   }
 
+  /** v1.0.13 — Couleurs par type d'event (fallback si pas de colorHex). */
+  eventTypeColorMap: Record<string, string> = {
+    DAILY:    '#70b944',  // vert
+    PLANNING: '#4696b9',  // bleu
+    REVIEW:   '#d99a51',  // or Yamzy
+    RETRO:    '#c25d8d',  // rose
+    MEETING:  '#9d8ad6',  // violet
+    CALL:     '#2ea1cb',  // cyan
+    OTHER:    '#6b6396',  // gris
+  };
+  eventLegend = computed(() => {
+    const seen = new Set<string>();
+    const out: { type: string; label: string; color: string }[] = [];
+    for (const e of this.events()) {
+      const t = e.type || 'OTHER';
+      if (seen.has(t)) continue;
+      seen.add(t);
+      out.push({ type: t, label: this.eventTypeLabel(t), color: this.eventTypeColorMap[t] || '#6b6396' });
+    }
+    return out;
+  });
+
+  /** v1.0.13 — Détection locale de collisions sur une liste d'events (paires overlapping). */
+  private detectCollisions(list: any[]): Set<number> {
+    const ids = new Set<number>();
+    const sorted = [...list].sort((a, b) => new Date(a.scheduledStart).getTime() - new Date(b.scheduledStart).getTime());
+    for (let i = 0; i < sorted.length; i++) {
+      const a = sorted[i];
+      const aStart = new Date(a.scheduledStart).getTime();
+      const aEnd = new Date(a.scheduledEnd).getTime();
+      for (let j = i + 1; j < sorted.length; j++) {
+        const b = sorted[j];
+        const bStart = new Date(b.scheduledStart).getTime();
+        const bEnd = new Date(b.scheduledEnd).getTime();
+        if (bStart >= aEnd) break;
+        if (aStart < bEnd && bStart < aEnd) {
+          ids.add(a.id); ids.add(b.id);
+        }
+      }
+    }
+    return ids;
+  }
+
   calendarMonths = computed(() => {
     const tickets = this.tickets().filter(t => t.deliveryDate || t.startDate);
-    if (!tickets.length) return [];
-    // Plage de dates : min(start|delivery) → max(delivery|start)
+    const events = this.events() || [];
+    if (!tickets.length && !events.length) return [];
+    // Plage de dates : min(ticket/event start) → max
     let min: Date | null = null, max: Date | null = null;
     for (const t of tickets) {
       const s = this.parseDate(t.startDate) || this.parseDate(t.deliveryDate);
@@ -1773,7 +1907,17 @@ export class WarTableComponent implements OnInit {
       if (s && (!min || s < min)) min = s;
       if (e && (!max || e > max)) max = e;
     }
+    for (const ev of events) {
+      const s = ev.scheduledStart ? new Date(ev.scheduledStart) : null;
+      const e = ev.scheduledEnd ? new Date(ev.scheduledEnd) : null;
+      if (s && (!min || s < min)) min = s;
+      if (e && (!max || e > max)) max = e;
+    }
     if (!min || !max) return [];
+
+    // Détection collisions (set d'ids en collision)
+    const collisionIds = this.detectCollisions(events);
+
     const months: any[] = [];
     const monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
     const todayStr = new Date().toISOString().substring(0, 10);
@@ -1783,7 +1927,6 @@ export class WarTableComponent implements OnInit {
     while (cur <= end && guard++ < 36) {
       const year = cur.getFullYear(), month = cur.getMonth();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      // Lundi = 0 ; getDay() renvoie 0=Dim..6=Sam → offset lundi-first
       const firstDow = (new Date(year, month, 1).getDay() + 6) % 7;
       const cells: any[] = [];
       for (let i = 0; i < firstDow; i++) cells.push({ day: null });
@@ -1798,7 +1941,26 @@ export class WarTableComponent implements OnInit {
           const cell = new Date(dateStr);
           return cell >= new Date(st.toISOString().substring(0,10)) && cell <= new Date(e.toISOString().substring(0,10));
         });
-        cells.push({ day: d, weekend: dow >= 5, isToday: dateStr === todayStr, tickets: dayTickets });
+        const dayEvents = events
+          .filter(ev => ev.scheduledStart && ev.scheduledStart.substring(0, 10) === dateStr)
+          .map(ev => ({
+            id: ev.id,
+            type: ev.type,
+            title: ev.title,
+            time: this.formatTime(ev.scheduledStart),
+            color: ev.colorHex || this.eventTypeColorMap[ev.type] || '#6b6396',
+            collision: collisionIds.has(ev.id),
+            attendeesCount: (ev.attendees || []).length,
+            attendees: (ev.attendees || []).slice(0, 4),
+            status: ev.status,
+          }))
+          .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+        cells.push({
+          day: d, weekend: dow >= 5, isToday: dateStr === todayStr,
+          tickets: dayTickets, events: dayEvents,
+          hasCollision: dayEvents.some(e => e.collision),
+          dateStr,
+        });
       }
       months.push({ label: `${monthNames[month]} ${year}`, cells });
       cur = new Date(year, month + 1, 1);
