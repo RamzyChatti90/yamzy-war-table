@@ -130,43 +130,19 @@ export class WarTableComponent implements OnInit {
     this.wheelLockTimer = setTimeout(() => { this.wheelLockTimer = null; }, 600);
   }
 
-  // ═══ CAROUSEL v1.0.43 — diffusion permanente : toujours ouvert + auto-scroll ═══
-  yamzyCarouselOpen = signal(true); // OUVERT par défaut (mode diffusion auto)
+  // ═══ CAROUSEL v1.0.44 — toujours ouvert MAIS pas d'auto-scroll. User-driven uniquement. ═══
+  yamzyCarouselOpen = signal(true); // OUVERT par défaut
   toggleCarousel(): void {
     if (this.positionMode()) return;
     this.yamzyCarouselOpen.update(v => !v);
     if (this.yamzyCarouselOpen()) {
       this.applyCenterAction();
-      this.startAutoScroll();
-    } else {
-      this.stopAutoScroll();
     }
   }
-
-  /** v1.0.41 — Auto-scroll : tourne le carrousel automatiquement toutes les 5s.
-   *  Reset au moindre user-interact (scroll, click dot) pour pas couper l'utilisateur. */
-  private autoScrollInterval: any = null;
-  private startAutoScroll(): void {
-    this.stopAutoScroll();
-    this.autoScrollInterval = setInterval(() => {
-      if (this.yamzyCarouselOpen() && !this.positionMode()) {
-        const n = this.yamzyCarouselCards().length;
-        if (n) {
-          this.yamzyCarouselIndex.update(i => (i + 1) % n);
-          this.scheduleCenterAction();
-        }
-      }
-    }, 5000);
-  }
-  private stopAutoScroll(): void {
-    if (this.autoScrollInterval) {
-      clearInterval(this.autoScrollInterval);
-      this.autoScrollInterval = null;
-    }
-  }
-  private resetAutoScroll(): void {
-    if (this.yamzyCarouselOpen()) this.startAutoScroll();
-  }
+  // v1.0.44 — Auto-scroll retiré. Les méthodes restent en no-op pour compat appels existants.
+  private startAutoScroll(): void { /* disabled */ }
+  private stopAutoScroll(): void { /* disabled */ }
+  private resetAutoScroll(): void { /* disabled */ }
 
   // ═══ PAGE HEADER v1.0.42 — Header PS hero générique sur toutes les pages ═══
   /** Header info adapté à la page active. */
@@ -2019,11 +1995,8 @@ export class WarTableComponent implements OnInit {
     this.reloadProjects();
     // Filet de sécurité : même si la BDD est vide ou hors-ligne, on ferme le splash après 6s max.
     setTimeout(() => this.markSplashReady(), 6000);
-    // v1.0.43 — Lance le carousel en mode diffusion automatique dès l'init
-    setTimeout(() => {
-      this.applyCenterAction();
-      this.startAutoScroll();
-    }, 800);
+    // v1.0.44 — Charge la 1ère page (Dashboard) sans démarrer d'auto-scroll
+    setTimeout(() => this.applyCenterAction(), 800);
 
     // Réagit aux navigations venant de /war-table-skin
     // ?section=backlog → navigue ; ?import=1 → ouvre le modal d'import
