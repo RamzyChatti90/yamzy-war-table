@@ -1107,165 +1107,133 @@ body { background: #0a0820 !important; }
   border-color: rgba(222, 79, 95, 0.7);
 }
 
-/* ═══ v1.0.7 — Sprint Launch Banner ═══ */
-.wt-launch-banner {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 16px 22px;
-  margin: 0 22px 18px;
-  background: linear-gradient(135deg, rgba(110,71,191,.55), rgba(70,150,185,.45));
-  border: 1px solid rgba(217,154,81,.45);
-  border-radius: 14px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 6px 24px rgba(110,71,191,.25);
-  animation: wt-launch-pulse 2.4s ease-in-out infinite;
-}
-@keyframes wt-launch-pulse {
-  0%,100% { box-shadow: 0 6px 24px rgba(110,71,191,.25); }
-  50%     { box-shadow: 0 8px 32px rgba(217,154,81,.45); }
-}
-.wt-launch-today {
-  background: linear-gradient(135deg, rgba(217,154,81,.65), rgba(222,79,95,.55));
-  border-color: rgba(255,200,100,.85);
-}
-.wt-launch-overdue {
-  background: linear-gradient(135deg, rgba(222,79,95,.70), rgba(110,71,191,.55));
-  border-color: rgba(255,140,140,.85);
-}
-.wt-launch-rocket {
-  font-size: 42px;
-  line-height: 1;
-  filter: drop-shadow(0 4px 12px rgba(255,200,100,.55));
-  animation: wt-launch-rocket-float 2.4s ease-in-out infinite;
-}
-@keyframes wt-launch-rocket-float {
-  0%,100% { transform: translateY(0) rotate(-8deg); }
-  50%     { transform: translateY(-6px) rotate(0deg); }
-}
-.wt-launch-body { flex: 1; min-width: 0; }
-.wt-launch-headline {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: .04em;
+/* ═══ v1.0.7 — Play button transformé en "LANCER SPRINT" quand un sprint est lançable ═══ */
+.wt-sk-player-wrap.wt-sk-player-launchable .wt-sk-play-btn {
+  background: linear-gradient(135deg, #70b944, #2ea1cb);
   color: #fff;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 0 22px rgba(112, 185, 68, .55);
+  animation: wt-sk-play-launchable-pulse 2.0s ease-in-out infinite;
 }
-.wt-launch-sprint {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  font-size: 14px;
-  color: #f4ecff;
+.wt-sk-player-wrap.wt-sk-player-launchable .wt-sk-play-label {
+  color: #b6e08a;
+  font-weight: 800;
+  letter-spacing: .05em;
 }
-.wt-launch-sprint strong {
-  font-size: 16px;
-  color: #ffe5b8;
+@keyframes wt-sk-play-launchable-pulse {
+  0%,100% { box-shadow: 0 0 22px rgba(112,185,68,.55); transform: scale(1); }
+  50%     { box-shadow: 0 0 40px rgba(112,185,68,.95); transform: scale(1.06); }
+}
+.wt-sk-player-wrap.is-today .wt-sk-play-btn {
+  background: linear-gradient(135deg, #d99a51, #de4f5f);
+  box-shadow: 0 0 28px rgba(217, 154, 81, .85);
+  animation: wt-sk-play-today-pulse 1.2s ease-in-out infinite;
+}
+.wt-sk-player-wrap.is-today .wt-sk-play-label { color: #ffe5b8; }
+@keyframes wt-sk-play-today-pulse {
+  0%,100% { box-shadow: 0 0 28px rgba(217,154,81,.85); transform: scale(1); }
+  50%     { box-shadow: 0 0 48px rgba(255,200,100,1); transform: scale(1.10); }
+}
+.wt-sk-player-wrap.is-overdue .wt-sk-play-btn {
+  background: linear-gradient(135deg, #de4f5f, #c25d8d);
+  box-shadow: 0 0 28px rgba(222, 79, 95, .85);
+  animation: wt-sk-play-overdue-pulse 0.85s ease-in-out infinite;
+}
+.wt-sk-player-wrap.is-overdue .wt-sk-play-label { color: #ffb1b8; }
+@keyframes wt-sk-play-overdue-pulse {
+  0%,100% { box-shadow: 0 0 28px rgba(222,79,95,.85); }
+  50%     { box-shadow: 0 0 50px rgba(255,80,80,1); }
+}
+
+/* ═══ v1.0.7 — Sage Yamzy card (carte verte dans le News feed) ═══ */
+.wt-sk-sage-card {
+  background: linear-gradient(135deg, rgba(70, 150, 185, 0.18), rgba(112, 185, 68, 0.22)) !important;
+  border: 1px solid rgba(112, 185, 68, 0.55) !important;
+  box-shadow: 0 4px 20px rgba(112, 185, 68, 0.20);
+  position: relative;
+  overflow: visible;
+  animation: wt-sk-sage-glow 3.2s ease-in-out infinite;
+}
+@keyframes wt-sk-sage-glow {
+  0%,100% { box-shadow: 0 4px 20px rgba(112, 185, 68, .20); }
+  50%     { box-shadow: 0 6px 28px rgba(112, 185, 68, .50); }
+}
+.wt-sk-sage-card.is-today {
+  background: linear-gradient(135deg, rgba(217, 154, 81, 0.22), rgba(112, 185, 68, 0.18)) !important;
+  border-color: rgba(255, 200, 100, 0.75) !important;
+  animation: wt-sk-sage-glow-today 1.8s ease-in-out infinite;
+}
+@keyframes wt-sk-sage-glow-today {
+  0%,100% { box-shadow: 0 4px 20px rgba(217,154,81,.30); }
+  50%     { box-shadow: 0 6px 32px rgba(255,200,100,.70); }
+}
+.wt-sk-sage-card.is-overdue {
+  background: linear-gradient(135deg, rgba(222, 79, 95, 0.22), rgba(110, 71, 191, 0.18)) !important;
+  border-color: rgba(255, 140, 140, 0.75) !important;
+  animation: wt-sk-sage-glow-overdue 1.2s ease-in-out infinite;
+}
+@keyframes wt-sk-sage-glow-overdue {
+  0%,100% { box-shadow: 0 4px 20px rgba(222,79,95,.30); }
+  50%     { box-shadow: 0 6px 32px rgba(255,100,100,.70); }
+}
+.wt-sk-sage-thumb {
+  background: radial-gradient(circle at 50% 50%, rgba(112,185,68,.45), rgba(46,161,203,.25) 70%) !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+.wt-sk-sage-card.is-today .wt-sk-sage-thumb {
+  background: radial-gradient(circle at 50% 50%, rgba(217,154,81,.55), rgba(222,79,95,.25) 70%) !important;
+}
+.wt-sk-sage-card.is-overdue .wt-sk-sage-thumb {
+  background: radial-gradient(circle at 50% 50%, rgba(222,79,95,.55), rgba(110,71,191,.25) 70%) !important;
+}
+.wt-sk-sage-rune {
+  font-size: 36px;
+  filter: drop-shadow(0 4px 12px rgba(112,185,68,.65));
+  animation: wt-sk-sage-rune-float 3.2s ease-in-out infinite;
+}
+@keyframes wt-sk-sage-rune-float {
+  0%,100% { transform: translateY(0) rotate(-4deg); }
+  50%     { transform: translateY(-3px) rotate(4deg); }
+}
+.wt-sk-sage-title {
+  color: #b6e08a !important;
+  font-weight: 800 !important;
+  letter-spacing: .03em;
+  font-size: 13px !important;
+}
+.wt-sk-sage-card.is-today .wt-sk-sage-title { color: #ffe5b8 !important; }
+.wt-sk-sage-card.is-overdue .wt-sk-sage-title { color: #ffb1b8 !important; }
+.wt-sk-sage-message {
+  color: #d9eece !important;
+  font-size: 11.5px !important;
+  line-height: 1.45 !important;
+  margin-top: 4px;
+}
+.wt-sk-sage-message strong {
+  color: #fff;
   font-family: 'Courier New', monospace;
   letter-spacing: .03em;
 }
-.wt-launch-date {
-  font-size: 11px;
-  color: #c8bce6;
-  opacity: 0.8;
-  font-style: italic;
-}
-.wt-btn-launch-sprint {
-  background: linear-gradient(135deg, #d99a51, #c25d8d);
-  color: #1d172e;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-size: 14px;
+.wt-sk-sage-tags { gap: 5px !important; margin-top: 6px !important; }
+.wt-sk-sage-tag-when {
+  background: rgba(112,185,68,.35) !important;
+  color: #fff !important;
   font-weight: 800;
-  cursor: pointer;
-  letter-spacing: .04em;
-  transition: transform .14s, box-shadow .2s;
-  box-shadow: 0 4px 16px rgba(217,154,81,.45);
-  white-space: nowrap;
-  font-family: 'Poppins', sans-serif;
+  font-size: 9.5px;
+  letter-spacing: .08em;
 }
-.wt-btn-launch-sprint:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(217,154,81,.65);
+.wt-sk-sage-card.is-today .wt-sk-sage-tag-when {
+  background: rgba(255,200,100,.55) !important;
+  color: #2a1f0a !important;
 }
-.wt-btn-launch-sprint:active:not(:disabled) { transform: scale(0.96); }
-.wt-btn-launch-sprint:disabled {
-  opacity: .65;
-  cursor: progress;
-  background: linear-gradient(135deg, #6647bf, #4696b9);
-  color: #fff;
+.wt-sk-sage-card.is-overdue .wt-sk-sage-tag-when {
+  background: rgba(255,80,80,.55) !important;
 }
-
-/* ═══ v1.0.7 — Lancer Sprint compact topbar (visible toutes pages) ═══ */
-.wt-btn-launch-topbar {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: linear-gradient(135deg, #6647bf, #4696b9);
-  color: #fff;
-  border: 1px solid rgba(217,154,81,.45);
-  padding: 6px 11px;
-  border-radius: 999px;
-  font-size: 11.5px;
+.wt-sk-sage-tag-arrow {
+  background: rgba(0,0,0,.35) !important;
+  color: #b6e08a !important;
   font-weight: 700;
-  letter-spacing: .02em;
-  cursor: pointer;
-  transition: transform .12s, box-shadow .18s, background .18s;
-  box-shadow: 0 2px 10px rgba(102, 71, 191, .35);
-  font-family: 'Poppins', sans-serif;
-  white-space: nowrap;
-  animation: wt-launch-topbar-pulse 2.6s ease-in-out infinite;
-}
-@keyframes wt-launch-topbar-pulse {
-  0%,100% { box-shadow: 0 2px 10px rgba(102,71,191,.35); }
-  50%     { box-shadow: 0 4px 18px rgba(217,154,81,.55); }
-}
-.wt-btn-launch-topbar:hover:not(:disabled) {
-  transform: translateY(-1px);
-  background: linear-gradient(135deg, #7e57d2, #4696b9);
-}
-.wt-btn-launch-topbar:active:not(:disabled) { transform: scale(0.96); }
-.wt-btn-launch-topbar:disabled { opacity: .7; cursor: progress; }
-.wt-btn-launch-topbar.is-today {
-  background: linear-gradient(135deg, #d99a51, #de4f5f);
-  border-color: rgba(255,200,100,.85);
-  animation: wt-launch-topbar-pulse-today 1.4s ease-in-out infinite;
-}
-@keyframes wt-launch-topbar-pulse-today {
-  0%,100% { box-shadow: 0 2px 10px rgba(217,154,81,.45); transform: scale(1); }
-  50%     { box-shadow: 0 6px 24px rgba(255,200,100,.85); transform: scale(1.04); }
-}
-.wt-btn-launch-topbar.is-overdue {
-  background: linear-gradient(135deg, #de4f5f, #6647bf);
-  border-color: rgba(255,140,140,.85);
-  animation: wt-launch-topbar-pulse-overdue 1.0s ease-in-out infinite;
-}
-@keyframes wt-launch-topbar-pulse-overdue {
-  0%,100% { box-shadow: 0 2px 10px rgba(222,79,95,.45); }
-  50%     { box-shadow: 0 6px 22px rgba(255,80,80,.85); }
-}
-.wt-launch-topbar-rocket { font-size: 13px; line-height: 1; }
-.wt-launch-topbar-label {
-  font-size: 11px;
+  font-size: 9.5px;
   letter-spacing: .04em;
-  font-family: 'Courier New', monospace;
-  color: #ffe5b8;
-  max-width: 110px;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-.wt-launch-topbar-when {
-  background: rgba(0,0,0,.30);
-  padding: 1px 7px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: .06em;
-}
-.wt-launch-topbar-when.today { background: #fff; color: #de4f5f; }
-.wt-launch-topbar-when.overdue { background: #2a1f3e; color: #ff8c8c; }
-.wt-launch-topbar-when.soon { background: rgba(110,231,183,.25); color: #b6e08a; }

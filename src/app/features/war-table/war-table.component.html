@@ -72,20 +72,6 @@
       <button class="wt-btn-import" (click)="importOpen.set(true)">{{ 'topbar.import' | t }}</button>
       <!-- 🆕 v1.0.4 : Nouveau projet -->
       <button class="wt-btn-import" (click)="openNewProject()" [title]="'Nouveau projet (Realm vide)'">🆕</button>
-      <!-- 🚀 v1.0.7 : Lancer sprint — compact topbar (visible toutes pages) -->
-      <button *ngIf="launchableInfo() as li"
-              class="wt-btn-launch-topbar"
-              [class.is-today]="li.isToday"
-              [class.is-overdue]="li.isOverdue"
-              [disabled]="launchingSprint()"
-              (click)="doLaunchSprint()"
-              [title]="launchTooltip()">
-        <span class="wt-launch-topbar-rocket">{{ launchingSprint() ? '⟳' : '🚀' }}</span>
-        <span class="wt-launch-topbar-label">{{ li.sprintName }}</span>
-        <span *ngIf="li.isToday" class="wt-launch-topbar-when today">NOW</span>
-        <span *ngIf="li.isOverdue" class="wt-launch-topbar-when overdue">{{ -1 * (li.daysUntilStart || 0) }}j</span>
-        <span *ngIf="!li.isToday && !li.isOverdue" class="wt-launch-topbar-when soon">J-{{ li.daysUntilStart }}</span>
-      </button>
       <!-- 🔄 v1.0.5 : Reset & archive (rebrand + export + delete) -->
       <button class="wt-skin-icon-btn" *ngIf="api.selectedProjectId()" (click)="resetAndArchive()"
               [title]="'Reset complet : rebrand sprints + export Excel propre + suppression projet (pour ré-import)'"
@@ -207,27 +193,6 @@
           <span class="wt-page-cat-badge">{{ catLabel(currentPageDef()?.cat || '') }}</span>
         </div>
 
-        <!-- ═══ v1.0.7 — Sprint Launch Banner ═══ -->
-        <div *ngIf="launchableInfo() as li" class="wt-launch-banner"
-             [class.wt-launch-today]="li.isToday"
-             [class.wt-launch-overdue]="li.isOverdue">
-          <div class="wt-launch-rocket">🚀</div>
-          <div class="wt-launch-body">
-            <div class="wt-launch-headline">
-              <span *ngIf="li.isToday">Aujourd'hui c'est le jour !</span>
-              <span *ngIf="li.isOverdue">Sprint en retard de {{ -1 * (li.daysUntilStart || 0) }} jour(s)</span>
-              <span *ngIf="!li.isToday && !li.isOverdue">Prochain sprint dans {{ li.daysUntilStart }} jour(s)</span>
-            </div>
-            <div class="wt-launch-sprint">
-              <strong>{{ li.sprintName }}</strong>
-              <span class="wt-launch-date">démarrage prévu {{ li.startDate }}</span>
-            </div>
-          </div>
-          <button class="wt-btn-launch-sprint" [disabled]="launchingSprint()" (click)="doLaunchSprint()">
-            {{ launchingSprint() ? '⟳ Lancement…' : '🚀 Lancer Sprint' }}
-          </button>
-        </div>
-
         <!-- ── DASHBOARD (layout SKIN : Video + News + Top Selection) ── -->
         <section *ngIf="activePage() === 'dashboard'" class="wt-sk-dash">
           <div class="wt-sk-dash-row">
@@ -267,13 +232,20 @@
                   </div>
                 </div>
               </div>
-              <!-- Play (→ Roadmap) + LIVE ping -->
-              <div class="wt-sk-player-wrap" (click)="setPage('roadmap')" [title]="'dash.open_roadmap' | t">
+              <!-- Play : LANCER SPRINT si lançable (recyclage du bouton Roadmap) -->
+              <div class="wt-sk-player-wrap"
+                   [class.wt-sk-player-launchable]="launchableInfo()"
+                   [class.is-today]="launchableInfo()?.isToday"
+                   [class.is-overdue]="launchableInfo()?.isOverdue"
+                   (click)="launchableInfo() ? doLaunchSprint() : setPage('roadmap')"
+                   [title]="launchableInfo() ? launchTooltip() : ('dash.open_roadmap' | t)">
                 <div class="wt-sk-player-rel">
-                  <div *ngIf="sprintDayInfo()" class="wt-sk-ping"></div>
+                  <div *ngIf="sprintDayInfo() || launchableInfo()" class="wt-sk-ping"></div>
                   <div class="wt-sk-player">
-                    <div class="wt-sk-play-btn">▶</div>
-                    <div class="wt-sk-play-label">{{ 'dash.roadmap' | t }}</div>
+                    <div class="wt-sk-play-btn">{{ launchingSprint() ? '⟳' : '▶' }}</div>
+                    <div class="wt-sk-play-label">
+                      {{ launchableInfo() ? ('LANCER ' + (launchableInfo()?.sprintName || '')) : ('dash.roadmap' | t) }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -281,6 +253,43 @@
 
             <!-- ④ NEWS : activité récente -->
             <div class="wt-sk-news">
+              <!-- 🚀 v1.0.7 — Yamzy Sage reminder : carte verte qui pointe vers le bouton play -->
+              <div *ngIf="launchableInfo() as li" class="wt-sk-news-card wt-sk-sage-card"
+                   [class.is-today]="li.isToday"
+                   [class.is-overdue]="li.isOverdue"
+                   (click)="doLaunchSprint()"
+                   [title]="launchTooltip()">
+                <div class="wt-sk-news-thumb wt-sk-sage-thumb">
+                  <span class="wt-sk-sage-rune">⚔</span>
+                </div>
+                <div class="wt-sk-news-body">
+                  <div class="wt-sk-news-title wt-sk-sage-title">
+                    <span *ngIf="li.isToday">📜 Le Sage Yamzy parle</span>
+                    <span *ngIf="li.isOverdue">⚠ Le Sage Yamzy s'impatiente</span>
+                    <span *ngIf="!li.isToday && !li.isOverdue">📜 Le Sage Yamzy te rappelle</span>
+                  </div>
+                  <div class="wt-sk-news-sub wt-sk-sage-message">
+                    <span *ngIf="li.isToday">
+                      Stratège, aujourd'hui c'est le jour de bataille pour <strong>{{ li.sprintName }}</strong>.
+                      Clique sur le bouton ▶ <strong>LANCER</strong> ci-contre pour démarrer le Cycle.
+                    </span>
+                    <span *ngIf="li.isOverdue">
+                      Le sprint <strong>{{ li.sprintName }}</strong> attend depuis <strong>{{ -1 * (li.daysUntilStart || 0) }} jour(s)</strong>.
+                      Clique sur ▶ <strong>LANCER</strong> pour reprendre la quête sans tarder.
+                    </span>
+                    <span *ngIf="!li.isToday && !li.isOverdue">
+                      Le prochain Cycle <strong>{{ li.sprintName }}</strong> démarre dans <strong>{{ li.daysUntilStart }} jour(s)</strong>.
+                      Tu peux lancer maintenant avec ▶ <strong>LANCER</strong> ou attendre la date.
+                    </span>
+                  </div>
+                  <div class="wt-sk-news-tags wt-sk-sage-tags">
+                    <div class="wt-sk-news-tag wt-sk-sage-tag-when">
+                      {{ li.isToday ? "🔥 AUJOURD'HUI" : li.isOverdue ? '⏰ EN RETARD' : '📅 PROCHAINEMENT' }}
+                    </div>
+                    <div class="wt-sk-news-tag wt-sk-sage-tag-arrow">▶ click pour lancer</div>
+                  </div>
+                </div>
+              </div>
               <div *ngFor="let n of newsList()" class="wt-sk-news-card" (click)="onNewsClick(n)">
                 <div class="wt-sk-news-thumb" [style.background]="n.thumb"></div>
                 <div class="wt-sk-news-body">
