@@ -1091,8 +1091,8 @@
     .wt-sk-top { margin: 0; }
     .wt-sk-top-nested {
       margin-top: auto !important;            /* pousse Mes Plannings vers le BAS */
-      width: 100% !important;
-      align-self: stretch;
+      width: 50% !important;                  /* v1.0.68 — demi-largeur du header */
+      align-self: flex-end;                   /* aligné à DROITE du header */
       padding: 16px 18px !important;
       background: rgba(0, 0, 0, 0.32) !important;
       backdrop-filter: blur(10px);
@@ -1105,6 +1105,9 @@
       z-index: 2;
       display: flex;
       flex-direction: column;
+    }
+    @media (max-width: 1100px) {
+      .wt-sk-top-nested { width: 100% !important; align-self: stretch; }
     }
     .wt-sk-top-nested .wt-sk-top-head { padding: 0; }
     .wt-sk-top-nested .wt-sk-top-title { font-size: 18px; color: #fff; }
