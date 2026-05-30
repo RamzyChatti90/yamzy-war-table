@@ -119,6 +119,80 @@ export class WarTableComponent implements OnInit {
     return `${li.sprintName} — ${when} — click pour lancer`;
   }
 
+  // ═══ REMINDERS v1.0.10 ═══
+  remindersData = signal<{
+    items: Array<{ category: string; severity: 'HIGH'|'MEDIUM'|'LOW'; title: string; description: string; page?: string; entityKey?: string; entityId?: number; }>;
+    counts: { total: number; high: number; medium: number; low: number };
+  } | null>(null);
+  remindersOpen = signal(false);
+  remindersDismissed = signal<Set<string>>(new Set());
+  private reminderPollInterval: any = null;
+
+  /** Re-fetch les reminders pour le projet courant. */
+  refreshReminders(): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) { this.remindersData.set(null); return; }
+    this.api.reminders(pid).subscribe({
+      next: data => this.remindersData.set(data),
+      error: () => this.remindersData.set(null)
+    });
+  }
+
+  /** Compteurs filtrés (excluent les dismissed). */
+  visibleReminders = computed(() => {
+    const data = this.remindersData();
+    if (!data) return [];
+    const dismissed = this.remindersDismissed();
+    return data.items.filter(r => !dismissed.has(this.reminderKey(r)));
+  });
+  visibleHigh = computed(() => this.visibleReminders().filter(r => r.severity === 'HIGH').length);
+  visibleTotal = computed(() => this.visibleReminders().length);
+
+  /** Click sur la bell : ouvre le dropdown. */
+  toggleRemindersPanel(): void { this.remindersOpen.update(v => !v); }
+
+  /** Click sur un rappel : navigue vers la page concernée et ferme le panel. */
+  goToReminder(r: any): void {
+    if (r.page) this.setPage(r.page);
+    if (r.entityKey && r.page === 'backlog') this.ticketFilter = r.entityKey;
+    this.remindersOpen.set(false);
+  }
+
+  /** Dismiss un rappel (locale, jusqu'au prochain refresh). */
+  dismissReminder(r: any, event: Event): void {
+    event.stopPropagation();
+    const key = this.reminderKey(r);
+    const set = new Set(this.remindersDismissed());
+    set.add(key);
+    this.remindersDismissed.set(set);
+  }
+
+  private reminderKey(r: any): string {
+    return r.category + '|' + (r.entityId ?? r.entityKey ?? r.title);
+  }
+
+  /** Catégorie → label affichable. */
+  reminderCategoryLabel(cat: string): string {
+    const map: Record<string, string> = {
+      'ticket-overdue':        '🔴 Ticket en retard',
+      'ticket-blocked-stale':  '🛑 Ticket bloqué',
+      'ticket-aging-wip':      '⚠ WIP qui traîne',
+      'ticket-no-assignee':    '🙋 Sans assigné',
+      'daily-missing-today':   '📅 Daily manquant',
+      'daily-empty-yesterday': '📅 Daily vide hier',
+      'risk-overdue':          '⚠ Risque non résolu',
+      'techdebt-critical-noplan': '💳 Tech debt critique',
+      'sprint-overrun':        '🏃 Sprint dépassé',
+    };
+    return map[cat] || cat;
+  }
+
+  /** Démarre le poll périodique (toutes les 2 min). */
+  private startReminderPoll(): void {
+    if (this.reminderPollInterval) return;
+    this.reminderPollInterval = setInterval(() => this.refreshReminders(), 120_000);
+  }
+
   /** Re-fetch l'état du sprint pour le projet courant (appelé au load + après launch/interrupt). */
   refreshLaunchable(): void {
     const pid = this.api.selectedProjectId();
@@ -1002,6 +1076,8 @@ export class WarTableComponent implements OnInit {
     this.api.selectedProjectId.set(id);
     this.loadActiveData();
     this.refreshLaunchable();
+    this.refreshReminders();
+    this.startReminderPoll();
   }
 
   /** Change de page + lazy-load des données spécifiques. */

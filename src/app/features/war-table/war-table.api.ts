@@ -241,4 +241,17 @@ export class WarTableApi {
   }> {
     return this.http.post<any>(`${this.base}/sprints/${sprintId}/complete`, {});
   }
+
+  // ═══ REMINDERS v1.0.10 ═══
+  /** Récupère la liste des rappels/alertes pour ce projet. */
+  reminders(projectId: number): Observable<{
+    items: Array<{
+      category: string; severity: 'HIGH' | 'MEDIUM' | 'LOW';
+      title: string; description: string; page?: string;
+      entityKey?: string; entityId?: number;
+    }>;
+    counts: { total: number; high: number; medium: number; low: number; };
+  }> {
+    return this.http.get<any>(`${this.base}/projects/${projectId}/reminders`);
+  }
 }

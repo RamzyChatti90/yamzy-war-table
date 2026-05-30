@@ -1796,3 +1796,126 @@ body { background: #0a0820 !important; }
   50%      { opacity: 0.65; transform: scale(1.08); }
 }
 
+
+/* === v1.0.10 — Reminders bell + dropdown panel === */
+.wt-reminders-bell.has-high { color: #ff8c8c; animation: wt-bell-shake 1.6s ease-in-out infinite; }
+@keyframes wt-bell-shake {
+  0%, 92%, 100% { transform: rotate(0); }
+  94% { transform: rotate(-8deg); }
+  96% { transform: rotate(8deg); }
+  98% { transform: rotate(-4deg); }
+}
+
+.wt-reminders-panel {
+  position: absolute;
+  top: 64px;
+  right: 30px;
+  width: 420px;
+  max-height: 70vh;
+  background: linear-gradient(160deg, rgba(54, 44, 96, 0.97), rgba(33, 27, 58, 0.97));
+  border: 1px solid rgba(217, 154, 81, 0.45);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  backdrop-filter: blur(12px);
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  animation: wt-reminders-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+@keyframes wt-reminders-pop {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.wt-reminders-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(217, 154, 81, 0.22);
+  font-size: 13.5px; font-weight: 700; color: #fff;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.02em;
+}
+.wt-reminders-counts { display: flex; gap: 5px; margin-left: auto; }
+.wt-reminders-pill {
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.08em;
+  padding: 3px 8px; border-radius: 999px;
+  font-family: 'Poppins', sans-serif;
+}
+.wt-reminders-pill.high { background: rgba(222, 79, 95, 0.55); color: #fff; }
+.wt-reminders-pill.med  { background: rgba(217, 154, 81, 0.55); color: #1d172e; }
+.wt-reminders-pill.low  { background: rgba(70, 150, 185, 0.45); color: #fff; }
+
+.wt-reminders-body { overflow-y: auto; padding: 8px 0; }
+.wt-reminders-empty {
+  text-align: center; padding: 30px 20px;
+  color: rgba(200, 188, 230, 0.78);
+}
+.wt-reminders-empty-icon { font-size: 38px; margin-bottom: 8px; }
+.wt-reminders-empty-sub { font-size: 11.5px; opacity: 0.65; margin-top: 4px; }
+
+.wt-reminder-item {
+  display: flex; align-items: stretch; gap: 12px;
+  padding: 11px 14px 11px 12px;
+  margin: 0 8px 6px;
+  background: rgba(43, 37, 73, 0.55);
+  border: 1px solid rgba(139, 127, 214, 0.20);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+.wt-reminder-item:hover {
+  background: rgba(54, 44, 96, 0.85);
+  border-color: rgba(217, 154, 81, 0.50);
+  transform: translateX(2px);
+}
+.wt-reminder-marker {
+  width: 4px; min-width: 4px; border-radius: 4px;
+  background: rgba(70, 150, 185, 0.85);
+}
+.wt-reminder-item[data-severity="HIGH"]   .wt-reminder-marker { background: #de4f5f; box-shadow: 0 0 10px rgba(222, 79, 95, .55); }
+.wt-reminder-item[data-severity="MEDIUM"] .wt-reminder-marker { background: #d99a51; box-shadow: 0 0 10px rgba(217, 154, 81, .55); }
+.wt-reminder-item[data-severity="LOW"]    .wt-reminder-marker { background: #4696b9; }
+
+.wt-reminder-body { flex: 1; min-width: 0; }
+.wt-reminder-cat {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em;
+  color: rgba(200, 188, 230, 0.65);
+  text-transform: uppercase;
+  font-family: 'Poppins', sans-serif;
+}
+.wt-reminder-title {
+  font-size: 13px; font-weight: 700; color: #fff;
+  margin-top: 1px;
+}
+.wt-reminder-desc {
+  font-size: 11.5px; color: rgba(200, 188, 230, 0.78);
+  margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.wt-reminder-dismiss {
+  background: rgba(0, 0, 0, 0.20); color: rgba(200, 188, 230, 0.55);
+  border: none; width: 22px; height: 22px; border-radius: 50%;
+  cursor: pointer; font-size: 11px;
+  align-self: center;
+  transition: all 0.14s ease;
+}
+.wt-reminder-dismiss:hover { background: rgba(222, 79, 95, 0.40); color: #fff; }
+
+.wt-reminders-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  border-top: 1px solid rgba(217, 154, 81, 0.22);
+  background: rgba(15, 11, 32, 0.45);
+}
+.wt-reminders-refresh {
+  background: rgba(217, 154, 81, 0.18); color: #ffe5b8;
+  border: 1px solid rgba(217, 154, 81, 0.35);
+  padding: 5px 12px; border-radius: 8px;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.wt-reminders-refresh:hover { background: rgba(217, 154, 81, 0.30); }
+.wt-reminders-tip { font-size: 10.5px; color: rgba(200, 188, 230, 0.55); font-style: italic; }
+
