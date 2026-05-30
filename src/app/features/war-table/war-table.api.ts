@@ -206,11 +206,15 @@ export class WarTableApi {
 
   // ═══ SPRINT LAUNCH v1.0.7 ═══
 
-  /** Détecte le sprint lançable aujourd'hui. */
+  /** État sprint pour le dashboard : ACTIVE / LAUNCHABLE / IDLE. */
   launchableSprint(projectId: number): Observable<{
-    launchable: boolean; sprintId?: number; sprintName?: string; sprintNumber?: number;
-    startDate?: string; status?: string; daysUntilStart?: number; isToday?: boolean;
-    isOverdue?: boolean; reason?: string;
+    state: 'ACTIVE' | 'LAUNCHABLE' | 'IDLE';
+    launchable: boolean; interruptible: boolean;
+    sprintId?: number; sprintName?: string; sprintNumber?: number;
+    startDate?: string; endDate?: string; status?: string;
+    daysUntilStart?: number; isToday?: boolean; isOverdue?: boolean;
+    launchedAt?: string; dayIndex?: number; totalDays?: number;
+    reason?: string;
   }> {
     return this.http.get<any>(`${this.base}/projects/${projectId}/sprints/launchable`);
   }
@@ -222,5 +226,19 @@ export class WarTableApi {
     ticketKeysGenerated: number; keyPattern: string; excelAutoExportTriggered: boolean;
   }> {
     return this.http.post<any>(`${this.base}/sprints/${sprintId}/launch`, {});
+  }
+
+  /** Interrompt un sprint EN_COURS : status → PLANNED + launched_at = null. */
+  interruptSprint(sprintId: number): Observable<{
+    sprintId: number; sprintName: string; previousStatus: string; newStatus: string; interrupted: boolean;
+  }> {
+    return this.http.post<any>(`${this.base}/sprints/${sprintId}/interrupt`, {});
+  }
+
+  /** Termine un sprint EN_COURS : status → TERMINE + endDate=today si manquant. */
+  completeSprint(sprintId: number): Observable<{
+    sprintId: number; sprintName: string; previousStatus: string; newStatus: string; completed: boolean;
+  }> {
+    return this.http.post<any>(`${this.base}/sprints/${sprintId}/complete`, {});
   }
 }

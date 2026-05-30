@@ -80,50 +80,72 @@ export class WarTableComponent implements OnInit {
     return t.path.split(/[\\/]/).pop() || t.path;
   });
 
-  // ═══ SPRINT LAUNCH v1.0.7 ═══
-  /** Info du sprint lançable aujourd'hui (banner du dashboard). */
+  // ═══ SPRINT LAUNCH / INTERRUPT v1.0.7+ ═══
+  /** État du sprint pour le bouton play : ACTIVE (interruptible) | LAUNCHABLE (lançable) | null (idle). */
   launchableInfo = signal<{
+    state?: 'ACTIVE' | 'LAUNCHABLE' | 'IDLE';
     launchable: boolean;
+    interruptible?: boolean;
     sprintId?: number;
     sprintName?: string;
     sprintNumber?: number;
     startDate?: string;
+    endDate?: string;
     daysUntilStart?: number;
     isToday?: boolean;
     isOverdue?: boolean;
+    launchedAt?: string;
+    dayIndex?: number;
+    totalDays?: number;
   } | null>(null);
   launchingSprint = signal(false);
 
-  /** Tooltip plein du bouton topbar (apostrophe gérée en TS pour éviter l'escape Angular). */
+  /** Tooltip plein du bouton play (3 états : ACTIVE / LAUNCHABLE / IDLE). */
   launchTooltip(): string {
     const li = this.launchableInfo();
     if (!li) return '';
+    if (li.state === 'ACTIVE') {
+      const day = li.dayIndex != null ? `Jour ${li.dayIndex}` + (li.totalDays ? `/${li.totalDays}` : '') : '';
+      return `${li.sprintName} — EN COURS ${day} — click pour interrompre ou terminer`;
+    }
     const when = li.isToday ? "AUJOURD'HUI"
                : li.isOverdue ? `${Math.abs(li.daysUntilStart || 0)} j de retard`
                : `dans ${li.daysUntilStart} j`;
-    return `${li.sprintName} — ${when}`;
+    return `${li.sprintName} — ${when} — click pour lancer`;
   }
 
-  /** Re-fetch l'info du sprint lançable pour le projet courant (appelé au load + après launch). */
+  /** Re-fetch l'état du sprint pour le projet courant (appelé au load + après launch/interrupt). */
   refreshLaunchable(): void {
     const pid = this.api.selectedProjectId();
     if (!pid) { this.launchableInfo.set(null); return; }
     this.api.launchableSprint(pid).subscribe({
-      next: info => this.launchableInfo.set(info.launchable ? info : null),
+      next: info => {
+        // Affiche le bouton seulement si ACTIVE ou LAUNCHABLE (pas IDLE)
+        if (info.state === 'ACTIVE' || info.launchable) this.launchableInfo.set(info);
+        else this.launchableInfo.set(null);
+      },
       error: () => this.launchableInfo.set(null)
     });
   }
 
-  /** Click sur le bouton "🚀 Lancer Sprint". */
+  /** Click sur le bouton play : décide entre lancer / interrompre / terminer selon l'état. */
   doLaunchSprint(): void {
     const info = this.launchableInfo();
     const pid = this.api.selectedProjectId();
     if (!info?.sprintId || !pid) return;
+
+    // ── État ACTIVE : sprint EN_COURS → propose interrompre OU terminer ──
+    if (info.state === 'ACTIVE') {
+      this.doSprintInProgress(info, pid);
+      return;
+    }
+
+    // ── État LAUNCHABLE : lancer le sprint ──
     const dateLabel = info.isToday ? 'AUJOURD\'HUI'
                     : info.isOverdue ? `il y a ${Math.abs(info.daysUntilStart || 0)} jour(s) — retard`
                     : `dans ${info.daysUntilStart} jour(s)`;
     if (!confirm(
-      `🚀 Lancer le sprint "${info.sprintName}" ?\n\n`
+      `▶ Lancer le sprint "${info.sprintName}" ?\n\n`
       + `Démarrage prévu : ${dateLabel}\n\n`
       + `Action :\n`
       + `  • Status → EN_COURS\n`
@@ -146,18 +168,72 @@ export class WarTableComponent implements OnInit {
           + `Excel : auto-régénéré\n\n`
           + `Bon sprint !`
         );
-        // Recharge tout
-        this.refreshLaunchable();
-        this.refreshActivePage();
-        this.api.sprints(pid).subscribe({ next: s => this.sprints.set(s) });
-        this.api.tickets(pid).subscribe({ next: t => this.tickets.set(t) });
-        this.notifyExcelChanged(pid);
+        this.reloadAfterSprintAction(pid);
       },
       error: err => {
         this.launchingSprint.set(false);
         alert('Échec lancement sprint : ' + (err?.error?.message || err?.message || 'erreur inconnue'));
       }
     });
+  }
+
+  /** Quand le sprint est EN_COURS : prompt pour choisir interrompre / terminer / annuler. */
+  private doSprintInProgress(info: any, pid: number): void {
+    const dayLabel = info.dayIndex != null
+      ? `Jour ${info.dayIndex}${info.totalDays ? '/' + info.totalDays : ''}`
+      : 'En cours';
+    const launchedAt = info.launchedAt ? new Date(info.launchedAt).toLocaleString('fr-FR') : 'date inconnue';
+    const choice = prompt(
+      `⏸ Sprint "${info.sprintName}" EN COURS\n`
+      + `${dayLabel} — lancé le ${launchedAt}\n\n`
+      + `Que veux-tu faire ?\n\n`
+      + `  1 — Interrompre (status → PLANNED, réutilisable)\n`
+      + `  2 — Terminer (status → TERMINE, sprint clos)\n`
+      + `  0 ou Annuler — Ne rien faire\n\n`
+      + `Tape 1, 2 ou 0 :`,
+      '0'
+    );
+    if (choice === '1') {
+      if (!confirm(`Vraiment interrompre "${info.sprintName}" ?\n\n` +
+                    `Le sprint repassera en PLANNED et tu pourras le relancer plus tard.`)) return;
+      this.launchingSprint.set(true);
+      this.api.interruptSprint(info.sprintId).subscribe({
+        next: r => {
+          this.launchingSprint.set(false);
+          alert(`⏸ Sprint "${r.sprintName}" interrompu.\nStatus : ${r.previousStatus} → ${r.newStatus}\n\nTu peux le relancer plus tard via ▶ LANCER.`);
+          this.reloadAfterSprintAction(pid);
+        },
+        error: err => {
+          this.launchingSprint.set(false);
+          alert('Échec interruption : ' + (err?.error?.message || err?.message || 'erreur inconnue'));
+        }
+      });
+    } else if (choice === '2') {
+      if (!confirm(`Vraiment terminer "${info.sprintName}" ?\n\n` +
+                    `Le sprint passera en TERMINE et endDate = aujourd'hui.\n` +
+                    `Cette action signifie que le sprint est officiellement clos.`)) return;
+      this.launchingSprint.set(true);
+      this.api.completeSprint(info.sprintId).subscribe({
+        next: r => {
+          this.launchingSprint.set(false);
+          alert(`✓ Sprint "${r.sprintName}" terminé.\nStatus : ${r.previousStatus} → ${r.newStatus}\n\nLe prochain sprint sera proposé en lancement.`);
+          this.reloadAfterSprintAction(pid);
+        },
+        error: err => {
+          this.launchingSprint.set(false);
+          alert('Échec terminer : ' + (err?.error?.message || err?.message || 'erreur inconnue'));
+        }
+      });
+    }
+    // choice 0 ou null = annulation
+  }
+
+  private reloadAfterSprintAction(pid: number): void {
+    this.refreshLaunchable();
+    this.refreshActivePage();
+    this.api.sprints(pid).subscribe({ next: s => this.sprints.set(s) });
+    this.api.tickets(pid).subscribe({ next: t => this.tickets.set(t) });
+    this.notifyExcelChanged(pid);
   }
 
   // ═══ NEW PROJECT MODAL v1.0.4 ═══

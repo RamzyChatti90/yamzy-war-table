@@ -1237,3 +1237,48 @@ body { background: #0a0820 !important; }
   font-size: 9.5px;
   letter-spacing: .04em;
 }
+
+/* ═══ v1.0.7+ — Play button état ACTIVE (sprint EN_COURS, interruptible) ═══ */
+.wt-sk-player-wrap.wt-sk-player-active .wt-sk-play-btn {
+  background: linear-gradient(135deg, #2ea1cb, #4696b9);
+  color: #fff;
+  box-shadow: 0 0 26px rgba(46, 161, 203, .65);
+  animation: wt-sk-play-active-pulse 1.8s ease-in-out infinite;
+}
+.wt-sk-player-wrap.wt-sk-player-active .wt-sk-play-label {
+  color: #a9ceb2;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+@keyframes wt-sk-play-active-pulse {
+  0%,100% { box-shadow: 0 0 26px rgba(46,161,203,.65); transform: scale(1); }
+  50%     { box-shadow: 0 0 44px rgba(70,150,185,1); transform: scale(1.04); }
+}
+
+/* ═══ Sage card état ACTIVE ═══ */
+.wt-sk-sage-card.is-active {
+  background: linear-gradient(135deg, rgba(46,161,203,0.22), rgba(70,150,185,0.18)) !important;
+  border-color: rgba(46,161,203,0.75) !important;
+  animation: wt-sk-sage-glow-active 2.2s ease-in-out infinite;
+}
+@keyframes wt-sk-sage-glow-active {
+  0%,100% { box-shadow: 0 4px 20px rgba(46,161,203,.30); }
+  50%     { box-shadow: 0 6px 32px rgba(70,150,185,.65); }
+}
+.wt-sk-sage-card.is-active .wt-sk-sage-thumb {
+  background: radial-gradient(circle at 50% 50%, rgba(46,161,203,.55), rgba(70,150,185,.25) 70%) !important;
+}
+.wt-sk-sage-card.is-active .wt-sk-sage-rune {
+  filter: drop-shadow(0 4px 12px rgba(46,161,203,.65));
+  animation: wt-sk-sage-rune-spark 1.4s ease-in-out infinite;
+}
+@keyframes wt-sk-sage-rune-spark {
+  0%,100% { transform: scale(1) rotate(0deg); }
+  25%     { transform: scale(1.10) rotate(-8deg); }
+  75%     { transform: scale(1.10) rotate(8deg); }
+}
+.wt-sk-sage-card.is-active .wt-sk-sage-title { color: #a9ceb2 !important; }
+.wt-sk-sage-card.is-active .wt-sk-sage-tag-when {
+  background: rgba(46,161,203,.55) !important;
+  color: #fff !important;
+}

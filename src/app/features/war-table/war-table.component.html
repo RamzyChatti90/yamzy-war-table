@@ -232,9 +232,10 @@
                   </div>
                 </div>
               </div>
-              <!-- Play : LANCER SPRINT si lançable (recyclage du bouton Roadmap) -->
+              <!-- Play : 3 états ACTIVE / LAUNCHABLE / IDLE (Roadmap par défaut) -->
               <div class="wt-sk-player-wrap"
-                   [class.wt-sk-player-launchable]="launchableInfo()"
+                   [class.wt-sk-player-launchable]="launchableInfo()?.state === 'LAUNCHABLE'"
+                   [class.wt-sk-player-active]="launchableInfo()?.state === 'ACTIVE'"
                    [class.is-today]="launchableInfo()?.isToday"
                    [class.is-overdue]="launchableInfo()?.isOverdue"
                    (click)="launchableInfo() ? doLaunchSprint() : setPage('roadmap')"
@@ -242,9 +243,17 @@
                 <div class="wt-sk-player-rel">
                   <div *ngIf="sprintDayInfo() || launchableInfo()" class="wt-sk-ping"></div>
                   <div class="wt-sk-player">
-                    <div class="wt-sk-play-btn">{{ launchingSprint() ? '⟳' : '▶' }}</div>
+                    <div class="wt-sk-play-btn">
+                      <span *ngIf="launchingSprint()">⟳</span>
+                      <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'ACTIVE'">⏸</span>
+                      <span *ngIf="!launchingSprint() && launchableInfo()?.state !== 'ACTIVE'">▶</span>
+                    </div>
                     <div class="wt-sk-play-label">
-                      {{ launchableInfo() ? ('LANCER ' + (launchableInfo()?.sprintName || '')) : ('dash.roadmap' | t) }}
+                      <span *ngIf="!launchableInfo()">{{ 'dash.roadmap' | t }}</span>
+                      <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE'">LANCER {{ launchableInfo()?.sprintName }}</span>
+                      <span *ngIf="launchableInfo()?.state === 'ACTIVE'">
+                        {{ launchableInfo()?.sprintName }} • EN COURS
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -253,40 +262,52 @@
 
             <!-- ④ NEWS : activité récente -->
             <div class="wt-sk-news">
-              <!-- 🚀 v1.0.7 — Yamzy Sage reminder : carte verte qui pointe vers le bouton play -->
+              <!-- 🚀 v1.0.7+ — Yamzy Sage reminder : carte verte qui pointe vers le bouton play -->
               <div *ngIf="launchableInfo() as li" class="wt-sk-news-card wt-sk-sage-card"
                    [class.is-today]="li.isToday"
                    [class.is-overdue]="li.isOverdue"
+                   [class.is-active]="li.state === 'ACTIVE'"
                    (click)="doLaunchSprint()"
                    [title]="launchTooltip()">
                 <div class="wt-sk-news-thumb wt-sk-sage-thumb">
-                  <span class="wt-sk-sage-rune">⚔</span>
+                  <span class="wt-sk-sage-rune">{{ li.state === 'ACTIVE' ? '⚡' : '⚔' }}</span>
                 </div>
                 <div class="wt-sk-news-body">
                   <div class="wt-sk-news-title wt-sk-sage-title">
-                    <span *ngIf="li.isToday">📜 Le Sage Yamzy parle</span>
-                    <span *ngIf="li.isOverdue">⚠ Le Sage Yamzy s'impatiente</span>
-                    <span *ngIf="!li.isToday && !li.isOverdue">📜 Le Sage Yamzy te rappelle</span>
+                    <span *ngIf="li.state === 'ACTIVE'">⚡ Le Sage Yamzy veille</span>
+                    <span *ngIf="li.state !== 'ACTIVE' && li.isToday">📜 Le Sage Yamzy parle</span>
+                    <span *ngIf="li.state !== 'ACTIVE' && li.isOverdue">⚠ Le Sage Yamzy s'impatiente</span>
+                    <span *ngIf="li.state !== 'ACTIVE' && !li.isToday && !li.isOverdue">📜 Le Sage Yamzy te rappelle</span>
                   </div>
                   <div class="wt-sk-news-sub wt-sk-sage-message">
-                    <span *ngIf="li.isToday">
+                    <span *ngIf="li.state === 'ACTIVE'">
+                      Le Cycle <strong>{{ li.sprintName }}</strong> est <strong>EN COURS</strong>
+                      <span *ngIf="li.dayIndex"> (jour {{ li.dayIndex }}<span *ngIf="li.totalDays">/{{ li.totalDays }}</span>)</span>.
+                      Clique sur le bouton ⏸ pour <strong>interrompre</strong> ou <strong>terminer</strong> la quête.
+                    </span>
+                    <span *ngIf="li.state !== 'ACTIVE' && li.isToday">
                       Stratège, aujourd'hui c'est le jour de bataille pour <strong>{{ li.sprintName }}</strong>.
                       Clique sur le bouton ▶ <strong>LANCER</strong> ci-contre pour démarrer le Cycle.
                     </span>
-                    <span *ngIf="li.isOverdue">
+                    <span *ngIf="li.state !== 'ACTIVE' && li.isOverdue">
                       Le sprint <strong>{{ li.sprintName }}</strong> attend depuis <strong>{{ -1 * (li.daysUntilStart || 0) }} jour(s)</strong>.
                       Clique sur ▶ <strong>LANCER</strong> pour reprendre la quête sans tarder.
                     </span>
-                    <span *ngIf="!li.isToday && !li.isOverdue">
+                    <span *ngIf="li.state !== 'ACTIVE' && !li.isToday && !li.isOverdue">
                       Le prochain Cycle <strong>{{ li.sprintName }}</strong> démarre dans <strong>{{ li.daysUntilStart }} jour(s)</strong>.
                       Tu peux lancer maintenant avec ▶ <strong>LANCER</strong> ou attendre la date.
                     </span>
                   </div>
                   <div class="wt-sk-news-tags wt-sk-sage-tags">
                     <div class="wt-sk-news-tag wt-sk-sage-tag-when">
-                      {{ li.isToday ? "🔥 AUJOURD'HUI" : li.isOverdue ? '⏰ EN RETARD' : '📅 PROCHAINEMENT' }}
+                      <span *ngIf="li.state === 'ACTIVE'">⚡ EN COURS</span>
+                      <span *ngIf="li.state !== 'ACTIVE' && li.isToday">🔥 AUJOURD'HUI</span>
+                      <span *ngIf="li.state !== 'ACTIVE' && li.isOverdue">⏰ EN RETARD</span>
+                      <span *ngIf="li.state !== 'ACTIVE' && !li.isToday && !li.isOverdue">📅 PROCHAINEMENT</span>
                     </div>
-                    <div class="wt-sk-news-tag wt-sk-sage-tag-arrow">▶ click pour lancer</div>
+                    <div class="wt-sk-news-tag wt-sk-sage-tag-arrow">
+                      {{ li.state === 'ACTIVE' ? '⏸ click pour interrompre' : '▶ click pour lancer' }}
+                    </div>
                   </div>
                 </div>
               </div>
