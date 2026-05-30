@@ -6,6 +6,73 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.10] — 2026-06-01
+
+Massive Excel ↔ Studio parity release. Audit revealed 5 gap categories;
+this release closes them all (except holidays JSON edit which was new
+ground). Plus 9-category reminder system and PS-style hero card.
+
+### Added — Reminders system (Category Excel: conditional formatting)
+- `PosReminderService` backend with 9 detection categories
+  (ticket-overdue, ticket-blocked-stale, ticket-aging-wip,
+  ticket-no-assignee, daily-missing-today, daily-empty-yesterday,
+  risk-overdue, techdebt-critical-noplan, sprint-overrun)
+- `GET /api/pos/projects/{id}/reminders` endpoint
+- Topbar bell with shake animation when HIGH severity present
+- Glassmorphism dropdown panel with severity pills + categories
+- Per-reminder dismiss + 120s auto-poll + manual refresh
+
+### Added — Hidden Excel data exposure (Categories A + B)
+- Backlog: Spent(h) editable, Reste(h) computed live, Cycle/Lead(j)
+  per-ticket, acceptanceCriteria as tooltip on ID
+- Detail Tickets: dedicated `<pre>` block for acceptanceCriteria,
+  meta enriched with spent/remaining/cycle
+- Risks: +5 columns (Owner, LinkedTicket, Mitigation, IdentifiedAt,
+  DueDate), all inline editable, **auto-recompute score = proba × impact**
+- Tech Debt: +2 columns (DetectedAt, ResolutionPlan), all editable
+- Vue Reviewer: +reviewerComment column
+- Phases: +Reste(j) computed column, inline edit
+- Parametres: +workDaysPerWeek, +allocatedDays/consumedDays, +status
+- Hidden KPIs in dashboard map now displayed:
+  Top3Actions panel, CFD total in tooltip+label, velocity hours
+  columns, dependencies stateA pill
+
+### Added — Excel formulas replayed live (Category D)
+- New Project modal: `sprintCapacityHours = hoursPerDay × daysPerSprint`
+  auto-recompute on input change
+- Risks: `score = probability × impact` auto on inline edit (atomic
+  patch with both fields)
+- Phases: `Reste = Planned - Consumed` live in column
+
+### Added — Bulk operations (Category E)
+- Backend: `PUT /tickets/bulk` (multi-patch), `POST /tickets/bulk-delete`,
+  `POST /tickets/bulk-reorder` (rankIndex)
+- Backlog: checkbox column + sticky bulk action bar when ≥1 selected
+- 6 bulk actions: Statut / Sprint / Assigné / Priorité (via WtDialog
+  choice cards) + 🗑 Supprimer + ✕ Désélectionner
+- Whitelisted bulk-patch fields, cross-project IDs auto-skipped
+
+### Added — Holidays / Leaves editor
+- 📅 Jours fériés (cyan chips) + 🏖 Congés (gold chips) on parametres page
+- Add row in edit mode: date picker + label/reason input
+- Persisted via `updateProject({ holidays: [...], leaves: [...] })` JSONB
+- Auto-export triggered after each modification
+
+### Other
+- WtDialog used for all confirmations (no more native browser popups)
+- PS-style hero card on dashboard with Yamzy 3D avatar (static)
+- Mythrill Magic Card glow effect on hero (rotating gradient ring)
+- News thumb cards have shimmer band + matching blur halo
+
+### GitFlow
+This release is the result of 4 merged branches:
+- bugfix/excel-parity-kpis → fix(excel-parity): expose 4 hidden KPIs
+- feature/bulk-operations → feat(bulk-ops): multi-select + mass update
+- feature/holidays-leaves-editor → feat(holidays-leaves): JSON editors
+- (plus prior feature/sprint-launch-flow and bugfix branches)
+
+---
+
 ## [1.0.7] — 2026-05-31
 
 ### Added — Sprint Launch Flow
