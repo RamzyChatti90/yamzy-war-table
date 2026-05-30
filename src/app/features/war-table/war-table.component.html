@@ -195,119 +195,95 @@
 
         <!-- ── DASHBOARD (layout SKIN : Video + News + Top Selection) ── -->
         <section *ngIf="activePage() === 'dashboard'" class="wt-sk-dash">
-          <!-- 🎭 v1.0.8 — Le Sage Yamzy 3D : grand panel vert avec avatar GLB animé -->
-          <div *ngIf="launchableInfo() as li" class="wt-yamzy-sage-panel"
-               [class.is-today]="li.isToday"
-               [class.is-overdue]="li.isOverdue"
-               [class.is-active]="li.state === 'ACTIVE'"
-               (click)="doLaunchSprint()"
-               [title]="launchTooltip()">
-            <!-- Avatar 3D Yamzy à gauche -->
-            <div class="wt-yamzy-sage-avatar">
-              <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb" [rotate]="true"></app-yamzy-avatar-3d>
-              <div class="wt-yamzy-sage-pedestal"></div>
-            </div>
-            <!-- Message dynamique à droite -->
-            <div class="wt-yamzy-sage-message">
-              <div class="wt-yamzy-sage-label">
-                <span *ngIf="li.state === 'ACTIVE'">⚡ LE SAGE YAMZY VEILLE</span>
-                <span *ngIf="li.state !== 'ACTIVE' && li.isToday">📜 LE SAGE YAMZY PARLE</span>
-                <span *ngIf="li.state !== 'ACTIVE' && li.isOverdue">⚠ LE SAGE YAMZY S'IMPATIENTE</span>
-                <span *ngIf="li.state !== 'ACTIVE' && !li.isToday && !li.isOverdue">📜 LE SAGE YAMZY TE RAPPELLE</span>
-              </div>
-              <div class="wt-yamzy-sage-title">
-                <span *ngIf="li.state === 'ACTIVE'">
-                  Le Cycle <strong>{{ li.sprintName }}</strong> est en cours
-                  <em *ngIf="li.dayIndex"> — jour {{ li.dayIndex }}<span *ngIf="li.totalDays">/{{ li.totalDays }}</span></em>
-                </span>
-                <span *ngIf="li.state !== 'ACTIVE' && li.isToday">
-                  Stratège, aujourd'hui c'est le jour de bataille pour <strong>{{ li.sprintName }}</strong>
-                </span>
-                <span *ngIf="li.state !== 'ACTIVE' && li.isOverdue">
-                  Le sprint <strong>{{ li.sprintName }}</strong> attend depuis {{ -1 * (li.daysUntilStart || 0) }} jour(s)
-                </span>
-                <span *ngIf="li.state !== 'ACTIVE' && !li.isToday && !li.isOverdue">
-                  Le prochain Cycle <strong>{{ li.sprintName }}</strong> démarre dans {{ li.daysUntilStart }} jour(s)
-                </span>
-              </div>
-              <div class="wt-yamzy-sage-cta">
-                <span *ngIf="li.state === 'ACTIVE'">Clique sur le bouton ⏸ <strong>EN COURS</strong> ci-contre pour interrompre ou terminer la quête.</span>
-                <span *ngIf="li.state !== 'ACTIVE'">Clique sur le bouton ▶ <strong>LANCER</strong> ci-contre (ou sur ce panel) pour démarrer le Cycle.</span>
-              </div>
-              <div class="wt-yamzy-sage-tags">
-                <span class="wt-yamzy-sage-tag" *ngIf="li.state === 'ACTIVE'">⚡ EN COURS</span>
-                <span class="wt-yamzy-sage-tag" *ngIf="li.state !== 'ACTIVE' && li.isToday">🔥 AUJOURD'HUI</span>
-                <span class="wt-yamzy-sage-tag" *ngIf="li.state !== 'ACTIVE' && li.isOverdue">⏰ EN RETARD</span>
-                <span class="wt-yamzy-sage-tag" *ngIf="li.state !== 'ACTIVE' && !li.isToday && !li.isOverdue">📅 PROCHAINEMENT</span>
-                <span class="wt-yamzy-sage-tag soft">{{ li.state === 'ACTIVE' ? '⏸ click pour interrompre' : '▶ click pour lancer' }}</span>
-              </div>
-            </div>
-          </div>
 
           <div class="wt-sk-dash-row">
-            <!-- ③ VIDEO : projet en cours -->
-            <div class="wt-sk-video-wrap">
-              <div class="wt-sk-video" [style.background]="projectGradient()">
-                <div class="wt-sk-video-overlay">
-                  <div class="wt-sk-video-top">
-                    <div class="min-w-0">
-                      <div class="wt-sk-tag">{{ 'dash.tag_in_progress' | t }}</div>
-                      <ng-container *ngIf="selectedProjectInfo() as p; else noProjSk">
-                        <div class="wt-sk-video-code">{{ p.code }}</div>
-                        <div class="wt-sk-video-name">{{ p.name }}</div>
-                      </ng-container>
-                      <ng-template #noProjSk>
-                        <div class="wt-sk-video-code">{{ 'empty.no_planning' | t }}</div>
-                        <div class="wt-sk-video-name">{{ 'empty.import_to_start' | t }}</div>
-                      </ng-template>
-                    </div>
-                    <div class="wt-sk-video-right">
-                      <div class="wt-sk-tag">{{ 'dash.tag_progress' | t }}</div>
-                      <div class="wt-sk-video-pct">{{ projectProgress() }}<span class="wt-sk-pct-suf">%</span></div>
-                    </div>
+            <!-- ③ v1.0.8 — Carte "Le Sage Yamzy" style PlayStation : avatar 3D à droite, message au centre -->
+            <header class="wt-ps-header wt-sk-video-wrap"
+                    [class.is-launchable]="launchableInfo()?.state === 'LAUNCHABLE'"
+                    [class.is-active]="launchableInfo()?.state === 'ACTIVE'"
+                    [class.is-today]="launchableInfo()?.isToday"
+                    [class.is-overdue]="launchableInfo()?.isOverdue">
+
+              <!-- Tag dynamique (style "New" rouge mais selon état) -->
+              <div class="wt-ps-tag" *ngIf="launchableInfo() as li">
+                <span *ngIf="li.state === 'ACTIVE'">⚡ EN COURS</span>
+                <span *ngIf="li.state !== 'ACTIVE' && li.isToday">🔥 PRÊT À LANCER</span>
+                <span *ngIf="li.state !== 'ACTIVE' && li.isOverdue">⚠ EN RETARD</span>
+                <span *ngIf="li.state !== 'ACTIVE' && !li.isToday && !li.isOverdue">📅 PROCHAIN CYCLE</span>
+              </div>
+              <div class="wt-ps-tag wt-ps-tag-neutral" *ngIf="!launchableInfo() && selectedProjectInfo()">
+                {{ 'dash.tag_in_progress' | t }}
+              </div>
+
+              <!-- Titre H1 + sous-titre (50% largeur, à gauche) -->
+              <h1 class="wt-ps-title">
+                <ng-container *ngIf="selectedProjectInfo() as p; else psNoProj">
+                  {{ p.name }}
+                </ng-container>
+                <ng-template #psNoProj>{{ 'empty.no_planning' | t }}</ng-template>
+              </h1>
+
+              <!-- Sage message dynamique (façon synopsis du jeu) -->
+              <div class="wt-ps-sage-msg" *ngIf="launchableInfo() as li">
+                <strong *ngIf="li.state === 'ACTIVE'">
+                  Le Sage Yamzy veille. Cycle <em>{{ li.sprintName }}</em> en cours
+                  <span *ngIf="li.dayIndex"> · jour {{ li.dayIndex }}<span *ngIf="li.totalDays">/{{ li.totalDays }}</span></span>.
+                </strong>
+                <strong *ngIf="li.state !== 'ACTIVE' && li.isToday">
+                  Stratège, aujourd'hui c'est le jour de bataille pour <em>{{ li.sprintName }}</em>.
+                </strong>
+                <strong *ngIf="li.state !== 'ACTIVE' && li.isOverdue">
+                  Le Cycle <em>{{ li.sprintName }}</em> attend depuis {{ -1 * (li.daysUntilStart || 0) }} jour(s).
+                </strong>
+                <strong *ngIf="li.state !== 'ACTIVE' && !li.isToday && !li.isOverdue">
+                  Le prochain Cycle <em>{{ li.sprintName }}</em> démarre dans {{ li.daysUntilStart }} jour(s).
+                </strong>
+              </div>
+              <div class="wt-ps-sage-msg" *ngIf="!launchableInfo() && selectedProjectInfo()">
+                <span class="wt-ps-sage-msg-muted">{{ selectedProjectInfo()?.name }}</span>
+              </div>
+
+              <!-- Action row (style "Purchase" : prix + bouton) — adapté en Day counter + Launch/Interrupt -->
+              <div class="wt-ps-action">
+                <div class="wt-ps-action-meta">
+                  <div class="wt-ps-action-label">
+                    <span *ngIf="launchableInfo()?.state === 'ACTIVE'">JOUR</span>
+                    <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE'">{{ launchableInfo()?.isOverdue ? 'RETARD' : 'DANS' }}</span>
+                    <span *ngIf="!launchableInfo()">PROGRESS</span>
                   </div>
-                  <div class="wt-sk-video-bottom">
-                    <ng-container *ngIf="activeSprint() as s">
-                      <div class="min-w-0">
-                        <div class="wt-sk-tag">{{ 'dash.tag_current_sprint' | t }}</div>
-                        <div class="wt-sk-sprint-name">{{ s.name || ('Sprint ' + s.number) }}</div>
-                        <div *ngIf="s.goal" class="wt-sk-sprint-goal">{{ s.goal }}</div>
-                      </div>
-                    </ng-container>
-                    <div *ngIf="sprintDayInfo() as di" class="wt-sk-video-right">
-                      <div class="wt-sk-tag">{{ 'dash.tag_day' | t }}</div>
-                      <div class="wt-sk-sprint-day">{{ di.day }}<span class="wt-sk-pct-suf">/{{ di.total }}</span></div>
-                    </div>
+                  <div class="wt-ps-action-value">
+                    <span *ngIf="launchableInfo()?.state === 'ACTIVE' && launchableInfo()?.dayIndex">
+                      {{ launchableInfo()?.dayIndex }}<small *ngIf="launchableInfo()?.totalDays">/{{ launchableInfo()?.totalDays }}</small>
+                    </span>
+                    <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE'">
+                      J{{ launchableInfo()?.isOverdue ? '+' : '-' }}{{ launchableInfo()?.isOverdue ? Math.abs(launchableInfo()?.daysUntilStart || 0) : launchableInfo()?.daysUntilStart }}
+                    </span>
+                    <span *ngIf="!launchableInfo()">{{ projectProgress() }}<small>%</small></span>
                   </div>
                 </div>
+                <button class="wt-ps-btn" *ngIf="launchableInfo()"
+                        [disabled]="launchingSprint()"
+                        (click)="doLaunchSprint()">
+                  <span *ngIf="launchingSprint()">⟳ ...</span>
+                  <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'ACTIVE'">⏸ Interrompre</span>
+                  <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'LAUNCHABLE'">▶ Lancer</span>
+                </button>
+                <button class="wt-ps-btn wt-ps-btn-neutral" *ngIf="!launchableInfo()" (click)="setPage('roadmap')">
+                  🗺 Roadmap
+                </button>
               </div>
-              <!-- Play : 3 états ACTIVE / LAUNCHABLE / IDLE (Roadmap par défaut) -->
-              <div class="wt-sk-player-wrap"
-                   [class.wt-sk-player-launchable]="launchableInfo()?.state === 'LAUNCHABLE'"
-                   [class.wt-sk-player-active]="launchableInfo()?.state === 'ACTIVE'"
+
+              <!-- Yamzy avatar 3D (position "Spider-Man" — coin haut-droite) -->
+              <div class="wt-ps-avatar">
+                <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb" [rotate]="true"></app-yamzy-avatar-3d>
+              </div>
+
+              <!-- Live ping indicateur (top-right) -->
+              <div *ngIf="launchableInfo()" class="wt-ps-live-ping"
                    [class.is-today]="launchableInfo()?.isToday"
                    [class.is-overdue]="launchableInfo()?.isOverdue"
-                   (click)="launchableInfo() ? doLaunchSprint() : setPage('roadmap')"
-                   [title]="launchableInfo() ? launchTooltip() : ('dash.open_roadmap' | t)">
-                <div class="wt-sk-player-rel">
-                  <div *ngIf="sprintDayInfo() || launchableInfo()" class="wt-sk-ping"></div>
-                  <div class="wt-sk-player">
-                    <div class="wt-sk-play-btn">
-                      <span *ngIf="launchingSprint()">⟳</span>
-                      <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'ACTIVE'">⏸</span>
-                      <span *ngIf="!launchingSprint() && launchableInfo()?.state !== 'ACTIVE'">▶</span>
-                    </div>
-                    <div class="wt-sk-play-label">
-                      <span *ngIf="!launchableInfo()">{{ 'dash.roadmap' | t }}</span>
-                      <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE'">LANCER {{ launchableInfo()?.sprintName }}</span>
-                      <span *ngIf="launchableInfo()?.state === 'ACTIVE'">
-                        {{ launchableInfo()?.sprintName }} • EN COURS
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                   [class.is-active]="launchableInfo()?.state === 'ACTIVE'"></div>
+            </header>
 
             <!-- ④ NEWS : activité récente -->
             <div class="wt-sk-news">

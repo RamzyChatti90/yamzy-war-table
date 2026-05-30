@@ -36,6 +36,7 @@ export class WarTableComponent implements OnInit {
   private san = inject(DomSanitizer);
   i18n = inject(I18nService);
   dialog = inject(WtDialogService);
+  Math = Math;  // expose Math global au template
 
   /** Helpers i18n exposés au template. */
   pageLabel(p: PageDef | null | undefined): string {
