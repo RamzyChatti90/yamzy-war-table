@@ -6,6 +6,35 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.15] — 2026-05-31
+
+✎ **Mode édition sur le calendrier** : créer / supprimer des événements
+directement depuis la grille mensuelle sans quitter la page.
+
+### Added — Calendar edit mode
+- **Bouton `+` rond** en haut de chaque cellule (visible au hover en
+  mode édition) — pré-remplit la modal "Nouvel événement" avec la
+  date de la case + heure par défaut 9h-10h
+- **Drop zone "+ événement"** en bas de chaque cellule (alternative
+  plus visible que le bouton rond)
+- **Bouton `×` rouge** sur chaque event au hover (mode édition) pour
+  supprimer rapidement avec confirmation
+- **Top crud bar** sur la page Calendrier avec "+ Nouvel événement"
+  + "🔄 Régénérer cérémonies Scrum" toujours visibles
+- **Hint dynamique** :
+  - Mode édition actif : "✎ clique sur le **+** d'une case"
+  - Mode lecture : "💡 Active le mode édition (🔒 → 🔓) pour…"
+
+### Why
+> "je devrais pouvoir en mode edit de calendrier ajouter les
+> événements aussi"
+
+Avant v1.0.15, il fallait aller sur la page Agenda pour ajouter un
+event, ou cliquer sur le bouton "+ Réunion" du cockpit. Maintenant
+la grille mensuelle est éditable comme l'Excel.
+
+---
+
 ## [1.0.14] — 2026-05-31
 
 🎓 **Yamzy Guide narratif + Cockpit fusionné dans la news zone** :

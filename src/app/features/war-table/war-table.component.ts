@@ -293,6 +293,20 @@ export class WarTableComponent implements OnInit {
     this.selectedAttendees = [];
     this.newEventOpen.set(true);
   }
+  /** v1.0.15 — Ouvre la modal pour ajouter un event sur une date précise (depuis cellule du calendrier). */
+  openNewEventOnDay(dateStr: string): void {
+    // dateStr format "YYYY-MM-DD" — on cale à 9h par défaut, durée 1h
+    const start = new Date(dateStr + 'T09:00');
+    const end = new Date(dateStr + 'T10:00');
+    this.newEventDraft = {
+      type: 'MEETING', title: '', description: '', location: '',
+      scheduledStart: this.toDatetimeLocal(start),
+      scheduledEnd: this.toDatetimeLocal(end),
+      attendees: []
+    };
+    this.selectedAttendees = [];
+    this.newEventOpen.set(true);
+  }
   cancelNewEvent(): void { this.newEventOpen.set(false); this.selectedAttendees = []; }
 
   // v1.0.13 — Multi-select attendees from team

@@ -2644,6 +2644,118 @@ body { background: #0a0820 !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   CALENDAR EDIT MODE v1.0.15 — inline + per-cell + delete event button
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wt-cal-edit-hint {
+  margin-left: 12px;
+  font-size: 11px;
+  color: #d99a51;
+  letter-spacing: 0.3px;
+  align-self: center;
+}
+.wt-cal-edit-hint strong {
+  background: rgba(217, 154, 81, 0.2);
+  color: #d99a51;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.wt-cal-cell.is-editable {
+  cursor: default;
+  transition: background 0.2s ease;
+}
+.wt-cal-cell.is-editable:hover {
+  background: rgba(217, 154, 81, 0.06);
+  border-color: rgba(217, 154, 81, 0.30);
+}
+
+.wt-cal-daynum {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.wt-cal-add-btn {
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(217, 154, 81, 0.45);
+  background: rgba(217, 154, 81, 0.12);
+  color: #d99a51;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  opacity: 0;
+  transition: all 0.15s ease;
+}
+.wt-cal-cell.is-editable:hover .wt-cal-add-btn { opacity: 1; }
+.wt-cal-cell.is-editable .wt-cal-add-btn:hover {
+  background: #d99a51;
+  color: #1d172e;
+  transform: scale(1.15);
+  box-shadow: 0 0 12px rgba(217, 154, 81, 0.6);
+}
+
+.wt-cal-event { position: relative; }
+.wt-cal-event-del {
+  position: absolute;
+  top: 2px; right: 2px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 92, 92, 0.85);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.15s ease;
+  z-index: 3;
+}
+.wt-cal-event:hover .wt-cal-event-del { opacity: 1; }
+.wt-cal-event-del:hover {
+  background: #ff5c5c;
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 92, 92, 0.7);
+}
+
+.wt-cal-cell-add-zone {
+  margin-top: auto;
+  padding: 4px 6px;
+  border: 1px dashed rgba(217, 154, 81, 0.35);
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(217, 154, 81, 0.65);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.15s ease;
+  font-weight: 600;
+}
+.wt-cal-cell.is-editable:hover .wt-cal-cell-add-zone { opacity: 1; }
+.wt-cal-cell-add-zone:hover {
+  background: rgba(217, 154, 81, 0.12);
+  border-style: solid;
+  color: #d99a51;
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    COCKPIT-IN-NEWS v1.0.14 — Le cockpit prend place dans la zone .wt-sk-news
    et réutilise le style des cards news (background:#342e59, radius:24px).
    Avatars game-style : cercles 28px overlapping comme les news existantes.
