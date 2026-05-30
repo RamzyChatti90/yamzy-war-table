@@ -109,6 +109,14 @@ export class WarTableComponent implements OnInit {
   // ═══ YAMZY COMPANION v1.0.17 — Avatar 3D animé fixé sur la gauche, présent partout ═══
   // (Guide panel retiré sur demande utilisateur — juste le gros avatar avec toutes les anims)
 
+  // ═══ CAROUSEL TOGGLE v1.0.32 — click avatar pour ouvrir/fermer le carrousel ═══
+  yamzyCarouselOpen = signal(false); // fermé par défaut
+  toggleCarousel(): void {
+    // Si on est en mode position (drag), ne pas toggler
+    if (this.positionMode()) return;
+    this.yamzyCarouselOpen.update(v => !v);
+  }
+
   // ═══ STUDIO LEVELS v1.0.30 — Home (menu) vs Section (cockpit messages) ═══
   // Niveau 1 = home : carousel affiche le menu des sections principales
   // Niveau 2 = section : carousel affiche les messages cockpit (events/alerts/tickets)

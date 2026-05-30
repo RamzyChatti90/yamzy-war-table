@@ -1907,20 +1907,26 @@
   <app-wt-dialog></app-wt-dialog>
 </div>
 
-<!-- ═══ v1.0.25 — YAMZY companion (draggable en mode position) ═══ -->
+<!-- ═══ v1.0.32 — YAMZY companion : click = toggle carousel + drag en mode position ═══ -->
 <div class="wt-yamzy-fab"
      [class.is-edit]="positionMode()"
+     [class.is-clickable]="!positionMode()"
+     [class.is-open]="yamzyCarouselOpen()"
      [style.left.px]="fabLeft()"
      [style.bottom.px]="fabBottom()"
      [style.width.px]="fabSize()"
      [style.height.px]="fabSize()"
+     (click)="toggleCarousel()"
      (mousedown)="startDrag('fab', $event)"
+     [title]="positionMode() ? 'Drag pour déplacer' : (yamzyCarouselOpen() ? 'Click pour fermer' : 'Click pour ouvrir le menu')"
      *ngIf="!splashVisible()">
   <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb"
                        [rotate]="false"
                        [bob]="true"
                        [playGlbAnim]="true"></app-yamzy-avatar-3d>
   <div *ngIf="positionMode()" class="wt-pos-label">YAMZY · ({{ fabLeft() }}, {{ fabBottom() }})</div>
+  <!-- Hint "💬" pour suggérer que l'avatar est cliquable -->
+  <div *ngIf="!positionMode() && !yamzyCarouselOpen()" class="wt-yamzy-click-hint">💬</div>
 </div>
 
 <!-- v1.0.25 : Bouton toggle mode position (toujours visible bottom-right) -->
@@ -1954,8 +1960,8 @@
   <div class="wt-pos-hint">💡 Drag YAMZY ou le carousel. Puis "Copier" et colle dans le chat.</div>
 </div>
 
-<!-- ═══ v1.0.23 — Carrousel 3D vertical "Yamzy launches messages" ═══ -->
-<div class="wt-yc" *ngIf="!splashVisible() && yamzyCarouselCards().length"
+<!-- ═══ v1.0.32 — Carrousel : visible SEULEMENT quand yamzyCarouselOpen() ═══ -->
+<div class="wt-yc" *ngIf="!splashVisible() && yamzyCarouselOpen() && yamzyCarouselCards().length"
      [class.is-edit]="positionMode()"
      [style.left.px]="ycLeft()"
      [style.bottom.px]="ycBottom()"

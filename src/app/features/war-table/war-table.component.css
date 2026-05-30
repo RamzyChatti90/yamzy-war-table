@@ -3217,16 +3217,54 @@ body { background: #0a0820 !important; }
 
 .wt-yamzy-fab {
   position: fixed;
-  /* v1.0.25 : defaults via inline style, draggable en mode position */
+  /* v1.0.32 : avatar cliquable par défaut (click = toggle carousel) */
   bottom: 20px;
   left: 100px;
   width: 320px;
   height: 320px;
   z-index: 99999;
   isolation: isolate;
-  pointer-events: none; /* défaut décoratif */
+  pointer-events: none; /* défaut, surchargé par is-clickable */
   filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.45))
           drop-shadow(0 0 22px rgba(217, 154, 81, 0.20));
+  transition: filter 0.25s ease;
+}
+.wt-yamzy-fab.is-clickable {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.wt-yamzy-fab.is-clickable:hover {
+  filter: drop-shadow(0 22px 32px rgba(0, 0, 0, 0.55))
+          drop-shadow(0 0 36px rgba(217, 154, 81, 0.45));
+}
+.wt-yamzy-fab.is-open {
+  filter: drop-shadow(0 22px 32px rgba(0, 0, 0, 0.5))
+          drop-shadow(0 0 40px rgba(217, 154, 81, 0.55));
+}
+
+/* Hint "💬" qui pulse au coin top-right de l'avatar pour suggérer le click */
+.wt-yamzy-click-hint {
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d99a51, #c25d8d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 6px 16px rgba(217, 154, 81, 0.55),
+              inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  border: 2px solid #1d172e;
+  pointer-events: none;
+  animation: yamzyHintBubble 2.2s ease-in-out infinite;
+  z-index: 5;
+}
+@keyframes yamzyHintBubble {
+  0%, 100% { transform: scale(1) rotate(-4deg); }
+  50%      { transform: scale(1.15) rotate(6deg); }
 }
 /* v1.0.26 : mode édition — outline EXACTEMENT sur la frontière du div + bg léger pour voir l'aire occupée */
 .wt-yamzy-fab.is-edit {
