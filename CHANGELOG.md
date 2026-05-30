@@ -6,6 +6,44 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.12] — 2026-05-30
+
+🎯 **Cockpit "Chicago"** : widget dashboard 4 onglets carrousel — vue
+pilotage temps-réel inspiré du pattern weather-card gaming.
+
+### Added — Cockpit widget (dashboard)
+- Nouvelle carte **COCKPIT** entre le hero PS et le Top Selection,
+  avec en-tête titre + horizontal rule lumineuse + sous-titre dynamique
+  (sprint actif · nb événements à venir)
+- **Hero zone** (équivalent big-temp Chicago) avec icône animée pulse,
+  grosse valeur (min écoulés / restantes / count), label de l'item
+  actif et bouton CTA contextuel
+- **Nav carrousel 4 onglets** :
+  - 🎯 **Action** — événement IN_PROGRESS ou prochain à venir, avec
+    timer live (min écoulés vs prévues) et bouton ▶ Démarrer / ■ Terminer
+  - 📅 **Réunions** — 4 prochaines cérémonies cliquables (ouvre détail)
+  - ⚡ **Tickets** — top tickets bloquants (lien vers Backlog)
+  - ⚠ **Alertes** — alertes HIGH du système reminders (lien vers Risques)
+- Panneau de contenu réactif qui swap selon onglet sélectionné
+- Indicateur visuel onglet actif (gradient or + dot lumineux)
+
+### Style
+- Palette cosmic gradient + or Yamzy `#d99a51` (vs `#C4A865` Chicago)
+- Glassmorphism subtle (rgba sur fond cosmic), shadows profondes
+- Animation `cockpitPulseIcon` 3s ease infinite sur l'icône hero
+- Hover transform sur items (translateX 2px + bordure or)
+- Responsive ≤720px : grille 2 colonnes + CTA pleine largeur
+
+### Why
+> "utilise le même style en référence ça pour l'ajouter au dashboard
+> toujours avec l'action en cours, les prochaines réunions, en carrousel"
+
+Le cockpit transforme le dashboard en **centre de pilotage temps-réel**
+sans quitter la home : pas besoin de naviguer vers Agenda/Backlog/Risques
+pour voir ce qui demande attention maintenant.
+
+---
+
 ## [1.0.11] — 2026-06-01
 
 🗓 **Calendrier intelligent** : source de vérité temporelle structurée pour

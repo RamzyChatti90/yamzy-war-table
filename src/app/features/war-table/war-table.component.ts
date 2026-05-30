@@ -45,6 +45,55 @@ export class WarTableComponent implements OnInit {
     return Math.round((est - spent) * 10) / 10;
   }
 
+  // ═══ COCKPIT WIDGET v1.0.12 (style "Chicago" — 4 onglets en carrousel) ═══
+  cockpitTab = signal<'action' | 'upcoming' | 'tickets' | 'alerts'>('action');
+  cockpitTabs = [
+    { id: 'action',   label: 'Action',      icon: '🎯' },
+    { id: 'upcoming', label: 'Réunions',    icon: '📅' },
+    { id: 'tickets',  label: 'Tickets',     icon: '⚡' },
+    { id: 'alerts',   label: 'Alertes',     icon: '⚠'  },
+  ] as const;
+  cockpitContent = computed<any>(() => {
+    const tab = this.cockpitTab();
+    if (tab === 'action') {
+      const all = this.events() || [];
+      const active = all.find(e => e.status === 'IN_PROGRESS') || null;
+      const next = (this.upcomingEventsList() || [])[0] || null;
+      if (active) {
+        const startedMs = active.actualStart ? new Date(active.actualStart).getTime() : Date.now();
+        const elapsedMin = Math.max(0, Math.round((Date.now() - startedMs) / 60000));
+        const planned = active.scheduledEnd ? Math.round((new Date(active.scheduledEnd).getTime() - new Date(active.scheduledStart).getTime()) / 60000) : 0;
+        return { kind: 'active', event: active, elapsedMin, plannedMin: planned };
+      }
+      if (next) {
+        const inMs = new Date(next.scheduledStart).getTime() - Date.now();
+        const inMin = Math.max(0, Math.round(inMs / 60000));
+        return { kind: 'next', event: next, inMin };
+      }
+      return { kind: 'idle' };
+    }
+    if (tab === 'upcoming') {
+      return { kind: 'list', items: (this.upcomingEventsList() || []).slice(0, 4) };
+    }
+    if (tab === 'tickets') {
+      const d: any = this.dash() || {};
+      const top = (d.top3Actions || []).slice(0, 4);
+      return { kind: 'tickets', items: top };
+    }
+    // alerts
+    const data: any = this.remindersData();
+    const items = data ? (data.items || []).filter((r: any) => r.severity === 'HIGH').slice(0, 4) : [];
+    return { kind: 'alerts', items };
+  });
+  cockpitMeta = computed<any>(() => {
+    const sprint = this.activeSprint();
+    const sprintName = sprint?.name || '—';
+    const total = this.events()?.length || 0;
+    const upcoming = this.upcomingEventsList()?.length || 0;
+    return { sprintName, total, upcoming };
+  });
+  setCockpitTab(id: 'action' | 'upcoming' | 'tickets' | 'alerts'): void { this.cockpitTab.set(id); }
+
   // ═══ CALENDAR EVENTS v1.0.11 ═══
   events = signal<any[]>([]);
   upcomingEventsList = signal<any[]>([]);

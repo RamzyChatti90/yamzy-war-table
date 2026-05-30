@@ -2227,3 +2227,296 @@ body { background: #0a0820 !important; }
 }
 .wt-event-detail-actions .wt-btn-major { flex: 1; }
 
+/* ═══════════════════════════════════════════════════════════════════
+   COCKPIT WIDGET v1.0.12 — style "Chicago" adapté gaming Yamzy
+   ──────────────────────────────────────────────────────────────────
+   Pattern d'origine : weather-card avec hr / temp big / nav 4 onglets
+   Adaptation : palette cosmic + or Yamzy (#d99a51) + glassmorphism
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wt-cockpit {
+  position: relative;
+  margin: 24px 0;
+  padding: 22px 26px 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(46, 35, 84, 0.92) 0%, rgba(29, 23, 46, 0.95) 100%);
+  border: 1px solid rgba(217, 154, 81, 0.18);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  color: #ece6ff;
+  overflow: hidden;
+}
+.wt-cockpit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(217, 154, 81, 0.10), transparent 35%),
+    radial-gradient(circle at 90% 100%, rgba(102, 71, 191, 0.16), transparent 45%);
+  pointer-events: none;
+  z-index: 0;
+}
+.wt-cockpit > * { position: relative; z-index: 1; }
+
+.wt-cockpit-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+.wt-cockpit-title {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: #d99a51;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(217, 154, 81, 0.35);
+}
+.wt-cockpit-sub {
+  font-size: 11px;
+  color: rgba(236, 230, 255, 0.55);
+  letter-spacing: 0.5px;
+}
+.wt-cockpit-hr {
+  margin: 10px 0 16px;
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(217, 154, 81, 0.45), transparent);
+}
+
+/* HERO — équivalent du big-temp Chicago */
+.wt-cockpit-hero {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 18px;
+  align-items: center;
+  padding: 14px 6px 18px;
+}
+.wt-cockpit-hero-icon {
+  font-size: 44px;
+  line-height: 1;
+  text-align: center;
+  color: #d99a51;
+  filter: drop-shadow(0 0 18px rgba(217, 154, 81, 0.55));
+  animation: cockpitPulseIcon 3s ease-in-out infinite;
+}
+@keyframes cockpitPulseIcon {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 18px rgba(217, 154, 81, 0.45)); }
+  50%      { transform: scale(1.06); filter: drop-shadow(0 0 26px rgba(217, 154, 81, 0.75)); }
+}
+.wt-cockpit-hero-text { min-width: 0; }
+.wt-cockpit-hero-val {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 1.05;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+.wt-cockpit-hero-unit {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(236, 230, 255, 0.55);
+  margin-left: 6px;
+  letter-spacing: 0.5px;
+}
+.wt-cockpit-hero-lbl {
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ece6ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wt-cockpit-hero-meta {
+  margin-top: 4px;
+  font-size: 11px;
+  color: rgba(236, 230, 255, 0.5);
+  letter-spacing: 0.3px;
+}
+.wt-cockpit-cta {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(217, 154, 81, 0.45);
+  background: linear-gradient(135deg, rgba(217, 154, 81, 0.18), rgba(217, 154, 81, 0.06));
+  color: #d99a51;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.wt-cockpit-cta:hover {
+  background: #d99a51;
+  color: #1d172e;
+  box-shadow: 0 6px 18px rgba(217, 154, 81, 0.45);
+  transform: translateY(-1px);
+}
+
+/* NAV — carrousel 4 onglets (équivalent Hotels/Places/Restaurants/Offices) */
+.wt-cockpit-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 8px;
+  background: rgba(15, 12, 32, 0.55);
+  border-radius: 12px;
+  border: 1px solid rgba(139, 127, 214, 0.12);
+  margin: 4px 0 16px;
+}
+.wt-cockpit-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: rgba(236, 230, 255, 0.55);
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+.wt-cockpit-tab-ico {
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.25s ease;
+}
+.wt-cockpit-tab-lbl {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.wt-cockpit-tab:hover {
+  color: #ece6ff;
+  background: rgba(139, 127, 214, 0.10);
+}
+.wt-cockpit-tab:hover .wt-cockpit-tab-ico { transform: scale(1.15); }
+.wt-cockpit-tab.is-active {
+  background: linear-gradient(180deg, rgba(217, 154, 81, 0.22), rgba(217, 154, 81, 0.08));
+  color: #d99a51;
+  box-shadow:
+    inset 0 1px 0 rgba(217, 154, 81, 0.35),
+    0 4px 12px rgba(217, 154, 81, 0.18);
+}
+.wt-cockpit-tab.is-active .wt-cockpit-tab-ico {
+  filter: drop-shadow(0 0 6px rgba(217, 154, 81, 0.6));
+}
+.wt-cockpit-tab.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: #d99a51;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(217, 154, 81, 0.8);
+}
+
+/* PANEL — équivalent weather-info description */
+.wt-cockpit-panel {
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 4px 2px;
+}
+.wt-cockpit-panel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(15, 12, 32, 0.40);
+  border-radius: 8px;
+  border: 1px solid rgba(139, 127, 214, 0.08);
+  font-size: 12px;
+}
+.wt-cockpit-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 8px;
+  box-shadow: 0 0 8px currentColor;
+}
+.wt-cockpit-panel-lbl {
+  color: rgba(236, 230, 255, 0.55);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 70px;
+}
+.wt-cockpit-panel-val {
+  color: #ece6ff;
+  font-weight: 500;
+  font-size: 12px;
+  flex: 1;
+}
+
+.wt-cockpit-item {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 12px;
+  background: rgba(15, 12, 32, 0.40);
+  border-radius: 8px;
+  border: 1px solid rgba(139, 127, 214, 0.08);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.wt-cockpit-item:hover {
+  background: rgba(217, 154, 81, 0.10);
+  border-color: rgba(217, 154, 81, 0.30);
+  transform: translateX(2px);
+}
+.wt-cockpit-item.is-alert {
+  border-color: rgba(255, 92, 92, 0.25);
+  background: rgba(255, 92, 92, 0.06);
+}
+.wt-cockpit-item-ico {
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+}
+.wt-cockpit-item-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #ece6ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wt-cockpit-item-time {
+  font-size: 11px;
+  color: rgba(236, 230, 255, 0.5);
+  letter-spacing: 0.4px;
+}
+.wt-cockpit-empty {
+  padding: 20px;
+  text-align: center;
+  color: rgba(236, 230, 255, 0.45);
+  font-size: 12px;
+  letter-spacing: 0.4px;
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .wt-cockpit { padding: 18px 16px 14px; }
+  .wt-cockpit-hero { grid-template-columns: 48px 1fr; gap: 12px; }
+  .wt-cockpit-cta { grid-column: 1 / -1; justify-self: stretch; margin-top: 8px; }
+  .wt-cockpit-hero-val { font-size: 26px; }
+  .wt-cockpit-hero-icon { font-size: 34px; }
+  .wt-cockpit-tab-lbl { font-size: 9px; }
+}
+
