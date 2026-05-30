@@ -3217,13 +3217,14 @@ body { background: #0a0820 !important; }
 
 .wt-yamzy-fab {
   position: fixed;
-  /* v1.0.22 : marge 20px + sorti du wt-shell → s'affiche sur TOUTES les pages */
+  /* v1.0.23 : z-index astronomique pour battre tous les stacking contexts */
   bottom: 20px;
-  left: 100px;         /* 80px sidebar + 20px marge */
-  width: 320px;        /* canvas — l'avatar prend ~70% au centre */
+  left: 100px;
+  width: 320px;
   height: 320px;
-  z-index: 950;        /* élevé pour passer au-dessus de tout sauf modals/wt-dialog */
-  pointer-events: none; /* purement décoratif */
+  z-index: 99999;       /* au-dessus de tout, modals incluses */
+  isolation: isolate;   /* nouveau stacking context propre */
+  pointer-events: none;
   filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.45))
           drop-shadow(0 0 22px rgba(217, 154, 81, 0.20));
 }
@@ -3319,5 +3320,267 @@ body { background: #0a0820 !important; }
   border-right-color: #ff5c5c;
 }
 .wt-sk-card-alert.wt-sk-card-live .wt-card-rec::after { background: #ff5c5c; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   YAMZY CAROUSEL v1.0.23 — Carrousel 3D vertical à côté de l'avatar
+   ──────────────────────────────────────────────────────────────────
+   Inspiré du Team Carousel codepen :
+     - .center, .up-1, .up-2, .down-1, .down-2, .hidden
+     - perspective parent + cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s
+   Positionné en fixed à droite de l'avatar (left:100+320+20 = 440px),
+   l'avatar a l'air de "lancer" les cards comme des bulles de message.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wt-yc {
+  position: fixed;
+  /* À côté du FAB : left = 100 (FAB left) + 320 (FAB width) + 20 = 440 */
+  left: 440px;
+  bottom: 50px;
+  width: 380px;
+  height: 480px;
+  z-index: 99998; /* juste sous le FAB pour que l'avatar passe au-dessus si chevauchement */
+  pointer-events: none; /* la track gère les events */
+  perspective: 1000px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.wt-yc > * { pointer-events: auto; }
+
+.wt-yc-track {
+  width: 100%;
+  height: 360px;
+  position: relative;
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wt-yc-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -160px;
+  margin-top: -75px;
+  width: 320px;
+  height: 150px;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  background: linear-gradient(135deg, #342e59 0%, #2b2549 100%);
+  border: 1px solid rgba(217, 154, 81, 0.18);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 10px;
+  padding: 14px;
+  align-items: center;
+}
+
+/* Background gradient overlay */
+.wt-yc-card-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  z-index: 0;
+  filter: blur(4px);
+}
+.wt-yc-card > *:not(.wt-yc-card-bg) { position: relative; z-index: 1; }
+
+.wt-yc-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  background: var(--card-color, #d99a51);
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+}
+.wt-yc-card-body { min-width: 0; }
+.wt-yc-card-kind {
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--card-color, #d99a51);
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.wt-yc-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ece6ff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+.wt-yc-card-sub {
+  font-size: 11px;
+  color: rgba(236, 230, 255, 0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wt-yc-card-meta {
+  font-size: 10px;
+  color: rgba(236, 230, 255, 0.45);
+  margin-top: 3px;
+  letter-spacing: 0.4px;
+}
+
+.wt-yc-card-avatars {
+  display: flex;
+  margin-top: 6px;
+  padding-left: 3px;
+}
+.wt-yc-card-av {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  margin-left: -5px;
+  border: 2px solid #342e59;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.wt-yc-card-av:first-child { margin-left: 0; }
+
+/* Corner record dot (réf live pattern) */
+.wt-yc-card-corner {
+  position: absolute;
+  top: 0; right: 0;
+  z-index: 4;
+}
+.wt-yc-card-rec {
+  position: absolute;
+  top: -7px; right: -7px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(234, 77, 95, 0.5);
+}
+.wt-yc-card-rec::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #ea4d5f;
+  animation: wt-card-rec-blink 1.6s ease-in-out infinite;
+}
+
+/* ── Positions 3D (réf Team Carousel) ── */
+.wt-yc-card.center {
+  z-index: 10;
+  transform: scale(1.06) translateZ(0);
+  box-shadow: 0 0 30px rgba(217, 154, 81, 0.35), 0 24px 48px rgba(0, 0, 0, 0.55);
+  border-color: rgba(217, 154, 81, 0.55);
+}
+.wt-yc-card.up-1 {
+  z-index: 5;
+  transform: translateY(-95px) scale(0.85) translateZ(-100px);
+  opacity: 0.88;
+  filter: grayscale(40%);
+}
+.wt-yc-card.up-2 {
+  z-index: 1;
+  transform: translateY(-160px) scale(0.7) translateZ(-300px);
+  opacity: 0.55;
+  filter: grayscale(70%);
+}
+.wt-yc-card.down-1 {
+  z-index: 5;
+  transform: translateY(95px) scale(0.85) translateZ(-100px);
+  opacity: 0.88;
+  filter: grayscale(40%);
+}
+.wt-yc-card.down-2 {
+  z-index: 1;
+  transform: translateY(160px) scale(0.7) translateZ(-300px);
+  opacity: 0.55;
+  filter: grayscale(70%);
+}
+.wt-yc-card.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.6) translateZ(-500px);
+}
+
+/* ── Nav arrows (Up/Down) ── */
+.wt-yc-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(217, 154, 81, 0.15);
+  border: 1px solid rgba(217, 154, 81, 0.40);
+  color: #d99a51;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+.wt-yc-arrow:hover {
+  background: #d99a51;
+  color: #1d172e;
+  transform: scale(1.12);
+  box-shadow: 0 6px 18px rgba(217, 154, 81, 0.5);
+}
+.wt-yc-arrow.up { order: -1; }
+.wt-yc-arrow.down { order: 2; }
+
+/* ── Dots indicator ── */
+.wt-yc-dots {
+  display: flex;
+  gap: 8px;
+  order: 3;
+}
+.wt-yc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(217, 154, 81, 0.25);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.wt-yc-dot.active {
+  background: #d99a51;
+  transform: scale(1.5);
+  box-shadow: 0 0 8px rgba(217, 154, 81, 0.65);
+}
+.wt-yc-dot:hover { background: rgba(217, 154, 81, 0.55); }
+
+/* Responsive */
+@media (max-width: 1500px) {
+  .wt-yc { left: 400px; width: 340px; bottom: 40px; }
+  .wt-yc-card { width: 280px; margin-left: -140px; }
+}
+@media (max-width: 1200px) {
+  .wt-yc { left: 340px; width: 300px; height: 380px; }
+  .wt-yc-card { width: 250px; margin-left: -125px; height: 130px; margin-top: -65px; }
+  .wt-yc-track { height: 280px; }
+  .wt-yc-card.up-1 { transform: translateY(-80px) scale(0.85) translateZ(-100px); }
+  .wt-yc-card.up-2 { transform: translateY(-130px) scale(0.7) translateZ(-300px); }
+  .wt-yc-card.down-1 { transform: translateY(80px) scale(0.85) translateZ(-100px); }
+  .wt-yc-card.down-2 { transform: translateY(130px) scale(0.7) translateZ(-300px); }
+}
+@media (max-width: 900px) {
+  .wt-yc { display: none; }
+}
 
 

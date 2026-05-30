@@ -1899,10 +1899,55 @@
   <app-wt-dialog></app-wt-dialog>
 </div>
 
-<!-- ═══ v1.0.22 — YAMZY companion : SORTI du .wt-shell pour rendu sur TOUTES les pages, z-index élevé ═══ -->
+<!-- ═══ v1.0.23 — YAMZY companion + carrousel 3D vertical à côté ═══ -->
 <div class="wt-yamzy-fab" *ngIf="!splashVisible()">
   <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb"
                        [rotate]="false"
                        [bob]="true"
                        [playGlbAnim]="true"></app-yamzy-avatar-3d>
+</div>
+
+<!-- ═══ v1.0.23 — Carrousel 3D vertical "Yamzy launches messages" ═══ -->
+<div class="wt-yc" *ngIf="!splashVisible() && yamzyCarouselCards().length">
+  <button class="wt-yc-arrow up" (click)="yamzyCarouselUp()" title="Précédent">▲</button>
+
+  <div class="wt-yc-track">
+    <div *ngFor="let card of yamzyCarouselCards(); let i = index; trackBy: ycTrack"
+         class="wt-yc-card"
+         [class.center]="ycPos(i) === 'center'"
+         [class.up-1]="ycPos(i) === 'up-1'"
+         [class.up-2]="ycPos(i) === 'up-2'"
+         [class.down-1]="ycPos(i) === 'down-1'"
+         [class.down-2]="ycPos(i) === 'down-2'"
+         [class.hidden]="ycPos(i) === 'hidden'"
+         [style.--card-color]="card.color"
+         (click)="setYamzyCarouselIndex(i); ycCardAction(card)">
+      <div class="wt-yc-card-bg" [style.background]="card.gradient"></div>
+      <div class="wt-yc-card-icon">{{ card.icon }}</div>
+      <div class="wt-yc-card-body">
+        <div class="wt-yc-card-kind">{{ card.kind }}</div>
+        <div class="wt-yc-card-title">{{ card.title }}</div>
+        <div class="wt-yc-card-sub">{{ card.subtitle }}</div>
+        <div class="wt-yc-card-meta" *ngIf="card.meta">{{ card.meta }}</div>
+        <div class="wt-yc-card-avatars" *ngIf="card.attendees?.length">
+          <span *ngFor="let a of card.attendees.slice(0, 5)" class="wt-yc-card-av"
+                [style.background]="a.color || '#6b6396'" [title]="a.name">
+            {{ a.emoji || a.initials || (a.name || '?').charAt(0) }}
+          </span>
+        </div>
+      </div>
+      <div class="wt-yc-card-corner">
+        <div class="wt-yc-card-rec"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="wt-yc-arrow down" (click)="yamzyCarouselDown()" title="Suivant">▼</button>
+
+  <div class="wt-yc-dots">
+    <div *ngFor="let card of yamzyCarouselCards(); let i = index"
+         class="wt-yc-dot"
+         [class.active]="i === yamzyCarouselIndex()"
+         (click)="setYamzyCarouselIndex(i)"></div>
+  </div>
 </div>
