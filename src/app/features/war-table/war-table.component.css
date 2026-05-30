@@ -980,7 +980,10 @@
       min-height: 0;
       max-height: 100%;
     }
-    /* Header PS hero = colonne gauche, pleine hauteur + flex column pour stack PS-content + Mes Plannings */
+    /* Header PS hero = colonne gauche, pleine hauteur + flex column.
+       v1.0.69 — overflow:hidden (plus de scroll moche sur le header lui-même).
+       Le header occupe déjà toute la page ; le scroll interne reste UNIQUEMENT
+       sur .wt-sk-top-nested si Mes Plannings déborde. */
     .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap {
       flex: 1;
       min-width: 0;
@@ -990,11 +993,8 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      overflow-y: auto;
+      overflow: hidden;
     }
-    .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap::-webkit-scrollbar { width: 6px; }
-    .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.25); border-radius: 3px; }
-    .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap::-webkit-scrollbar-track { background: transparent; }
 
     /* v1.0.66 — Cockpit pleine HAUTEUR de la page (colonne droite de .wt-sk-dash) */
     .wt-sk-news.wt-sk-news-fullheight {
