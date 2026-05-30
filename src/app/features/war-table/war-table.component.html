@@ -238,8 +238,14 @@
         <kbd>Entrée</kbd> ou <kbd>Click dot</kbd> pour ouvrir la page · <kbd>Échap</kbd> pour retour
       </div>
 
-      <!-- No project yet -->
-      <div *ngIf="!api.selectedProjectId()" class="wt-empty">
+      <!-- v1.0.51 — Mes Plannings TOUJOURS visible (même sans projet sélectionné).
+           Le dashboard header est rendu hors *ngIf="selectedProjectId" pour que
+           l'utilisateur puisse toujours trouver/sélectionner son projet via les
+           cards de Mes Plannings. -->
+      <ng-container *ngTemplateOutlet="dashHeaderTpl"></ng-container>
+
+      <!-- No project yet : empty state visible UNIQUEMENT si zéro projet existe -->
+      <div *ngIf="!api.selectedProjectId() && api.projects().length === 0" class="wt-empty">
         <div class="wt-empty-3d">
           <app-agent-card-3d glbUrl="/assets/agents/ARCHITECT.glb" agentKey="ARCHITECT"
                              [rotate]="true" [emissiveBoost]="0.25" fallbackSigil="⚔"></app-agent-card-3d>
@@ -250,20 +256,24 @@
         <button class="wt-btn-major" (click)="importOpen.set(true)">{{ 'empty.import_cta' | t }}</button>
       </div>
 
-      <ng-container *ngIf="api.selectedProjectId() as pid">
-        <!-- Page header (masqué sur le dashboard skin pour ne pas dupliquer le titre Mes Plannings) -->
-        <div class="wt-page-header" *ngIf="!isDashboardSkin()">
+      <!-- Hint quand projets existent mais aucun sélectionné -->
+      <div *ngIf="!api.selectedProjectId() && api.projects().length > 0" class="wt-pick-hint">
+        👆 Choisis un planning dans <strong>Mes Plannings</strong> ci-dessus ou via la liste déroulante en haut à droite.
+      </div>
+
+      <!-- v1.0.51 — Wrapper NON-conditionnel : la définition du #dashHeaderTpl
+           doit rester disponible même sans projet sélectionné (sinon le
+           templateOutlet plus haut échoue avec NG0309). -->
+      <ng-container>
+        <!-- Page header (visible uniquement si projet + pas dashboard skin) -->
+        <div class="wt-page-header" *ngIf="api.selectedProjectId() && !isDashboardSkin()">
           <h1 class="wt-page-title">{{ currentPageDef()?.icon }} {{ pageLabel(currentPageDef()) }}</h1>
           <span class="wt-page-cat-badge">{{ catLabel(currentPageDef()?.cat || '') }}</span>
         </div>
 
-        <!-- v1.0.49 — DASHBOARD HEADER UNIVERSEL via ng-template.
-             Le bloc dashboard (PS hero + Cockpit + Mes Plannings) est défini
-             ci-dessous comme #dashHeaderTpl et injecté ICI au-dessus de chaque
-             page. Inséré exactement comme l'a demandé l'utilisateur :
-             "prends le dashboard actuel comme template pour chaque page, insère
-             le dans toutes les pages". -->
-        <ng-container *ngTemplateOutlet="dashHeaderTpl"></ng-container>
+        <!-- v1.0.51 — Le dashHeaderTpl est désormais rendu PLUS HAUT, hors du *ngIf
+             "selectedProjectId", pour que Mes Plannings soit toujours accessible.
+             Définition du template ci-dessous (visible une seule fois). -->
 
         <!-- ── Template du dashboard universel — défini une seule fois, rendu partout ── -->
         <ng-template #dashHeaderTpl>

@@ -6,6 +6,31 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.51] — 2026-05-30
+
+🔍 **Fix : "je trouve plus mon projet"** — Mes Plannings désormais
+visible même quand AUCUN projet n'est sélectionné. L'utilisateur peut
+toujours retrouver/sélectionner son projet via les cards.
+
+### Fixed
+- Le `<ng-container *ngTemplateOutlet="dashHeaderTpl">` était placé hors
+  de `*ngIf="selectedProjectId()"` mais le `<ng-template #dashHeaderTpl>`
+  restait défini DEDANS → templateRef = undefined sans projet → seul
+  l'écran "empty" s'affichait.
+- Le wrapper `<ng-container *ngIf="selectedProjectId() as pid">` est
+  remplacé par un `<ng-container>` non-conditionnel (le `pid` n'était
+  pas utilisé). Le template est désormais toujours défini.
+- `.wt-page-header` reçoit son propre `*ngIf="api.selectedProjectId()
+  && !isDashboardSkin()"` pour rester correctement masqué sans projet.
+
+### Added
+- `.wt-pick-hint` : message d'aide visible quand des projets existent
+  mais qu'aucun n'est sélectionné — pointe vers Mes Plannings + topbar.
+- Empty state (`.wt-empty` avec import CTA) maintenant limité au cas
+  *zéro projet existant*.
+
+---
+
 ## [1.0.50] — 2026-05-30
 
 🔝 **Mes Plannings remonté au-dessus du cockpit** + **sidebar gauche

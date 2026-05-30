@@ -4079,6 +4079,21 @@ body { background: #0a0820 !important; }
   display: none !important;
 }
 
+/* v1.0.51 — Hint quand projets existent mais aucun sélectionné */
+.wt-pick-hint {
+  margin: 16px 0 24px;
+  padding: 14px 20px;
+  text-align: center;
+  background: rgba(217, 154, 81, 0.10);
+  border: 1px dashed rgba(217, 154, 81, 0.45);
+  border-radius: 12px;
+  font-size: 13px;
+  color: #ecе6ff;
+  font-family: 'Poppins', sans-serif;
+  animation: previewHintPulse 2.5s ease-in-out infinite;
+}
+.wt-pick-hint strong { color: #d99a51; }
+
 /* Hint clavier flottant en preview */
 .wt-preview-hint {
   margin: 16px 0 24px;
