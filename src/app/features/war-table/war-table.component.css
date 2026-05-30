@@ -4418,6 +4418,26 @@ body { background: #0a0820 !important; }
    indiquer la position et permettre la nav par dots. */
 .wt-yc { display: none !important; }
 
+/* v1.0.78 — Header PS hero : background style cellule de calendrier
+   (override les gradients bleus/verts/oranges des states is-active/is-launchable/etc.).
+   Match le look de .wt-cal-cell : rgba(20,16,55,.4) + border violet subtil. */
+.wt-ps-header,
+.wt-ps-header.is-active,
+.wt-ps-header.is-launchable,
+.wt-ps-header.is-today,
+.wt-ps-header.is-overdue {
+  background-color: rgba(20, 16, 55, 0.55) !important;
+  background-image: none !important;
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(167, 139, 250, 0.18) !important;
+  border-radius: 18px !important;
+}
+/* Hover/clickable garde un highlight subtil */
+.wt-ps-header.is-clickable:hover {
+  background-color: rgba(28, 22, 70, 0.65) !important;
+  border-color: rgba(217, 154, 81, 0.32) !important;
+}
+
 /* v1.0.70 — Cards "PAGES DE LA SUPER-CAT" dans le cockpit (sous ACTUALITÉ).
    Affiche les pages de la super-cat active, cliquables pour navigation. */
 .wt-sk-page-card {
