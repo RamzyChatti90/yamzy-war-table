@@ -164,13 +164,61 @@ export class WarTableComponent implements OnInit {
   }
   delTicket(t: any): void { this.delEntity(() => this.api.deleteTicket(t.id)); }
 
-  // ── Sprints
+  // ── Sprints (backend choisit le nom : "{PROJ}-S{N}" à la Yamzy)
   addSprint(): void {
-    const n = (this.sprints() || []).length + 1;
-    this.withProject({}, pid => this.api.createSprint(pid, { number: n, name: 'Sprint ' + n, capacityHours: 35 }));
+    // Pas de name imposé → le backend génère "{PROJ_CLEAN}-S{N}" + goal "Itération N — {nomProjet}"
+    this.withProject({}, pid => this.api.createSprint(pid, { capacityHours: 35 }));
   }
   delSprint(s: any): void { this.delEntity(() => this.api.deleteSprint(s.id)); }
   saveSprint(s: any, field: string, value: any): void { this.patchEntity(this.api.updateSprint.bind(this.api), s, field, value); }
+  /** Reset & archive : renomme + sauvegarde Excel propre + delete projet. */
+  resetAndArchive(): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) return;
+    const proj = this.currentProject();
+    const code = proj?.code || '?';
+    if (!confirm(
+      `⚠ RESET COMPLET du projet "${code}"\n\n`
+      + `Cette action va :\n`
+      + `  1) Renommer tous les "Sprint N" → "${code.replace(/[^A-Za-z0-9]/g, '').toUpperCase().substring(0, 6)}-S{N}"\n`
+      + `  2) Sauvegarder un Excel propre dans ~/.yamzy/exports/\n`
+      + `  3) SUPPRIMER le projet de la base (cascade : tickets, sprints, risques, etc.)\n\n`
+      + `Tu pourras réimporter l'Excel sauvegardé ensuite.\n\n`
+      + `Confirmer ?`
+    )) return;
+    if (!confirm(`Vraiment sûr ? "${code}" sera SUPPRIMÉ.`)) return;
+    this.api.resetAndArchive(pid).subscribe({
+      next: (r) => {
+        alert(
+          `✓ Reset terminé.\n\n`
+          + `📊 ${r.sprintsRenamed} sprint(s) renommé(s)\n`
+          + `💾 Excel archivé :\n${r.archivePath}\n\n`
+          + `Tu peux maintenant le réimporter via ⬆ Importer.`
+        );
+        // Recharge la liste de projets (le picker va se vider)
+        this.api.listProjects().subscribe(list => {
+          this.api.projects.set(list);
+          this.api.selectedProjectId.set(null);
+        });
+      },
+      error: (err) => alert('Échec reset : ' + (err?.error?.message || err?.message))
+    });
+  }
+
+  /** One-click : rebrand tous les "Sprint N" existants → "{PROJ}-S{N}". */
+  rebrandSprints(): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) return;
+    if (!confirm('Renommer tous les "Sprint N" en "{CODE_PROJET}-S{N}" ? (Idempotent — les noms personnalisés sont préservés.)')) return;
+    this.api.rebrandSprints(pid).subscribe({
+      next: (r) => {
+        alert(`✓ ${r.renamed} sprint(s) renommé(s) sur ${r.total}.`);
+        this.api.sprints(pid).subscribe({ next: s => this.sprints.set(s) });
+        this.notifyExcelChanged(pid);
+      },
+      error: (err) => alert('Échec rebrand : ' + (err?.error?.message || err?.message))
+    });
+  }
 
   // ── Phases
   addPhase(): void {
@@ -269,6 +317,14 @@ export class WarTableComponent implements OnInit {
   }
   delStandup(s: any): void { this.delEntity(() => this.api.deleteStandup(s.id)); }
   saveStandup(s: any, field: string, value: any): void { this.patchEntity(this.api.updateStandup.bind(this.api), s, field, value); }
+  /** Résout le nom d'un sprint via son `number`. Renvoie `name` si défini, sinon "Sprint N".
+   *  Utilisé pour les vues qui n'ont que le sprintNumber (retros, feedback, vue-stakeholder). */
+  sprintNameByNumber(num: number | null | undefined): string {
+    if (num == null) return '';
+    const sp = this.sprints().find(s => s.number === num);
+    return sp?.name || ('Sprint ' + num);
+  }
+
   /** 7 jours abrégés (calendrier) — bascule FR/EN. */
   weekdays = computed<string[]>(() => {
     this.i18n.lang(); this.i18n.version();

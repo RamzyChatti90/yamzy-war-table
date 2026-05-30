@@ -6,6 +6,32 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.5] — 2026-05-30
+
+### Added
+- 🏷 **Rebrand sprints** : bouton dans la page Sprints qui renomme tous les sprints en `{PROJ}-S{N}` (pattern Yamzy)
+- 🆕 **Endpoint `POST /api/pos/projects/{id}/sprints/rebrand?force={bool}`** : renomme tous les sprints (force=true par défaut, accepte `Sprint 1 - Init`, `S01`, etc.) ; retourne aussi les changements pour debug
+- 🆕 **Endpoint `POST /api/pos/projects/{id}/reset-and-archive`** : rebrand + export Excel propre dans `~/.yamzy/exports/{code}-RESET-{ts}.xlsx` + delete projet (workflow ré-import propre)
+- 🔄 **Bouton topbar** rouge/orange (visible quand un projet est sélectionné) pour déclencher le reset
+- Auto-numérotation sur création de sprint : `max(number) + 1` au lieu de la length
+
+### Fixed
+- 🐛 **PosExcelExportService** (ligne 156) : utilise `sp.getName()` au lieu de `"Sprint " + sp.getNumber()` — l'Excel exporté préserve enfin les noms personnalisés (`OTSYS-S3` au lieu de `Sprint 3`)
+- 🐛 **PosDashboardService** (3 lignes : CFD/Velocity/Burndown) : utilise `sp.getName()` pour le label sprint au lieu du `"S" + number` hardcodé
+- 🐛 **war-table.component.html** (4 occurrences) : `Sprint {{ s.number }}` → `s.name || ('Sprint ' + s.number)`
+  - Dashboard skin → carte sprint actif
+  - Page Sprints → cartes
+  - Sprint Review → tableau
+  - Sprint Planning → dropdown
+- 🐛 **war-table.component.html** (3 autres places) : retros, stakeholder feedback, vue-stakeholder utilisent désormais `sprintNameByNumber(num)` qui résout le vrai nom depuis le store
+
+### Changed
+- `createSprint` (POST) : si `body.name` n'est pas fourni, génère `{PROJ_CODE_CLEAN}-S{N}` automatiquement, et `goal = "Itération {N} — {nom projet}"`
+- `generateSprintName(project, n)` : helper réutilisable, max 6 chars alphanumériques du code projet
+- Rename des fichiers RESET : insère `-RESET-` juste avant le timestamp (au lieu de couper le code projet sur le premier `-`)
+
+---
+
 ## [1.0.4] — 2026-05-30
 
 ### Added
