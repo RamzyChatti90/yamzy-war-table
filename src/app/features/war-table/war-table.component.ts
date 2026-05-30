@@ -109,6 +109,142 @@ export class WarTableComponent implements OnInit {
   // ═══ YAMZY COMPANION v1.0.17 — Avatar 3D animé fixé sur la gauche, présent partout ═══
   // (Guide panel retiré sur demande utilisateur — juste le gros avatar avec toutes les anims)
 
+  // ═══ YAMZY CAROUSEL v1.0.23 — Carrousel 3D vertical à côté de l'avatar ═══
+  // Inspiré du Team Carousel codepen : center/up-1/up-2/down-1/down-2/hidden
+  // Affiche les "messages" que Yamzy lance : événements, alertes, tickets prio
+  yamzyCarouselIndex = signal(0);
+  yamzyCarouselCards = computed<any[]>(() => {
+    const cards: any[] = [];
+    const allEvents = this.events() || [];
+    const upcoming = this.upcomingEventsList() || [];
+    const active = allEvents.find(e => e.status === 'IN_PROGRESS');
+    const reminders: any = this.remindersData();
+    const high = reminders ? (reminders.items || []).filter((r: any) => r.severity === 'HIGH') : [];
+    const dash: any = this.dash() || {};
+    const top = (dash.top3Actions || []).slice(0, 3);
+
+    // 1) Action en cours OU prochain événement OU idle
+    if (active) {
+      cards.push({
+        kind: 'EN COURS',
+        title: active.title,
+        subtitle: `Démarré · ${this.formatTime(active.actualStart || active.scheduledStart)}`,
+        meta: this.eventTypeLabel(active.type),
+        icon: '▶',
+        color: '#6cd16c',
+        gradient: 'linear-gradient(135deg, #6cd16c, #4696b9)',
+        action: { type: 'event', id: active.id },
+        attendees: (active.attendees || []).slice(0, 5),
+      });
+    } else if (upcoming[0]) {
+      const inMs = new Date(upcoming[0].scheduledStart).getTime() - Date.now();
+      const inMin = Math.max(0, Math.round(inMs / 60000));
+      cards.push({
+        kind: 'PROCHAIN',
+        title: upcoming[0].title,
+        subtitle: `Dans ${inMin} min · ${this.formatTime(upcoming[0].scheduledStart)}`,
+        meta: this.eventTypeLabel(upcoming[0].type),
+        icon: '⏰',
+        color: '#d99a51',
+        gradient: 'linear-gradient(135deg, #d99a51, #c25d8d)',
+        action: { type: 'event', id: upcoming[0].id },
+        attendees: (upcoming[0].attendees || []).slice(0, 5),
+      });
+    } else {
+      cards.push({
+        kind: 'LIBRE',
+        title: 'Aucune cérémonie',
+        subtitle: 'Profite ou planifie une réunion',
+        meta: '+ Nouvelle réunion',
+        icon: '☕',
+        color: '#9d8ad6',
+        gradient: 'linear-gradient(135deg, #514a7b, #3b3363)',
+        action: { type: 'new-event' },
+      });
+    }
+
+    // 2-4) Prochaines réunions
+    const upcomingSlice = active ? upcoming.slice(0, 3) : upcoming.slice(1, 4);
+    for (const ev of upcomingSlice) {
+      cards.push({
+        kind: 'À VENIR',
+        title: ev.title,
+        subtitle: this.formatDateTime(ev.scheduledStart),
+        meta: this.eventTypeLabel(ev.type),
+        icon: ev.type === 'DAILY' ? '🗣' : ev.type === 'PLANNING' ? '🎯' : ev.type === 'REVIEW' ? '🔍' : ev.type === 'RETRO' ? '🔄' : '📅',
+        color: this.eventTypeColor(ev.type),
+        gradient: `linear-gradient(135deg, ${this.eventTypeColor(ev.type)}, #3b3363)`,
+        action: { type: 'event', id: ev.id },
+        attendees: (ev.attendees || []).slice(0, 5),
+      });
+    }
+
+    // 5) Top ticket
+    if (top[0]) {
+      cards.push({
+        kind: 'TICKET',
+        title: top[0].code || top[0].title,
+        subtitle: top[0].title || top[0].state || '',
+        meta: 'Priorité haute',
+        icon: '⚡',
+        color: '#ff8a5c',
+        gradient: 'linear-gradient(135deg, #ff8a5c, #c25d8d)',
+        action: { type: 'page', page: 'backlog' },
+      });
+    }
+
+    // 6) Alerte HIGH
+    if (high[0]) {
+      cards.push({
+        kind: 'ALERTE',
+        title: high[0].title || high[0].message,
+        subtitle: high[0].description || high[0].category,
+        meta: high[0].severity || 'HIGH',
+        icon: '⚠',
+        color: '#de4f5f',
+        gradient: 'linear-gradient(135deg, #de4f5f, #eb8052)',
+        action: { type: 'page', page: high[0].page || 'risks' },
+      });
+    }
+
+    return cards.slice(0, 6);
+  });
+
+  /** Calcule la position relative pour l'effet 3D (réf Team Carousel). */
+  ycPos(i: number): string {
+    const cards = this.yamzyCarouselCards();
+    const cur = this.yamzyCarouselIndex();
+    const n = cards.length;
+    if (!n) return 'hidden';
+    const offset = (i - cur + n) % n;
+    if (offset === 0) return 'center';
+    if (offset === 1) return 'down-1';
+    if (offset === 2 && n >= 5) return 'down-2';
+    if (offset === n - 1) return 'up-1';
+    if (offset === n - 2 && n >= 5) return 'up-2';
+    return 'hidden';
+  }
+  ycTrack(i: number, c: any): any { return c?.title || i; }
+  yamzyCarouselUp(): void {
+    const n = this.yamzyCarouselCards().length;
+    if (!n) return;
+    this.yamzyCarouselIndex.update(i => (i - 1 + n) % n);
+  }
+  yamzyCarouselDown(): void {
+    const n = this.yamzyCarouselCards().length;
+    if (!n) return;
+    this.yamzyCarouselIndex.update(i => (i + 1) % n);
+  }
+  setYamzyCarouselIndex(i: number): void { this.yamzyCarouselIndex.set(i); }
+
+  /** Click sur la card : action contextuelle. */
+  ycCardAction(card: any): void {
+    if (!card?.action) return;
+    if (card.action.type === 'event') this.openEventDetail(card.action.id);
+    else if (card.action.type === 'new-event') this.openNewEvent();
+    else if (card.action.type === 'page') this.setPage(card.action.page);
+  }
+
   // ═══ COCKPIT WIDGET v1.0.12 (style "Chicago" — 4 onglets en carrousel) ═══
   cockpitTab = signal<'action' | 'upcoming' | 'tickets' | 'alerts'>('action');
   cockpitTabs = [

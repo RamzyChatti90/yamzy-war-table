@@ -6,6 +6,48 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.23] — 2026-05-31
+
+🎠 **Carrousel 3D vertical à côté de YAMZY** : Yamzy lance des "bulles
+de message" — cards 3D qui flottent juste à côté de l'avatar.
+
+### Added — wt-yc carrousel 3D
+Inspiré du Team Carousel codepen (perspective:1000px + transitions
+cubic-bezier 0.8s). Fixed position à droite du FAB :
+- `left: 440px` (= 100 FAB + 320 width + 20 margin)
+- `bottom: 50px`, `width: 380px`, `height: 480px`
+
+**5 positions 3D** :
+- `.center` : scale 1.06, z-index 10, ring or
+- `.up-1` / `.down-1` : ±95px, scale 0.85, translateZ -100, grayscale 40%
+- `.up-2` / `.down-2` : ±160px, scale 0.7, translateZ -300, grayscale 70%
+- `.hidden` : opacity 0, translateZ -500
+
+**Contenu dynamique (max 6 cards)** :
+1. Action en cours / prochain / idle
+2-4. Prochaines réunions
+5. Top ticket prioritaire
+6. Alerte HIGH
+
+**Card design** : 320×150, grid icon coloré + body. Record dot
+blanc/rouge au coin (réutilise le pattern live v1.0.20).
+
+**Nav** : arrows up/down + dots + click center = action.
+
+### Fixed — FAB z-index 99999 + isolation
+> "l'avatar toujours caché derrière .wt-sk-top"
+
+- z-index 950 → 99999
+- `isolation: isolate` → stacking context propre, immune aux parents
+
+### Why
+> "maintenant t'utilise la même carrousel de ce code et savoir la
+> positioner pour que soit on dirait c'est l'avatar qui les lance
+> juste à côté comme si ces panels sont des messages que l'avatar
+> affichera"
+
+---
+
 ## [1.0.22] — 2026-05-31
 
 ### Fixed — YAMZY FAB sur TOUTES les pages (vraiment)
