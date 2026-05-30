@@ -3662,41 +3662,49 @@ body { background: #0a0820 !important; }
   animation: wt-card-rec-blink 1.6s ease-in-out infinite;
 }
 
-/* ── Positions 3D (réf Team Carousel) ── */
+/* ── Positions 3D : ARC EN "C" ouvert à droite (v1.0.28) ──
+   Les cards forment une courbe qui rentre vers l'avatar (à gauche),
+   comme si elles émanaient de lui. center est le point le plus à
+   droite ; up-1/up-2 montent en courbant vers la gauche, down-1/down-2
+   descendent en courbant aussi vers la gauche. Effet "fan" qui sort
+   de l'avatar.
+   ─────────────────────────────────────────────────────────────── */
 .wt-yc-card.center {
   z-index: 10;
-  transform: scale(1.06) translateZ(0);
+  transform: translate3d(0, 0, 0) scale(1.06) rotateZ(0deg);
   box-shadow: 0 0 30px rgba(217, 154, 81, 0.35), 0 24px 48px rgba(0, 0, 0, 0.55);
   border-color: rgba(217, 154, 81, 0.55);
 }
+/* UP : monte ET part vers la gauche (vers avatar). Tilt positif (rotation horaire). */
 .wt-yc-card.up-1 {
   z-index: 5;
-  transform: translateY(-95px) scale(0.85) translateZ(-100px);
+  transform: translate3d(-30px, -90px, -80px) scale(0.85) rotateZ(12deg);
   opacity: 0.88;
   filter: grayscale(40%);
 }
 .wt-yc-card.up-2 {
   z-index: 1;
-  transform: translateY(-160px) scale(0.7) translateZ(-300px);
+  transform: translate3d(-90px, -160px, -260px) scale(0.7) rotateZ(28deg);
   opacity: 0.55;
   filter: grayscale(70%);
 }
+/* DOWN : descend ET part vers la gauche (vers avatar). Tilt négatif (anti-horaire). */
 .wt-yc-card.down-1 {
   z-index: 5;
-  transform: translateY(95px) scale(0.85) translateZ(-100px);
+  transform: translate3d(-30px, 90px, -80px) scale(0.85) rotateZ(-12deg);
   opacity: 0.88;
   filter: grayscale(40%);
 }
 .wt-yc-card.down-2 {
   z-index: 1;
-  transform: translateY(160px) scale(0.7) translateZ(-300px);
+  transform: translate3d(-90px, 160px, -260px) scale(0.7) rotateZ(-28deg);
   opacity: 0.55;
   filter: grayscale(70%);
 }
 .wt-yc-card.hidden {
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.6) translateZ(-500px);
+  transform: scale(0.6) translateZ(-500px) rotateZ(0deg);
 }
 
 /* ── Nav arrows (Up/Down) ── */
