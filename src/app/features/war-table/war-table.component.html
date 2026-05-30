@@ -226,7 +226,9 @@
     </aside>
 
     <!-- ═══ MAIN AREA ═══ -->
-    <main class="wt-main" [class.is-preview]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()">
+    <main class="wt-main"
+          [class.is-preview]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
+          [class.is-content-open]="studioLevel() === 'section' && pageContentOpen() && api.selectedProjectId()">
       <!-- v1.0.48 — Le header universel (PS hero + cockpit + Mes Plannings) est désormais
            fourni par la section .wt-sk-dash plus bas (toujours visible sur toutes les pages).
            Les anciens duplicatas wt-page-ps-header (v1.0.42) et wt-page-cockpit-aside (v1.0.45)
@@ -277,15 +279,11 @@
 
         <!-- ── Template du dashboard universel — défini une seule fois, rendu partout ── -->
         <ng-template #dashHeaderTpl>
-        <!-- v1.0.53 — Layout RESTRUCTURÉ :
-             ┌───────────────────────────────────┬──────────────┐
-             │ LEFT : PS hero (adaptive)         │              │
-             ├───────────────────────────────────┤ COCKPIT      │
-             │ LEFT : Mes Plannings              │ full-height  │
-             └───────────────────────────────────┴──────────────┘ -->
+        <!-- v1.0.54 — REVERT layout v1.0.52 (cockpit dans dash-row, Mes Plannings en-dessous).
+             On garde le PS hero adaptif par menu (variant-based) mais on remet la
+             structure classique : PS hero + Cockpit côte-à-côte, Mes Plannings après. -->
         <section class="wt-sk-dash">
-          <!-- Colonne GAUCHE : PS hero + Mes Plannings -->
-          <div class="wt-sk-dash-main">
+          <div class="wt-sk-dash-row">
             <!-- v1.0.53 — PS hero ADAPTATIF par menu :
                  • Sur dashboard : projet + sprint info (Lancer / Interrompre)
                  • Sur autres pages : tag + titre + desc + tip + action page-spécifique
@@ -361,6 +359,13 @@
                 <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb" [rotate]="false"></app-yamzy-avatar-3d>
               </div>
             </header>
+
+            <!-- ④ COCKPIT (v1.0.54 : restauré à côté du PS hero dans la dash-row) -->
+            <div class="wt-sk-news">
+              <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
+            </div>
+          </div>
+          <!-- ↑ fin de .wt-sk-dash-row (PS hero + cockpit côte à côte) -->
 
           <!-- v1.0.45 — Template cockpit + news réutilisable sur toutes les pages -->
           <ng-template #cockpitNewsBlock>
@@ -629,14 +634,7 @@
               </div>
             </div>
           </div>
-          <!-- ↑ fin de .wt-sk-top (Mes Plannings) -->
-          </div>
-          <!-- ↑ fin de .wt-sk-dash-main (colonne GAUCHE) -->
-
-          <!-- v1.0.53 — Colonne DROITE : COCKPIT en pleine hauteur de section -->
-          <aside class="wt-sk-news wt-sk-news-column">
-            <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
-          </aside>
+          <!-- ↑ fin de .wt-sk-top (Mes Plannings) — v1.0.52 position remise -->
         </section>
         </ng-template>
         <!-- ↑ fin du template #dashHeaderTpl — réutilisable sur toutes les pages -->

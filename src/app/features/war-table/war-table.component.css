@@ -807,48 +807,12 @@
       border:1px solid rgba(139,127,214,.18); border-radius:12px; font-size:11px; color:#a99fd6;
       line-height:1.4; font-family:'Poppins',sans-serif; }
 
-    /* ── ③ DASHBOARD SKIN embedded — v1.0.53 GRID 2-COL ──
-       LEFT col (.wt-sk-dash-main) : PS hero EN HAUT + Mes Plannings DESSOUS
-       RIGHT col (.wt-sk-news.wt-sk-news-column) : COCKPIT pleine hauteur */
-    .wt-sk-dash {
-      display: flex;
-      flex-direction: row;
-      gap: 24px;
-      align-items: stretch;
-      animation: wt-fade-up .6s ease-out;
-      min-height: calc(100vh - 200px);
-    }
-    .wt-sk-dash-main {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
+    /* ── ③ DASHBOARD SKIN — v1.0.54 REVERT layout v1.0.52 :
+       column flex, PS hero + Cockpit côte à côte dans .wt-sk-dash-row,
+       Mes Plannings en-dessous. Le grid 2-cols v1.0.53 a été retiré
+       (user : "revert le design ancien de cockpit, t'as gâché le design entier"). */
+    .wt-sk-dash { display:flex; flex-direction:column; gap:24px; animation: wt-fade-up .6s ease-out; }
     .wt-sk-dash-row { display:flex; gap:24px; align-items:flex-start; }
-
-    /* Cockpit en colonne pleine hauteur (RIGHT col) */
-    .wt-sk-news-column {
-      width: 320px !important;
-      flex-shrink: 0;
-      align-self: stretch;
-      max-height: calc(100vh - 160px);
-      overflow-y: auto;
-      padding: 12px;
-      background: rgba(29, 23, 46, 0.55);
-      backdrop-filter: blur(14px);
-      border-radius: 24px;
-      border: 1px solid rgba(217, 154, 81, 0.18);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-    }
-    .wt-sk-news-column::-webkit-scrollbar { width: 6px; }
-    .wt-sk-news-column::-webkit-scrollbar-thumb { background: rgba(217, 154, 81, 0.35); border-radius: 3px; }
-    .wt-sk-news-column::-webkit-scrollbar-track { background: transparent; }
-
-    @media (max-width: 1100px) {
-      .wt-sk-dash { flex-direction: column; min-height: auto; }
-      .wt-sk-news-column { width: 100% !important; max-height: 500px; align-self: auto; }
-    }
     .wt-sk-video-wrap { position:relative; flex:1; min-width:0; }
     .wt-sk-video { position:relative; overflow:hidden; width:100%;
       height:clamp(320px,46vh,560px); border-radius:32px;
@@ -912,19 +876,10 @@
     .wt-sk-news-tags { display:flex; gap:6px; margin-top:6px; }
     .wt-sk-news-tag { color:#fff; font-size:10px; padding:1px 8px; border-radius:999px; font-weight:600; }
 
-    /* ⑤ Top Selection — v1.0.53 : placé sous PS hero dans la colonne gauche */
-    .wt-sk-top {
-      margin-top: 0;
-      padding: 20px;
-      border-radius: 24px;
-      background: rgba(29, 23, 46, 0.45);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(217, 154, 81, 0.14);
-      display: block;
-      width: 100%;
-    }
+    /* ⑤ Top Selection — v1.0.54 REVERT : remis au style v1.0.52 simple */
+    .wt-sk-top { margin-top: 8px; }
 
-    /* v1.0.53 — Bouton Launch sprint en secondaire (à côté du bouton page) */
+    /* v1.0.53 (conservé) — Bouton Launch sprint en secondaire à côté du bouton page */
     .wt-ps-btn.wt-ps-btn-secondary {
       background: rgba(255, 255, 255, 0.12) !important;
       color: #fff !important;
@@ -4146,18 +4101,49 @@ body { background: #0a0820 !important; }
    (header universel sur toutes les pages). Conservée pour compat éventuelle. */
 .is-hidden-section { display: none !important; }
 
-/* v1.0.47 → v1.0.48 — Preview mode : seul le header universel (.wt-sk-dash complet,
-   PS hero + cockpit + Mes Plannings) reste visible. Les sections page-spécifiques
-   sont cachées tant que pageContentOpen=false. L'utilisateur demande explicitement
-   que toute la section dashboard apparaisse sur chaque page → on ne cache plus
-   .wt-sk-top (Mes Plannings) en preview. */
+/* v1.0.54 — Preview mode (swipe carousel) : SEUL le PS hero adaptif visible.
+   Cockpit + Mes Plannings + page sections cachés. L'utilisateur se concentre
+   sur l'aperçu de la page sélectionnée dans le carousel. */
 .wt-main.is-preview > section:not(.wt-sk-dash) {
   display: none !important;
 }
-/* Cache aussi le petit .wt-page-header (breadcrumb icône+titre) en preview */
+.wt-main.is-preview .wt-sk-news,
+.wt-main.is-preview .wt-sk-top {
+  display: none !important;
+}
+/* Le PS hero (seul) prend tout l'espace dispo en preview */
+.wt-main.is-preview .wt-sk-dash-row {
+  display: block;
+}
+.wt-main.is-preview .wt-sk-video-wrap {
+  max-width: 100%;
+}
+/* Cache aussi le petit .wt-page-header (breadcrumb) en preview */
 .wt-main.is-preview > div.wt-page-header,
 .wt-main.is-preview ng-container > .wt-page-header {
   display: none !important;
+}
+
+/* v1.0.54 — CONTENT OPEN (Enter pressé) : dashboard section disparaît
+   smoothement (opacity + slide up + max-height 0), puis la page-section
+   s'affiche en fade-in. */
+.wt-main.is-content-open .wt-sk-dash {
+  animation: dashFadeOut .55s cubic-bezier(.4, 0, .2, 1) forwards;
+  transform-origin: top center;
+}
+@keyframes dashFadeOut {
+  0%   { opacity: 1; transform: translateY(0); max-height: 1500px; margin-bottom: 24px; }
+  100% { opacity: 0; transform: translateY(-32px); max-height: 0; margin: 0; padding: 0; overflow: hidden; pointer-events: none; }
+}
+/* Les sections de page apparaissent en fade-in après le fade-out du dashboard */
+.wt-main.is-content-open > section:not(.wt-sk-dash) {
+  animation: pageFadeIn .65s cubic-bezier(.4, 0, .2, 1) forwards;
+  animation-delay: .3s;
+  opacity: 0;
+}
+@keyframes pageFadeIn {
+  0%   { opacity: 0; transform: translateY(28px) scale(.985); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* v1.0.51 — Hint quand projets existent mais aucun sélectionné */
