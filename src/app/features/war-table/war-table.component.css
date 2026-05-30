@@ -707,23 +707,91 @@
        ════════════════════════════════════════════════════════════════════════ */
 
     /* ── ② Sidebar gauche 4 icônes (DASHBOARD/PLANNINGS/BACKLOG/ANALYTICS) ── */
-    .wt-sk-nav { width:100px; flex-shrink:0; background:#342e59; display:flex; flex-direction:column;
-      padding:18px 0; gap:2px; border-right:none; }
-    .wt-sk-nav-item { background:transparent; border:none; cursor:pointer; padding:18px 4px;
-      display:flex; flex-direction:column; align-items:center; gap:6px;
-      color:#514a7b; transition:color .15s, background .15s; font-family:'Poppins',sans-serif;
-      border-radius:0; }
-    .wt-sk-nav-item:hover { color:#a99fd6; background:rgba(139,127,214,.08); }
-    .wt-sk-nav-item:hover:not(.wt-sk-nav-active) { border-radius:0 18px 18px 0; }
-    .wt-sk-nav-active { background:#3b3363 !important; color:#fff !important;
-      border-radius:0 22px 22px 0 !important;
-      box-shadow: inset 3px 0 0 #d99a51, 0 4px 14px rgba(0,0,0,.18); }
-    .wt-sk-nav-ico { display:inline-flex; width:26px; height:26px; }
-    .wt-sk-nav-ico svg { width:26px; height:26px; }
-    .wt-sk-nav-label { font-size:9px; font-weight:700; letter-spacing:.18em; line-height:1;
-      text-transform:uppercase; opacity:.95; }
-    .wt-sk-nav-spacer { flex:1; }
-    .wt-sk-nav-more { margin-top:auto; }
+    /* ═══════════════════════════════════════════════════════════════════
+       v1.0.50 — SIDEBAR style Codepen "Pure CSS One page vertical nav"
+       (référence Alberto Hartzet — https://codepen.io/hrtzt/pen/pgXMYb).
+       Fixed position à gauche, centré verticalement, icones blancs 32px,
+       hover opacity 0.5, scale animation sur active, transitions .8s
+       cubic-bezier(0.54, 0.35, 0.29, 0.99).
+       ═══════════════════════════════════════════════════════════════════ */
+    .wt-sk-nav {
+      position: fixed;
+      z-index: 100;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      margin: auto 0;
+      height: 340px;
+      width: 78px;
+      padding: 0;
+      gap: 0;
+      background: transparent;          /* fixed flottant — pas de fond bloc */
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: none;
+      pointer-events: auto;
+    }
+    .wt-sk-nav-item {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin: 22px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: #fff;
+      transition: all .5s ease-out;
+      font-family: 'Poppins', sans-serif;
+      border-radius: 0;
+      opacity: 1;
+    }
+    .wt-sk-nav-item:hover {
+      opacity: .5;
+      background: transparent;
+      color: #fff;
+    }
+    .wt-sk-nav-item:hover:not(.wt-sk-nav-active) {
+      border-radius: 0;
+    }
+    .wt-sk-nav-active {
+      background: transparent !important;
+      color: #d99a51 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      transform: scale(1.2);
+      transition-delay: .25s;
+    }
+    .wt-sk-nav-ico {
+      display: inline-flex;
+      width: 32px;
+      height: 32px;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .35));
+    }
+    .wt-sk-nav-ico svg {
+      width: 32px;
+      height: 32px;
+    }
+    .wt-sk-nav-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      line-height: 1;
+      text-transform: uppercase;
+      opacity: .85;
+      color: inherit;
+    }
+    .wt-sk-nav-spacer { display: none; }   /* plus besoin avec position fixed centrée */
+    .wt-sk-nav-more {
+      margin-top: 22px;                    /* override le auto, on garde l'espacement régulier */
+    }
+
+    /* Pour que le contenu principal ne soit pas masqué par la sidebar fixed */
+    .wt-body { padding-left: 90px; }
 
     /* ── Drawer : les 42 pages slide-out ── */
     .wt-sk-drawer { width:280px !important; flex-shrink:0;
@@ -851,8 +919,13 @@
     /* En mode dashboard skin : on cache le wt-page-header (titre studio classique) */
     .wt-sk-dash + .wt-page-header, .wt-page-header:has(+ .wt-sk-dash) { display:none; }
 
-    /* Compat : sidebar 4 icônes en plein écran toujours visible */
-    @media (max-width:760px) { .wt-sk-nav-label { display:none; } .wt-sk-nav { width:64px; } }
+    /* v1.0.50 — Sidebar fixed Codepen-style : adapt mobile */
+    @media (max-width:760px) {
+      .wt-sk-nav-label { display:none; }
+      .wt-sk-nav { width:56px; height: 280px; }
+      .wt-sk-nav-ico, .wt-sk-nav-ico svg { width:24px; height:24px; }
+      .wt-body { padding-left: 64px; }
+    }
 
     /* ════════════════════════════════════════════════════════════════════════
        ═══ PAGINATION v27 — lazy par page, pas de scroll interne sur tables ═══

@@ -269,6 +269,53 @@
         <ng-template #dashHeaderTpl>
         <section class="wt-sk-dash">
 
+          <!-- v1.0.50 — MES PLANNINGS déplacé EN PREMIER (au-dessus du cockpit) -->
+          <div class="wt-sk-top">
+            <div class="wt-sk-top-head">
+              <div class="wt-sk-top-title">{{ 'dash.my_plannings' | t }}</div>
+              <div class="wt-sk-live-pill">
+                <div class="wt-sk-live-dot"></div>
+                <div class="wt-sk-live-lbl">{{ 'common.live' | t }}</div>
+              </div>
+            </div>
+            <div class="wt-sk-top-body">
+              <div class="wt-sk-cats">
+                <div *ngFor="let c of catsSkin(); let i = index"
+                     class="wt-sk-cat-row"
+                     [class.wt-sk-cat-active]="catActiveSkin() === i"
+                     (click)="catActiveSkin.set(i)">
+                  <span class="wt-sk-cat-ico" [innerHTML]="catSkinIconHtml(i)"></span>
+                  <div class="wt-sk-cat-lbl">{{ c }}</div>
+                </div>
+              </div>
+              <div class="wt-sk-projects">
+                <div *ngFor="let p of filteredProjectsSkin()"
+                     class="wt-sk-proj-card"
+                     [class.wt-sk-proj-active]="p.id === api.selectedProjectId()"
+                     (click)="selectProjectCard(p)" [title]="'[' + p.code + '] ' + p.name">
+                  <div class="wt-sk-proj-img" [style.background]="projectCardGradient(p)">
+                    <div class="wt-sk-proj-letter">{{ (p.code || '?').charAt(0) }}</div>
+                    <div class="wt-sk-proj-bar" [style.width.%]="progressOfProject(p)"></div>
+                  </div>
+                  <div class="wt-sk-proj-info">
+                    <div class="wt-sk-proj-avatar" [style.background]="projectCardGradient(p)">{{ (p.code || '?').charAt(0) }}</div>
+                    <div class="wt-sk-proj-meta">
+                      <div class="wt-sk-proj-code">{{ p.code }}</div>
+                      <div class="wt-sk-proj-name">{{ p.name }}</div>
+                      <div class="wt-sk-proj-tags">
+                        <div class="wt-sk-proj-tag" style="background:#6647bf">{{ progressOfProject(p) }}%</div>
+                        <div *ngIf="p.status" class="wt-sk-proj-tag" style="background:#4696b9">{{ p.status }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="filteredProjectsSkin().length === 0" class="wt-sk-empty">
+                  {{ 'empty.no_planning_in_cat' | t }}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="wt-sk-dash-row">
             <!-- ③ v1.0.8 — Carte hero style PlayStation Store (Spider-Man) avec avatar Yamzy 3D -->
             <header class="wt-ps-header wt-sk-video-wrap"
@@ -542,52 +589,7 @@
               </div>
           </ng-template>
 
-          <!-- ⑤ TOP SELECTION : Mes Plannings -->
-          <div class="wt-sk-top">
-            <div class="wt-sk-top-head">
-              <div class="wt-sk-top-title">{{ 'dash.my_plannings' | t }}</div>
-              <div class="wt-sk-live-pill">
-                <div class="wt-sk-live-dot"></div>
-                <div class="wt-sk-live-lbl">{{ 'common.live' | t }}</div>
-              </div>
-            </div>
-            <div class="wt-sk-top-body">
-              <div class="wt-sk-cats">
-                <div *ngFor="let c of catsSkin(); let i = index"
-                     class="wt-sk-cat-row"
-                     [class.wt-sk-cat-active]="catActiveSkin() === i"
-                     (click)="catActiveSkin.set(i)">
-                  <span class="wt-sk-cat-ico" [innerHTML]="catSkinIconHtml(i)"></span>
-                  <div class="wt-sk-cat-lbl">{{ c }}</div>
-                </div>
-              </div>
-              <div class="wt-sk-projects">
-                <div *ngFor="let p of filteredProjectsSkin()"
-                     class="wt-sk-proj-card"
-                     [class.wt-sk-proj-active]="p.id === api.selectedProjectId()"
-                     (click)="selectProjectCard(p)" [title]="'[' + p.code + '] ' + p.name">
-                  <div class="wt-sk-proj-img" [style.background]="projectCardGradient(p)">
-                    <div class="wt-sk-proj-letter">{{ (p.code || '?').charAt(0) }}</div>
-                    <div class="wt-sk-proj-bar" [style.width.%]="progressOfProject(p)"></div>
-                  </div>
-                  <div class="wt-sk-proj-info">
-                    <div class="wt-sk-proj-avatar" [style.background]="projectCardGradient(p)">{{ (p.code || '?').charAt(0) }}</div>
-                    <div class="wt-sk-proj-meta">
-                      <div class="wt-sk-proj-code">{{ p.code }}</div>
-                      <div class="wt-sk-proj-name">{{ p.name }}</div>
-                      <div class="wt-sk-proj-tags">
-                        <div class="wt-sk-proj-tag" style="background:#6647bf">{{ progressOfProject(p) }}%</div>
-                        <div *ngIf="p.status" class="wt-sk-proj-tag" style="background:#4696b9">{{ p.status }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div *ngIf="filteredProjectsSkin().length === 0" class="wt-sk-empty">
-                  {{ 'empty.no_planning_in_cat' | t }}
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- v1.0.50 — Mes Plannings deplace EN HAUT (voir bloc .wt-sk-top au-dessus) -->
         </section>
         </ng-template>
         <!-- ↑ fin du template #dashHeaderTpl — réutilisable sur toutes les pages -->

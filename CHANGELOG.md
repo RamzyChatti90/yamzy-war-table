@@ -6,6 +6,43 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.50] — 2026-05-30
+
+🔝 **Mes Plannings remonté au-dessus du cockpit** + **sidebar gauche
+restylée façon Codepen "Pure CSS One page vertical navigation"**
+(référence Alberto Hartzet).
+
+> "déploie la partie my planning pour qu'elle soit au-dessus de la
+> partie cockpit ... utilise le même style que cette référence
+> identique [Codepen vertical nav]"
+
+### Changed — Ordre dashboard
+- `wt-sk-top` (Mes Plannings) déplacé **en première position** dans
+  `#dashHeaderTpl`, juste après l'ouverture de `<section class="wt-sk-dash">`.
+- L'ancien `wt-sk-top` en bas de section supprimé (un seul rendu).
+- Nouvel ordre vertical : **Mes Plannings → PS hero + Cockpit (row) →
+  page-specific content**.
+
+### Changed — Sidebar `.wt-sk-nav` (style Codepen hrtzt/pgXMYb)
+- `position: fixed` à gauche, **centré verticalement** (top: 0, bottom: 0,
+  margin: auto 0, height: 340px).
+- Background **transparent** (plus de bloc gris) — flotte au-dessus du
+  3D background.
+- Icones **blancs 32px** avec drop-shadow.
+- Hover : `opacity: 0.5` (Codepen exact).
+- Active : `transform: scale(1.2)` + couleur dorée `#d99a51`,
+  transition `.5s ease-out` (Codepen exact).
+- Labels conservés (DASHBOARD / PLANNINGS / BACKLOG / ANALYTICS / MORE)
+  mais réduits à 9px pour matcher.
+- `.wt-body { padding-left: 90px }` pour compenser la sidebar fixed
+  (le contenu n'est pas masqué).
+
+### Responsive
+- `< 760px` : sidebar 56px / icons 24px, padding-left ajusté à 64px,
+  labels cachés.
+
+---
+
 ## [1.0.49] — 2026-05-30
 
 🪟 **Dashboard converti en ng-template `#dashHeaderTpl`** réinjecté
