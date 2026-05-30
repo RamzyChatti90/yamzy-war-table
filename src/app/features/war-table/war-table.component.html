@@ -308,14 +308,22 @@
                 </button>
               </nav>
 
+              <!-- v1.0.18 — Template "live" déco (ping + TV frame + ruban rouge), réutilisé sur chaque card cockpit -->
+              <ng-template #liveDeco>
+                <div class="wt-card-ping"></div>
+                <div class="wt-card-tv"></div>
+                <div class="wt-card-ribbon"></div>
+              </ng-template>
+
               <!-- ▸ CARDS du cockpit (mêmes cards .wt-sk-news-card que les news ticket/risque) -->
               <ng-container [ngSwitch]="cockpitContent().kind">
 
                 <!-- ACTION EN COURS -->
                 <ng-container *ngSwitchCase="'active'">
-                  <div class="wt-sk-news-card wt-sk-card-hero"
+                  <div class="wt-sk-news-card wt-sk-card-hero wt-sk-card-live"
                        [style.--thumb-bg]="'linear-gradient(135deg, #6cd16c, #4696b9)'"
                        (click)="openEventDetail(cockpitContent().event.id)">
+                    <ng-container *ngTemplateOutlet="liveDeco"></ng-container>
                     <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#6cd16c,#4696b9)">
                       <span class="wt-sk-thumb-icon">▶</span>
                     </div>
@@ -342,9 +350,10 @@
 
                 <!-- PROCHAIN -->
                 <ng-container *ngSwitchCase="'next'">
-                  <div class="wt-sk-news-card wt-sk-card-hero"
+                  <div class="wt-sk-news-card wt-sk-card-hero wt-sk-card-live"
                        [style.--thumb-bg]="'linear-gradient(135deg, #d99a51, #c25d8d)'"
                        (click)="openEventDetail(cockpitContent().event.id)">
+                    <ng-container *ngTemplateOutlet="liveDeco"></ng-container>
                     <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#d99a51,#c25d8d)">
                       <span class="wt-sk-thumb-icon">⏰</span>
                     </div>
@@ -370,7 +379,8 @@
 
                 <!-- IDLE -->
                 <ng-container *ngSwitchCase="'idle'">
-                  <div class="wt-sk-news-card wt-sk-card-hero" [style.--thumb-bg]="'linear-gradient(135deg,#514a7b,#3b3363)'">
+                  <div class="wt-sk-news-card wt-sk-card-hero wt-sk-card-live" [style.--thumb-bg]="'linear-gradient(135deg,#514a7b,#3b3363)'">
+                    <ng-container *ngTemplateOutlet="liveDeco"></ng-container>
                     <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#514a7b,#3b3363)">
                       <span class="wt-sk-thumb-icon">☕</span>
                     </div>
@@ -387,9 +397,10 @@
                 <!-- LISTE prochains événements -->
                 <ng-container *ngSwitchCase="'list'">
                   <div *ngFor="let ev of cockpitContent().items"
-                       class="wt-sk-news-card"
+                       class="wt-sk-news-card wt-sk-card-live"
                        [style.--thumb-bg]="'linear-gradient(135deg,' + eventTypeColor(ev.type) + ',#3b3363)'"
                        (click)="openEventDetail(ev.id)">
+                    <ng-container *ngTemplateOutlet="liveDeco"></ng-container>
                     <div class="wt-sk-news-thumb" [style.background]="'linear-gradient(135deg,' + eventTypeColor(ev.type) + ',#3b3363)'">
                       <span class="wt-sk-thumb-icon">{{ ev.type === 'DAILY' ? '🗣' : ev.type === 'PLANNING' ? '🎯' : ev.type === 'REVIEW' ? '🔍' : ev.type === 'RETRO' ? '🔄' : '📅' }}</span>
                     </div>
@@ -422,9 +433,10 @@
                 <!-- TICKETS top -->
                 <ng-container *ngSwitchCase="'tickets'">
                   <div *ngFor="let t of cockpitContent().items"
-                       class="wt-sk-news-card"
+                       class="wt-sk-news-card wt-sk-card-live"
                        [style.--thumb-bg]="'linear-gradient(135deg,#ff8a5c,#c25d8d)'"
                        (click)="setPage('backlog')">
+                    <ng-container *ngTemplateOutlet="liveDeco"></ng-container>
                     <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#ff8a5c,#c25d8d)">
                       <span class="wt-sk-thumb-icon">⚡</span>
                     </div>
@@ -448,9 +460,10 @@
                 <!-- ALERTES -->
                 <ng-container *ngSwitchCase="'alerts'">
                   <div *ngFor="let r of cockpitContent().items"
-                       class="wt-sk-news-card wt-sk-card-alert"
+                       class="wt-sk-news-card wt-sk-card-alert wt-sk-card-live"
                        [style.--thumb-bg]="'linear-gradient(135deg,#de4f5f,#eb8052)'"
                        (click)="setPage(r.page || 'risks')">
+                    <ng-container *ngTemplateOutlet="liveDeco"></ng-container>
                     <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#de4f5f,#eb8052)">
                       <span class="wt-sk-thumb-icon">⚠</span>
                     </div>

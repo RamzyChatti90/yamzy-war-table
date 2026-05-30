@@ -3217,14 +3217,14 @@ body { background: #0a0820 !important; }
 
 .wt-yamzy-fab {
   position: fixed;
-  bottom: -40px;       /* déborde légèrement comme le hero PS */
-  left: 70px;          /* laisse passer le left sidebar (4 icônes) */
-  width: 320px;
-  height: 320px;
+  bottom: -40px;       /* déborde comme le PS hero original (top: -40px) */
+  left: 88px;          /* laisse passer le left sidebar (4 icônes) */
+  width: 400px;        /* MÊME taille que le PS hero du dashboard */
+  height: 400px;
   z-index: 80;         /* sous les modals (1000+) mais au-dessus du contenu */
   pointer-events: none; /* purement décoratif, ne bloque pas les clics */
-  filter: drop-shadow(0 24px 32px rgba(0, 0, 0, 0.55))
-          drop-shadow(0 0 30px rgba(217, 154, 81, 0.20));
+  filter: drop-shadow(0 28px 40px rgba(0, 0, 0, 0.55))
+          drop-shadow(0 0 32px rgba(217, 154, 81, 0.22));
 }
 
 .wt-yamzy-fab app-yamzy-avatar-3d {
@@ -3233,14 +3233,108 @@ body { background: #0a0820 !important; }
   height: 100%;
 }
 
-/* Responsive : réduit la taille sur écrans étroits */
+/* Responsive : réduit la taille sur écrans étroits — équivalent au PS hero responsive */
 @media (max-width: 1400px) {
-  .wt-yamzy-fab { width: 240px; height: 240px; bottom: -24px; left: 64px; }
+  .wt-yamzy-fab { width: 320px; height: 320px; bottom: -32px; left: 80px; }
 }
-@media (max-width: 1024px) {
-  .wt-yamzy-fab { width: 180px; height: 180px; bottom: -16px; left: 56px; }
+@media (max-width: 1100px) {
+  .wt-yamzy-fab { width: 240px; height: 240px; bottom: -24px; left: 72px; }
 }
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .wt-yamzy-fab { display: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   COCKPIT LIVE CARDS v1.0.18 — pattern "LIVE STREAM"
+   (réf React Streaming Dashboard : .ping-outer + .player + ruban)
+   ──────────────────────────────────────────────────────────────────
+   Toutes les cards .wt-sk-card-live du cockpit reçoivent 3 décos :
+     1. Ping rouge pulsant (top-right) — "EN DIRECT"
+     2. Frame TV (border-top + right 6px couleur fond) — encastré
+     3. Ruban rouge corner avec témoin blanc — record/live indicator
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Position relative obligatoire sur les cards pour ancrer les déco */
+.wt-sk-news-card { position: relative; }
+
+/* ── 1) Ping rouge pulsant ── */
+.wt-sk-card-live .wt-card-ping {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background-color: #ea4d5f;
+  z-index: 5;
+  pointer-events: none;
+}
+.wt-sk-card-live .wt-card-ping::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background-color: #ea4d5f;
+  animation: wt-card-ping-pulse 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes wt-card-ping-pulse {
+  0%        { transform: scale(1);   opacity: 0.85; }
+  75%, 100% { transform: scale(3.5); opacity: 0;    }
+}
+
+/* ── 2) Frame "TV" — border-top + right 6px couleur fond cosmic ── */
+.wt-sk-card-live .wt-card-tv {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  border-top: 6px solid #2b2549;
+  border-right: 6px solid #2b2549;
+  border-radius: 24px;
+}
+
+/* ── 3) Ruban rouge corner ── */
+.wt-sk-card-live .wt-card-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 86px;
+  height: 28px;
+  z-index: 6;
+  pointer-events: none;
+}
+.wt-sk-card-live .wt-card-ribbon::before {
+  /* Rectangle rouge horizontal (la barre du ruban) */
+  content: '';
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  height: 3px;
+  width: 60px;
+  background: #ea4d60;
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(234, 77, 95, 0.55);
+}
+.wt-sk-card-live .wt-card-ribbon::after {
+  /* Témoin blanc avec rouge dedans (REC light) */
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 3px #ea4d5f, 0 0 10px rgba(234, 77, 95, 0.6);
+}
+
+/* Variantes par type de card */
+.wt-sk-card-hero.wt-sk-card-live .wt-card-ping::after { animation-duration: 1.2s; }
+.wt-sk-card-hero.wt-sk-card-live .wt-card-ribbon::after {
+  box-shadow: inset 0 0 0 3px #ea4d5f, 0 0 14px rgba(234, 77, 95, 0.9);
+}
+.wt-sk-card-alert.wt-sk-card-live .wt-card-ping,
+.wt-sk-card-alert.wt-sk-card-live .wt-card-ping::after { background: #ff5c5c; }
+.wt-sk-card-alert.wt-sk-card-live .wt-card-ribbon::before { background: #ff5c5c; }
+
 
