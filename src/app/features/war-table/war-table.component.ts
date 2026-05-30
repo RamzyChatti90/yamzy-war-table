@@ -18,13 +18,14 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { LangSwitcherComponent } from '../../core/i18n/lang-switcher.component';
 import { WtDialogService } from '../../core/dialog/dialog.service';
 import { WtDialogComponent } from '../../core/dialog/wt-dialog.component';
+import { WtTooltipDirective } from '../../core/tooltip/wt-tooltip.directive';
 
 interface PageDef { id: string; label: string; icon: string; cat: string; }
 
 @Component({
   selector: 'app-war-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, YamzyAvatar3dComponent, TranslatePipe, LangSwitcherComponent, WtDialogComponent],
+  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, YamzyAvatar3dComponent, TranslatePipe, LangSwitcherComponent, WtDialogComponent, WtTooltipDirective],
   templateUrl: './war-table.component.html',
   styleUrls: ['./war-table.component.css'],
 })
@@ -168,6 +169,27 @@ export class WarTableComponent implements OnInit {
     if (!pid) { this.events.set([]); this.upcomingEventsList.set([]); return; }
     this.api.listEvents(pid).subscribe({ next: e => this.events.set(e || []) });
     this.api.upcomingEvents(pid).subscribe({ next: e => this.upcomingEventsList.set(e || []) });
+  }
+
+  /** v1.0.14 — Si aucun event en DB, demande au backend de générer pour tous les sprints
+   *  qui ont des dates (idempotent — ne re-crée pas si déjà présents). */
+  private autoEnsureCalled = false;
+  ensureEventsThenRefresh(): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) return;
+    // 1) refresh immédiat (montre ce qui existe)
+    this.refreshEvents();
+    // 2) auto-ensure (silencieux) — 1 seul appel par projet
+    if (this.autoEnsureCalled) return;
+    this.autoEnsureCalled = true;
+    this.api.autoEnsureEvents(pid).subscribe({
+      next: r => {
+        if ((r?.created || 0) > 0) {
+          this.refreshEvents();
+          this.refreshTimeAllocation();
+        }
+      }
+    });
   }
 
   private startEventPoll(): void {
@@ -1609,6 +1631,7 @@ export class WarTableComponent implements OnInit {
 
   selectProject(id: number): void {
     this.api.selectedProjectId.set(id);
+    this.autoEnsureCalled = false; // reset per-project flag
     this.loadActiveData();
     this.refreshLaunchable();
     this.refreshReminders();
@@ -1616,6 +1639,8 @@ export class WarTableComponent implements OnInit {
     this.refreshEvents();
     this.startEventPoll();
     this.refreshTimeAllocation();
+    // v1.0.14 — fire auto-ensure immediately on project selection too
+    setTimeout(() => this.ensureEventsThenRefresh(), 800);
   }
 
   /** Change de page + lazy-load des données spécifiques. */
@@ -1699,8 +1724,8 @@ export class WarTableComponent implements OnInit {
       case 'projets': this.api.listProjects().subscribe({ next: (v:any) => this.allProjects.set(v), error: () => {} }); break;
       case 'dod': g(this.api.dodDor(pid, 'DoD'), this.dodDorList); break;
       case 'dor': g(this.api.dodDor(pid, 'DoR'), this.dodDorList); break;
-      case 'agenda': this.refreshEvents(); break;
-      case 'calendrier': this.refreshEvents(); break;
+      case 'agenda': this.ensureEventsThenRefresh(); break;
+      case 'calendrier': this.ensureEventsThenRefresh(); break;
       case 'checkup': g(this.api.checklist(pid), this.checklistList); break;
       case 'stakeholders': case 'vue-stakeholder': case 'export-stakeholder':
         g(this.api.stakeholders(pid), this.stakeholdersList);

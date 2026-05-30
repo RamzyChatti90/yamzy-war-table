@@ -1,3 +1,6 @@
+/* ═══ v1.0.14 — Tooltip narratif Yamzy Guide + Scrum Guide ═══ */
+@import './app/core/tooltip/wt-tooltip.styles.css';
+
 /* Reset minimal + base globale */
 * { box-sizing: border-box; }
 

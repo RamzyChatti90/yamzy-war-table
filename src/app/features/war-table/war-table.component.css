@@ -2644,6 +2644,146 @@ body { background: #0a0820 !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   COCKPIT-IN-NEWS v1.0.14 — Le cockpit prend place dans la zone .wt-sk-news
+   et réutilise le style des cards news (background:#342e59, radius:24px).
+   Avatars game-style : cercles 28px overlapping comme les news existantes.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wt-sk-cockpit-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 4px;
+  margin-bottom: 4px;
+}
+.wt-sk-cockpit-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 2.5px;
+  color: #d99a51;
+  text-shadow: 0 0 10px rgba(217, 154, 81, 0.35);
+}
+.wt-sk-cockpit-sub {
+  font-size: 10px;
+  color: #595284;
+  letter-spacing: 0.5px;
+}
+
+.wt-sk-cockpit-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 6px;
+  background: rgba(15, 12, 32, 0.5);
+  border-radius: 18px;
+  border: 1px solid rgba(217, 154, 81, 0.18);
+}
+.wt-sk-cockpit-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 4px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: rgba(236, 230, 255, 0.55);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+.wt-sk-cockpit-tab-ico { font-size: 16px; line-height: 1; }
+.wt-sk-cockpit-tab-lbl { font-size: 9px; letter-spacing: 0.8px; text-transform: uppercase; }
+.wt-sk-cockpit-tab:hover {
+  color: #ece6ff;
+  background: rgba(139, 127, 214, 0.10);
+}
+.wt-sk-cockpit-tab.is-active {
+  background: linear-gradient(180deg, rgba(217, 154, 81, 0.28), rgba(217, 154, 81, 0.10));
+  color: #d99a51;
+  box-shadow: inset 0 1px 0 rgba(217, 154, 81, 0.40), 0 4px 10px rgba(217, 154, 81, 0.20);
+}
+
+/* Card "hero" du cockpit : plus grosse, thumb avec icône centrée */
+.wt-sk-card-hero {
+  border: 1px solid rgba(217, 154, 81, 0.28);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.wt-sk-card-alert {
+  border: 1px solid rgba(255, 92, 92, 0.30);
+}
+.wt-sk-thumb-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+/* Le thumb doit être relative pour que l'icône s'y centre */
+.wt-sk-news-thumb { position: relative; }
+
+/* Avatars style game — cercles 28px overlapping (chevauchés) */
+.wt-sk-avatars {
+  display: flex;
+  margin-top: 8px;
+  padding-left: 3px;
+}
+.wt-sk-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: -7px;
+  border: 2px solid #342e59;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease;
+}
+.wt-sk-avatar:first-child { margin-left: 0; }
+.wt-sk-avatar:hover {
+  transform: translateY(-2px) scale(1.1);
+  z-index: 5;
+}
+.wt-sk-avatar-more {
+  background: rgba(15, 12, 32, 0.85) !important;
+  color: #d99a51;
+  font-size: 9px;
+}
+
+.wt-sk-cockpit-sep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 4px 0;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(217, 154, 81, 0.18);
+}
+.wt-sk-cockpit-sep span {
+  font-family: 'Poppins', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #595284;
+  text-transform: uppercase;
+}
+
+/* On retire la borne fixed width sur .wt-sk-news pour laisser respirer le cockpit */
+@media (min-width: 1100px) {
+  .wt-sk-dash-row .wt-sk-news { width: 360px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    TEAM MEMBERS v1.0.13 — cards avec avatar + identité visuelle
    ═══════════════════════════════════════════════════════════════════ */
 
