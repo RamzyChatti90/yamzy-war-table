@@ -6,6 +6,91 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.11] — 2026-06-01
+
+🗓 **Calendrier intelligent** : source de vérité temporelle structurée pour
+le futur LLM YAMZY. Le studio devient l'agenda Scrum complet.
+
+### Added — Calendar Event entity
+- **Flyway V62** : table `pos_calendar_events` avec JSONB attendees/reminders,
+  RRULE (RFC 5545 recurrence), liens vers projet + sprint, status FSM
+  (SCHEDULED → IN_PROGRESS → COMPLETED/CANCELLED/MISSED)
+- **PosCalendarEvent entity** + repository avec queries date-range et
+  upcoming/starting-soon
+
+### Added — Auto-génération Scrum
+- Au launch d'un sprint, **`PosCalendarService.generateScrumCeremonies`**
+  crée automatiquement :
+  - **Sprint Planning** J1 à 9h00 (1h)
+  - **Daily Stand-up** tous les jours ouvrés à 9h30 (15 min)
+  - **Sprint Review** Jn à 14h00 (1h)
+  - **Sprint Retrospective** Jn à 16h00 (45 min)
+- Idempotent : ne re-crée pas si déjà présent
+- Bouton "🔄 Régénérer cérémonies" pour ré-exécuter manuellement
+
+### Added — Tracking live des événements
+- **Bouton ▶ Démarrer** : enregistre `actualStart = now`, status → IN_PROGRESS
+- **Bouton ⏹ Terminer** : enregistre `actualEnd = now` + notes live, status → COMPLETED
+- **Notes live** : textarea libre pendant l'événement (yesterday/today/blockers
+  pour daily, minutes pour meeting, décisions pour planning)
+- Affichage durée prévue vs réelle dans le récap
+
+### Added — Notifications proactives
+- Polling 60s : détecte les événements qui démarrent dans les 5 min
+- Notification WtDialog avec 3 choix :
+  - ▶ **Démarrer maintenant** (jump direct vers détail event)
+  - ⏸ **Rappeler dans 5 min**
+  - 👁 **Voir détails**
+- Dédup via `eventNotifShown` Set (pas de spam)
+
+### Added — Invitations & RSVP
+- Champ `attendees` JSON: `[{name, response, respondedAt}]`
+- 3 boutons RSVP dans le détail event : **✓ J'accepte** / **? Peut-être** / **✕ Je refuse**
+- Statut visuel par participant (vert/or/rouge/gris)
+- Endpoint `POST /events/{id}/respond` pour les invités
+
+### Added — Page Agenda + iCal export
+- Nouvelle page **⏰ Agenda** (catégorie Planning)
+- Liste groupée par jour avec event cards (marker coloré par type,
+  pulse cyan pour IN_PROGRESS, opacity 0.65 pour COMPLETED)
+- 7 types d'événement : DAILY (vert), PLANNING (cyan), REVIEW (doré),
+  RETRO (magenta), MEETING (violet), CALL (cyan), OTHER (mauve)
+- Modal détail riche : titre, when, lieu, status, notes textarea,
+  participants, RSVP, actions
+- Modal "+ Nouvel événement" : type, titre, début/fin (datetime-local),
+  lieu/lien, description
+- **Export iCal** : `GET /events/ical` → fichier .ics compatible
+  Outlook / Google Calendar / Apple Calendar
+
+### Added — Smart data foundation pour LLM YAMZY
+Toutes les données collectées (scheduled vs actual, notes live, RSVP,
+durées, types) sont stockées en JSONB structuré, prêtes pour ingestion
+par le LLM YAMZY pour générer :
+- Rapports de durée moyenne des dailies
+- Taux d'acceptation des invitations
+- Détection de patterns de dépassement
+- Analyse de fréquence des meetings vs deep work
+- Synthèse de notes de meeting cross-sprint
+
+### Endpoints ajoutés (9)
+- `GET  /api/pos/projects/{id}/events` (+ from/to filter)
+- `GET  /api/pos/projects/{id}/events/upcoming`
+- `GET  /api/pos/projects/{id}/events/starting-soon?windowMinutes=N`
+- `POST /api/pos/projects/{id}/events`
+- `PUT  /api/pos/events/{id}`
+- `DELETE /api/pos/events/{id}`
+- `POST /api/pos/events/{id}/start`
+- `POST /api/pos/events/{id}/end`
+- `POST /api/pos/events/{id}/respond`
+- `POST /api/pos/projects/{id}/events/regenerate-scrum`
+- `GET  /api/pos/projects/{id}/events/ical`
+
+### GitFlow
+Cette release est issue d'un seul gros merge no-ff :
+- feature/calendar-events → main
+
+---
+
 ## [1.0.10] — 2026-06-01
 
 Massive Excel ↔ Studio parity release. Audit revealed 5 gap categories;

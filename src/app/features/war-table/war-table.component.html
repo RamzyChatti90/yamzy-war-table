@@ -899,6 +899,127 @@
           <div class="wt-plan-total">{{ 'plan.total_h_quests' | t:{ h: planTotalHours(), n: planTickets().length } }}</div>
         </section>
 
+        <!-- ── AGENDA v1.0.11 ── -->
+        <section *ngIf="activePage() === 'agenda'" class="wt-generic">
+          <div class="wt-crud-bar">
+            <button class="wt-btn-add" (click)="openNewEvent()">+ Nouvel événement</button>
+            <button class="wt-btn-add" style="background:linear-gradient(135deg,#6647bf,#c25d8d)" (click)="regenerateScrumCeremonies()">🔄 Régénérer cérémonies Scrum</button>
+            <button class="wt-btn-add" style="background:linear-gradient(135deg,#4696b9,#70b944)" (click)="downloadIcal()">📥 Export iCal (.ics)</button>
+          </div>
+          <div class="wt-event-stats" *ngIf="upcomingEventsList().length">
+            <span class="wt-event-stat-pill">⏰ {{ upcomingEventsList().length }} à venir</span>
+            <span class="wt-event-stat-pill" *ngIf="events().length">📅 {{ events().length }} total</span>
+          </div>
+          <div *ngFor="let group of eventsGroupedByDay()" class="wt-event-day-group">
+            <h4 class="wt-sub">{{ group.day }} <span class="wt-muted">— {{ group.items.length }} événement(s)</span></h4>
+            <div *ngFor="let ev of group.items" class="wt-event-card"
+                 [class.is-in-progress]="ev.status === 'IN_PROGRESS'"
+                 [class.is-completed]="ev.status === 'COMPLETED'"
+                 [class.is-missed]="ev.status === 'MISSED'"
+                 [attr.data-type]="ev.type"
+                 (click)="openEventDetail(ev.id)">
+              <div class="wt-event-marker" [style.background]="eventTypeColor(ev.type)"></div>
+              <div class="wt-event-time">
+                <div class="wt-event-time-start">{{ formatTime(ev.scheduledStart) }}</div>
+                <div class="wt-event-time-dur">{{ formatDuration(ev.scheduledStart, ev.scheduledEnd) }}</div>
+              </div>
+              <div class="wt-event-body">
+                <div class="wt-event-type">{{ eventTypeLabel(ev.type) }}</div>
+                <div class="wt-event-title">{{ ev.title }}</div>
+                <div class="wt-event-meta" *ngIf="ev.location">📍 {{ ev.location }}</div>
+              </div>
+              <div class="wt-event-status">
+                <span class="wt-event-status-pill" [attr.data-st]="ev.status">{{ eventStatusLabel(ev.status) }}</span>
+                <button *ngIf="ev.status === 'SCHEDULED'" class="wt-event-btn-start"
+                        (click)="$event.stopPropagation(); startEventNow(ev)" title="Démarrer">▶</button>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!events().length" class="wt-muted" style="padding:30px;text-align:center">
+            📅 Aucun événement programmé.<br/>
+            <small>Lance un sprint pour auto-générer les Daily, Planning, Review et Retro,<br/>ou crée un événement manuel.</small>
+          </div>
+        </section>
+
+        <!-- Modal détail événement -->
+        <div *ngIf="eventDetailId() !== null && getEventById(eventDetailId()) as ev" class="wt-modal-backdrop" (click)="closeEventDetail()">
+          <div class="wt-modal wt-event-detail-modal" (click)="$event.stopPropagation()">
+            <button class="wt-modal-close" (click)="closeEventDetail()">✕</button>
+            <div class="wt-event-detail-head" [style.borderLeftColor]="eventTypeColor(ev.type)">
+              <div class="wt-event-detail-type">{{ eventTypeLabel(ev.type) }}</div>
+              <h2 class="wt-event-detail-title">{{ ev.title }}</h2>
+              <div class="wt-event-detail-when">{{ formatDateTime(ev.scheduledStart) }} → {{ formatTime(ev.scheduledEnd) }} ({{ formatDuration(ev.scheduledStart, ev.scheduledEnd) }})</div>
+              <div *ngIf="ev.location" class="wt-event-detail-loc">📍 {{ ev.location }}</div>
+              <div class="wt-event-detail-status">
+                <span class="wt-event-status-pill" [attr.data-st]="ev.status">{{ eventStatusLabel(ev.status) }}</span>
+                <span *ngIf="ev.actualStart" class="wt-muted">· démarré à {{ formatTime(ev.actualStart) }}</span>
+                <span *ngIf="ev.actualEnd" class="wt-muted">· terminé à {{ formatTime(ev.actualEnd) }}</span>
+              </div>
+            </div>
+            <div *ngIf="ev.description" class="wt-event-detail-desc">{{ ev.description }}</div>
+            <div class="wt-event-detail-notes">
+              <label>📝 Notes live (Hier / Aujourd'hui / Blockers, minutes…)</label>
+              <textarea class="wt-event-notes-area" [(ngModel)]="eventLiveNotes" rows="6"
+                        placeholder="Hier : ce que j'ai fait&#10;Aujourd'hui : ce que je vais faire&#10;Blockers : ce qui me bloque"></textarea>
+            </div>
+            <div *ngIf="ev.attendees?.length" class="wt-event-attendees">
+              <h4 class="wt-sub">👥 Participants</h4>
+              <div *ngFor="let a of ev.attendees" class="wt-event-attendee">
+                <span class="wt-event-attendee-name">{{ a.name }}</span>
+                <span class="wt-event-attendee-response" [attr.data-resp]="a.response">{{ a.response || 'PENDING' }}</span>
+              </div>
+            </div>
+            <div *ngIf="ev.attendees?.length" class="wt-event-respond-row">
+              <span class="wt-muted">Ta réponse :</span>
+              <button class="wt-bulk-btn" (click)="respondToEvent(ev, 'ACCEPTED')">✓ J'accepte</button>
+              <button class="wt-bulk-btn wt-bulk-btn-ghost" (click)="respondToEvent(ev, 'TENTATIVE')">? Peut-être</button>
+              <button class="wt-bulk-btn wt-bulk-btn-danger" (click)="respondToEvent(ev, 'DECLINED')">✕ Je refuse</button>
+            </div>
+            <div class="wt-event-detail-actions">
+              <button *ngIf="ev.status === 'SCHEDULED'" class="wt-btn-major" (click)="startEventNow(ev)">▶ Démarrer maintenant</button>
+              <button *ngIf="ev.status === 'IN_PROGRESS'" class="wt-btn-major" style="background:linear-gradient(135deg,#70b944,#4696b9)" (click)="endEventNow(ev)">⏹ Terminer (sauvegarder notes)</button>
+              <button class="wt-bulk-btn wt-bulk-btn-danger" (click)="deleteEventById(ev); closeEventDetail()">🗑 Supprimer</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Nouvel événement -->
+        <div *ngIf="newEventOpen()" class="wt-modal-backdrop" (click)="cancelNewEvent()">
+          <div class="wt-modal wt-modal-new-project" (click)="$event.stopPropagation()">
+            <button class="wt-modal-close" (click)="cancelNewEvent()">✕</button>
+            <h2 class="wt-modal-title">+ Nouvel événement</h2>
+            <div class="wt-np-grid">
+              <label class="wt-np-field"><span>Type</span>
+                <select [(ngModel)]="newEventDraft.type">
+                  <option value="MEETING">👥 Réunion</option>
+                  <option value="CALL">📞 Call</option>
+                  <option value="DAILY">📅 Daily</option>
+                  <option value="PLANNING">🎯 Planning</option>
+                  <option value="REVIEW">🔍 Review</option>
+                  <option value="RETRO">🔄 Rétro</option>
+                  <option value="OTHER">📌 Autre</option>
+                </select>
+              </label>
+              <label class="wt-np-field"><span>Titre *</span>
+                <input type="text" [(ngModel)]="newEventDraft.title" placeholder="Ex: Sprint planning"/>
+              </label>
+              <label class="wt-np-field"><span>Début</span>
+                <input type="datetime-local" [(ngModel)]="newEventDraft.scheduledStart"/>
+              </label>
+              <label class="wt-np-field"><span>Fin</span>
+                <input type="datetime-local" [(ngModel)]="newEventDraft.scheduledEnd"/>
+              </label>
+              <label class="wt-np-field wt-np-full"><span>Lieu / Lien</span>
+                <input type="text" [(ngModel)]="newEventDraft.location" placeholder="Salle ou URL Meet/Zoom"/>
+              </label>
+              <label class="wt-np-field wt-np-full"><span>Description</span>
+                <textarea rows="2" [(ngModel)]="newEventDraft.description" placeholder="Agenda, objectifs…"></textarea>
+              </label>
+            </div>
+            <button class="wt-btn-major" [disabled]="!newEventDraft.title" (click)="submitNewEvent()">⚔ Créer l'événement</button>
+          </div>
+        </div>
+
         <!-- ── CALENDRIER ── -->
         <section *ngIf="activePage() === 'calendrier'" class="wt-calendar">
           <div *ngIf="!calendarMonths().length" class="wt-muted">{{ 'empty.no_date_planned' | t }}</div>

@@ -41,6 +41,7 @@ export const WAR_TABLE_PAGES: PageDef[] = [
   { cat: 'Personnel',     id: 'overtime',          label: 'Heures Sup',             icon: '⏰' },
   { cat: 'Planning',      id: 'gantt',             label: 'Gantt',                  icon: '📅' },
   { cat: 'Planning',      id: 'calendrier',        label: 'Calendrier',             icon: '🗓' },
+  { cat: 'Planning',      id: 'agenda',            label: 'Agenda',                 icon: '⏰' },
   { cat: 'Vue Externe',   id: 'vue-reviewer',      label: 'Vue Reviewer',           icon: '🔎' },
   { cat: 'Risques',       id: 'risks',             label: 'Risques',                icon: '⚠' },
   { cat: 'Risques',       id: 'lessons',           label: 'Lessons Learned',        icon: '✨' },

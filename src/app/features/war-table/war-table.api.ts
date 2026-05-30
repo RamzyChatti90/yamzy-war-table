@@ -257,6 +257,41 @@ export class WarTableApi {
     return this.http.post<any>(`${this.base}/tickets/bulk-reorder`, { ids });
   }
 
+  // ═══ CALENDAR EVENTS v1.0.11 ═══
+  listEvents(projectId: number, from?: string, to?: string): Observable<any[]> {
+    let url = `${this.base}/projects/${projectId}/events`;
+    if (from && to) url += `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+    return this.http.get<any[]>(url);
+  }
+  upcomingEvents(projectId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/projects/${projectId}/events/upcoming`);
+  }
+  startingSoonEvents(projectId: number, windowMinutes = 5): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/projects/${projectId}/events/starting-soon?windowMinutes=${windowMinutes}`);
+  }
+  createEvent(projectId: number, body: any): Observable<any> {
+    return this.http.post<any>(`${this.base}/projects/${projectId}/events`, body);
+  }
+  updateEvent(eventId: number, body: any): Observable<any> {
+    return this.http.put<any>(`${this.base}/events/${eventId}`, body);
+  }
+  deleteEvent(eventId: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/events/${eventId}`);
+  }
+  startEvent(eventId: number): Observable<any> {
+    return this.http.post<any>(`${this.base}/events/${eventId}/start`, {});
+  }
+  endEvent(eventId: number, notes?: string): Observable<any> {
+    return this.http.post<any>(`${this.base}/events/${eventId}/end`, { notes: notes || '' });
+  }
+  respondEvent(eventId: number, name: string, response: 'ACCEPTED'|'DECLINED'|'TENTATIVE'|'PENDING'): Observable<any> {
+    return this.http.post<any>(`${this.base}/events/${eventId}/respond`, { name, response });
+  }
+  regenerateScrumCeremonies(projectId: number): Observable<{ created: number; sprintName?: string; reason?: string }> {
+    return this.http.post<any>(`${this.base}/projects/${projectId}/events/regenerate-scrum`, {});
+  }
+  icalUrl(projectId: number): string { return `${this.base}/projects/${projectId}/events/ical`; }
+
   /** Récupère la liste des rappels/alertes pour ce projet. */
   reminders(projectId: number): Observable<{
     items: Array<{
