@@ -876,8 +876,36 @@
     .wt-sk-news-tags { display:flex; gap:6px; margin-top:6px; }
     .wt-sk-news-tag { color:#fff; font-size:10px; padding:1px 8px; border-radius:999px; font-weight:600; }
 
-    /* ⑤ Top Selection — v1.0.54 REVERT : remis au style v1.0.52 simple */
-    .wt-sk-top { margin-top: 8px; }
+    /* ⑤ Top Selection — v1.0.56 :
+       Mes Plannings positionné SOUS le header, à DROITE (côté avatar),
+       avec MÊME HAUTEUR que le header et MOITIÉ de sa largeur.
+       L'utilisateur veut un mini-panneau aligné sous l'avatar Yamzy. */
+    .wt-sk-top {
+      margin-top: 16px;
+      width: 50%;
+      align-self: flex-end;            /* droite (côté avatar) */
+      min-height: clamp(320px, 46vh, 560px);  /* match hauteur PS hero */
+      padding: 18px 22px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(52,46,89,.85), rgba(29,23,46,.85));
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(217, 154, 81, 0.22);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+      overflow-y: auto;
+    }
+    /* Layout interne compact pour tenir dans 50% de largeur */
+    .wt-sk-top .wt-sk-top-body { gap: 24px; margin-top: 18px; }
+    .wt-sk-top .wt-sk-cats { gap: 14px; }
+    .wt-sk-top .wt-sk-projects { gap: 18px; }
+    .wt-sk-top .wt-sk-proj-img { width: 150px; height: 95px; }
+    .wt-sk-top .wt-sk-top-title { font-size: 22px; }
+    .wt-sk-top::-webkit-scrollbar { width: 6px; }
+    .wt-sk-top::-webkit-scrollbar-thumb { background: rgba(217, 154, 81, 0.4); border-radius: 3px; }
+    .wt-sk-top::-webkit-scrollbar-track { background: transparent; }
+
+    @media (max-width: 1100px) {
+      .wt-sk-top { width: 100%; align-self: stretch; min-height: auto; }
+    }
 
     /* v1.0.53 (conservé) — Bouton Launch sprint en secondaire à côté du bouton page */
     .wt-ps-btn.wt-ps-btn-secondary {
