@@ -1,0 +1,106 @@
+/* WAR TABLE v1.0.14 — Tooltip narratif Yamzy Guide + Scrum guide
+   Styles globaux (le tooltip est append à document.body, donc hors scope component). */
+
+.wt-tooltip {
+  position: fixed;
+  z-index: 99999;
+  max-width: 340px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(46, 35, 84, 0.97) 0%, rgba(29, 23, 46, 0.98) 100%);
+  border: 1px solid rgba(217, 154, 81, 0.45);
+  border-radius: 10px;
+  color: #ece6ff;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(217, 154, 81, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+
+.wt-tooltip::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px;
+}
+
+.wt-tooltip-top::before {
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-color: rgba(46, 35, 84, 0.97) transparent transparent transparent;
+}
+.wt-tooltip-bottom::before {
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-color: transparent transparent rgba(46, 35, 84, 0.97) transparent;
+}
+.wt-tooltip-right::before {
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-color: transparent rgba(46, 35, 84, 0.97) transparent transparent;
+}
+.wt-tooltip-left::before {
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-color: transparent transparent transparent rgba(46, 35, 84, 0.97);
+}
+
+.wt-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(217, 154, 81, 0.22);
+  flex-wrap: wrap;
+}
+.wt-tooltip-yamzy {
+  font-family: 'Pirata One', 'Poppins', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #d99a51;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px rgba(217, 154, 81, 0.4);
+}
+.wt-tooltip-divider {
+  color: rgba(236, 230, 255, 0.35);
+  font-size: 11px;
+}
+.wt-tooltip-scrum {
+  font-size: 10px;
+  color: rgba(108, 198, 232, 0.85);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 2px 7px;
+  background: rgba(70, 150, 185, 0.15);
+  border: 1px solid rgba(108, 198, 232, 0.35);
+  border-radius: 8px;
+}
+.wt-tooltip-body {
+  font-size: 12px;
+  color: rgba(236, 230, 255, 0.92);
+  margin-bottom: 6px;
+}
+.wt-tooltip-tip {
+  margin-top: 8px;
+  padding: 7px 9px;
+  background: rgba(217, 154, 81, 0.10);
+  border-left: 2px solid #d99a51;
+  border-radius: 4px;
+  font-size: 11px;
+  color: rgba(236, 230, 255, 0.85);
+  font-style: italic;
+}

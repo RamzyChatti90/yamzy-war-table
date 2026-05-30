@@ -6,6 +6,87 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.14] — 2026-05-31
+
+🎓 **Yamzy Guide narratif + Cockpit fusionné dans la news zone** :
+le studio devient pédagogique — chaque label porte deux identités
+(Scrum officiel + univers Yamzy World) et le cockpit prend
+place dans la zone news, en cards game-style avec avatars game.
+
+### Fixed — Calendar enfin peuplé
+- **Bug majeur** : la page Calendrier restait vide même avec des sprints
+  parce que `generateScrumCeremonies` ne tournait QUE pour le sprint
+  EN_COURS. Si tu importais un Excel avec 5 sprints, seul 1 max
+  avait ses daily/planning/review/retro.
+- **Backend** : `regenerate-scrum` itère maintenant sur TOUS les sprints
+  qui ont des dates (pas juste EN_COURS). Idempotent.
+- **Backend** : nouvel endpoint `/events/auto-ensure` — silencieux,
+  appelé par le frontend au chargement du calendrier ou de l'agenda
+  pour les sprints encore non couverts.
+- **Frontend** : `ensureEventsThenRefresh()` se déclenche
+  automatiquement à la sélection projet + à l'entrée sur les pages
+  calendrier/agenda. Plus besoin de cliquer manuellement.
+
+### Changed — Cockpit fusionné dans .wt-sk-news
+- Le cockpit "Chicago" était une carte séparée sous la PS hero.
+  Il est maintenant **intégré dans la zone news** (à droite du hero),
+  au-dessus des cards news existantes.
+- **Header cockpit** : titre ⚔ COCKPIT + sous-titre (sprint · évts)
+- **Nav 4 onglets** Action / Réunions / Tickets / Alertes avec
+  l'état actif gradient or
+- Le contenu du cockpit s'affiche via les **mêmes `.wt-sk-news-card`**
+  que les news (background #342e59, radius 24px, layout thumb + body
+  + tags) — visuellement cohérent avec le pattern game existant
+- Séparateur "ACTUALITÉ DU PROJET" entre cockpit et news classiques
+
+### Added — Avatars game-style sur les cards cockpit
+- Les cards d'event affichent les attendees en **avatars overlapping**
+  (cercles 26px, -7px margin, 2px border, drop-shadow) — exactement
+  le pattern utilisé partout dans le skin Yamzy
+- Indicateur "+N" pour les attendees au-delà des 5 visibles
+
+### Added — Tooltip system Yamzy Guide + Scrum Guide
+- Nouveau composant **`WtTooltipDirective`** + base de tooltips
+  **`TOOLTIP_GUIDE`** (50+ entrées FR + EN)
+- Format narratif : "⚔ Carnet de Quêtes · Scrum: Product Backlog"
+  + description courte + 💡 astuce optionnelle
+- Appliqué sur :
+  - **42 pages du drawer** (sidebar) — chaque page = double identité
+  - **Topbar** : Import, Export, Edit Mode, Sélecteur de projet,
+    Cloche d'alertes
+  - **4 onglets cockpit** : Action / Réunions / Tickets / Alertes
+- Hover 350ms avant apparition, fade-in 180ms
+- Auto-position (top/right/bottom/left) avec clamp viewport
+- Style cosmic + bordure or + accent Scrum cyan
+
+### Vocabulaire bilingue (extraits)
+| Page Studio       | Yamzy World           | Scrum             |
+| ----------------- | --------------------- | ----------------- |
+| Backlog           | Carnet de Quêtes      | Product Backlog   |
+| Daily             | Conseil Matinal       | Daily Stand-up    |
+| Sprint Planning   | Conseil de Sprint     | Sprint Planning   |
+| Rétrospective     | Cercle des Sages      | Retrospective     |
+| DoD               | Pacte de Victoire     | Definition of Done|
+| Dashboard         | Tour de Garde         | Dashboard         |
+| Capacity          | Compagnons d'Aventure | Capacity Planning |
+| Risques           | Sortilèges Sombres    | Risk Register     |
+| Tech Debt         | Dette de Sang         | Technical Debt    |
+| Calendrier        | Calendrier de Bataille | Monthly Calendar |
+| Agenda            | Journal d'Aventures   | Agenda            |
+| Stakeholders      | Conseil des Sages     | Stakeholders      |
+
+### Why
+> "pk je vois toujours rien sur mon calendrier pas de daily rien !!"
+> "ajoute des tooltip partout dans le studio de sorte comme si c'est
+> Yamzy qui expliquait à l'utilisateur — prépare des messages qui
+> correspondent au Scrum et Yamzy guide. il faut inclure les deux
+> thermes. gère les deux langues français anglais."
+> "met le cockpit dans cette partie (.wt-sk-news) — réutilise la même
+> carrousel + le même style des cards déjà utilisé pour afficher les
+> tickets + le même style des avatars présent dans la source de game"
+
+---
+
 ## [1.0.13] — 2026-05-30
 
 👥 **Identité d'équipe + Calendrier riche** : chaque membre a un vrai

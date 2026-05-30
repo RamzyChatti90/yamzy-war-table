@@ -287,8 +287,12 @@ export class WarTableApi {
   respondEvent(eventId: number, name: string, response: 'ACCEPTED'|'DECLINED'|'TENTATIVE'|'PENDING'): Observable<any> {
     return this.http.post<any>(`${this.base}/events/${eventId}/respond`, { name, response });
   }
-  regenerateScrumCeremonies(projectId: number): Observable<{ created: number; sprintName?: string; reason?: string }> {
+  regenerateScrumCeremonies(projectId: number): Observable<{ created: number; sprintName?: string; sprintNames?: string[]; reason?: string }> {
     return this.http.post<any>(`${this.base}/projects/${projectId}/events/regenerate-scrum`, {});
+  }
+  /** v1.0.14 — Silent auto-generation for sprints missing events. */
+  autoEnsureEvents(projectId: number): Observable<{ created: number; sprintsScanned: number }> {
+    return this.http.post<any>(`${this.base}/projects/${projectId}/events/auto-ensure`, {});
   }
   icalUrl(projectId: number): string { return `${this.base}/projects/${projectId}/events/ical`; }
 

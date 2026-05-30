@@ -53,7 +53,7 @@
               *ngIf="api.selectedProjectId()"
               (click)="toggleRemindersPanel()"
               [class.has-high]="visibleHigh() > 0"
-              [title]="visibleTotal() + ' rappel(s) — ' + visibleHigh() + ' haute priorité'">
+              wtTooltip="topbar-reminders" wtTooltipPos="bottom">
         <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
         <span *ngIf="visibleTotal() > 0" class="wt-skin-badge">{{ visibleTotal() }}</span>
       </button>
@@ -97,7 +97,9 @@
         <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M2 5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H11C11.5304 3 12.0391 3.21071 12.4142 3.58579C12.7893 3.96086 13 4.46957 13 5V9C13 9.53043 12.7893 10.0391 12.4142 10.4142C12.0391 10.7893 11.5304 11 11 11H9L6 14V11H4C3.46957 11 2.96086 10.7893 2.58579 10.4142C2.21071 10.0391 2 9.53043 2 9V5Z"/><path d="M15 7V9C15 10.0609 14.5786 11.0783 13.8284 11.8284C13.0783 12.5786 12.0609 13 11 13H9.828L8.062 14.767C8.342 14.916 8.661 15 9 15H11L14 18V15H16C16.5304 15 17.0391 14.7893 17.4142 14.4142C17.7893 14.0391 18 13.5304 18 13V9C18 8.46957 17.7893 7.96086 17.4142 7.58579C17.0391 7.21071 16.5304 7 16 7H15Z"/></svg>
       </button>
       <!-- REALM picker (compact skin) -->
-      <select class="wt-skin-realm" [ngModel]="api.selectedProjectId()" (ngModelChange)="selectProject($event)">
+      <select class="wt-skin-realm"
+              wtTooltip="topbar-project" wtTooltipPos="bottom"
+              [ngModel]="api.selectedProjectId()" (ngModelChange)="selectProject($event)">
         <option [ngValue]="null" disabled>{{ 'topbar.planning_picker' | t }}</option>
         <option *ngFor="let p of api.projects()" [ngValue]="p.id">{{ p.code }} · {{ p.name }}</option>
       </select>
@@ -105,10 +107,12 @@
       <button class="wt-btn-versions" *ngIf="api.selectedProjectId()" (click)="toggleVersions()" [title]="'topbar.versions' | t">
         🏷 <span *ngIf="versions().length">{{ versions().length }}</span>
       </button>
-      <button class="wt-btn-export" *ngIf="api.selectedProjectId()" [disabled]="exporting()" (click)="doExport()">
+      <button class="wt-btn-export" *ngIf="api.selectedProjectId()" [disabled]="exporting()" (click)="doExport()"
+              wtTooltip="topbar-export" wtTooltipPos="bottom">
         {{ exporting() ? '⟳' : '⬇' }} {{ 'topbar.export' | t }}
       </button>
-      <button class="wt-btn-import" (click)="importOpen.set(true)">{{ 'topbar.import' | t }}</button>
+      <button class="wt-btn-import" (click)="importOpen.set(true)"
+              wtTooltip="topbar-import" wtTooltipPos="bottom">{{ 'topbar.import' | t }}</button>
       <!-- 🆕 v1.0.4 : Nouveau projet -->
       <button class="wt-btn-import" (click)="openNewProject()" [title]="'Nouveau projet (Realm vide)'">🆕</button>
       <!-- 🔄 v1.0.5 : Reset & archive (rebrand + export + delete) -->
@@ -118,7 +122,7 @@
       <!-- 🔒/🔓 v1.0.4 : Mode édition (active inline edit + boutons CRUD partout) -->
       <button class="wt-skin-icon-btn" (click)="toggleEditMode()"
               [class.wt-edit-on]="editMode()"
-              [title]="editMode() ? 'Mode édition actif — clique pour verrouiller' : 'Activer le mode édition (CRUD partout + Excel auto-saved)'">
+              wtTooltip="topbar-edit-mode" wtTooltipPos="bottom">
         {{ editMode() ? '🔓' : '🔒' }}
       </button>
     </div>
@@ -194,6 +198,8 @@
             <button *ngFor="let pg of pagesInCat(cat)"
                     class="wt-page-link"
                     [class.active]="activePage() === pg.id"
+                    [wtTooltip]="pg.id"
+                    wtTooltipPos="right"
                     (click)="setPage(pg.id); morePanelOpen.set(false)">
               <span class="wt-page-bar"></span>
               <span class="wt-page-icon">{{ pg.icon }}</span>
@@ -282,8 +288,197 @@
               </div>
             </header>
 
-            <!-- ④ NEWS : activité récente -->
+            <!-- ④ NEWS + COCKPIT v1.0.14 : cockpit intégré DANS la zone news, en haut, en cards style game -->
             <div class="wt-sk-news">
+
+              <!-- ▸ COCKPIT : header + carrousel 4 onglets (Action / Réunions / Tickets / Alertes) -->
+              <div class="wt-sk-cockpit-head">
+                <div class="wt-sk-cockpit-title">⚔ COCKPIT</div>
+                <div class="wt-sk-cockpit-sub">{{ cockpitMeta().sprintName }} · {{ cockpitMeta().upcoming }} évts</div>
+              </div>
+              <nav class="wt-sk-cockpit-nav">
+                <button *ngFor="let t of cockpitTabs"
+                        class="wt-sk-cockpit-tab"
+                        [class.is-active]="cockpitTab() === t.id"
+                        [wtTooltip]="'cockpit-' + t.id"
+                        wtTooltipPos="bottom"
+                        (click)="setCockpitTab(t.id)">
+                  <span class="wt-sk-cockpit-tab-ico">{{ t.icon }}</span>
+                  <span class="wt-sk-cockpit-tab-lbl">{{ t.label }}</span>
+                </button>
+              </nav>
+
+              <!-- ▸ CARDS du cockpit (mêmes cards .wt-sk-news-card que les news ticket/risque) -->
+              <ng-container [ngSwitch]="cockpitContent().kind">
+
+                <!-- ACTION EN COURS -->
+                <ng-container *ngSwitchCase="'active'">
+                  <div class="wt-sk-news-card wt-sk-card-hero"
+                       [style.--thumb-bg]="'linear-gradient(135deg, #6cd16c, #4696b9)'"
+                       (click)="openEventDetail(cockpitContent().event.id)">
+                    <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#6cd16c,#4696b9)">
+                      <span class="wt-sk-thumb-icon">▶</span>
+                    </div>
+                    <div class="wt-sk-news-body">
+                      <div class="wt-sk-news-title">{{ cockpitContent().event.title }}</div>
+                      <div class="wt-sk-news-sub">EN COURS · {{ cockpitContent().elapsedMin }} min écoulées / {{ cockpitContent().plannedMin }} prévues</div>
+                      <div class="wt-sk-news-tags">
+                        <div class="wt-sk-news-tag" style="background:#6cd16c">{{ eventTypeLabel(cockpitContent().event.type) }}</div>
+                        <div class="wt-sk-news-tag" style="background:#1d172e; border:1px solid #6cd16c; color:#6cd16c; cursor:pointer" (click)="$event.stopPropagation(); endEventNow(cockpitContent().event)">■ Terminer</div>
+                      </div>
+                      <!-- Avatars participants style game -->
+                      <div class="wt-sk-avatars" *ngIf="(cockpitContent().event.attendees || []).length">
+                        <div *ngFor="let a of (cockpitContent().event.attendees || []).slice(0, 5)"
+                             class="wt-sk-avatar"
+                             [style.background]="a.color || '#6b6396'"
+                             [title]="a.name + (a.role ? ' · ' + a.role : '')">
+                          {{ a.emoji || a.initials || (a.name || '?').charAt(0) }}
+                        </div>
+                        <div *ngIf="(cockpitContent().event.attendees || []).length > 5" class="wt-sk-avatar wt-sk-avatar-more">+{{ cockpitContent().event.attendees.length - 5 }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <!-- PROCHAIN -->
+                <ng-container *ngSwitchCase="'next'">
+                  <div class="wt-sk-news-card wt-sk-card-hero"
+                       [style.--thumb-bg]="'linear-gradient(135deg, #d99a51, #c25d8d)'"
+                       (click)="openEventDetail(cockpitContent().event.id)">
+                    <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#d99a51,#c25d8d)">
+                      <span class="wt-sk-thumb-icon">⏰</span>
+                    </div>
+                    <div class="wt-sk-news-body">
+                      <div class="wt-sk-news-title">{{ cockpitContent().event.title }}</div>
+                      <div class="wt-sk-news-sub">Dans {{ cockpitContent().inMin }} min · {{ formatDateTime(cockpitContent().event.scheduledStart) }}</div>
+                      <div class="wt-sk-news-tags">
+                        <div class="wt-sk-news-tag" style="background:#d99a51">{{ eventTypeLabel(cockpitContent().event.type) }}</div>
+                        <div class="wt-sk-news-tag" style="background:#1d172e; border:1px solid #d99a51; color:#d99a51; cursor:pointer" (click)="$event.stopPropagation(); startEventNow(cockpitContent().event)">▶ Démarrer</div>
+                      </div>
+                      <div class="wt-sk-avatars" *ngIf="(cockpitContent().event.attendees || []).length">
+                        <div *ngFor="let a of (cockpitContent().event.attendees || []).slice(0, 5)"
+                             class="wt-sk-avatar"
+                             [style.background]="a.color || '#6b6396'"
+                             [title]="a.name">
+                          {{ a.emoji || a.initials || (a.name || '?').charAt(0) }}
+                        </div>
+                        <div *ngIf="(cockpitContent().event.attendees || []).length > 5" class="wt-sk-avatar wt-sk-avatar-more">+{{ cockpitContent().event.attendees.length - 5 }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <!-- IDLE -->
+                <ng-container *ngSwitchCase="'idle'">
+                  <div class="wt-sk-news-card wt-sk-card-hero" [style.--thumb-bg]="'linear-gradient(135deg,#514a7b,#3b3363)'">
+                    <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#514a7b,#3b3363)">
+                      <span class="wt-sk-thumb-icon">☕</span>
+                    </div>
+                    <div class="wt-sk-news-body">
+                      <div class="wt-sk-news-title">Aucune cérémonie active</div>
+                      <div class="wt-sk-news-sub">Profite — ou planifie une réunion</div>
+                      <div class="wt-sk-news-tags">
+                        <div class="wt-sk-news-tag" style="background:#9d8ad6; cursor:pointer" (click)="openNewEvent()">+ Nouvelle réunion</div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <!-- LISTE prochains événements -->
+                <ng-container *ngSwitchCase="'list'">
+                  <div *ngFor="let ev of cockpitContent().items"
+                       class="wt-sk-news-card"
+                       [style.--thumb-bg]="'linear-gradient(135deg,' + eventTypeColor(ev.type) + ',#3b3363)'"
+                       (click)="openEventDetail(ev.id)">
+                    <div class="wt-sk-news-thumb" [style.background]="'linear-gradient(135deg,' + eventTypeColor(ev.type) + ',#3b3363)'">
+                      <span class="wt-sk-thumb-icon">{{ ev.type === 'DAILY' ? '🗣' : ev.type === 'PLANNING' ? '🎯' : ev.type === 'REVIEW' ? '🔍' : ev.type === 'RETRO' ? '🔄' : '📅' }}</span>
+                    </div>
+                    <div class="wt-sk-news-body">
+                      <div class="wt-sk-news-title">{{ ev.title }}</div>
+                      <div class="wt-sk-news-sub">{{ formatDateTime(ev.scheduledStart) }} · {{ formatDuration(ev.scheduledStart, ev.scheduledEnd) }}</div>
+                      <div class="wt-sk-news-tags">
+                        <div class="wt-sk-news-tag" [style.background]="eventTypeColor(ev.type)">{{ eventTypeLabel(ev.type) }}</div>
+                      </div>
+                      <div class="wt-sk-avatars" *ngIf="(ev.attendees || []).length">
+                        <div *ngFor="let a of (ev.attendees || []).slice(0, 5)"
+                             class="wt-sk-avatar"
+                             [style.background]="a.color || '#6b6396'"
+                             [title]="a.name">
+                          {{ a.emoji || a.initials || (a.name || '?').charAt(0) }}
+                        </div>
+                        <div *ngIf="(ev.attendees || []).length > 5" class="wt-sk-avatar wt-sk-avatar-more">+{{ ev.attendees.length - 5 }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div *ngIf="!cockpitContent().items.length" class="wt-sk-news-card">
+                    <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#514a7b,#3b3363)"><span class="wt-sk-thumb-icon">📅</span></div>
+                    <div class="wt-sk-news-body">
+                      <div class="wt-sk-news-title">Aucune cérémonie prévue</div>
+                      <div class="wt-sk-news-sub">Lance un sprint pour générer les daily/planning</div>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <!-- TICKETS top -->
+                <ng-container *ngSwitchCase="'tickets'">
+                  <div *ngFor="let t of cockpitContent().items"
+                       class="wt-sk-news-card"
+                       [style.--thumb-bg]="'linear-gradient(135deg,#ff8a5c,#c25d8d)'"
+                       (click)="setPage('backlog')">
+                    <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#ff8a5c,#c25d8d)">
+                      <span class="wt-sk-thumb-icon">⚡</span>
+                    </div>
+                    <div class="wt-sk-news-body">
+                      <div class="wt-sk-news-title">{{ t.code || t.title }}</div>
+                      <div class="wt-sk-news-sub">{{ t.state || t.status || 'À faire' }}</div>
+                      <div class="wt-sk-news-tags">
+                        <div class="wt-sk-news-tag" style="background:#ff8a5c">priorité</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div *ngIf="!cockpitContent().items.length" class="wt-sk-news-card">
+                    <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#6cd16c,#4696b9)"><span class="wt-sk-thumb-icon">🎉</span></div>
+                    <div class="wt-sk-news-body">
+                      <div class="wt-sk-news-title">Aucun ticket prioritaire</div>
+                      <div class="wt-sk-news-sub">Bon job — tout est sous contrôle</div>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <!-- ALERTES -->
+                <ng-container *ngSwitchCase="'alerts'">
+                  <div *ngFor="let r of cockpitContent().items"
+                       class="wt-sk-news-card wt-sk-card-alert"
+                       [style.--thumb-bg]="'linear-gradient(135deg,#de4f5f,#eb8052)'"
+                       (click)="setPage(r.page || 'risks')">
+                    <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#de4f5f,#eb8052)">
+                      <span class="wt-sk-thumb-icon">⚠</span>
+                    </div>
+                    <div class="wt-sk-news-body">
+                      <div class="wt-sk-news-title">{{ r.title || r.message }}</div>
+                      <div class="wt-sk-news-sub">{{ r.description || r.category }}</div>
+                      <div class="wt-sk-news-tags">
+                        <div class="wt-sk-news-tag" style="background:#de4f5f">{{ r.severity || 'ALERTE' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div *ngIf="!cockpitContent().items.length" class="wt-sk-news-card">
+                    <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#6cd16c,#4696b9)"><span class="wt-sk-thumb-icon">✅</span></div>
+                    <div class="wt-sk-news-body">
+                      <div class="wt-sk-news-title">Aucune alerte critique</div>
+                      <div class="wt-sk-news-sub">Système nominal</div>
+                    </div>
+                  </div>
+                </ng-container>
+
+              </ng-container>
+
+              <!-- ▸ Séparateur visuel "Actualité projet" -->
+              <div class="wt-sk-cockpit-sep" *ngIf="newsList().length">
+                <span>ACTUALITÉ DU PROJET</span>
+              </div>
+
+              <!-- ▸ Cards news originales (tickets récents + risques HIGH) -->
               <div *ngFor="let n of newsList()" class="wt-sk-news-card" (click)="onNewsClick(n)">
                 <div class="wt-sk-news-thumb" [style.--thumb-bg]="n.thumb" [style.background]="n.thumb"></div>
                 <div class="wt-sk-news-body">
@@ -294,172 +489,13 @@
                   </div>
                 </div>
               </div>
-              <div *ngIf="newsList().length === 0" class="wt-sk-news-card">
+              <div *ngIf="newsList().length === 0 && !events().length" class="wt-sk-news-card">
                 <div class="wt-sk-news-thumb" style="--thumb-bg: linear-gradient(135deg,#514a7b,#3b3363); background: linear-gradient(135deg,#514a7b,#3b3363)"></div>
                 <div class="wt-sk-news-body">
                   <div class="wt-sk-news-title">{{ 'empty.no_activity_title' | t }}</div>
                   <div class="wt-sk-news-sub">{{ 'empty.no_activity_sub' | t }}</div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <!-- ⑥ COCKPIT v1.0.12 — style "Chicago" : carrousel 4 onglets (Action / Réunions / Tickets / Alertes) -->
-          <div class="wt-cockpit">
-            <div class="wt-cockpit-head">
-              <div class="wt-cockpit-title">COCKPIT</div>
-              <div class="wt-cockpit-sub">{{ cockpitMeta().sprintName }} · {{ cockpitMeta().upcoming }} évts à venir</div>
-            </div>
-            <hr class="wt-cockpit-hr">
-
-            <!-- Bandeau "hero" (équivalent du big-temp Chicago) — varie selon l'onglet actif -->
-            <div class="wt-cockpit-hero" [ngSwitch]="cockpitContent().kind">
-              <!-- Action : EN COURS -->
-              <ng-container *ngSwitchCase="'active'">
-                <div class="wt-cockpit-hero-icon">▶</div>
-                <div class="wt-cockpit-hero-text">
-                  <div class="wt-cockpit-hero-val">{{ cockpitContent().elapsedMin }}<span class="wt-cockpit-hero-unit">min</span></div>
-                  <div class="wt-cockpit-hero-lbl">{{ cockpitContent().event.title }}</div>
-                  <div class="wt-cockpit-hero-meta">prévu {{ cockpitContent().plannedMin }} min · {{ eventTypeLabel(cockpitContent().event.type) }}</div>
-                </div>
-                <button class="wt-cockpit-cta" (click)="endEventNow(cockpitContent().event)">■ Terminer</button>
-              </ng-container>
-              <!-- Action : PROCHAIN -->
-              <ng-container *ngSwitchCase="'next'">
-                <div class="wt-cockpit-hero-icon">⏰</div>
-                <div class="wt-cockpit-hero-text">
-                  <div class="wt-cockpit-hero-val">{{ cockpitContent().inMin }}<span class="wt-cockpit-hero-unit">min</span></div>
-                  <div class="wt-cockpit-hero-lbl">{{ cockpitContent().event.title }}</div>
-                  <div class="wt-cockpit-hero-meta">{{ formatDateTime(cockpitContent().event.scheduledStart) }} · {{ eventTypeLabel(cockpitContent().event.type) }}</div>
-                </div>
-                <button class="wt-cockpit-cta" (click)="startEventNow(cockpitContent().event)">▶ Démarrer</button>
-              </ng-container>
-              <!-- Action : IDLE -->
-              <ng-container *ngSwitchCase="'idle'">
-                <div class="wt-cockpit-hero-icon">☕</div>
-                <div class="wt-cockpit-hero-text">
-                  <div class="wt-cockpit-hero-val">FREE</div>
-                  <div class="wt-cockpit-hero-lbl">Aucune cérémonie active</div>
-                  <div class="wt-cockpit-hero-meta">Profite — ou ajoute une réunion</div>
-                </div>
-                <button class="wt-cockpit-cta" (click)="openNewEvent()">+ Réunion</button>
-              </ng-container>
-              <!-- Liste : prochains -->
-              <ng-container *ngSwitchCase="'list'">
-                <div class="wt-cockpit-hero-icon">📅</div>
-                <div class="wt-cockpit-hero-text">
-                  <div class="wt-cockpit-hero-val">{{ cockpitContent().items.length }}<span class="wt-cockpit-hero-unit">à venir</span></div>
-                  <div class="wt-cockpit-hero-lbl">Prochaines cérémonies</div>
-                  <div class="wt-cockpit-hero-meta">7 prochains jours</div>
-                </div>
-                <button class="wt-cockpit-cta" (click)="setPage('agenda')">→ Agenda</button>
-              </ng-container>
-              <!-- Tickets -->
-              <ng-container *ngSwitchCase="'tickets'">
-                <div class="wt-cockpit-hero-icon">⚡</div>
-                <div class="wt-cockpit-hero-text">
-                  <div class="wt-cockpit-hero-val">{{ cockpitContent().items.length }}<span class="wt-cockpit-hero-unit">prio</span></div>
-                  <div class="wt-cockpit-hero-lbl">Top tickets bloquants</div>
-                  <div class="wt-cockpit-hero-meta">Sprint courant</div>
-                </div>
-                <button class="wt-cockpit-cta" (click)="setPage('backlog')">→ Backlog</button>
-              </ng-container>
-              <!-- Alertes -->
-              <ng-container *ngSwitchCase="'alerts'">
-                <div class="wt-cockpit-hero-icon">⚠</div>
-                <div class="wt-cockpit-hero-text">
-                  <div class="wt-cockpit-hero-val">{{ cockpitContent().items.length }}<span class="wt-cockpit-hero-unit">HIGH</span></div>
-                  <div class="wt-cockpit-hero-lbl">Alertes critiques</div>
-                  <div class="wt-cockpit-hero-meta">Action requise</div>
-                </div>
-                <button class="wt-cockpit-cta" (click)="setPage('risks')">→ Risques</button>
-              </ng-container>
-            </div>
-
-            <!-- Onglets carrousel (équiv. nav Hotels/Places/Restaurants/Offices) -->
-            <nav class="wt-cockpit-nav">
-              <button *ngFor="let t of cockpitTabs"
-                      class="wt-cockpit-tab"
-                      [class.is-active]="cockpitTab() === t.id"
-                      (click)="setCockpitTab(t.id)">
-                <span class="wt-cockpit-tab-ico">{{ t.icon }}</span>
-                <span class="wt-cockpit-tab-lbl">{{ t.label }}</span>
-              </button>
-            </nav>
-
-            <!-- Panneau de contenu (équiv. weather-info description) -->
-            <div class="wt-cockpit-panel" [ngSwitch]="cockpitContent().kind">
-
-              <!-- ACTION (active / next / idle) -->
-              <ng-container *ngSwitchCase="'active'">
-                <div class="wt-cockpit-panel-row">
-                  <span class="wt-cockpit-dot" style="background:#6cd16c"></span>
-                  <span class="wt-cockpit-panel-lbl">Démarré à</span>
-                  <span class="wt-cockpit-panel-val">{{ formatTime(cockpitContent().event.actualStart) }}</span>
-                </div>
-                <div class="wt-cockpit-panel-row">
-                  <span class="wt-cockpit-dot" style="background:#d99a51"></span>
-                  <span class="wt-cockpit-panel-lbl">Type</span>
-                  <span class="wt-cockpit-panel-val">{{ eventTypeLabel(cockpitContent().event.type) }}</span>
-                </div>
-                <div class="wt-cockpit-panel-row" *ngIf="cockpitContent().event.location">
-                  <span class="wt-cockpit-dot" style="background:#6c9ed1"></span>
-                  <span class="wt-cockpit-panel-lbl">Lieu</span>
-                  <span class="wt-cockpit-panel-val">{{ cockpitContent().event.location }}</span>
-                </div>
-              </ng-container>
-
-              <ng-container *ngSwitchCase="'next'">
-                <div class="wt-cockpit-panel-row">
-                  <span class="wt-cockpit-dot" style="background:#d99a51"></span>
-                  <span class="wt-cockpit-panel-lbl">Type</span>
-                  <span class="wt-cockpit-panel-val">{{ eventTypeLabel(cockpitContent().event.type) }}</span>
-                </div>
-                <div class="wt-cockpit-panel-row">
-                  <span class="wt-cockpit-dot" style="background:#6c9ed1"></span>
-                  <span class="wt-cockpit-panel-lbl">Durée</span>
-                  <span class="wt-cockpit-panel-val">{{ formatDuration(cockpitContent().event.scheduledStart, cockpitContent().event.scheduledEnd) }}</span>
-                </div>
-              </ng-container>
-
-              <ng-container *ngSwitchCase="'idle'">
-                <div class="wt-cockpit-panel-row">
-                  <span class="wt-cockpit-dot" style="background:#9d8ad6"></span>
-                  <span class="wt-cockpit-panel-lbl">Astuce</span>
-                  <span class="wt-cockpit-panel-val">Lance ton sprint pour auto-générer les daily / planning / review</span>
-                </div>
-              </ng-container>
-
-              <!-- LISTE : prochains événements -->
-              <ng-container *ngSwitchCase="'list'">
-                <div *ngFor="let ev of cockpitContent().items" class="wt-cockpit-item" (click)="openEventDetail(ev.id)">
-                  <span class="wt-cockpit-item-ico" [style.color]="eventTypeColor(ev.type)">{{ ev.type === 'DAILY' ? '🗣' : ev.type === 'PLANNING' ? '🎯' : ev.type === 'REVIEW' ? '🔍' : ev.type === 'RETRO' ? '🔄' : '📅' }}</span>
-                  <span class="wt-cockpit-item-title">{{ ev.title }}</span>
-                  <span class="wt-cockpit-item-time">{{ formatDateTime(ev.scheduledStart) }}</span>
-                </div>
-                <div *ngIf="cockpitContent().items.length === 0" class="wt-cockpit-empty">Aucune cérémonie prévue · lance un sprint</div>
-              </ng-container>
-
-              <!-- TICKETS top -->
-              <ng-container *ngSwitchCase="'tickets'">
-                <div *ngFor="let t of cockpitContent().items" class="wt-cockpit-item" (click)="setPage('backlog')">
-                  <span class="wt-cockpit-item-ico" style="color:#ff8a5c">⚡</span>
-                  <span class="wt-cockpit-item-title">{{ t.code || t.title }}</span>
-                  <span class="wt-cockpit-item-time">{{ t.state || t.status }}</span>
-                </div>
-                <div *ngIf="cockpitContent().items.length === 0" class="wt-cockpit-empty">Aucun ticket prioritaire — bon job 🎉</div>
-              </ng-container>
-
-              <!-- ALERTES -->
-              <ng-container *ngSwitchCase="'alerts'">
-                <div *ngFor="let r of cockpitContent().items" class="wt-cockpit-item is-alert">
-                  <span class="wt-cockpit-item-ico" style="color:#ff5c5c">⚠</span>
-                  <span class="wt-cockpit-item-title">{{ r.title || r.message }}</span>
-                  <span class="wt-cockpit-item-time">{{ r.category }}</span>
-                </div>
-                <div *ngIf="cockpitContent().items.length === 0" class="wt-cockpit-empty">✅ Aucune alerte critique</div>
-              </ng-container>
-
             </div>
           </div>
 
