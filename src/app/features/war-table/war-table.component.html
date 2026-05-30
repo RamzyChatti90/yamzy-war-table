@@ -295,10 +295,11 @@
 
         <!-- ── Template du dashboard universel — défini une seule fois, rendu partout ── -->
         <ng-template #dashHeaderTpl>
-        <!-- v1.0.54 — REVERT layout v1.0.52 (cockpit dans dash-row, Mes Plannings en-dessous).
-             On garde le PS hero adaptif par menu (variant-based) mais on remet la
-             structure classique : PS hero + Cockpit côte-à-côte, Mes Plannings après. -->
+        <!-- v1.0.66 — Layout 2 COLONNES :
+             LEFT col (.wt-sk-dash-left) = PS hero EN HAUT + Mes Plannings EN BAS
+             RIGHT col (.wt-sk-news.wt-sk-news-tall) = COCKPIT pleine HAUTEUR de la page -->
         <section class="wt-sk-dash">
+          <div class="wt-sk-dash-left">
           <div class="wt-sk-dash-row">
             <!-- v1.0.53 — PS hero ADAPTATIF par menu :
                  • Sur dashboard : projet + sprint info (Lancer / Interrompre)
@@ -381,14 +382,8 @@
                 <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb" [rotate]="false"></app-yamzy-avatar-3d>
               </div>
             </header>
-
-            <!-- ④ v1.0.62 REVERT v1.0.59 : COCKPIT REMIS dans la dash-row comme
-                 colonne DROITE qui occupe la PLEINE HAUTEUR du PS hero. -->
-            <div class="wt-sk-news wt-sk-news-tall">
-              <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
-            </div>
           </div>
-          <!-- ↑ fin de .wt-sk-dash-row (PS hero + Cockpit côte à côte, full height) -->
+          <!-- ↑ fin de .wt-sk-dash-row (PS hero SEUL, dans colonne gauche) -->
 
           <!-- v1.0.45 — Template cockpit + news réutilisable sur toutes les pages -->
           <ng-template #cockpitNewsBlock>
@@ -657,7 +652,14 @@
               </div>
             </div>
           </div>
-          <!-- ↑ fin de .wt-sk-top (Mes Plannings) — v1.0.52 position remise -->
+          <!-- ↑ fin de .wt-sk-top (Mes Plannings) -->
+          </div>
+          <!-- ↑ fin de .wt-sk-dash-left (colonne GAUCHE : PS hero + Mes Plannings) -->
+
+          <!-- v1.0.66 — Colonne DROITE : COCKPIT en pleine HAUTEUR de la page -->
+          <aside class="wt-sk-news wt-sk-news-tall wt-sk-news-fullheight">
+            <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
+          </aside>
         </section>
         </ng-template>
         <!-- ↑ fin du template #dashHeaderTpl — réutilisable sur toutes les pages -->
