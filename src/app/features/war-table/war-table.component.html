@@ -246,7 +246,7 @@
             <!-- ④ NEWS : activité récente -->
             <div class="wt-sk-news">
               <div *ngFor="let n of newsList()" class="wt-sk-news-card" (click)="onNewsClick(n)">
-                <div class="wt-sk-news-thumb" [style.background]="n.thumb"></div>
+                <div class="wt-sk-news-thumb" [style.--thumb-bg]="n.thumb" [style.background]="n.thumb"></div>
                 <div class="wt-sk-news-body">
                   <div class="wt-sk-news-title">{{ n.title }}</div>
                   <div class="wt-sk-news-sub">{{ n.subTitle }}</div>
@@ -256,7 +256,7 @@
                 </div>
               </div>
               <div *ngIf="newsList().length === 0" class="wt-sk-news-card">
-                <div class="wt-sk-news-thumb" style="background:linear-gradient(135deg,#514a7b,#3b3363)"></div>
+                <div class="wt-sk-news-thumb" style="--thumb-bg: linear-gradient(135deg,#514a7b,#3b3363); background: linear-gradient(135deg,#514a7b,#3b3363)"></div>
                 <div class="wt-sk-news-body">
                   <div class="wt-sk-news-title">{{ 'empty.no_activity_title' | t }}</div>
                   <div class="wt-sk-news-sub">{{ 'empty.no_activity_sub' | t }}</div>

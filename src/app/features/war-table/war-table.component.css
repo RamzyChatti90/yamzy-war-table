@@ -1737,3 +1737,62 @@ body { background: #0a0820 !important; }
   );
 }
 
+
+/* === v1.0.10 — News-thumb : shimmer band + halo flou avec le même gradient === */
+
+/* Le parent news-card devient un contexte d'isolation pour que le glow ne déborde pas */
+.wt-sk-news-card {
+  isolation: isolate;
+  position: relative;
+}
+
+/* Override le .wt-sk-news-thumb pour activer position relative + overflow visible (glow déborde) */
+.wt-sk-news-thumb {
+  position: relative;
+  overflow: visible;
+  /* le background reste set inline depuis le template (et --thumb-bg pareil) */
+}
+
+/* Shimmer band : reflet blanc oblique qui balaye le thumb */
+.wt-sk-news-thumb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 70%
+  );
+  background-size: 220% 100%;
+  animation: wt-thumb-shimmer 3.2s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+/* Halo flou en dessous, même gradient que le thumb (via var --thumb-bg) */
+.wt-sk-news-thumb::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 22px;  /* un peu plus que le thumb (18px) */
+  background: var(--thumb-bg, linear-gradient(135deg, #514a7b, #3b3363));
+  filter: blur(14px);
+  opacity: 0.55;
+  z-index: -1;
+  animation: wt-thumb-halo-pulse 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes wt-thumb-shimmer {
+  0%   { background-position: -120% 0; }
+  100% { background-position: 220% 0; }
+}
+
+@keyframes wt-thumb-halo-pulse {
+  0%, 100% { opacity: 0.40; transform: scale(0.92); }
+  50%      { opacity: 0.65; transform: scale(1.08); }
+}
+
