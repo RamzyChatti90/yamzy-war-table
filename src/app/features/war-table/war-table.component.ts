@@ -445,6 +445,119 @@ export class WarTableComponent implements OnInit {
     this.api.tickets(pid).subscribe({ next: t => this.tickets.set(t) });
   }
 
+  // ═══ BULK OPERATIONS v1.0.10 (Backlog) ═══
+  selectedTicketIds = signal<Set<number>>(new Set());
+  bulkBusy = signal(false);
+  isTicketSelected(t: any): boolean { return this.selectedTicketIds().has(t.id); }
+  toggleTicketSelection(t: any): void {
+    const set = new Set(this.selectedTicketIds());
+    if (set.has(t.id)) set.delete(t.id); else set.add(t.id);
+    this.selectedTicketIds.set(set);
+  }
+  toggleSelectAllVisible(): void {
+    const visible = this.paged(this.filteredTickets());
+    const allSelected = visible.every(t => this.selectedTicketIds().has(t.id));
+    const set = new Set(this.selectedTicketIds());
+    if (allSelected) visible.forEach(t => set.delete(t.id));
+    else visible.forEach(t => set.add(t.id));
+    this.selectedTicketIds.set(set);
+  }
+  clearTicketSelection(): void { this.selectedTicketIds.set(new Set()); }
+  selectedCount = computed(() => this.selectedTicketIds().size);
+
+  async bulkUpdate(field: 'status'|'sprint'|'assignee'|'priority'): Promise<void> {
+    const ids = Array.from(this.selectedTicketIds());
+    if (!ids.length) return;
+    const labels: Record<string,string> = { status: 'Statut', sprint: 'Sprint', assignee: 'Assigné', priority: 'Priorité' };
+    const choices = field === 'status'
+      ? [
+          { value: 'À faire', label: '○ À faire', kind: 'neutral' as const },
+          { value: 'En cours', label: '⚡ En cours', kind: 'primary' as const },
+          { value: 'En revue', label: '👁 En revue', kind: 'primary' as const },
+          { value: 'Terminé', label: '✓ Terminé', kind: 'primary' as const },
+          { value: 'Bloqué', label: '🛑 Bloqué', kind: 'danger' as const },
+        ]
+      : field === 'priority'
+        ? [
+          { value: 'Must',  label: 'Must',  kind: 'danger' as const },
+          { value: 'Should', label: 'Should', kind: 'primary' as const },
+          { value: 'Could', label: 'Could', kind: 'neutral' as const },
+          { value: "Won't", label: "Won't", kind: 'neutral' as const },
+        ]
+        : [];  // sprint / assignee → prompt texte (gérés en dessous)
+    let chosen: string | null = null;
+    if (choices.length) {
+      chosen = await this.dialog.prompt({
+        title: `Bulk update — ${labels[field]}`,
+        message: `Modifier le **${labels[field]}** de **${ids.length} ticket(s)** sélectionné(s).`,
+        kind: 'question',
+        choices: choices,
+      });
+    } else {
+      // pour sprint / assignee on demande le texte avec un confirm + JS prompt
+      const v = window.prompt(`Nouveau ${labels[field]} pour ${ids.length} ticket(s) :`, '');
+      if (v == null) return;
+      chosen = v;
+    }
+    if (chosen == null) return;
+    this.bulkBusy.set(true);
+    this.api.bulkUpdateTickets(ids, { [field]: chosen }).subscribe({
+      next: async r => {
+        this.bulkBusy.set(false);
+        await this.dialog.alert({
+          title: 'Bulk update terminé',
+          message: `${r.updated} ticket(s) mis à jour sur ${r.requested}.`,
+          kind: 'success',
+        });
+        this.clearTicketSelection();
+        const pid = this.api.selectedProjectId();
+        if (pid) {
+          this.api.tickets(pid).subscribe({ next: ts => this.tickets.set(ts) });
+          this.notifyExcelChanged(pid);
+        }
+      },
+      error: async err => {
+        this.bulkBusy.set(false);
+        await this.dialog.alert({ title: 'Échec bulk update',
+          message: err?.error?.message || err?.message || 'Erreur inconnue.', kind: 'error' });
+      }
+    });
+  }
+
+  async bulkDelete(): Promise<void> {
+    const ids = Array.from(this.selectedTicketIds());
+    if (!ids.length) return;
+    const ok = await this.dialog.confirm({
+      title: `Supprimer ${ids.length} ticket(s) ?`,
+      message: `Action **irréversible**. Tous les tickets sélectionnés et leurs métadonnées disparaîtront.`,
+      kind: 'error',
+      confirmLabel: '🗑 Tout supprimer',
+    });
+    if (!ok) return;
+    this.bulkBusy.set(true);
+    this.api.bulkDeleteTickets(ids).subscribe({
+      next: async r => {
+        this.bulkBusy.set(false);
+        await this.dialog.alert({
+          title: 'Bulk delete terminé',
+          message: `${r.deleted} ticket(s) supprimé(s).`,
+          kind: 'success',
+        });
+        this.clearTicketSelection();
+        const pid = this.api.selectedProjectId();
+        if (pid) {
+          this.api.tickets(pid).subscribe({ next: ts => this.tickets.set(ts) });
+          this.notifyExcelChanged(pid);
+        }
+      },
+      error: async err => {
+        this.bulkBusy.set(false);
+        await this.dialog.alert({ title: 'Échec bulk delete',
+          message: err?.error?.message || err?.message || 'Erreur inconnue.', kind: 'error' });
+      }
+    });
+  }
+
   // ── Tickets
   addTicket(): void {
     const n = (this.tickets() || []).length + 1;

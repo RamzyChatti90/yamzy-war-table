@@ -243,6 +243,20 @@ export class WarTableApi {
   }
 
   // ═══ REMINDERS v1.0.10 ═══
+  // ═══ BULK OPERATIONS v1.0.10 ═══
+  /** Bulk patch sur N tickets : status, sprint, assignee, priority, phase, component, progressPercent. */
+  bulkUpdateTickets(ids: number[], patch: Record<string, any>): Observable<{ updated: number; requested: number }> {
+    return this.http.put<any>(`${this.base}/tickets/bulk`, { ids, patch });
+  }
+  /** Bulk delete N tickets. */
+  bulkDeleteTickets(ids: number[]): Observable<{ deleted: number; requested: number }> {
+    return this.http.post<any>(`${this.base}/tickets/bulk-delete`, { ids });
+  }
+  /** Reorder tickets (rankIndex = position dans le tableau ids). */
+  bulkReorderTickets(ids: number[]): Observable<{ reordered: number }> {
+    return this.http.post<any>(`${this.base}/tickets/bulk-reorder`, { ids });
+  }
+
   /** Récupère la liste des rappels/alertes pour ce projet. */
   reminders(projectId: number): Observable<{
     items: Array<{
