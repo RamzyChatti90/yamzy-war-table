@@ -772,22 +772,35 @@
           <h3 class="wt-sub">{{ 'cfd.title' | t }}</h3>
           <div class="wt-bars">
             <div *ngFor="let c of cfd()" class="wt-bar-col">
-              <div class="wt-cfd-stack" [title]="c.sprint">
+              <div class="wt-cfd-stack" [title]="c.sprint + ' — total ' + c.total + ' tickets'">
                 <div class="seg done" [style.height.px]="c.done*8"></div>
                 <div class="seg review" [style.height.px]="c.review*8"></div>
                 <div class="seg wip" [style.height.px]="c.inProgress*8"></div>
                 <div class="seg todo" [style.height.px]="c.todo*8"></div>
                 <div class="seg blocked" [style.height.px]="c.blocked*8"></div>
               </div>
-              <div class="wt-bar-label">{{ c.sprint }}</div>
+              <div class="wt-bar-label">{{ c.sprint }} <small class="wt-muted">({{ c.total }})</small></div>
             </div>
           </div>
           <h3 class="wt-sub">{{ 'cfd.velocity' | t }}</h3>
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.committed_sp' | t }}</th><th>{{ 'table.done_sp' | t }}</th><th>{{ 'table.success_pct' | t }}</th><th>{{ 'table.carryover' | t }}</th></tr></thead>
+            <thead><tr>
+              <th>{{ 'table.sprint' | t }}</th>
+              <th>{{ 'table.committed_sp' | t }}</th>
+              <th>{{ 'table.done_sp' | t }}</th>
+              <th title="Heures engagées">Eng. (h)</th>
+              <th title="Heures réalisées">Fait (h)</th>
+              <th>{{ 'table.success_pct' | t }}</th>
+              <th>{{ 'table.carryover' | t }}</th>
+            </tr></thead>
             <tbody><tr *ngFor="let v of paged(velocity())">
-              <td>{{ v.sprint }}</td><td class="wt-num">{{ v.committedPoints }}</td><td class="wt-num">{{ v.donePoints }}</td>
-              <td class="wt-num">{{ v.successRate }}%</td><td class="wt-num">{{ v.carryOver }}</td>
+              <td>{{ v.sprint }}</td>
+              <td class="wt-num">{{ v.committedPoints }}</td>
+              <td class="wt-num">{{ v.donePoints }}</td>
+              <td class="wt-num">{{ v.committedHours }}</td>
+              <td class="wt-num">{{ v.doneHours }}</td>
+              <td class="wt-num">{{ v.successRate }}%</td>
+              <td class="wt-num">{{ v.carryOver }}</td>
             </tr></tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: velocity() }"></ng-container>
@@ -796,9 +809,10 @@
         <!-- ── DÉPENDANCES ── -->
         <section *ngIf="activePage() === 'dependances'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>{{ 'table.ticket' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.depends_on' | t }}</th><th>{{ 'table.dep_status' | t }}</th><th>{{ 'table.risk' | t }}</th></tr></thead>
+            <thead><tr><th>{{ 'table.ticket' | t }}</th><th>{{ 'table.title' | t }}</th><th>Statut A</th><th>{{ 'table.depends_on' | t }}</th><th>{{ 'table.dep_status' | t }}</th><th>{{ 'table.risk' | t }}</th></tr></thead>
             <tbody>
               <tr *ngFor="let d of paged(deps())"><td class="wt-mono">{{ d.ticketA }}</td><td class="wt-title-cell">{{ d.titleA }}</td>
+                <td><span class="wt-status" [attr.data-st]="statusKey(d.stateA)">{{ d.stateA || '—' }}</span></td>
                 <td class="wt-mono">{{ d.dependsOn }}</td><td>{{ d.statusB }}</td><td>{{ d.risk }}</td></tr>
               <tr *ngIf="!deps().length"><td colspan="5" class="wt-muted">{{ 'empty.no_dep_declared' | t }}</td></tr>
             </tbody>
@@ -1006,6 +1020,13 @@
             </div>
           </div>
           <div class="wt-dash-cols" *ngIf="dash() as d">
+            <div class="wt-panel">
+              <h3>🎯 Top 3 actions urgentes</h3>
+              <div *ngFor="let t of d.top3Actions" class="wt-mini-row" (click)="setPage('backlog'); ticketFilter = t.ticketId" style="cursor:pointer">
+                <span class="wt-mini-id">{{ t.ticketId }}</span><span class="wt-mini-title">{{ t.title }}</span><span class="wt-mini-date">{{ t.deliveryDate }}</span>
+              </div>
+              <div *ngIf="!d.top3Actions?.length" class="wt-muted">Aucune action urgente.</div>
+            </div>
             <div class="wt-panel">
               <h3>{{ 'stakeholder.next_deliveries' | t }}</h3>
               <div *ngFor="let t of d.nextDeliveries" class="wt-mini-row">
