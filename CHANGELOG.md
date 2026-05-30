@@ -6,6 +6,53 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.18] — 2026-05-31
+
+📺 **YAMZY 400px + Cockpit LIVE stream** : taille exacte du PS hero
+dashboard + chaque card du cockpit prend l'apparence d'un stream
+en direct (ping rouge, frame TV, ruban REC).
+
+### Changed — YAMZY companion 400×400
+- Size **400px** (égale au PS hero du dashboard, plus 320px)
+- Position `bottom: -40px; left: 88px` — pendant exact du PS hero
+  `top: -40px; right: -20px`
+- Drop-shadow renforcée (40px + glow gold)
+
+### Added — Live PIP pattern sur cockpit cards
+Inspiré du React Streaming Dashboard de référence (.ping-outer +
+.player frame + ruban rouge). Chaque card cockpit avec
+`.wt-sk-card-live` reçoit **3 décorations** :
+
+1. **Ping rouge pulsant** (`.wt-card-ping`) top-right 10×10 px
+   - Pseudo `::after` qui scale 1→3.5 avec opacity 0.85→0
+   - Animation `wt-card-ping-pulse 1.6s` cubic-bezier infinite
+2. **Frame TV** (`.wt-card-tv`)
+   - `border-top: 6px solid #2b2549; border-right: 6px solid #2b2549`
+   - Effet "écran encastré" cosmic
+3. **Ruban REC corner** (`.wt-card-ribbon`)
+   - `::before` = barre rouge 60×3 px (avec glow rouge)
+   - `::after` = témoin blanc 14×14 px avec anneau rouge 3 px
+     (effet record/live light)
+
+### Variantes
+- `.wt-sk-card-hero.wt-sk-card-live` : ping 1.2s (plus rapide),
+  ribbon glow 14px (plus intense)
+- `.wt-sk-card-alert.wt-sk-card-live` : ping + ribbon en `#ff5c5c`
+  (orange-rouge alerte)
+
+### Architecture
+Pour éviter la duplication HTML, le contenu des 3 décos est dans
+un `<ng-template #liveDeco>` réutilisé via `*ngTemplateOutlet` sur
+chaque card cockpit (active, next, idle, list items, ticket items,
+alert items).
+
+### Why
+> "utilise la même taille que celui déjà utilisé dans le dashboard"
+> "utilise le même design de live (ping + frame + ribbon) afin de
+> l'appliquer à toutes les cards pour le cockpit"
+
+---
+
 ## [1.0.17] — 2026-05-31
 
 🎮 **YAMZY companion full-anim** : retour à l'essentiel — juste le gros
