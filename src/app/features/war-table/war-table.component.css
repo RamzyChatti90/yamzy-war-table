@@ -919,7 +919,7 @@
     }
     .wt-sk-nav-active {
       background: transparent !important;
-      color: #d99a51 !important;
+      color: var(--sc-color, #d99a51) !important;
       border-radius: 0 !important;
       box-shadow: none !important;
       transform: scale(1.2);

@@ -165,18 +165,19 @@
   </div>
 
   <div class="wt-body">
-    <!-- ═══ SIDEBAR LEFT SKIN (4 icônes + MORE) ═══ -->
+    <!-- ═══ SIDEBAR LEFT SKIN — v1.0.63 : 5 super-cats + MORE (drawer 43 pages) ═══ -->
     <aside class="wt-sk-nav">
-      <button *ngFor="let i of [0,1,2,3]"
+      <button *ngFor="let i of [0,1,2,3,4]"
               class="wt-sk-nav-item"
               [class.wt-sk-nav-active]="navActive() === i && !morePanelOpen()"
+              [style.--sc-color]="navSuperCatColor(i)"
               (click)="onNavClick(i)"
               [title]="navLabels()[i]">
         <span class="wt-sk-nav-ico" [innerHTML]="navIconHtml(i)"></span>
         <span class="wt-sk-nav-label">{{ navLabels()[i] }}</span>
       </button>
       <div class="wt-sk-nav-spacer"></div>
-      <!-- MORE : drawer 42 pages -->
+      <!-- MORE : drawer 43 pages avec hiérarchie 5 super-cats > sous-cats -->
       <button class="wt-sk-nav-item wt-sk-nav-more"
               [class.wt-sk-nav-active]="morePanelOpen()"
               (click)="morePanelOpen.set(!morePanelOpen())"

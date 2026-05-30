@@ -1740,52 +1740,59 @@ export class WarTableComponent implements OnInit {
   }
 
   // ════════════════ SKIN SIDEBAR (4 icônes + MORE drawer) ════════════════
-  /** Sidebar gauche skin : 0=Dashboard, 1=Plannings, 2=Backlog, 3=Analytics.
-   *  Réactif au switch FR/EN via signals. */
+  /** v1.0.63 — Sidebar gauche skin : 5 super-cats (Dashboard / Sprint / Planning / Reporting / Setup). */
   navLabels = computed(() => {
     this.i18n.lang(); this.i18n.version();
-    return [
-      this.i18n.t('nav.dashboard'),
-      this.i18n.t('nav.plannings'),
-      this.i18n.t('nav.backlog'),
-      this.i18n.t('nav.analytics'),
-    ];
+    return SUPER_CATS.map(sc => sc.label.toUpperCase());
   });
+  /** v1.0.63 — Tuple [icon emoji, color] par super-cat pour le sidebar. */
+  navSuperCatColor(i: number): string {
+    return SUPER_CATS[i]?.color || '#a78bfa';
+  }
+  navSuperCatEmoji(i: number): string {
+    return SUPER_CATS[i]?.icon || '⚔';
+  }
   morePanelOpen = signal(false);
 
-  /** Mapping page → section (calcule l'icône active selon la page courante). */
-  private readonly pageToSection: Record<string, number> = {
-    // 1 = PLANNINGS
-    'projets':1,'phases':1,'capacity':1,'allocation':1,'charge':1,'parametres':1,
-    'calendrier':1,'sprints':1,'sprint-planning':1,'sprint-review':1,'roadmap':1,
-    'gantt':1,'mode-emploi':1,'routine':1,'nouveau-projet':1,'regen-alloc':1,
-    // 2 = BACKLOG
-    'backlog':2,'backlog-tma':2,'detail-tickets':2,'vue-reviewer':2,'vue-sprint':2,
-    'dod':2,'dor':2,'templates':2,'daily':2,'retros':2,'listes':2,
-    // 3 = ANALYTICS
-    'dashboard-param':3,'dashboard-legacy':3,'vue-stakeholder':3,'stakeholders':3,
-    'export-stakeholder':3,'burndown':3,'cfd-velocity':3,'risks':3,'tech-debt':3,
-    'lessons':3,'dependances':3,'knowledge':3,'overtime':3,'checkup':3,
-    // 0 = DASHBOARD (default)
-    'dashboard':0,
+  /** v1.0.63 — Mapping page → super-cat index (0..4) pour highlight nav. */
+  private superCatIndex(sc: SuperCat | null): number {
+    const order: SuperCat[] = ['Dashboard', 'Sprint', 'Planning', 'Reporting', 'Setup'];
+    return sc ? order.indexOf(sc) : 0;
+  }
+  navActive = computed(() => this.superCatIndex(this.activeSuperCat()));
+
+  /** Page par défaut pour chaque super-cat (1er click ouvre celle-là). */
+  private readonly superCatDefaults: Record<SuperCat, string> = {
+    'Dashboard': 'dashboard',
+    'Sprint':    'backlog',
+    'Planning':  'gantt',
+    'Reporting': 'burndown',
+    'Setup':     'parametres',
   };
-  navActive = computed(() => this.pageToSection[this.activePage()] ?? 0);
 
   onNavClick(i: number): void {
     this.morePanelOpen.set(false);
-    const defaults = ['dashboard', 'projets', 'backlog', 'dashboard-param'];
-    this.setPage(defaults[i]);
+    const order: SuperCat[] = ['Dashboard', 'Sprint', 'Planning', 'Reporting', 'Setup'];
+    const sc = order[i];
+    if (!sc) return;
+    this.setPage(this.superCatDefaults[sc]);
   }
 
   /** Bouclier de navigation : la page DASHBOARD affiche le layout skin. */
   isDashboardSkin = computed(() => this.activePage() === 'dashboard');
 
-  // ── Icônes SVG (réplique skin) ──
+  // v1.0.63 — Icônes SVG des 5 super-cats (Dashboard, Sprint, Planning, Reporting, Setup)
   private readonly navIcons = [
+    // 0 Dashboard — home
     '<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>',
-    '<path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>',
-    '<path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>',
+    // 1 Sprint — flag/target
+    '<path d="M3 3a1 1 0 011-1h12a1 1 0 01.78 1.625L13.781 9l3 5.375A1 1 0 0116 16H4a1 1 0 01-1-1V3zm2 1v3h10l-2.222-3H5zm0 5v6h9.219L13 12l1.219-3H5z"/>',
+    // 2 Planning — calendar grid
+    '<path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>',
+    // 3 Reporting — chart bars
     '<path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>',
+    // 4 Setup — gear
+    '<path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>',
   ];
   navIconHtml(i: number): SafeHtml {
     return this.san.bypassSecurityTrustHtml(
