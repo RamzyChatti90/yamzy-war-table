@@ -70,6 +70,14 @@
         {{ exporting() ? '⟳' : '⬇' }} {{ 'topbar.export' | t }}
       </button>
       <button class="wt-btn-import" (click)="importOpen.set(true)">{{ 'topbar.import' | t }}</button>
+      <!-- 🆕 v1.0.4 : Nouveau projet -->
+      <button class="wt-btn-import" (click)="openNewProject()" [title]="'Nouveau projet (Realm vide)'">🆕</button>
+      <!-- 🔒/🔓 v1.0.4 : Mode édition (active inline edit + boutons CRUD partout) -->
+      <button class="wt-skin-icon-btn" (click)="toggleEditMode()"
+              [class.wt-edit-on]="editMode()"
+              [title]="editMode() ? 'Mode édition actif — clique pour verrouiller' : 'Activer le mode édition (CRUD partout + Excel auto-saved)'">
+        {{ editMode() ? '🔓' : '🔒' }}
+      </button>
     </div>
   </header>
 
@@ -304,6 +312,9 @@
 
         <!-- ── BACKLOG (éditable inline + auto-save + pagination lazy) ── -->
         <section *ngIf="activePage() === 'backlog'" class="wt-backlog">
+          <div *ngIf="editMode()" class="wt-crud-bar">
+            <button class="wt-btn-add" (click)="addTicket()">+ Ajouter un ticket</button>
+          </div>
           <div class="wt-table-tools">
             <input class="wt-filter" [placeholder]="'filter.title_id' | t" [(ngModel)]="ticketFilter" (ngModelChange)="currentPage.set(0)"/>
             <span class="wt-count">{{ filteredTickets().length }} {{ 'common.quests' | t }}</span>
@@ -344,6 +355,7 @@
                   <td class="wt-save-cell">
                     <span *ngIf="savingId() === t.id" class="wt-saving">⟳</span>
                     <span *ngIf="savedId() === t.id" class="wt-saved">✓</span>
+                    <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delTicket(t)" title="Supprimer">🗑</button>
                   </td>
                 </tr>
               </tbody>
@@ -368,9 +380,12 @@
 
         <!-- ── SPRINTS ── -->
         <section *ngIf="activePage() === 'sprints'" class="wt-sprints">
+          <div *ngIf="editMode()" class="wt-crud-bar">
+            <button class="wt-btn-add" (click)="addSprint()">+ Ajouter un sprint</button>
+          </div>
           <div class="wt-sprint-cards">
             <div *ngFor="let s of paged(sprints())" class="wt-sprint-card">
-              <div class="wt-sprint-num">Sprint {{ s.number }}</div>
+              <div class="wt-sprint-num">Sprint {{ s.number }} <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delSprint(s)" style="float:right">🗑</button></div>
               <div class="wt-sprint-dates">{{ s.startDate }} → {{ s.endDate }}</div>
               <div class="wt-sprint-goal">{{ s.goal || '—' }}</div>
               <div class="wt-sprint-cap">{{ 'table.capacity_h' | t }} : {{ s.capacityHours || '—' }}h</div>
@@ -433,15 +448,17 @@
 
         <!-- ── RISKS ── -->
         <section *ngIf="activePage() === 'risks'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addRisk()">+ Risque</button></div>
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.risk' | t }}</th><th>{{ 'table.type' | t }}</th><th>{{ 'table.proba' | t }}</th><th>{{ 'table.severity' | t }}</th><th>{{ 'table.score' | t }}</th><th>{{ 'table.status' | t }}</th></tr></thead>
+              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.risk' | t }}</th><th>{{ 'table.type' | t }}</th><th>{{ 'table.proba' | t }}</th><th>{{ 'table.severity' | t }}</th><th>{{ 'table.score' | t }}</th><th>{{ 'table.status' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
               <tbody>
                 <tr *ngFor="let r of paged(risks())">
                   <td class="wt-mono">{{ r.riskId }}</td><td>{{ r.description }}</td><td>{{ r.type }}</td>
                   <td>{{ r.probability }}</td><td>{{ r.impact }}</td>
                   <td><span class="wt-score" [class.high]="r.score >= 6">{{ r.score }}</span></td>
                   <td>{{ r.status }}</td>
+                  <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delRisk(r)">🗑</button></td>
                 </tr>
               </tbody>
             </table>
@@ -451,13 +468,15 @@
 
         <!-- ── TECH DEBT ── -->
         <section *ngIf="activePage() === 'tech-debt'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addDebt()">+ Dette</button></div>
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.category' | t }}</th><th>{{ 'table.severity' | t }}</th><th>{{ 'table.cost_h' | t }}</th><th>{{ 'table.status' | t }}</th></tr></thead>
+              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.category' | t }}</th><th>{{ 'table.severity' | t }}</th><th>{{ 'table.cost_h' | t }}</th><th>{{ 'table.status' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
               <tbody>
                 <tr *ngFor="let d of paged(techDebt())">
                   <td class="wt-mono">{{ d.debtId }}</td><td>{{ d.title }}</td><td>{{ d.category }}</td>
                   <td>{{ d.severity }}</td><td class="wt-num">{{ d.estimatedCostHours }}</td><td>{{ d.status }}</td>
+                  <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delDebt(d)">🗑</button></td>
                 </tr>
               </tbody>
             </table>
@@ -467,13 +486,15 @@
 
         <!-- ── LESSONS ── -->
         <section *ngIf="activePage() === 'lessons'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addLesson()">+ Lesson</button></div>
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.category' | t }}</th><th>{{ 'table.lesson' | t }}</th><th>{{ 'table.reco' | t }}</th><th>{{ 'table.type' | t }}</th></tr></thead>
+              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.category' | t }}</th><th>{{ 'table.lesson' | t }}</th><th>{{ 'table.reco' | t }}</th><th>{{ 'table.type' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
               <tbody>
                 <tr *ngFor="let l of paged(lessons())">
                   <td class="wt-mono">{{ l.lessonId }}</td><td>{{ l.category }}</td><td>{{ l.lesson }}</td>
                   <td>{{ l.recommendation }}</td><td>{{ l.type }}</td>
+                  <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delLesson(l)">🗑</button></td>
                 </tr>
               </tbody>
             </table>
@@ -517,11 +538,15 @@
 
         <!-- ── PHASES ── -->
         <section *ngIf="activePage() === 'phases'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addPhase()">+ Phase</button></div>
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>{{ 'table.phase' | t }}</th><th>{{ 'table.planned_d' | t }}</th><th>{{ 'table.consumed_days' | t }}</th></tr></thead>
+            <thead><tr><th>{{ 'table.phase' | t }}</th><th>{{ 'table.planned_d' | t }}</th><th>{{ 'table.consumed_days' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
             <tbody>
-              <tr *ngFor="let ph of paged(phases())"><td>{{ ph.name }}</td><td class="wt-num">{{ ph.plannedDays }}</td><td class="wt-num">{{ ph.consumedDays }}</td></tr>
-              <tr *ngIf="!phases().length"><td colspan="3" class="wt-muted">{{ 'empty.no_phase' | t }}</td></tr>
+              <tr *ngFor="let ph of paged(phases())">
+                <td>{{ ph.name }}</td><td class="wt-num">{{ ph.plannedDays }}</td><td class="wt-num">{{ ph.consumedDays }}</td>
+                <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delPhase(ph)">🗑</button></td>
+              </tr>
+              <tr *ngIf="!phases().length"><td colspan="4" class="wt-muted">{{ 'empty.no_phase' | t }}</td></tr>
             </tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: phases() }"></ng-container>
@@ -529,13 +554,15 @@
 
         <!-- ── CAPACITY PLANNING ── -->
         <section *ngIf="activePage() === 'capacity'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addCapacity()">+ Membre</button></div>
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>{{ 'table.person' | t }}</th><th>{{ 'table.role' | t }}</th><th>{{ 'table.alloc_pct' | t }}</th><th>{{ 'table.h_per_day' | t }}</th><th>{{ 'table.sprints_h' | t }}</th></tr></thead>
+            <thead><tr><th>{{ 'table.person' | t }}</th><th>{{ 'table.role' | t }}</th><th>{{ 'table.alloc_pct' | t }}</th><th>{{ 'table.h_per_day' | t }}</th><th>{{ 'table.sprints_h' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
             <tbody>
               <tr *ngFor="let m of paged(capacity())">
                 <td>{{ m.memberName }}</td><td>{{ m.role }}</td><td class="wt-num">{{ m.allocationPercent }}%</td>
                 <td class="wt-num">{{ m.hoursPerDay }}</td>
                 <td><span *ngFor="let kv of objEntries(m.sprintHours)" class="wt-mini-chip">{{ kv[0] }}:{{ kv[1] }}</span></td>
+                <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delCapacity(m)">🗑</button></td>
               </tr>
               <tr *ngIf="!capacity().length"><td colspan="5" class="wt-muted">{{ 'empty.no_capacity_imported' | t }}</td></tr>
             </tbody>
@@ -545,10 +572,14 @@
 
         <!-- ── ROADMAP ── -->
         <section *ngIf="activePage() === 'roadmap'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar">
+            <button class="wt-btn-add" (click)="addQuarter()">+ Trimestre</button>
+            <button class="wt-btn-add" (click)="addMilestone()">+ Jalon</button>
+          </div>
           <h3 class="wt-sub">{{ 'roadmap_p.quarters' | t }}</h3>
           <div class="wt-quarters">
             <div *ngFor="let q of paged(quarters())" class="wt-quarter-card">
-              <div class="wt-q-head">{{ q.quarter }} · <span>{{ q.theme }}</span></div>
+              <div class="wt-q-head">{{ q.quarter }} · <span>{{ q.theme }}</span> <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delQuarter(q)" style="float:right">🗑</button></div>
               <div class="wt-q-obj">{{ q.objective }}</div>
               <div class="wt-q-deliv">{{ q.deliverables }}</div>
               <span class="wt-chip">{{ q.status }}</span>
@@ -559,6 +590,7 @@
           <h3 class="wt-sub">{{ 'roadmap_p.milestones' | t }}</h3>
           <div *ngFor="let m of paged(milestones())" class="wt-mini-row">
             <span class="wt-mini-date">{{ m.date }}</span><span class="wt-mini-title">{{ m.title }}</span><span class="wt-chip">{{ m.status }}</span>
+            <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delMilestone(m)">🗑</button>
           </div>
           <div *ngIf="!milestones().length" class="wt-muted">{{ 'empty.no_milestone' | t }}</div>
           <ng-container *ngTemplateOutlet="pager; context: { list: milestones() }"></ng-container>
@@ -566,13 +598,15 @@
 
         <!-- ── HEURES SUP ── -->
         <section *ngIf="activePage() === 'overtime'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addOvertime()">+ Saisie</button></div>
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>{{ 'table.date' | t }}</th><th>{{ 'table.day' | t }}</th><th>{{ 'table.planned_h' | t }}</th><th>{{ 'table.real_h' | t }}</th><th>{{ 'table.mood' | t }}</th></tr></thead>
+            <thead><tr><th>{{ 'table.date' | t }}</th><th>{{ 'table.day' | t }}</th><th>{{ 'table.planned_h' | t }}</th><th>{{ 'table.real_h' | t }}</th><th>{{ 'table.mood' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
             <tbody>
               <tr *ngFor="let o of paged(overtime())" [class.row-blocked]="o.actualHours > o.plannedHours + 2 || o.moodScore < 3">
                 <td class="wt-mono">{{ o.date }}</td><td>{{ o.dayLabel }}</td>
                 <td class="wt-num">{{ o.plannedHours }}</td><td class="wt-num">{{ o.actualHours }}</td>
                 <td>{{ moodEmoji(o.moodScore) }}</td>
+                <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delOvertime(o)">🗑</button></td>
               </tr>
               <tr *ngIf="!overtime().length"><td colspan="5" class="wt-muted">{{ 'empty.no_hours' | t }}</td></tr>
             </tbody>
@@ -582,8 +616,9 @@
 
         <!-- ── RÉTROSPECTIVES ── -->
         <section *ngIf="activePage() === 'retros'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addRetro()">+ Rétro</button></div>
           <div *ngFor="let r of paged(retros())" class="wt-retro-card">
-            <h4>Sprint {{ r.sprintNumber }}</h4>
+            <h4>Sprint {{ r.sprintNumber }} <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delRetro(r)" style="float:right">🗑</button></h4>
             <div class="wt-retro-grid">
               <div class="wt-retro-col keep"><span>{{ 'retro.keep' | t }}</span><p>{{ r.keepDoing || '—' }}</p></div>
               <div class="wt-retro-col improve"><span>{{ 'retro.improve' | t }}</span><p>{{ r.improve || '—' }}</p></div>
@@ -597,9 +632,13 @@
 
         <!-- ── KNOWLEDGE BASE ── -->
         <section *ngIf="activePage() === 'knowledge'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar">
+            <button class="wt-btn-add" (click)="addAdr()">+ ADR</button>
+            <button class="wt-btn-add" (click)="addGlossary()">+ Terme</button>
+          </div>
           <h3 class="wt-sub">{{ 'kb.adr_title' | t }}</h3>
           <div *ngFor="let a of paged(adrs())" class="wt-adr-card">
-            <div class="wt-adr-head"><span class="wt-mono">{{ a.adrId }}</span> · {{ a.date }} — <strong>{{ a.decision }}</strong></div>
+            <div class="wt-adr-head"><span class="wt-mono">{{ a.adrId }}</span> · {{ a.date }} — <strong>{{ a.decision }}</strong> <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delAdr(a)" style="float:right">🗑</button></div>
             <div class="wt-adr-body">{{ a.rationale }}</div>
             <div class="wt-adr-alt" *ngIf="a.alternativesConsidered">{{ 'kb.alternatives' | t }} : {{ a.alternativesConsidered }}</div>
           </div>
@@ -607,8 +646,8 @@
           <ng-container *ngTemplateOutlet="pager; context: { list: adrs() }"></ng-container>
           <h3 class="wt-sub">{{ 'kb.glossary' | t }}</h3>
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>{{ 'table.term' | t }}</th><th>{{ 'table.definition' | t }}</th><th>{{ 'table.context' | t }}</th></tr></thead>
-            <tbody><tr *ngFor="let g of paged(glossary())"><td><strong>{{ g.term }}</strong></td><td>{{ g.definition }}</td><td>{{ g.context }}</td></tr></tbody>
+            <thead><tr><th>{{ 'table.term' | t }}</th><th>{{ 'table.definition' | t }}</th><th>{{ 'table.context' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
+            <tbody><tr *ngFor="let g of paged(glossary())"><td><strong>{{ g.term }}</strong></td><td>{{ g.definition }}</td><td>{{ g.context }}</td><td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delGlossary(g)">🗑</button></td></tr></tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: glossary() }"></ng-container>
         </section>
@@ -801,11 +840,16 @@
 
         <!-- ── STAKEHOLDERS (vraies données + feedback par sprint) ── -->
         <section *ngIf="activePage() === 'stakeholders'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar">
+            <button class="wt-btn-add" (click)="addStakeholder()">+ Stakeholder</button>
+            <button class="wt-btn-add" (click)="addStandup()" *ngIf="stakeholdersList().length">+ Feedback</button>
+          </div>
           <div class="wt-sh-cards">
             <div *ngFor="let s of paged(stakeholdersList())" class="wt-sh-card">
               <div class="wt-sh-avatar">{{ (s.name || '?').charAt(0) }}</div>
               <div class="wt-sh-info"><div class="wt-sh-name">{{ s.name }}</div><div class="wt-sh-role">{{ s.role }}</div></div>
               <div class="wt-sh-score" *ngIf="avgScore(s.id) as sc" [style.color]="scoreColor(sc)">{{ sc }}<small>/10</small></div>
+              <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delStakeholder(s)" style="margin-left:auto">🗑</button>
             </div>
             <div *ngIf="!stakeholdersList().length" class="wt-muted">{{ 'empty.no_stakeholder_imported' | t }}</div>
           </div>
@@ -925,16 +969,18 @@
 
         <!-- ── DAILY STAND-UP (40 jours réels, ligne du jour surlignée) ── -->
         <section *ngIf="activePage() === 'daily'" class="wt-generic">
+          <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addStandup()">+ Daily</button></div>
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>{{ 'table.date' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.yesterday' | t }}</th><th>{{ 'table.today' | t }}</th><th>{{ 'table.blockers' | t }}</th></tr></thead>
+              <thead><tr><th>{{ 'table.date' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.yesterday' | t }}</th><th>{{ 'table.today' | t }}</th><th>{{ 'table.blockers' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
               <tbody>
                 <tr *ngFor="let s of paged(standupsList())" [class.wt-row-today]="isToday(s.date)">
                   <td class="wt-mono">{{ s.date }}</td>
                   <td>{{ s.sprint }}</td>
-                  <td><input class="wt-cell-input" [value]="s.yesterday || ''" readonly/></td>
-                  <td><input class="wt-cell-input" [value]="s.today || ''" readonly/></td>
-                  <td><input class="wt-cell-input" [value]="s.blockers || ''" readonly/></td>
+                  <td><input class="wt-cell-input" [value]="s.yesterday || ''" [readonly]="!editMode()" (change)="saveStandup(s, 'yesterday', $any($event.target).value)"/></td>
+                  <td><input class="wt-cell-input" [value]="s.today || ''" [readonly]="!editMode()" (change)="saveStandup(s, 'today', $any($event.target).value)"/></td>
+                  <td><input class="wt-cell-input" [value]="s.blockers || ''" [readonly]="!editMode()" (change)="saveStandup(s, 'blockers', $any($event.target).value)"/></td>
+                  <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delStandup(s)">🗑</button></td>
                 </tr>
                 <tr *ngIf="!standupsList().length"><td colspan="5" class="wt-muted">{{ 'empty.no_daily_imported' | t }}</td></tr>
               </tbody>
@@ -1042,5 +1088,75 @@
         <div *ngFor="let w of r.warnings" class="wt-import-warn">⚠ {{ w }}</div>
       </div>
     </div>
+  </div>
+
+  <!-- ═══ NEW PROJECT MODAL v1.0.4 ═══ -->
+  <div *ngIf="newProjectOpen()" class="wt-modal-backdrop" (click)="cancelNewProject()">
+    <div class="wt-modal wt-modal-new-project" (click)="$event.stopPropagation()">
+      <button class="wt-modal-close" (click)="cancelNewProject()">✕</button>
+      <h2 class="wt-modal-title">🆕 Nouveau projet</h2>
+      <p class="wt-modal-sub">Crée un Realm vide. Tu pourras ajouter sprints, tickets, risques, etc. via le mode édition 🔓.</p>
+
+      <div class="wt-np-grid">
+        <label class="wt-np-field">
+          <span>Code *</span>
+          <input type="text" [(ngModel)]="newProjectDraft.code" placeholder="ex : WT-2026-Q3" maxlength="60"/>
+        </label>
+        <label class="wt-np-field">
+          <span>Nom *</span>
+          <input type="text" [(ngModel)]="newProjectDraft.name" placeholder="Nom du projet" maxlength="200"/>
+        </label>
+        <label class="wt-np-field wt-np-full">
+          <span>Product Goal</span>
+          <textarea [(ngModel)]="newProjectDraft.productGoal" rows="2"
+                    placeholder="Objectif produit (1-2 phrases)…"></textarea>
+        </label>
+        <label class="wt-np-field">
+          <span>Date début</span>
+          <input type="date" [(ngModel)]="newProjectDraft.startDate"/>
+        </label>
+        <label class="wt-np-field">
+          <span>Date fin</span>
+          <input type="date" [(ngModel)]="newProjectDraft.endDate"/>
+        </label>
+        <label class="wt-np-field">
+          <span>Heures / jour</span>
+          <input type="number" min="1" max="24" step="0.5" [(ngModel)]="newProjectDraft.hoursPerDay"/>
+        </label>
+        <label class="wt-np-field">
+          <span>Jours / sprint</span>
+          <input type="number" min="1" max="30" [(ngModel)]="newProjectDraft.daysPerSprint"/>
+        </label>
+        <label class="wt-np-field">
+          <span>Capacité sprint (h)</span>
+          <input type="number" min="1" step="0.5" [(ngModel)]="newProjectDraft.sprintCapacityHours"/>
+        </label>
+        <label class="wt-np-field">
+          <span>Statut</span>
+          <select [(ngModel)]="newProjectDraft.status">
+            <option value="En cours">En cours</option>
+            <option value="Brouillon">Brouillon</option>
+            <option value="En pause">En pause</option>
+            <option value="Terminé">Terminé</option>
+            <option value="Archivé">Archivé</option>
+          </select>
+        </label>
+      </div>
+
+      <button class="wt-btn-major" [disabled]="newProjectSaving()" (click)="submitNewProject()">
+        {{ newProjectSaving() ? '⟳ Création…' : '⚔ Créer le Realm' }}
+      </button>
+      <div *ngIf="newProjectError()" class="wt-import-error">⚠ {{ newProjectError() }}</div>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST EXCEL AUTO-EXPORTED v1.0.4 ═══ -->
+  <div *ngIf="excelToast() as t" class="wt-excel-toast" (click)="dismissExcelToast()">
+    <div class="wt-excel-toast-icon">💾</div>
+    <div class="wt-excel-toast-body">
+      <div class="wt-excel-toast-title">Excel mis à jour</div>
+      <div class="wt-excel-toast-path" [title]="t.path">{{ excelToastFileName() }}</div>
+    </div>
+    <button class="wt-excel-toast-x" (click)="$event.stopPropagation(); dismissExcelToast()">✕</button>
   </div>
 </div>

@@ -6,6 +6,33 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.4] — 2026-05-30
+
+### Added
+- 🔓 **Mode édition** : toggle 🔒/🔓 dans le topbar — active inline edit + boutons CRUD partout (persisté localStorage `wt_edit_mode`)
+- 🆕 **Modal "Nouveau projet"** : création d'un Realm vide (code, nom, dates, capacité, statut) sans passer par Excel
+- 💾 **Excel auto-saved** : régénération automatique du `.xlsx` dans `~/.yamzy/exports/{code}-{timestamp}.xlsx` après chaque mutation (debounce 1,5 s, rotation FIFO 5 derniers/projet)
+- 🔔 **Toast Excel** : notification visuelle après chaque save indiquant le path du fichier régénéré
+- ➕ **Boutons "+ Ajouter"** sur 14 pages : Backlog, Sprints, Phases, Risks, Tech Debt, Lessons, ADRs, Glossary, Capacity, Quarters, Milestones, Overtime, Retros, Stakeholders, Daily
+- 🗑 **Boutons "supprimer"** par ligne sur toutes ces pages (confirm avant delete)
+
+### Backend
+- `PosExcelAutoExportService` (signal debouncé, rotation FIFO, path mémorisé)
+- `PosCrudController` : POST + PUT + DELETE complets sur 15 entités (Projects, Sprints, Phases, Risks, TechDebt, Lessons, ADRs, Glossary, Capacity, Quarters, Milestones, Overtime, Retros, Stakeholders, StakeholderFeedback, DailyStandups)
+- `POST /api/pos/projects` (créer projet sans Excel)
+- `PUT /api/pos/projects/{id}` (modifier projet)
+- `GET /api/pos/projects/{id}/auto-export-path` (path du dernier .xlsx généré)
+- `POST /api/pos/projects/{id}/regenerate-excel` (force sans debounce)
+- Tous les CRUD de tickets existants triggent désormais aussi l'auto-export
+
+### Frontend
+- `WarTableApi` : ~45 nouvelles méthodes typées (create/update/delete par entité)
+- `editMode` signal réactif + persistance localStorage
+- `newProject` modal avec form validation (code unique requis)
+- `notifyExcelChanged(projectId)` poll automatique du backend après chaque save
+
+---
+
 ## [1.0.3] — 2026-05-30
 
 ### Added

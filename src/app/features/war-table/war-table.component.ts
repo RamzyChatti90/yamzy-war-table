@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { WarTableApi, PosProject, PosTicket, ImportResult } from './war-table.api';
 import { AuthService } from '../../core/services/auth.service';
 import { WAR_TABLE_PAGES, PageDef as SharedPageDef } from './war-table.pages';
@@ -40,6 +41,234 @@ export class WarTableComponent implements OnInit {
   catLabel(cat: string): string {
     return this.i18n.t('cat.' + cat) || cat;
   }
+
+  // ═══ MODE ÉDITION v1.0.4 (toggle 🔒/🔓 dans le topbar) ═══
+  editMode = signal<boolean>(this.readEditMode());
+  toggleEditMode(): void {
+    const v = !this.editMode();
+    this.editMode.set(v);
+    try { localStorage.setItem('wt_edit_mode', v ? '1' : '0'); } catch {}
+  }
+  private readEditMode(): boolean {
+    try { return localStorage.getItem('wt_edit_mode') === '1'; }
+    catch { return false; }
+  }
+
+  // ═══ TOAST EXCEL AUTO-EXPORTED v1.0.4 ═══
+  excelToast = signal<{ path: string; ts: number } | null>(null);
+  /** Appelée après chaque save réussi : poll le path du dernier export et affiche un toast. */
+  private notifyExcelChanged(projectId: number): void {
+    this.api.getLastExportPath(projectId).subscribe({
+      next: (r) => {
+        if (r.path) {
+          this.excelToast.set({ path: r.path, ts: Date.now() });
+          setTimeout(() => {
+            if (this.excelToast()?.ts === this.excelToast()?.ts) {
+              const cur = this.excelToast();
+              if (cur && Date.now() - cur.ts >= 4500) this.excelToast.set(null);
+            }
+          }, 5000);
+        }
+      },
+      error: () => {}
+    });
+  }
+  dismissExcelToast(): void { this.excelToast.set(null); }
+  excelToastFileName = computed(() => {
+    const t = this.excelToast();
+    if (!t) return '';
+    return t.path.split(/[\\/]/).pop() || t.path;
+  });
+
+  // ═══ NEW PROJECT MODAL v1.0.4 ═══
+  newProjectOpen = signal<boolean>(false);
+  newProjectDraft: Partial<PosProject> = {};
+  newProjectError = signal<string>('');
+  newProjectSaving = signal<boolean>(false);
+
+  openNewProject(): void {
+    this.newProjectDraft = {
+      code: '', name: '',
+      hoursPerDay: 7, daysPerSprint: 5, sprintCapacityHours: 35,
+      status: 'En cours',
+    };
+    this.newProjectError.set('');
+    this.newProjectOpen.set(true);
+  }
+  cancelNewProject(): void { this.newProjectOpen.set(false); this.newProjectError.set(''); }
+  submitNewProject(): void {
+    if (!this.newProjectDraft.code?.trim() || !this.newProjectDraft.name?.trim()) {
+      this.newProjectError.set('Code et nom requis');
+      return;
+    }
+    this.newProjectSaving.set(true);
+    this.api.createProject(this.newProjectDraft).subscribe({
+      next: (p) => {
+        this.newProjectSaving.set(false);
+        this.newProjectOpen.set(false);
+        // Recharge la liste + sélectionne le nouveau projet
+        this.api.listProjects().subscribe(list => {
+          this.api.projects.set(list);
+          this.selectProject(p.id);
+          this.notifyExcelChanged(p.id);
+        });
+      },
+      error: (err) => {
+        this.newProjectSaving.set(false);
+        this.newProjectError.set(err?.error?.message || err?.message || 'Échec création');
+      }
+    });
+  }
+
+  // ═══ HELPERS CRUD v1.0.4 — wrappers par entité (call from HTML buttons) ═══
+
+  private withProject<T>(body: any, fn: (pid: number) => Observable<T>): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) return;
+    fn(pid).subscribe({
+      next: () => { this.refreshActivePage(); this.notifyExcelChanged(pid); },
+      error: (err) => console.warn('[wt] op failed', err)
+    });
+  }
+  private delEntity<T>(fn: () => Observable<T>): void {
+    if (!confirm('Supprimer cette ligne ?')) return;
+    const pid = this.api.selectedProjectId();
+    fn().subscribe({
+      next: () => { this.refreshActivePage(); if (pid) this.notifyExcelChanged(pid); },
+      error: (err) => console.warn('[wt] delete failed', err)
+    });
+  }
+  /** Patch un champ et recharge (re-pull la page courante). */
+  patchEntity(apiFn: (id: number, body: any) => Observable<any>, row: { id: number }, field: string, value: any): void {
+    const pid = this.api.selectedProjectId();
+    apiFn.call(this.api, row.id, { [field]: value }).subscribe({
+      next: () => { if (pid) this.notifyExcelChanged(pid); },
+      error: (err) => console.warn('[wt] patch failed', err)
+    });
+  }
+  /** Refresh data for the currently active page (public so HTML calls it after ops). */
+  refreshActivePage(): void { (this as any).loadPageData?.(this.activePage()); this.reloadProjectsSilent(); }
+  private reloadProjectsSilent(): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) return;
+    this.api.tickets(pid).subscribe({ next: t => this.tickets.set(t) });
+  }
+
+  // ── Tickets
+  addTicket(): void {
+    const n = (this.tickets() || []).length + 1;
+    this.withProject({}, pid => this.api.createTicket(pid, {
+      ticketId: 'NEW-' + n, title: 'Nouveau ticket', type: 'Story', priority: 'Should',
+      status: 'À faire', estimationHours: 0, storyPoints: 0, progressPercent: 0
+    }));
+  }
+  delTicket(t: any): void { this.delEntity(() => this.api.deleteTicket(t.id)); }
+
+  // ── Sprints
+  addSprint(): void {
+    const n = (this.sprints() || []).length + 1;
+    this.withProject({}, pid => this.api.createSprint(pid, { number: n, name: 'Sprint ' + n, capacityHours: 35 }));
+  }
+  delSprint(s: any): void { this.delEntity(() => this.api.deleteSprint(s.id)); }
+  saveSprint(s: any, field: string, value: any): void { this.patchEntity(this.api.updateSprint.bind(this.api), s, field, value); }
+
+  // ── Phases
+  addPhase(): void {
+    const n = (this.phases() || []).length + 1;
+    this.withProject({}, pid => this.api.createPhase(pid, { name: 'Phase ' + n, plannedDays: 0, consumedDays: 0, orderIndex: n }));
+  }
+  delPhase(p: any): void { this.delEntity(() => this.api.deletePhase(p.id)); }
+  savePhase(p: any, field: string, value: any): void { this.patchEntity(this.api.updatePhase.bind(this.api), p, field, value); }
+
+  // ── Risks
+  addRisk(): void {
+    const n = (this.risks() || []).length + 1;
+    this.withProject({}, pid => this.api.createRisk(pid, { riskId: 'R-' + n, description: 'Nouveau risque', type: '', probability: 'M', impact: 'M', score: 4, status: 'Ouvert' }));
+  }
+  delRisk(r: any): void { this.delEntity(() => this.api.deleteRisk(r.id)); }
+  saveRisk(r: any, field: string, value: any): void { this.patchEntity(this.api.updateRisk.bind(this.api), r, field, value); }
+
+  // ── TechDebt
+  addDebt(): void {
+    const n = (this.techDebt() || []).length + 1;
+    this.withProject({}, pid => this.api.createDebt(pid, { debtId: 'TD-' + n, title: 'Nouvelle dette', category: '', severity: 'Medium', estimatedCostHours: 0, status: 'Ouvert' }));
+  }
+  delDebt(d: any): void { this.delEntity(() => this.api.deleteDebt(d.id)); }
+  saveDebt(d: any, field: string, value: any): void { this.patchEntity(this.api.updateDebt.bind(this.api), d, field, value); }
+
+  // ── Lessons
+  addLesson(): void {
+    const n = (this.lessons() || []).length + 1;
+    this.withProject({}, pid => this.api.createLesson(pid, { lessonId: 'L-' + n, lesson: 'Nouvelle leçon', recommendation: '', type: '' }));
+  }
+  delLesson(l: any): void { this.delEntity(() => this.api.deleteLesson(l.id)); }
+  saveLesson(l: any, field: string, value: any): void { this.patchEntity(this.api.updateLesson.bind(this.api), l, field, value); }
+
+  // ── ADRs
+  addAdr(): void {
+    const n = (this.adrs() || []).length + 1;
+    this.withProject({}, pid => this.api.createAdr(pid, { adrId: 'ADR-' + n, decision: 'Nouvelle décision', rationale: '', date: new Date().toISOString().slice(0, 10) }));
+  }
+  delAdr(a: any): void { this.delEntity(() => this.api.deleteAdr(a.id)); }
+  saveAdr(a: any, field: string, value: any): void { this.patchEntity(this.api.updateAdr.bind(this.api), a, field, value); }
+
+  // ── Glossary
+  addGlossary(): void {
+    this.withProject({}, pid => this.api.createGlossary(pid, { term: 'Nouveau terme', definition: '', context: '' }));
+  }
+  delGlossary(g: any): void { this.delEntity(() => this.api.deleteGlossary(g.id)); }
+  saveGlossary(g: any, field: string, value: any): void { this.patchEntity(this.api.updateGlossary.bind(this.api), g, field, value); }
+
+  // ── Capacity
+  addCapacity(): void {
+    this.withProject({}, pid => this.api.createCapacity(pid, { memberName: 'Nouveau membre', role: '', allocationPercent: 100, hoursPerDay: 7 }));
+  }
+  delCapacity(c: any): void { this.delEntity(() => this.api.deleteCapacity(c.id)); }
+  saveCapacity(c: any, field: string, value: any): void { this.patchEntity(this.api.updateCapacity.bind(this.api), c, field, value); }
+
+  // ── Quarters
+  addQuarter(): void {
+    const n = (this.quarters() || []).length + 1;
+    this.withProject({}, pid => this.api.createQuarter(pid, { quarter: 'Q' + n, theme: '', objective: '', deliverables: '', status: 'À venir' }));
+  }
+  delQuarter(q: any): void { this.delEntity(() => this.api.deleteQuarter(q.id)); }
+  saveQuarter(q: any, field: string, value: any): void { this.patchEntity(this.api.updateQuarter.bind(this.api), q, field, value); }
+
+  // ── Milestones
+  addMilestone(): void {
+    this.withProject({}, pid => this.api.createMilestone(pid, { date: new Date().toISOString().slice(0, 10), title: 'Nouveau jalon', status: 'À venir' }));
+  }
+  delMilestone(m: any): void { this.delEntity(() => this.api.deleteMilestone(m.id)); }
+  saveMilestone(m: any, field: string, value: any): void { this.patchEntity(this.api.updateMilestone.bind(this.api), m, field, value); }
+
+  // ── Overtime
+  addOvertime(): void {
+    this.withProject({}, pid => this.api.createOvertime(pid, { date: new Date().toISOString().slice(0, 10), plannedHours: 7, actualHours: 7, moodScore: 5 }));
+  }
+  delOvertime(o: any): void { this.delEntity(() => this.api.deleteOvertime(o.id)); }
+  saveOvertime(o: any, field: string, value: any): void { this.patchEntity(this.api.updateOvertime.bind(this.api), o, field, value); }
+
+  // ── Retros
+  addRetro(): void {
+    const n = (this.retros() || []).length + 1;
+    this.withProject({}, pid => this.api.createRetro(pid, { sprintNumber: n, keepDoing: '', improve: '', startDoing: '', stopDoing: '' }));
+  }
+  delRetro(r: any): void { this.delEntity(() => this.api.deleteRetro(r.id)); }
+  saveRetro(r: any, field: string, value: any): void { this.patchEntity(this.api.updateRetro.bind(this.api), r, field, value); }
+
+  // ── Stakeholders
+  addStakeholder(): void {
+    this.withProject({}, pid => this.api.createStakeholder(pid, { name: 'Nouveau stakeholder', role: '' }));
+  }
+  delStakeholder(s: any): void { this.delEntity(() => this.api.deleteStakeholder(s.id)); }
+  saveStakeholder(s: any, field: string, value: any): void { this.patchEntity(this.api.updateStakeholder.bind(this.api), s, field, value); }
+
+  // ── Daily Standups
+  addStandup(): void {
+    this.withProject({}, pid => this.api.createStandup(pid, { date: new Date().toISOString().slice(0, 10), yesterday: '', today: '', blockers: '' }));
+  }
+  delStandup(s: any): void { this.delEntity(() => this.api.deleteStandup(s.id)); }
+  saveStandup(s: any, field: string, value: any): void { this.patchEntity(this.api.updateStandup.bind(this.api), s, field, value); }
   /** 7 jours abrégés (calendrier) — bascule FR/EN. */
   weekdays = computed<string[]>(() => {
     this.i18n.lang(); this.i18n.version();

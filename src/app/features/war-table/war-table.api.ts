@@ -122,4 +122,77 @@ export class WarTableApi {
   velocity(projectId: number): Observable<any[]> { return this.http.get<any[]>(`${this.base}/projects/${projectId}/velocity`); }
   burndown(projectId: number): Observable<any> { return this.http.get<any>(`${this.base}/projects/${projectId}/burndown`); }
   dependencies(projectId: number): Observable<any[]> { return this.http.get<any[]>(`${this.base}/projects/${projectId}/dependencies`); }
+
+  // ═══ CRUD COMPLET v1.0.4 — Excel auto-régénéré côté backend ═══
+  createProject(body: Partial<PosProject>): Observable<PosProject> { return this.http.post<PosProject>(`${this.base}/projects`, body); }
+  updateProject(id: number, body: Partial<PosProject>): Observable<PosProject> { return this.http.put<PosProject>(`${this.base}/projects/${id}`, body); }
+
+  createSprint(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/sprints`, body); }
+  updateSprint(sprintId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/sprints/${sprintId}`, body); }
+  deleteSprint(sprintId: number): Observable<void> { return this.http.delete<void>(`${this.base}/sprints/${sprintId}`); }
+
+  createPhase(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/phases`, body); }
+  updatePhase(phaseId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/phases/${phaseId}`, body); }
+  deletePhase(phaseId: number): Observable<void> { return this.http.delete<void>(`${this.base}/phases/${phaseId}`); }
+
+  createRisk(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/risks`, body); }
+  updateRisk(riskId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/risks/${riskId}`, body); }
+  deleteRisk(riskId: number): Observable<void> { return this.http.delete<void>(`${this.base}/risks/${riskId}`); }
+
+  createDebt(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/tech-debt`, body); }
+  updateDebt(debtId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/tech-debt/${debtId}`, body); }
+  deleteDebt(debtId: number): Observable<void> { return this.http.delete<void>(`${this.base}/tech-debt/${debtId}`); }
+
+  createLesson(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/lessons`, body); }
+  updateLesson(lessonId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/lessons/${lessonId}`, body); }
+  deleteLesson(lessonId: number): Observable<void> { return this.http.delete<void>(`${this.base}/lessons/${lessonId}`); }
+
+  createAdr(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/adrs`, body); }
+  updateAdr(adrId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/adrs/${adrId}`, body); }
+  deleteAdr(adrId: number): Observable<void> { return this.http.delete<void>(`${this.base}/adrs/${adrId}`); }
+
+  createGlossary(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/glossary`, body); }
+  updateGlossary(glossaryId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/glossary/${glossaryId}`, body); }
+  deleteGlossary(glossaryId: number): Observable<void> { return this.http.delete<void>(`${this.base}/glossary/${glossaryId}`); }
+
+  createCapacity(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/capacity`, body); }
+  updateCapacity(capId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/capacity/${capId}`, body); }
+  deleteCapacity(capId: number): Observable<void> { return this.http.delete<void>(`${this.base}/capacity/${capId}`); }
+
+  createQuarter(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/quarters`, body); }
+  updateQuarter(qId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/quarters/${qId}`, body); }
+  deleteQuarter(qId: number): Observable<void> { return this.http.delete<void>(`${this.base}/quarters/${qId}`); }
+
+  createMilestone(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/milestones`, body); }
+  updateMilestone(mId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/milestones/${mId}`, body); }
+  deleteMilestone(mId: number): Observable<void> { return this.http.delete<void>(`${this.base}/milestones/${mId}`); }
+
+  createOvertime(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/overtime`, body); }
+  updateOvertime(oId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/overtime/${oId}`, body); }
+  deleteOvertime(oId: number): Observable<void> { return this.http.delete<void>(`${this.base}/overtime/${oId}`); }
+
+  createRetro(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/retrospectives`, body); }
+  updateRetro(rId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/retrospectives/${rId}`, body); }
+  deleteRetro(rId: number): Observable<void> { return this.http.delete<void>(`${this.base}/retrospectives/${rId}`); }
+
+  createStakeholder(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/stakeholders`, body); }
+  updateStakeholder(sId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/stakeholders/${sId}`, body); }
+  deleteStakeholder(sId: number): Observable<void> { return this.http.delete<void>(`${this.base}/stakeholders/${sId}`); }
+
+  createFeedback(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/stakeholder-feedback`, body); }
+  updateFeedback(fId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/stakeholder-feedback/${fId}`, body); }
+  deleteFeedback(fId: number): Observable<void> { return this.http.delete<void>(`${this.base}/stakeholder-feedback/${fId}`); }
+
+  createStandup(projectId: number, body: any): Observable<any> { return this.http.post<any>(`${this.base}/projects/${projectId}/daily-standups`, body); }
+  updateStandup(sId: number, body: any): Observable<any> { return this.http.put<any>(`${this.base}/daily-standups/${sId}`, body); }
+  deleteStandup(sId: number): Observable<void> { return this.http.delete<void>(`${this.base}/daily-standups/${sId}`); }
+
+  /** Path absolu du dernier Excel régénéré (pour toast). */
+  getLastExportPath(projectId: number): Observable<{ path: string }> {
+    return this.http.get<{ path: string }>(`${this.base}/projects/${projectId}/auto-export-path`);
+  }
+  /** Force la régénération immédiate (bypass debounce). */
+  regenerateExcel(projectId: number): Observable<{ path: string }> {
+    return this.http.post<{ path: string }>(`${this.base}/projects/${projectId}/regenerate-excel`, {});
+  }
 }

@@ -991,3 +991,118 @@
 .wt-shell-bg-3d .wt-check-section { background: transparent !important; }
 
 body { background: #0a0820 !important; }
+
+/* ═══ v1.0.4 — Edit mode toggle (topbar) ═══ */
+.wt-edit-on {
+  background: linear-gradient(135deg, #d99a51, #c25d8d) !important;
+  color: #1d172e !important;
+  box-shadow: 0 2px 12px rgba(217, 154, 81, 0.45) !important;
+}
+
+/* ═══ v1.0.4 — New project modal ═══ */
+.wt-modal-new-project { max-width: 640px; }
+.wt-np-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+  margin: 18px 0 20px;
+}
+.wt-np-field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #c8bce6; }
+.wt-np-field > span { font-weight: 600; letter-spacing: 0.03em; opacity: 0.85; }
+.wt-np-field input, .wt-np-field textarea, .wt-np-field select {
+  background: rgba(43, 37, 73, 0.55);
+  border: 1px solid rgba(139, 127, 214, 0.3);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #f4ecff;
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.18s, background 0.18s;
+}
+.wt-np-field input:focus, .wt-np-field textarea:focus, .wt-np-field select:focus {
+  border-color: rgba(217, 154, 81, 0.6);
+  background: rgba(43, 37, 73, 0.75);
+  outline: none;
+}
+.wt-np-full { grid-column: 1 / -1; }
+
+/* ═══ v1.0.4 — Excel auto-saved toast ═══ */
+.wt-excel-toast {
+  position: fixed;
+  bottom: 22px; right: 22px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px 12px 16px;
+  background: linear-gradient(135deg, rgba(70, 150, 185, 0.92), rgba(112, 185, 68, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  min-width: 280px;
+  max-width: 420px;
+  cursor: pointer;
+  animation: wt-toast-in 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes wt-toast-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.wt-excel-toast-icon { font-size: 24px; line-height: 1; }
+.wt-excel-toast-body { flex: 1; min-width: 0; }
+.wt-excel-toast-title { font-size: 13px; font-weight: 700; color: #fff; }
+.wt-excel-toast-path {
+  font-size: 11px; color: rgba(255, 255, 255, 0.88);
+  font-family: 'Courier New', monospace;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wt-excel-toast-x {
+  background: rgba(0, 0, 0, 0.2);
+  border: none;
+  color: #fff;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.wt-excel-toast-x:hover { background: rgba(0, 0, 0, 0.4); }
+
+/* ═══ v1.0.4 — Edit-mode CRUD UI (+ Add row, 🗑 delete) ═══ */
+.wt-crud-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 8px 0 4px;
+  padding-right: 4px;
+}
+.wt-btn-add {
+  background: linear-gradient(135deg, #70b944, #4696b9);
+  color: #fff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: transform 0.12s, box-shadow 0.18s;
+}
+.wt-btn-add:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(112, 185, 68, 0.35); }
+.wt-btn-add:active { transform: scale(0.97); }
+.wt-btn-del-row {
+  background: rgba(222, 79, 95, 0.18);
+  color: #ff9da4;
+  border: 1px solid rgba(222, 79, 95, 0.3);
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.16s;
+}
+.wt-btn-del-row:hover {
+  background: rgba(222, 79, 95, 0.4);
+  color: #fff;
+  border-color: rgba(222, 79, 95, 0.7);
+}
