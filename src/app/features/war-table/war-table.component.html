@@ -277,62 +277,90 @@
 
         <!-- ── Template du dashboard universel — défini une seule fois, rendu partout ── -->
         <ng-template #dashHeaderTpl>
+        <!-- v1.0.53 — Layout RESTRUCTURÉ :
+             ┌───────────────────────────────────┬──────────────┐
+             │ LEFT : PS hero (adaptive)         │              │
+             ├───────────────────────────────────┤ COCKPIT      │
+             │ LEFT : Mes Plannings              │ full-height  │
+             └───────────────────────────────────┴──────────────┘ -->
         <section class="wt-sk-dash">
-
-          <!-- v1.0.52 — ORDRE REMIS : 1) Cockpit-row (PS hero + cockpit) PUIS
-               2) Mes Plannings juste après — visuellement sous le cockpit. -->
-          <div class="wt-sk-dash-row">
-            <!-- ③ v1.0.8 — Carte hero style PlayStation Store (Spider-Man) avec avatar Yamzy 3D -->
+          <!-- Colonne GAUCHE : PS hero + Mes Plannings -->
+          <div class="wt-sk-dash-main">
+            <!-- v1.0.53 — PS hero ADAPTATIF par menu :
+                 • Sur dashboard : projet + sprint info (Lancer / Interrompre)
+                 • Sur autres pages : tag + titre + desc + tip + action page-spécifique
+                 (pageHeaderInfo() fournit tag/title/desc/tip/actionLabel par page) -->
             <header class="wt-ps-header wt-sk-video-wrap"
                     [class.is-launchable]="launchableInfo()?.state === 'LAUNCHABLE'"
                     [class.is-active]="launchableInfo()?.state === 'ACTIVE'"
                     [class.is-today]="launchableInfo()?.isToday"
                     [class.is-overdue]="launchableInfo()?.isOverdue">
-              <!-- Tag dynamique (couleur change avec l'état) -->
-              <div class="wt-ps-tag">
-                <span *ngIf="launchableInfo()?.state === 'ACTIVE'">EN COURS</span>
-                <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE'">{{ launchableInfo()?.isOverdue ? 'EN RETARD' : (launchableInfo()?.isToday ? 'AUJOURD\'HUI' : 'À LANCER') }}</span>
-                <span *ngIf="!launchableInfo()">NEW</span>
-              </div>
 
-              <!-- Titre h1 50% largeur -->
-              <h1 class="wt-ps-title">
-                <ng-container *ngIf="selectedProjectInfo() as p; else psNoProj">
-                  {{ p.name }}<span *ngIf="launchableInfo()"> · {{ launchableInfo()?.sprintName }}</span>
-                </ng-container>
-                <ng-template #psNoProj>{{ 'empty.no_planning' | t }}</ng-template>
-              </h1>
+              <!-- ═══ Variante DASHBOARD (project + sprint info) ═══ -->
+              <ng-container *ngIf="isDashboardSkin(); else pageHeroContent">
+                <div class="wt-ps-tag">
+                  <span *ngIf="launchableInfo()?.state === 'ACTIVE'">EN COURS</span>
+                  <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE'">{{ launchableInfo()?.isOverdue ? 'EN RETARD' : (launchableInfo()?.isToday ? 'AUJOURD\'HUI' : 'À LANCER') }}</span>
+                  <span *ngIf="!launchableInfo()">NEW</span>
+                </div>
+                <h1 class="wt-ps-title">
+                  <ng-container *ngIf="selectedProjectInfo() as p; else psNoProj">
+                    {{ p.name }}<span *ngIf="launchableInfo()"> · {{ launchableInfo()?.sprintName }}</span>
+                  </ng-container>
+                  <ng-template #psNoProj>{{ 'empty.no_planning' | t }}</ng-template>
+                </h1>
+                <div class="wt-ps-purchase">
+                  <h2 class="wt-ps-price">
+                    <span *ngIf="launchableInfo()?.state === 'ACTIVE' && launchableInfo()?.dayIndex">Jour {{ launchableInfo()?.dayIndex }}<span *ngIf="launchableInfo()?.totalDays">/{{ launchableInfo()?.totalDays }}</span></span>
+                    <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE' && launchableInfo()?.isToday">Aujourd'hui</span>
+                    <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE' && launchableInfo()?.isOverdue">J+{{ -1 * (launchableInfo()?.daysUntilStart || 0) }}</span>
+                    <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE' && !launchableInfo()?.isToday && !launchableInfo()?.isOverdue">J-{{ launchableInfo()?.daysUntilStart }}</span>
+                    <span *ngIf="!launchableInfo()">{{ projectProgress() }}%</span>
+                  </h2>
+                  <button class="wt-ps-btn"
+                          [disabled]="launchingSprint()"
+                          (click)="launchableInfo() ? doLaunchSprint() : setPage('roadmap')">
+                    <span *ngIf="launchingSprint()">⟳</span>
+                    <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'ACTIVE'">Interrompre</span>
+                    <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'LAUNCHABLE'">Lancer</span>
+                    <span *ngIf="!launchingSprint() && !launchableInfo()">Roadmap</span>
+                  </button>
+                </div>
+              </ng-container>
 
-              <!-- Purchase row : meta + bouton bleu -->
-              <div class="wt-ps-purchase">
-                <h2 class="wt-ps-price">
-                  <span *ngIf="launchableInfo()?.state === 'ACTIVE' && launchableInfo()?.dayIndex">Jour {{ launchableInfo()?.dayIndex }}<span *ngIf="launchableInfo()?.totalDays">/{{ launchableInfo()?.totalDays }}</span></span>
-                  <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE' && launchableInfo()?.isToday">Aujourd'hui</span>
-                  <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE' && launchableInfo()?.isOverdue">J+{{ -1 * (launchableInfo()?.daysUntilStart || 0) }}</span>
-                  <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE' && !launchableInfo()?.isToday && !launchableInfo()?.isOverdue">J-{{ launchableInfo()?.daysUntilStart }}</span>
-                  <span *ngIf="!launchableInfo()">{{ projectProgress() }}%</span>
-                </h2>
-                <button class="wt-ps-btn"
-                        [disabled]="launchingSprint()"
-                        (click)="launchableInfo() ? doLaunchSprint() : setPage('roadmap')">
-                  <span *ngIf="launchingSprint()">⟳</span>
-                  <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'ACTIVE'">Interrompre</span>
-                  <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'LAUNCHABLE'">Lancer</span>
-                  <span *ngIf="!launchingSprint() && !launchableInfo()">Roadmap</span>
-                </button>
-              </div>
+              <!-- ═══ Variante PAGE (tag/title/desc/tip/action page-spécifique) ═══ -->
+              <ng-template #pageHeroContent>
+                <div class="wt-ps-tag" [style.background]="pageHeaderInfo().tagColor">
+                  <span>{{ pageHeaderInfo().tag }}</span>
+                </div>
+                <h1 class="wt-ps-title">{{ pageHeaderInfo().title }}</h1>
+                <div *ngIf="pageHeaderInfo().desc" class="wt-page-ps-desc">{{ pageHeaderInfo().desc }}</div>
+                <div *ngIf="pageHeaderInfo().tip" class="wt-page-ps-tip">💡 {{ pageHeaderInfo().tip }}</div>
+                <div class="wt-ps-purchase">
+                  <h2 class="wt-ps-price">{{ activePage() | uppercase }}</h2>
+                  <button class="wt-ps-btn"
+                          [style.background]="pageHeaderInfo().tagColor"
+                          (click)="pageHeaderAction()">
+                    {{ pageHeaderInfo().actionLabel }}
+                  </button>
+                  <!-- Bouton secondaire Launch sprint si applicable -->
+                  <button *ngIf="launchableInfo()"
+                          class="wt-ps-btn wt-ps-btn-secondary"
+                          [disabled]="launchingSprint()"
+                          (click)="doLaunchSprint(); $event.stopPropagation()"
+                          [title]="launchableInfo()?.state === 'ACTIVE' ? 'Interrompre le sprint en cours' : 'Lancer le prochain sprint'">
+                    <span *ngIf="launchingSprint()">⟳</span>
+                    <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'ACTIVE'">⏸</span>
+                    <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'LAUNCHABLE'">▶</span>
+                  </button>
+                </div>
+              </ng-template>
 
-              <!-- Yamzy avatar 3D (position "Spider-Man" : 400px top -40 right -20) — fixe, pas d'anim -->
+              <!-- Yamzy avatar 3D — toujours présent -->
               <div class="wt-ps-spiderman-img">
                 <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb" [rotate]="false"></app-yamzy-avatar-3d>
               </div>
             </header>
-
-            <!-- ④ NEWS + COCKPIT v1.0.14 : cockpit intégré DANS la zone news, en haut, en cards style game -->
-            <div class="wt-sk-news">
-              <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
-            </div>
-          </div>
 
           <!-- v1.0.45 — Template cockpit + news réutilisable sur toutes les pages -->
           <ng-template #cockpitNewsBlock>
@@ -601,6 +629,14 @@
               </div>
             </div>
           </div>
+          <!-- ↑ fin de .wt-sk-top (Mes Plannings) -->
+          </div>
+          <!-- ↑ fin de .wt-sk-dash-main (colonne GAUCHE) -->
+
+          <!-- v1.0.53 — Colonne DROITE : COCKPIT en pleine hauteur de section -->
+          <aside class="wt-sk-news wt-sk-news-column">
+            <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
+          </aside>
         </section>
         </ng-template>
         <!-- ↑ fin du template #dashHeaderTpl — réutilisable sur toutes les pages -->
