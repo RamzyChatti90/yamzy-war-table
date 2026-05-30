@@ -24,7 +24,7 @@ import { WtDialogComponent } from '../../core/dialog/wt-dialog.component';
 import { WtTooltipDirective } from '../../core/tooltip/wt-tooltip.directive';
 import { TOOLTIP_GUIDE } from '../../core/tooltip/tooltip-guide';
 
-interface PageDef { id: string; label: string; icon: string; cat: string; superCat: SuperCat; }
+interface PageDef { id: string; label: string; icon: string; cat: string; superCat: SuperCat; card: string; }
 
 @Component({
   selector: 'app-war-table',
@@ -1999,6 +1999,12 @@ export class WarTableComponent implements OnInit {
   activeSuperCat = computed<SuperCat | null>(() => {
     const p = this.pages.find(p => p.id === this.activePage());
     return p ? p.superCat : null;
+  });
+
+  /** v1.0.81 — Carte Yamzy de la page active (nom de fichier sans extension). */
+  activePageCard = computed<string | null>(() => {
+    const p = this.pages.find(p => p.id === this.activePage());
+    return p?.card || null;
   });
 
   /** v1.0.73 — Helpers pour le breadcrumb footer (HOME > Super-cat > Page). */

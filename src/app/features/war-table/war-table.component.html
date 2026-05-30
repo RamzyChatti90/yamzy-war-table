@@ -376,6 +376,12 @@
               </ng-template>
 
               <!-- v1.0.67 — Avatar Yamzy 3D retiré du header sur demande utilisateur -->
+              <!-- v1.0.81 — Carte Yamzy de la page active affichée à droite (remplace l'avatar) -->
+              <div *ngIf="activePageCard()" class="wt-ps-card-display">
+                <img [src]="'assets/cards/' + activePageCard() + '.png'"
+                     [alt]="activePageLabel()"
+                     class="wt-ps-card-img"/>
+              </div>
 
               <!-- v1.0.67 — Mes Plannings IMBRIQUÉ DANS le header (nested) -->
               <div class="wt-sk-top wt-sk-top-nested">
@@ -655,9 +661,14 @@
                    [style.--ev]="item.color"
                    (click)="setPage(item.page.id); openPageContent()"
                    [title]="item.page.label + (item.isActive ? ' (page actuelle)' : ' — cliquer pour ouvrir')">
-                <div class="wt-sk-news-thumb"
-                     [style.background]="'linear-gradient(135deg,' + item.color + ',#3b3363)'">
-                  <span class="wt-sk-thumb-icon">{{ item.page.icon }}</span>
+                <!-- v1.0.81 — Carte Yamzy PNG (au lieu de l'emoji) -->
+                <div class="wt-sk-news-thumb wt-sk-card-thumb"
+                     [style.background]="'linear-gradient(135deg,' + item.color + '40, #1d172e)'">
+                  <img *ngIf="item.page.card" [src]="'assets/cards/' + item.page.card + '.png'"
+                       [alt]="item.page.label"
+                       class="wt-sk-card-img"
+                       onerror="this.style.display='none'; this.nextElementSibling && (this.nextElementSibling.style.display='flex')"/>
+                  <span class="wt-sk-thumb-icon" [style.display]="item.page.card ? 'none' : 'flex'">{{ item.page.icon }}</span>
                 </div>
                 <div class="wt-sk-news-body">
                   <div class="wt-sk-news-title">{{ item.page.label }}</div>
