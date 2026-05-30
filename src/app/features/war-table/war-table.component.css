@@ -1989,3 +1989,45 @@ body { background: #0a0820 !important; }
   outline-offset: -1px;
 }
 
+
+/* === v1.0.10 — Holidays / Leaves chips editor === */
+.wt-hol-block { margin-top: 24px; }
+.wt-hol-add-row {
+  display: flex; gap: 8px; align-items: center;
+  margin: 10px 0;
+}
+.wt-hol-add-row input[type="date"], .wt-hol-add-row input[type="text"] {
+  background: rgba(43, 37, 73, 0.55);
+  border: 1px solid rgba(139, 127, 214, 0.30);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #f4ecff;
+  font-size: 12.5px;
+}
+.wt-hol-add-row input[type="text"] { flex: 1; max-width: 280px; }
+.wt-hol-list {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 10px;
+}
+.wt-hol-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(70, 150, 185, 0.20);
+  border: 1px solid rgba(70, 150, 185, 0.45);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: #f4ecff;
+}
+.wt-hol-chip-leave {
+  background: rgba(217, 154, 81, 0.20);
+  border-color: rgba(217, 154, 81, 0.45);
+}
+.wt-hol-date {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: #ffe5b8;
+  font-size: 11.5px;
+}
+.wt-hol-label { color: rgba(255, 255, 255, 0.85); }
+.wt-hol-chip .wt-btn-del-row { margin-left: 4px; padding: 2px 6px; font-size: 10px; }
+
