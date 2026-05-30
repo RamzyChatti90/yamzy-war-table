@@ -1282,3 +1282,181 @@ body { background: #0a0820 !important; }
   background: rgba(46,161,203,.55) !important;
   color: #fff !important;
 }
+
+/* ═══ v1.0.8 — BIG Yamzy Sage Panel avec avatar 3D ═══ */
+.wt-yamzy-sage-panel {
+  display: flex;
+  align-items: stretch;
+  gap: 28px;
+  padding: 22px 32px 22px 22px;
+  margin: 14px 22px 22px;
+  background: linear-gradient(110deg, rgba(112, 185, 68, 0.85), rgba(70, 150, 185, 0.72));
+  border: 1px solid rgba(217, 154, 81, 0.45);
+  border-radius: 18px;
+  box-shadow: 0 10px 32px rgba(112, 185, 68, 0.35);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .25s ease;
+  animation: wt-yamzy-sage-glow 3.0s ease-in-out infinite;
+  min-height: 220px;
+}
+@keyframes wt-yamzy-sage-glow {
+  0%,100% { box-shadow: 0 10px 32px rgba(112, 185, 68, .35); }
+  50%     { box-shadow: 0 12px 42px rgba(112, 185, 68, .65); }
+}
+.wt-yamzy-sage-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 40%, rgba(255,255,255,.18) 0%, transparent 45%),
+    radial-gradient(circle at 80% 60%, rgba(217,154,81,.20) 0%, transparent 55%);
+  pointer-events: none;
+}
+.wt-yamzy-sage-panel:hover { transform: translateY(-2px); box-shadow: 0 14px 44px rgba(112, 185, 68, .55); }
+.wt-yamzy-sage-panel:active { transform: scale(0.99); }
+
+/* États : today (doré), overdue (rouge), active (cyan) */
+.wt-yamzy-sage-panel.is-today {
+  background: linear-gradient(110deg, rgba(217, 154, 81, 0.85), rgba(222, 79, 95, 0.72));
+  border-color: rgba(255, 220, 130, 0.65);
+  animation: wt-yamzy-sage-glow-today 1.8s ease-in-out infinite;
+}
+@keyframes wt-yamzy-sage-glow-today {
+  0%,100% { box-shadow: 0 10px 32px rgba(217, 154, 81, .50); }
+  50%     { box-shadow: 0 14px 50px rgba(255, 200, 100, .85); }
+}
+.wt-yamzy-sage-panel.is-overdue {
+  background: linear-gradient(110deg, rgba(222, 79, 95, 0.88), rgba(110, 71, 191, 0.72));
+  border-color: rgba(255, 140, 140, 0.75);
+  animation: wt-yamzy-sage-glow-overdue 1.2s ease-in-out infinite;
+}
+@keyframes wt-yamzy-sage-glow-overdue {
+  0%,100% { box-shadow: 0 10px 32px rgba(222, 79, 95, .50); }
+  50%     { box-shadow: 0 14px 50px rgba(255, 100, 100, .85); }
+}
+.wt-yamzy-sage-panel.is-active {
+  background: linear-gradient(110deg, rgba(46, 161, 203, 0.85), rgba(70, 150, 185, 0.72));
+  border-color: rgba(120, 200, 240, 0.65);
+  animation: wt-yamzy-sage-glow-active 2.2s ease-in-out infinite;
+}
+@keyframes wt-yamzy-sage-glow-active {
+  0%,100% { box-shadow: 0 10px 32px rgba(46, 161, 203, .50); }
+  50%     { box-shadow: 0 14px 50px rgba(70, 150, 185, .85); }
+}
+
+/* Avatar 3D : conteneur à gauche, taille fixe */
+.wt-yamzy-sage-avatar {
+  position: relative;
+  width: 220px;
+  min-width: 220px;
+  height: 220px;
+  flex-shrink: 0;
+  z-index: 2;
+}
+.wt-yamzy-sage-avatar app-yamzy-avatar-3d {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.wt-yamzy-sage-pedestal {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 8px;
+  height: 14px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0, 0, 0, .35), transparent 70%);
+  border-radius: 50%;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+/* Message à droite */
+.wt-yamzy-sage-message {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  z-index: 2;
+}
+.wt-yamzy-sage-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  font-family: 'Poppins', sans-serif;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.wt-yamzy-sage-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.01em;
+  line-height: 1.18;
+  font-family: 'Poppins', sans-serif;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+}
+.wt-yamzy-sage-title strong {
+  font-family: 'Courier New', monospace;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0 8px;
+  border-radius: 6px;
+  color: #ffe5b8;
+}
+.wt-yamzy-sage-title em {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.wt-yamzy-sage-cta {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.45;
+  font-weight: 500;
+  margin-top: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
+}
+.wt-yamzy-sage-cta strong {
+  font-family: 'Courier New', monospace;
+  font-weight: 800;
+  color: #ffe5b8;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 0 6px;
+  border-radius: 4px;
+}
+.wt-yamzy-sage-tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.wt-yamzy-sage-tag {
+  background: rgba(0, 0, 0, 0.30);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-family: 'Poppins', sans-serif;
+  text-transform: uppercase;
+}
+.wt-yamzy-sage-tag.soft {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+/* Responsive : empile en mobile */
+@media (max-width: 900px) {
+  .wt-yamzy-sage-panel { flex-direction: column; gap: 14px; padding: 18px; min-height: auto; }
+  .wt-yamzy-sage-avatar { width: 100%; max-width: 200px; height: 200px; margin: 0 auto; }
+  .wt-yamzy-sage-title { font-size: 20px; }
+}

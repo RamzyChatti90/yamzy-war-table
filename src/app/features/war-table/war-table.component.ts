@@ -12,6 +12,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { WAR_TABLE_PAGES, PageDef as SharedPageDef } from './war-table.pages';
 import { WarTableSplashComponent } from './war-table-splash.component';
 import { WarTableBg3dComponent } from './war-table-bg-3d.component';
+import { YamzyAvatar3dComponent } from './yamzy-avatar-3d.component';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { LangSwitcherComponent } from '../../core/i18n/lang-switcher.component';
@@ -21,7 +22,7 @@ interface PageDef { id: string; label: string; icon: string; cat: string; }
 @Component({
   selector: 'app-war-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, TranslatePipe, LangSwitcherComponent],
+  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, YamzyAvatar3dComponent, TranslatePipe, LangSwitcherComponent],
   templateUrl: './war-table.component.html',
   styleUrls: ['./war-table.component.css'],
 })
