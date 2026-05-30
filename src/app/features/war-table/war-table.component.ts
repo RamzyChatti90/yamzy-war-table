@@ -269,9 +269,13 @@ export class WarTableComponent implements OnInit {
     this.yamzyCarouselIndex.set(0);
   }
   returnHome(): void {
-    this.studioLevel.set('home');
-    this.yamzyCarouselIndex.set(0);
-    this.pageContentOpen.set(false); // v1.0.47 — back en preview mode
+    // v1.0.76 — Click HOME dans le footer = navigation vers Dashboard.
+    // Avant : passait studioLevel à 'home' ce qui cachait TOUT le contenu via
+    // la règle CSS .wt-shell.is-home .wt-main > section/div { display:none }
+    // Maintenant : ouvre la page Dashboard comme un click sidebar (onNavClick(0)).
+    this.studioLevel.set('section');
+    this.setPage('dashboard');
+    this.openPageContent();
   }
 
   // ═══ YAMZY POSITION EDITOR v1.0.25 — Drag + Copy CSS coords ═══
