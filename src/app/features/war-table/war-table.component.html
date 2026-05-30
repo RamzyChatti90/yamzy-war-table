@@ -376,13 +376,14 @@
                 <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb" [rotate]="false"></app-yamzy-avatar-3d>
               </div>
             </header>
-          </div>
-          <!-- ↑ fin de .wt-sk-dash-row (PS hero seul, pleine largeur) -->
 
-          <!-- ④ v1.0.59 — COCKPIT EN PLEINE LARGEUR sous le PS hero -->
-          <div class="wt-sk-news wt-sk-news-fullwidth">
-            <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
+            <!-- ④ v1.0.62 REVERT v1.0.59 : COCKPIT REMIS dans la dash-row comme
+                 colonne DROITE qui occupe la PLEINE HAUTEUR du PS hero. -->
+            <div class="wt-sk-news wt-sk-news-tall">
+              <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
+            </div>
           </div>
+          <!-- ↑ fin de .wt-sk-dash-row (PS hero + Cockpit côte à côte, full height) -->
 
           <!-- v1.0.45 — Template cockpit + news réutilisable sur toutes les pages -->
           <ng-template #cockpitNewsBlock>
