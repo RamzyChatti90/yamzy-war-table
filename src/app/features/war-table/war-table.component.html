@@ -376,11 +376,15 @@
               </ng-template>
 
               <!-- v1.0.67 — Avatar Yamzy 3D retiré du header sur demande utilisateur -->
-              <!-- v1.0.81 — Carte Yamzy de la page active affichée à droite (remplace l'avatar) -->
+              <!-- v1.0.82 — Carte Yamzy 3D GLB de la page active affichée à droite -->
               <div *ngIf="activePageCard()" class="wt-ps-card-display">
-                <img [src]="'assets/cards/' + activePageCard() + '.png'"
-                     [alt]="activePageLabel()"
-                     class="wt-ps-card-img"/>
+                <app-yamzy-glb-icon [glbUrl]="'assets/cards/' + activePageCard() + '.glb'"
+                                     [rotate]="true"
+                                     [rotateSpeed]="0.005"
+                                     [bob]="true"
+                                     [cameraDistance]="1.6"
+                                     fallbackEmoji="🃏"
+                                     style="width:100%; height:100%; display:block"></app-yamzy-glb-icon>
               </div>
 
               <!-- v1.0.67 — Mes Plannings IMBRIQUÉ DANS le header (nested) -->
@@ -661,14 +665,16 @@
                    [style.--ev]="item.color"
                    (click)="setPage(item.page.id); openPageContent()"
                    [title]="item.page.label + (item.isActive ? ' (page actuelle)' : ' — cliquer pour ouvrir')">
-                <!-- v1.0.81 — Carte Yamzy PNG (au lieu de l'emoji) -->
+                <!-- v1.0.82 — Carte Yamzy 3D GLB (au lieu de l'emoji ou PNG) -->
                 <div class="wt-sk-news-thumb wt-sk-card-thumb"
                      [style.background]="'linear-gradient(135deg,' + item.color + '40, #1d172e)'">
-                  <img *ngIf="item.page.card" [src]="'assets/cards/' + item.page.card + '.png'"
-                       [alt]="item.page.label"
-                       class="wt-sk-card-img"
-                       onerror="this.style.display='none'; this.nextElementSibling && (this.nextElementSibling.style.display='flex')"/>
-                  <span class="wt-sk-thumb-icon" [style.display]="item.page.card ? 'none' : 'flex'">{{ item.page.icon }}</span>
+                  <app-yamzy-glb-icon *ngIf="item.page.card"
+                                       [glbUrl]="'assets/cards/' + item.page.card + '.glb'"
+                                       [rotate]="true"
+                                       [rotateSpeed]="0.012"
+                                       [fallbackEmoji]="item.page.icon"
+                                       style="width:100%; height:100%; display:block"></app-yamzy-glb-icon>
+                  <span *ngIf="!item.page.card" class="wt-sk-thumb-icon">{{ item.page.icon }}</span>
                 </div>
                 <div class="wt-sk-news-body">
                   <div class="wt-sk-news-title">{{ item.page.label }}</div>
