@@ -1,10 +1,11 @@
 # WAR TABLE ⚔ — Planning Studio (Yamzy Extension)
 
-> Extension officielle pour **Yamzy World** : Planning Organisator Studio avec 42 pages Scrum, import/export Excel fidèle, Gantt visuel, versioning, et plus.
+> Extension officielle pour **Yamzy World** : Planning Organisator Studio avec 42 pages Scrum, CRUD complet sur 17 entités, Excel auto-saved, i18n FR/EN, 3D background alchimique, Gantt visuel, versioning, et plus.
 
 [![Yamzy Extension](https://img.shields.io/badge/yamzy-extension-d99a51?style=flat-square)](https://yamzy.world/extensions)
-[![Version](https://img.shields.io/badge/version-1.0.0-8b7fd6?style=flat-square)](https://github.com/RamzyChatti90/yamzy-war-table/releases)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.6-8b7fd6?style=flat-square)](https://github.com/RamzyChatti90/yamzy-war-table/releases)
+[![License](https://img.shields.io/badge/license-PROPRIETARY-orange?style=flat-square)](LICENSE)
+[![GitFlow](https://img.shields.io/badge/workflow-GitFlow-2ea1cb?style=flat-square)](#gitflow-workflow)
 
 ## 🚀 Installation (1 ligne)
 
@@ -53,9 +54,10 @@ L'extension a son propre frontend (Angular) et son propre backend (Spring Boot J
 | DB tables `pos_*` | — | Flyway V58, V59, V60 |
 | Manifest | — | `extension.json` |
 
-## 🎨 Features
+## 🎨 Features (v1.0.6)
 
-- 📊 **42 pages Scrum** : Dashboard, Backlog, Sprints, Gantt visuel, Calendrier, Risques, Tech Debt, Lessons Learned, ADRs, Capacity Planning, Stakeholders, Retros, etc.
+### Core Studio
+- 📊 **42 pages Scrum** : Dashboard, Backlog, Sprints, Gantt visuel, Calendrier, Risques, Tech Debt, Lessons Learned, ADRs, Capacity Planning, Stakeholders, Retros, Daily Standup, etc.
 - 📥 **Import Excel fidèle** : un classeur `.xlsx` Scrum entier → 42 pages mappées en DB
 - 📤 **Export Excel template** : le fichier original avec toutes ses formules, styles, jalons préservés
 - 🕒 **Versioning** : auto-snapshot à chaque import + snapshots manuels nommés + restore
@@ -64,6 +66,31 @@ L'extension a son propre frontend (Angular) et son propre backend (Spring Boot J
 - 📜 **Pagination lazy** : 5 éléments par défaut sur tous les tableaux
 - 🎬 **Splash screen** : "Planification Temporelle" avec progress réel + 8 étapes
 - 🔐 **SSO Yamzy** : pas de re-login, JWT bridgé automatiquement
+
+### v1.0.2 — 3D Background
+- 🎨 **3D Background alchimique** : `alchemy_table.glb` (24 MB) animé en rotation lente derrière tout le studio (Three.js + GLTFLoader)
+- 💎 **Glassmorphism** sur tous les panels (`backdrop-filter: blur(10px)`)
+- 💡 **Lighting cinématique** : 7 sources (hemisphere + ambient + key + fill chaud + 3 point lights) pour rendu doux
+
+### v1.0.3 — i18n FR / EN
+- 🌐 **Switcher FR / EN runtime** : bascule à chaud sans reload (LangSwitcherComponent dans le topbar)
+- 📚 **2 dictionnaires JSON complets** : 42 pages, 15 catégories, colonnes tables, modals, splash, empty states — tout est bilingue
+- 💾 **Persistance localStorage** (`wt_lang`) + auto-détection navigator
+- 🗓 **Calendar weekdays** (Lun/Mar… ↔ Mon/Tue…) basculent avec la langue
+
+### v1.0.4 — Full CRUD
+- 🔓 **Mode édition** : toggle 🔒/🔓 dans le topbar, persisté localStorage (`wt_edit_mode`)
+- 🆕 **Modal "Nouveau projet"** : créer un Realm vide (code, nom, dates, capacité, statut) sans Excel
+- ➕ **CRUD complet sur 17 entités** : Projects, Sprints, Phases, Tickets, Risks, TechDebt, Lessons, ADRs, Glossary, Capacity, Quarters, Milestones, Overtime, Retros, Stakeholders, Feedback, DailyStandups
+- 💾 **Excel auto-saved** : régénération automatique dans `~/.yamzy/exports/{code}-{ts}.xlsx` après chaque mutation (debounce 1,5 s, rotation FIFO 5/projet)
+- 🔔 **Toast Excel** : notification visuelle avec path du fichier après chaque save
+
+### v1.0.5 / v1.0.6 — Sprint Naming Yamzy Pattern
+- 🏷 **Pattern `{PROJ}-S{N}`** : nouveau sprint nommé `OTSYS-S3` au lieu de `Sprint 3` (préfixe = code projet alphanumérique uppercase max 6 chars, façon Yamzy)
+- 🔄 **Bouton « Rebrand »** sur la page Sprints (mode édition) : renomme tous les sprints existants (`Sprint 1`, `S01`, `Sprint 1 - Init`, etc.) en `{PROJ}-S{N}` (idempotent)
+- 🔄 **Bouton topbar « Reset & archive »** : rebrand → export Excel propre → delete projet en 1 clic (workflow ré-import propre)
+- 🐛 **Fix critique** : `PosExcelExportService` + `PosDashboardService` + template HTML utilisaient `"Sprint " + number` hardcodé au lieu de `sp.getName()` — propagation des noms personnalisés partout (Excel, CFD, Velocity, Burndown, Calendar legend, Gantt badges)
+- 🔗 Le rebrand propage désormais aux **tickets** : `t.sprint` (string column denormalized) est aussi mis à jour
 
 ## 🔐 SSO Bridge
 
@@ -158,10 +185,44 @@ jq 'del(.extensions[] | select(.name == "war-table"))' ~/.yamzy/extensions.json 
 mv /tmp/r.json ~/.yamzy/extensions.json
 ```
 
+## 🌳 GitFlow workflow
+
+Le studio suit un GitFlow simplifié avec branches dédiées + merge no-ff pour traçabilité PR-like :
+
+```
+main ──────────────────●──────●──────●──────●──→
+                       │      │      │      │
+                       │      │      │      └─ merge bugfix/calendar-sprint-references (v1.0.6)
+                       │      │      └──────── merge bugfix/sprint-name-display      (v1.0.5)
+                       │      └─────────────── (release inline)                       (v1.0.4)
+                       └────────────────────── feat: i18n FR/EN                       (v1.0.3)
+```
+
+**Convention nom de branche** :
+- `feature/<courte-description>` — nouvelle feature backward-compatible
+- `bugfix/<courte-description>` — fix d'un bug
+- `hotfix/<courte-description>` — fix critique sur main
+- `release/X.Y.Z` — préparation release (bump versions, CHANGELOG)
+
+**Convention de commit** : [Conventional Commits](https://www.conventionalcommits.org/)
+```
+feat(scope): description courte
+fix(scope): description courte
+chore(scope): description
+docs(scope): description
+```
+
+**SemVer policy** :
+- `MAJOR` : breaking change (API endpoint retiré, schema DB incompatible)
+- `MINOR` : nouvelle feature backward-compatible
+- `PATCH` : bug fix backward-compatible
+
+Voir [CONTRIBUTING.md](CONTRIBUTING.md) et [CHANGELOG.md](CHANGELOG.md) pour les détails.
+
 ## 📝 License
 
-MIT — voir [LICENSE](LICENSE).
+PROPRIETARY — voir [LICENSE](LICENSE). Tous droits réservés Yamzy World / RamzyChatti90.
 
 ---
 
-**Mainteneur** : RamzyChatti90 · **Issues** : [GitHub](https://github.com/RamzyChatti90/yamzy-war-table/issues)
+**Mainteneur** : RamzyChatti90 · **Issues** : [GitHub](https://github.com/RamzyChatti90/yamzy-war-table/issues) · **Releases** : [v1.0.0 → v1.0.6](https://github.com/RamzyChatti90/yamzy-war-table/releases)
