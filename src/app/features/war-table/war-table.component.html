@@ -271,8 +271,10 @@
           <span class="wt-page-cat-badge">{{ catLabel(currentPageDef()?.cat || '') }}</span>
         </div>
 
-        <!-- ── DASHBOARD (layout SKIN : Video + News + Top Selection) ── -->
-        <section *ngIf="activePage() === 'dashboard'" class="wt-sk-dash">
+        <!-- ── DASHBOARD (layout SKIN : Video + News + Top Selection) ──
+             v1.0.46 — Toujours dans le DOM (display:none quand pas active) pour que
+             le ng-template #cockpitNewsBlock reste accessible aux autres pages -->
+        <section [class.is-hidden-section]="activePage() !== 'dashboard'" class="wt-sk-dash">
 
           <div class="wt-sk-dash-row">
             <!-- ③ v1.0.8 — Carte hero style PlayStation Store (Spider-Man) avec avatar Yamzy 3D -->
@@ -329,7 +331,6 @@
 
           <!-- v1.0.45 — Template cockpit + news réutilisable sur toutes les pages -->
           <ng-template #cockpitNewsBlock>
-              <!-- ▸ COCKPIT : header + carrousel 4 onglets (Action / Réunions / Tickets / Alertes) -->
               <div class="wt-sk-cockpit-head">
                 <div class="wt-sk-cockpit-title">⚔ COCKPIT</div>
                 <div class="wt-sk-cockpit-sub">{{ cockpitMeta().sprintName }} · {{ cockpitMeta().upcoming }} évts</div>

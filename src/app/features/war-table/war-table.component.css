@@ -3987,6 +3987,10 @@ body { background: #0a0820 !important; }
   opacity: 0.7;
 }
 
+/* v1.0.46 — Section dashboard cachée (mais toujours dans DOM) quand pas active.
+   Garde le ng-template #cockpitNewsBlock défini pour usage sur autres pages. */
+.is-hidden-section { display: none !important; }
+
 /* ═══════════════════════════════════════════════════════════════════
    PAGE COCKPIT ASIDE v1.0.45 — cockpit + news en haut de chaque page
    (hors dashboard qui a son propre layout colonne 280px à droite)
