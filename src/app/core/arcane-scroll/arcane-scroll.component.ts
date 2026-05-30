@@ -18,105 +18,192 @@ interface Scroll {
   selector: 'app-arcane-scroll',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  styles: [`
+    /* v1.0.80 — Critical CSS pour war-table (Tailwind absent).
+       Mappe les classes Tailwind utilisées vers du CSS natif. */
+    :host .as-overlay {
+      position: fixed; inset: 0; z-index: 99990;
+      background: rgba(0, 0, 0, .55); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      animation: as-fade-in .25s ease-out;
+    }
+    @keyframes as-fade-in { from { opacity: 0; } to { opacity: 1; } }
+    :host .as-panel {
+      width: 92vw; max-width: 1200px; height: 85vh;
+      background: #fff; border-radius: 24px;
+      display: flex; flex-direction: column; overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, .1);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, .5);
+    }
+    :host .as-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 28px; border-bottom: 1px solid #f1f1f4;
+    }
+    :host .as-h-left { display: flex; align-items: center; gap: 12px; }
+    :host .as-h-right { display: flex; align-items: center; gap: 12px; }
+    :host .as-title { font-size: 18px; font-weight: 900; color: #111; margin: 0; letter-spacing: -.01em; }
+    :host .as-sub { font-size: 11px; color: #5412fc; font-weight: 600; margin: 2px 0 0; }
+    :host .as-cats { display: flex; gap: 4px; }
+    :host .as-cat-btn {
+      padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;
+      border: 1px solid #e5e7eb; background: #f9fafb; color: #6b7280;
+      cursor: pointer; transition: all .15s;
+    }
+    :host .as-cat-btn:hover { border-color: #5412fc; color: #5412fc; }
+    :host .as-cat-btn.is-active { background: #5412fc; color: #fff; border-color: #5412fc; }
+    :host .as-new-btn {
+      padding: 8px 16px; background: #5412fc; color: #fff; font-size: 11px;
+      font-weight: 700; border-radius: 12px; border: none; cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    }
+    :host .as-new-btn:hover { background: #4309d9; }
+    :host .as-close-btn {
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; background: transparent; color: #9ca3af;
+      border: none; cursor: pointer; font-size: 18px;
+    }
+    :host .as-close-btn:hover { color: #4b5563; background: #f3f4f6; }
+    :host .as-body {
+      flex: 1; overflow-y: auto; padding: 24px 28px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px; align-content: start;
+    }
+    :host .as-card {
+      border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
+      min-height: 180px; cursor: pointer; transition: all .2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+    :host .as-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.14); }
+    :host .as-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    :host .as-card-title-input, :host .as-card-title {
+      font-size: 14px; font-weight: 800; color: #1f2937;
+      background: transparent; border: none; outline: none; flex: 1;
+      font-family: inherit; padding: 0;
+    }
+    :host .as-card-actions { display: flex; gap: 4px; }
+    :host .as-card-btn {
+      width: 24px; height: 24px; border-radius: 6px; border: none;
+      background: rgba(0,0,0,.06); cursor: pointer; font-size: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    :host .as-card-btn:hover { background: rgba(0,0,0,.12); }
+    :host .as-card-pre {
+      flex: 1; font-family: 'Courier New', monospace; font-size: 12px;
+      color: #374151; white-space: pre-wrap; word-break: break-word;
+      margin: 0; line-height: 1.5;
+    }
+    :host .as-card-textarea {
+      flex: 1; font-family: 'Courier New', monospace; font-size: 12px;
+      background: transparent; border: 1px dashed rgba(0,0,0,.2); border-radius: 8px;
+      padding: 8px; resize: none; outline: none; color: #374151;
+    }
+    :host .as-card-foot { display: flex; gap: 6px; align-items: center; }
+    :host .as-card-foot select {
+      font-size: 10px; padding: 3px 6px; border-radius: 6px;
+      border: 1px solid rgba(0,0,0,.1); background: rgba(255,255,255,.7);
+    }
+    :host .as-color-yellow { background: #fef3c7; border: 1px solid #fde68a; }
+    :host .as-color-blue { background: #dbeafe; border: 1px solid #bfdbfe; }
+    :host .as-color-pink { background: #fce7f3; border: 1px solid #fbcfe8; }
+    :host .as-color-green { background: #dcfce7; border: 1px solid #bbf7d0; }
+    :host .as-color-purple { background: #ede9fe; border: 1px solid #ddd6fe; }
+    :host .as-empty { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #9ca3af; }
+  `],
   template: `
     <!-- Full screen overlay — Ctrl+Space -->
-    <div *ngIf="open" class="fixed inset-0 z-[99990] bg-black/30 backdrop-blur-sm flex items-center justify-center animate-fade-in" (click)="close($event)">
-      <div class="w-[92vw] max-w-[1200px] h-[85vh] bg-white rounded-3xl flex flex-col overflow-hidden border border-gray-200 shadow-2xl" (click)="$event.stopPropagation()">
+    <div *ngIf="open" class="as-overlay" (click)="close($event)">
+      <div class="as-panel" (click)="$event.stopPropagation()">
 
         <!-- Header -->
-        <div class="flex items-center justify-between px-7 py-5 border-b border-gray-100">
-          <div class="flex items-center gap-3">
-            <span class="text-3xl">📜</span>
+        <div class="as-header">
+          <div class="as-h-left">
+            <span style="font-size:28px">📜</span>
             <div>
-              <h2 class="text-lg font-black text-gray-900 tracking-tight">Arcane Scrolls</h2>
-              <p class="text-[11px] text-[#5412fc] font-semibold">Your personal grimoire — notes, secrets & incantations</p>
+              <h2 class="as-title">Arcane Scrolls</h2>
+              <p class="as-sub">Your personal grimoire — notes, secrets & incantations</p>
             </div>
           </div>
-          <div class="flex items-center gap-3">
-            <!-- Category filters -->
-            <div class="flex gap-1">
+          <div class="as-h-right">
+            <div class="as-cats">
               <button *ngFor="let c of categories" (click)="filterCat=c.id"
-                class="px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer"
-                [class]="filterCat===c.id ? 'bg-[#5412fc] text-white border-[#5412fc]' : 'bg-gray-50 text-gray-500 border-gray-200 hover:border-[#5412fc] hover:text-[#5412fc]'">
+                      class="as-cat-btn" [class.is-active]="filterCat===c.id">
                 {{c.icon}} {{c.label}}
               </button>
             </div>
-            <button (click)="addScroll()" class="px-4 py-2 bg-[#5412fc] text-white text-[11px] font-bold rounded-xl hover:bg-[#4309d9] border-none cursor-pointer shadow-sm">＋ New Scroll</button>
-            <button (click)="open=false" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 border-none bg-transparent cursor-pointer text-lg">✕</button>
+            <button (click)="addScroll()" class="as-new-btn">＋ New Scroll</button>
+            <button (click)="open=false" class="as-close-btn">✕</button>
           </div>
         </div>
 
         <!-- Scrolls Grid -->
-        <div class="flex-1 overflow-y-auto p-6 grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));align-content:start;">
+        <div class="as-body">
           <div *ngFor="let s of filtered(); trackBy: trackById"
-            class="rounded-2xl p-4 flex flex-col gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg border-[1.5px]"
-            [style.background]="colorMap[s.color]"
-            [style.border-color]="borderMap[s.color]"
-            [class.ring-2]="s.pinned" [class.ring-indigo-300]="s.pinned">
+               class="as-card"
+               [class.as-color-yellow]="s.color==='yellow'"
+               [class.as-color-blue]="s.color==='blue'"
+               [class.as-color-pink]="s.color==='pink'"
+               [class.as-color-green]="s.color==='green'"
+               [class.as-color-purple]="s.color==='purple'"
+               [style.outline]="s.pinned ? '2px solid #5412fc' : 'none'">
 
             <!-- Card Header -->
-            <div class="flex items-center gap-2">
-              <span class="cursor-pointer text-xs" (click)="togglePin(s)" [title]="s.pinned ? 'Unpin' : 'Pin'">{{s.pinned ? '📌' : '📍'}}</span>
-              <span *ngIf="!s.editing" class="text-[13px] font-extrabold text-gray-800 flex-1 truncate">{{s.title}}</span>
-              <input *ngIf="s.editing" [(ngModel)]="s.title" class="flex-1 text-[13px] font-extrabold text-gray-800 bg-transparent border-none outline-none border-b-2 border-[#5412fc] px-0 py-0.5" placeholder="Title...">
-              <div class="flex gap-0.5">
-                <button *ngIf="!s.editing" (click)="s.editing=true" class="bg-transparent border-none cursor-pointer text-[11px] opacity-40 hover:opacity-100 p-1 rounded" title="Edit">✏️</button>
-                <button *ngIf="s.editing" (click)="saveScroll(s)" class="bg-transparent border-none cursor-pointer text-[11px] opacity-100 p-1 rounded bg-indigo-50" title="Save">💾</button>
-                <button (click)="copyContent(s)" class="bg-transparent border-none cursor-pointer text-[11px] opacity-40 hover:opacity-100 p-1 rounded" title="Copy">📋</button>
-                <button (click)="deleteScroll(s)" class="bg-transparent border-none cursor-pointer text-[11px] opacity-40 hover:opacity-100 hover:bg-red-50 p-1 rounded" title="Delete">🗑</button>
+            <div class="as-card-head">
+              <span style="cursor:pointer; font-size:14px" (click)="togglePin(s)" [title]="s.pinned ? 'Unpin' : 'Pin'">{{s.pinned ? '📌' : '📍'}}</span>
+              <span *ngIf="!s.editing" class="as-card-title" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{s.title}}</span>
+              <input *ngIf="s.editing" [(ngModel)]="s.title" class="as-card-title-input" placeholder="Title...">
+              <div class="as-card-actions">
+                <button *ngIf="!s.editing" (click)="s.editing=true" class="as-card-btn" title="Edit">✏️</button>
+                <button *ngIf="s.editing" (click)="saveScroll(s)" class="as-card-btn" title="Save">💾</button>
+                <button (click)="copyContent(s)" class="as-card-btn" title="Copy">📋</button>
+                <button (click)="deleteScroll(s)" class="as-card-btn" title="Delete">🗑</button>
               </div>
             </div>
 
             <!-- Card Body -->
-            <div *ngIf="!s.editing" class="flex-1 min-h-[60px]" (dblclick)="s.editing=true">
-              <pre class="m-0 text-xs text-gray-600 whitespace-pre-wrap break-words leading-relaxed" style="font-family:'Cascadia Code','Fira Code',monospace;">{{s.content || 'Double-click to edit...'}}</pre>
-            </div>
-            <textarea *ngIf="s.editing" [(ngModel)]="s.content"
-              class="w-full min-h-[100px] border border-indigo-200 rounded-xl px-3 py-2.5 text-xs text-gray-800 resize-y outline-none focus:border-[#5412fc] bg-white/70"
-              style="font-family:'Cascadia Code','Fira Code',monospace;box-sizing:border-box;"
-              placeholder="Your notes, commands, credentials..." rows="6"></textarea>
+            <pre *ngIf="!s.editing" class="as-card-pre" (dblclick)="s.editing=true">{{s.content || 'Double-click to edit...'}}</pre>
+            <textarea *ngIf="s.editing" [(ngModel)]="s.content" class="as-card-textarea"
+                      placeholder="Your notes, commands, credentials..." rows="6"></textarea>
 
             <!-- Card Footer -->
-            <div class="flex gap-2 items-center">
-              <select *ngIf="s.editing" [(ngModel)]="s.color" class="text-[10px] border border-gray-200 rounded-lg px-2 py-1 bg-white/70 outline-none">
+            <div class="as-card-foot">
+              <select *ngIf="s.editing" [(ngModel)]="s.color">
                 <option value="yellow">🟡 Yellow</option>
                 <option value="blue">🔵 Blue</option>
                 <option value="pink">🩷 Pink</option>
                 <option value="green">🟢 Green</option>
                 <option value="purple">🟣 Purple</option>
               </select>
-              <select *ngIf="s.editing" [(ngModel)]="s.category" class="text-[10px] border border-gray-200 rounded-lg px-2 py-1 bg-white/70 outline-none">
+              <select *ngIf="s.editing" [(ngModel)]="s.category">
                 <option value="notes">📝 Notes</option>
                 <option value="credentials">🔑 Credentials</option>
                 <option value="commands">⌨️ Commands</option>
                 <option value="links">🔗 Links</option>
               </select>
-              <span *ngIf="!s.editing" class="text-[10px] text-gray-400 font-semibold">{{catIcon(s.category)}} {{s.category}}</span>
+              <span *ngIf="!s.editing" style="font-size:10px; color:#9ca3af; font-weight:600">{{catIcon(s.category)}} {{s.category}}</span>
             </div>
           </div>
 
           <!-- Empty state -->
-          <div *ngIf="!filtered().length" class="col-span-full flex flex-col items-center justify-center gap-3 py-16 text-gray-400">
-            <span class="text-5xl">📜</span>
-            <p class="text-sm">No scrolls yet. Create your first arcane note!</p>
-            <button (click)="addScroll()" class="px-4 py-2 bg-[#5412fc] text-white text-xs font-bold rounded-xl hover:bg-[#4309d9] border-none cursor-pointer">＋ New Scroll</button>
+          <div *ngIf="!filtered().length" class="as-empty">
+            <div style="font-size:48px; margin-bottom:12px">📜</div>
+            <p style="font-size:14px; margin:0 0 16px">No scrolls yet. Create your first arcane note!</p>
+            <button (click)="addScroll()" class="as-new-btn">＋ New Scroll</button>
           </div>
         </div>
 
         <!-- Footer hint -->
-        <div class="text-center py-2.5 text-[10px] text-gray-400 border-t border-gray-100">
-          <span class="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-[9px]">Ctrl+Space</span> to toggle ·
-          Double-click to edit · 📋 to copy
+        <div style="text-align:center; padding:10px 0; font-size:10px; color:#9ca3af; border-top:1px solid #f3f4f6">
+          <code style="background:#f3f4f6; padding:2px 6px; border-radius:4px; font-size:9px">Ctrl+Space</code> pour toggle ·
+          Double-click pour éditer · 📋 pour copier
         </div>
       </div>
     </div>
 
     <!-- Copied toast -->
-    <div *ngIf="copied" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[99999] px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-lg">
+    <div *ngIf="copied" style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:99999; padding:8px 16px; background:#111827; color:#fff; font-size:12px; font-weight:700; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.3)">
       📋 Copied to clipboard!
     </div>
-  `,
-  styles: [`.animate-fade-in { animation: asFade .15s ease; } @keyframes asFade { from { opacity:0 } to { opacity:1 } }`]
+  `
 })
 export class ArcaneScrollComponent implements OnInit {
   open = false;
