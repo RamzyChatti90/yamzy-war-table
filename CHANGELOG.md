@@ -6,6 +6,48 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.48] — 2026-05-30
+
+🪟 **Dashboard universel sur toutes les pages** — copier-coller intégral
+de la section `.wt-sk-dash` (PS hero + cockpit + Mes Plannings) comme
+header commun sur chaque page du studio.
+
+> "il faut copier coller toute sette section pour chaque page si besoin
+> créer un header template et réinjecte le"
+
+### Changed — Section dashboard toujours visible
+- Suppression du conditional `[class.is-hidden-section]="activePage() !== 'dashboard'"`
+  sur `<section class="wt-sk-dash">` → désormais toujours dans le flux,
+  visible quelle que soit la page active.
+- Le PS hero du dashboard (avec avatar Yamzy 3D, sprint actif, bouton
+  Lancer/Interrompre) devient le header universel.
+- Le cockpit + ACTUALITÉ DU PROJET (déjà refactorisés en `ng-template
+  #cockpitNewsBlock` en v1.0.45) restent visibles partout.
+- Mes Plannings (`.wt-sk-top`) toujours présent — l'utilisateur peut
+  switcher de projet depuis n'importe quelle page.
+
+### Removed — Duplicatas page-specific
+- `wt-page-ps-header` (introduit v1.0.42) : redondant avec le PS hero du
+  dashboard → supprimé du template.
+- `wt-page-cockpit-aside` (introduit v1.0.45) : le cockpit est déjà dans
+  la section dashboard universelle → supprimé du template.
+- Les styles CSS associés restent pour compat (au cas où un autre
+  composant les réutiliserait), mais ne sont plus instanciés.
+
+### Changed — Preview mode adapté
+- `.wt-main.is-preview > section.wt-sk-dash .wt-sk-top { display: none }`
+  RETIRÉ : Mes Plannings reste visible en preview comme demandé.
+- En preview (studioLevel='section' && !pageContentOpen), seules les
+  sections page-spécifiques sont cachées — le header dashboard complet
+  reste affiché.
+
+### Architecture
+- Un seul header pour les régir tous : moins de duplication HTML/CSS.
+- Le pattern `ng-template #cockpitNewsBlock` permet toujours d'injecter
+  le cockpit dans d'autres contextes si besoin futur.
+
+---
+
 ## [1.0.23] — 2026-05-31
 
 🎠 **Carrousel 3D vertical à côté de YAMZY** : Yamzy lance des "bulles

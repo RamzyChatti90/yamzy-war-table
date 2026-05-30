@@ -227,32 +227,12 @@
 
     <!-- ═══ MAIN AREA ═══ -->
     <main class="wt-main" [class.is-preview]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()">
-      <!-- v1.0.42 — Header PS hero générique sur TOUTES les pages (sauf dashboard qui a le sien) -->
-      <header *ngIf="api.selectedProjectId() && studioLevel() === 'section' && activePage() !== 'dashboard'"
-              class="wt-ps-header wt-page-ps-header">
-        <div class="wt-ps-tag" [style.background]="pageHeaderInfo().tagColor">
-          <span>{{ pageHeaderInfo().tag }}</span>
-        </div>
-        <h1 class="wt-ps-title">{{ pageHeaderInfo().title }}</h1>
-        <div class="wt-page-ps-desc">{{ pageHeaderInfo().desc }}</div>
-        <div *ngIf="pageHeaderInfo().tip" class="wt-page-ps-tip">💡 {{ pageHeaderInfo().tip }}</div>
-        <div class="wt-ps-purchase">
-          <h2 class="wt-ps-price">{{ activePage() }}</h2>
-          <button class="wt-ps-btn" [style.background]="pageHeaderInfo().tagColor" (click)="pageHeaderAction()">
-            {{ pageHeaderInfo().actionLabel }}
-          </button>
-        </div>
-      </header>
+      <!-- v1.0.48 — Le header universel (PS hero + cockpit + Mes Plannings) est désormais
+           fourni par la section .wt-sk-dash plus bas (toujours visible sur toutes les pages).
+           Les anciens duplicatas wt-page-ps-header (v1.0.42) et wt-page-cockpit-aside (v1.0.45)
+           sont supprimés car redondants. -->
 
-      <!-- v1.0.45 — Cockpit + Actualité du projet sur TOUTES les pages (hors dashboard) -->
-      <aside *ngIf="api.selectedProjectId() && studioLevel() === 'section' && activePage() !== 'dashboard'"
-             class="wt-page-cockpit-aside">
-        <div class="wt-sk-news">
-          <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
-        </div>
-      </aside>
-
-      <!-- v1.0.47 — Hint clavier en mode preview : seul header + cockpit visibles -->
+      <!-- v1.0.47 — Hint clavier en mode preview : seul le header universel visible -->
       <div *ngIf="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
            class="wt-preview-hint">
         <kbd>Entrée</kbd> ou <kbd>Click dot</kbd> pour ouvrir la page · <kbd>Échap</kbd> pour retour
@@ -277,10 +257,11 @@
           <span class="wt-page-cat-badge">{{ catLabel(currentPageDef()?.cat || '') }}</span>
         </div>
 
-        <!-- ── DASHBOARD (layout SKIN : Video + News + Top Selection) ──
-             v1.0.46 — Toujours dans le DOM (display:none quand pas active) pour que
-             le ng-template #cockpitNewsBlock reste accessible aux autres pages -->
-        <section [class.is-hidden-section]="activePage() !== 'dashboard'" class="wt-sk-dash">
+        <!-- ── DASHBOARD HEADER (layout SKIN : PS hero + Cockpit + Mes Plannings) ──
+             v1.0.48 — TOUJOURS visible sur toutes les pages comme header commun.
+             Le contenu spécifique à chaque page (Backlog, Sprints, etc.) s'affiche
+             EN-DESSOUS quand pageContentOpen=true. -->
+        <section class="wt-sk-dash">
 
           <div class="wt-sk-dash-row">
             <!-- ③ v1.0.8 — Carte hero style PlayStation Store (Spider-Man) avec avatar Yamzy 3D -->

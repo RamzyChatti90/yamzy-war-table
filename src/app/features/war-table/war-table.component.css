@@ -3988,19 +3988,19 @@ body { background: #0a0820 !important; }
 }
 
 /* v1.0.46 — Section dashboard cachée (mais toujours dans DOM) quand pas active.
-   Garde le ng-template #cockpitNewsBlock défini pour usage sur autres pages. */
+   v1.0.48 — n'est plus utilisée car .wt-sk-dash est désormais toujours visible
+   (header universel sur toutes les pages). Conservée pour compat éventuelle. */
 .is-hidden-section { display: none !important; }
 
-/* v1.0.47 — Preview mode : seul header PS + cockpit visibles, sections cachées */
+/* v1.0.47 → v1.0.48 — Preview mode : seul le header universel (.wt-sk-dash complet,
+   PS hero + cockpit + Mes Plannings) reste visible. Les sections page-spécifiques
+   sont cachées tant que pageContentOpen=false. L'utilisateur demande explicitement
+   que toute la section dashboard apparaisse sur chaque page → on ne cache plus
+   .wt-sk-top (Mes Plannings) en preview. */
 .wt-main.is-preview > section:not(.wt-sk-dash) {
   display: none !important;
 }
-/* Sur dashboard en preview : cache uniquement "Mes Plannings" (Top Selection),
-   garde PS hero + cockpit visibles */
-.wt-main.is-preview > section.wt-sk-dash .wt-sk-top {
-  display: none !important;
-}
-/* Cache aussi le petit .wt-page-header (breadcrumb) en preview */
+/* Cache aussi le petit .wt-page-header (breadcrumb icône+titre) en preview */
 .wt-main.is-preview > div.wt-page-header,
 .wt-main.is-preview ng-container > .wt-page-header {
   display: none !important;
