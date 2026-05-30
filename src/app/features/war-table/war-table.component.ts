@@ -312,14 +312,13 @@ export class WarTableComponent implements OnInit {
   }
 
   /** v1.0.14 — Si aucun event en DB, demande au backend de générer pour tous les sprints
-   *  qui ont des dates (idempotent — ne re-crée pas si déjà présents). */
+   *  qui ont des dates (idempotent — ne re-crée pas si déjà présents).
+   *  v1.0.24 — Silent fallback si endpoint absent (backend pas encore rebuild). */
   private autoEnsureCalled = false;
   ensureEventsThenRefresh(): void {
     const pid = this.api.selectedProjectId();
     if (!pid) return;
-    // 1) refresh immédiat (montre ce qui existe)
     this.refreshEvents();
-    // 2) auto-ensure (silencieux) — 1 seul appel par projet
     if (this.autoEnsureCalled) return;
     this.autoEnsureCalled = true;
     this.api.autoEnsureEvents(pid).subscribe({
@@ -328,9 +327,22 @@ export class WarTableComponent implements OnInit {
           this.refreshEvents();
           this.refreshTimeAllocation();
         }
+      },
+      error: err => {
+        // v1.0.24 — 404 = backend pas encore mis à jour avec v1.0.14+, on ignore silencieusement
+        if (err?.status !== 404) {
+          console.warn('[ensureEvents] non-404 error, will retry next time:', err?.status);
+          this.autoEnsureCalled = false; // permettre retry sur autre erreur
+        }
+        // 404 : on log juste un info une fois, pas une erreur
+        if (err?.status === 404 && !this.autoEnsure404Logged) {
+          this.autoEnsure404Logged = true;
+          console.info('[ensureEvents] backend pré-v1.0.14 (sans /events/auto-ensure) — fallback OK, utilisation manuelle du bouton "🔄 Régénérer cérémonies Scrum"');
+        }
       }
     });
   }
+  private autoEnsure404Logged = false;
 
   private startEventPoll(): void {
     if (this.eventPollInterval) return;
