@@ -1814,7 +1814,13 @@ export class WarTableComponent implements OnInit {
     const order: SuperCat[] = ['Dashboard', 'Sprint', 'Planning', 'Reporting', 'Setup'];
     const sc = order[i];
     if (!sc) return;
+    // v1.0.71 — Click sidebar : navigation complète
+    //   1. setPage : change activePage
+    //   2. studioLevel='section' : sort du home menu si on y est
+    //   3. openPageContent : ouvre directement le contenu de la page (pas juste preview)
     this.setPage(this.superCatDefaults[sc]);
+    this.studioLevel.set('section');
+    this.openPageContent();
   }
 
   /** Bouclier de navigation : la page DASHBOARD affiche le layout skin. */
