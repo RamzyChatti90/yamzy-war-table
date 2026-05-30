@@ -3987,6 +3987,48 @@ body { background: #0a0820 !important; }
   opacity: 0.7;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   PAGE COCKPIT ASIDE v1.0.45 — cockpit + news en haut de chaque page
+   (hors dashboard qui a son propre layout colonne 280px à droite)
+   ──────────────────────────────────────────────────────────────────
+   Override .wt-sk-news pour layout responsive horizontal/grid quand
+   placé en aside au-dessus des sections (au lieu de la colonne 280px).
+   ═══════════════════════════════════════════════════════════════════ */
+.wt-page-cockpit-aside {
+  margin-bottom: 24px;
+  width: 100%;
+}
+.wt-page-cockpit-aside .wt-sk-news {
+  /* Override : largeur auto, layout flex row qui passe en grille quand assez large */
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  animation: none;
+}
+@media (min-width: 1024px) {
+  .wt-page-cockpit-aside .wt-sk-news {
+    grid-template-columns: minmax(320px, 1fr) 1fr 1fr;
+    align-items: start;
+  }
+  /* Header + nav prennent la 1ère colonne, cards les 2 autres */
+  .wt-page-cockpit-aside .wt-sk-cockpit-head { grid-column: 1; grid-row: 1; }
+  .wt-page-cockpit-aside .wt-sk-cockpit-nav { grid-column: 1; grid-row: 2; }
+  .wt-page-cockpit-aside .wt-sk-news-card { grid-column: span 1; }
+  .wt-page-cockpit-aside .wt-sk-cockpit-sep {
+    grid-column: 1 / -1;
+    margin: 12px 0 4px;
+  }
+}
+.wt-page-cockpit-aside .wt-sk-news-card {
+  /* Cards plus compactes en mode page */
+  min-height: 80px;
+}
+/* Header + sub plus compacts */
+.wt-page-cockpit-aside .wt-sk-cockpit-head {
+  padding: 6px 8px 0;
+}
+
 /* Responsive — ajusté pour cards 380×190 */
 @media (max-width: 1500px) {
   .wt-yc { left: 400px; width: 380px; bottom: 40px; height: 500px; }

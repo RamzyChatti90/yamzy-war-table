@@ -244,6 +244,14 @@
         </div>
       </header>
 
+      <!-- v1.0.45 — Cockpit + Actualité du projet sur TOUTES les pages (hors dashboard) -->
+      <aside *ngIf="api.selectedProjectId() && studioLevel() === 'section' && activePage() !== 'dashboard'"
+             class="wt-page-cockpit-aside">
+        <div class="wt-sk-news">
+          <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
+        </div>
+      </aside>
+
       <!-- No project yet -->
       <div *ngIf="!api.selectedProjectId()" class="wt-empty">
         <div class="wt-empty-3d">
@@ -315,7 +323,12 @@
 
             <!-- ④ NEWS + COCKPIT v1.0.14 : cockpit intégré DANS la zone news, en haut, en cards style game -->
             <div class="wt-sk-news">
+              <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
+            </div>
+          </div>
 
+          <!-- v1.0.45 — Template cockpit + news réutilisable sur toutes les pages -->
+          <ng-template #cockpitNewsBlock>
               <!-- ▸ COCKPIT : header + carrousel 4 onglets (Action / Réunions / Tickets / Alertes) -->
               <div class="wt-sk-cockpit-head">
                 <div class="wt-sk-cockpit-title">⚔ COCKPIT</div>
@@ -533,8 +546,7 @@
                   <div class="wt-sk-news-sub">{{ 'empty.no_activity_sub' | t }}</div>
                 </div>
               </div>
-            </div>
-          </div>
+          </ng-template>
 
           <!-- ⑤ TOP SELECTION : Mes Plannings -->
           <div class="wt-sk-top">
