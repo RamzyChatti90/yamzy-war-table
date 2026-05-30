@@ -44,7 +44,8 @@ export class YamzyAvatar3dComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvasEl!: ElementRef<HTMLCanvasElement>;
 
   @Input() glbUrl = '/assets/agents/YAMZY.glb';
-  @Input() rotate = true;
+  /** Rotation idle Y. Par défaut désactivée — avatar fixe. */
+  @Input() rotate = false;
   /** Tint optionnel (vert quand actif, etc.). Si null, GLB natif. */
   @Input() tintColor: string | null = null;
 
@@ -139,11 +140,7 @@ export class YamzyAvatar3dComponent implements AfterViewInit, OnDestroy {
       this.camera.position.set(0, dist * 0.35, dist * 1.85);
       this.camera.lookAt(0, 0, 0);
 
-      // Anim mixer (si le GLB a une animation idle)
-      if (gltf.animations && gltf.animations.length) {
-        this.mixer = new T.AnimationMixer(this.model);
-        this.mixer.clipAction(gltf.animations[0]).play();
-      }
+      // Mixer désactivé : avatar fixe — pas d'anim idle même si le GLB en contient.
 
       this.scene.add(this.model);
     }, undefined, (err: any) => {
@@ -155,17 +152,11 @@ export class YamzyAvatar3dComponent implements AfterViewInit, OnDestroy {
   private animate = () => {
     if (this.disposed) return;
     this.animFrameId = requestAnimationFrame(this.animate);
-    const delta = this.clock?.getDelta() || 0.016;
-    this.bobPhase += delta * 1.2;
-
-    if (this.model) {
-      if (this.rotate) {
-        this.model.rotation.y += 0.005;
-      }
-      // Idle bobbing : remonte/redescend doucement
-      this.model.position.y = Math.sin(this.bobPhase) * 0.06;
+    // Pas d'animation : rotation + bobbing + mixer désactivés.
+    // Le rAF reste actif pour gérer le resize / re-render au besoin.
+    if (this.model && this.rotate) {
+      this.model.rotation.y += 0.005;
     }
-    if (this.mixer) this.mixer.update(delta);
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
     }
