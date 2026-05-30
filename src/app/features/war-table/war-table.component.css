@@ -4101,22 +4101,12 @@ body { background: #0a0820 !important; }
    (header universel sur toutes les pages). Conservée pour compat éventuelle. */
 .is-hidden-section { display: none !important; }
 
-/* v1.0.54 — Preview mode (swipe carousel) : SEUL le PS hero adaptif visible.
-   Cockpit + Mes Plannings + page sections cachés. L'utilisateur se concentre
-   sur l'aperçu de la page sélectionnée dans le carousel. */
+/* v1.0.55 — Preview mode (avant Enter) : dashboard COMPLET visible
+   (PS hero + cockpit + Mes Plannings). Seules les sections page-spécifiques
+   sont cachées tant que l'utilisateur n'a pas pressé Entrée.
+   Correction de v1.0.54 qui cachait à tort cockpit + planning en preview. */
 .wt-main.is-preview > section:not(.wt-sk-dash) {
   display: none !important;
-}
-.wt-main.is-preview .wt-sk-news,
-.wt-main.is-preview .wt-sk-top {
-  display: none !important;
-}
-/* Le PS hero (seul) prend tout l'espace dispo en preview */
-.wt-main.is-preview .wt-sk-dash-row {
-  display: block;
-}
-.wt-main.is-preview .wt-sk-video-wrap {
-  max-width: 100%;
 }
 /* Cache aussi le petit .wt-page-header (breadcrumb) en preview */
 .wt-main.is-preview > div.wt-page-header,
