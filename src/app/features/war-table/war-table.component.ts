@@ -131,9 +131,12 @@ export class WarTableComponent implements OnInit {
   // ═══ CAROUSEL TOGGLE v1.0.32 — click avatar pour ouvrir/fermer le carrousel ═══
   yamzyCarouselOpen = signal(false); // fermé par défaut
   toggleCarousel(): void {
-    // Si on est en mode position (drag), ne pas toggler
     if (this.positionMode()) return;
     this.yamzyCarouselOpen.update(v => !v);
+    // v1.0.38 — Auto-fire l'action de la card center à l'ouverture (pas besoin de cliquer)
+    if (this.yamzyCarouselOpen()) {
+      this.applyCenterAction();
+    }
   }
 
   // ═══ STUDIO LEVELS v1.0.30 — Home (menu) vs Section (cockpit messages) ═══
@@ -254,24 +257,13 @@ export class WarTableComponent implements OnInit {
   ];
 
   yamzyCarouselCards = computed<any[]>(() => {
-    // v1.0.30 — Au niveau "home" : retourne le menu des sections
-    if (this.studioLevel() === 'home') {
-      return this.homeMenuCards.map(c => ({ ...c, action: { type: 'enter-section', pageId: c.pageId } }));
-    }
+    // v1.0.38 — Le carrousel = menu de navigation. Toujours menu cards.
+    // Auto-fire enter-section au changement de center (pas besoin de cliquer).
+    // Les messages cockpit (events/alerts) restent dans la news zone du dashboard.
+    return this.homeMenuCards.map(c => ({ ...c, action: { type: 'enter-section', pageId: c.pageId } }));
 
-    // Niveau "section" : messages cockpit + card "Retour au menu" en premier
-    const cards: any[] = [];
-    // v1.0.33 : Card "Home" toujours en première position pour permettre le retour facile
-    cards.push({
-      kind: 'NAVIGATION',
-      title: '🏠 Retour au menu',
-      subtitle: 'Revenir au menu principal',
-      meta: 'Niveau 1 · Home',
-      icon: '🏠',
-      color: '#d99a51',
-      gradient: 'linear-gradient(135deg, #d99a51, #c25d8d)',
-      action: { type: 'return-home' },
-    });
+    // (ancien code section mode désactivé — gardé en commentaire au cas où)
+    /* const cards: any[] = [];
     const allEvents = this.events() || [];
     const upcoming = this.upcomingEventsList() || [];
     const active = allEvents.find(e => e.status === 'IN_PROGRESS');
@@ -364,7 +356,7 @@ export class WarTableComponent implements OnInit {
       });
     }
 
-    return cards.slice(0, 6);
+    return cards.slice(0, 6); */
   });
 
   /** Calcule la position relative pour l'effet 3D (réf Team Carousel). */
@@ -386,13 +378,32 @@ export class WarTableComponent implements OnInit {
     const n = this.yamzyCarouselCards().length;
     if (!n) return;
     this.yamzyCarouselIndex.update(i => (i - 1 + n) % n);
+    this.applyCenterAction();
   }
   yamzyCarouselDown(): void {
     const n = this.yamzyCarouselCards().length;
     if (!n) return;
     this.yamzyCarouselIndex.update(i => (i + 1) % n);
+    this.applyCenterAction();
   }
-  setYamzyCarouselIndex(i: number): void { this.yamzyCarouselIndex.set(i); }
+  setYamzyCarouselIndex(i: number): void {
+    this.yamzyCarouselIndex.set(i);
+    this.applyCenterAction();
+  }
+
+  /** v1.0.38 — Auto-fire l'action de la card center (pas besoin de cliquer).
+   *  Pour les enter-section : navigate à la page sans reset l'index. */
+  private applyCenterAction(): void {
+    const cards = this.yamzyCarouselCards();
+    const idx = this.yamzyCarouselIndex();
+    const card = cards[idx];
+    if (!card?.action) return;
+    if (card.action.type === 'enter-section') {
+      // setPage sans reset l'index (sinon boucle infinie)
+      this.studioLevel.set('section');
+      this.setPage(card.action.pageId);
+    }
+  }
 
   /** Click sur la card : action contextuelle. */
   ycCardAction(card: any): void {
