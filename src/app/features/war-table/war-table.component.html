@@ -1359,6 +1359,18 @@
 
         <!-- ── CALENDRIER ── -->
         <section *ngIf="activePage() === 'calendrier'" class="wt-calendar">
+          <!-- v1.0.15 : Top crud bar (toujours visible) + hint mode édition -->
+          <div class="wt-crud-bar">
+            <button class="wt-btn-add" (click)="openNewEvent()">+ Nouvel événement</button>
+            <button class="wt-btn-add" style="background:linear-gradient(135deg,#6647bf,#c25d8d)" (click)="regenerateScrumCeremonies()">🔄 Régénérer cérémonies Scrum</button>
+            <span *ngIf="editMode()" class="wt-cal-edit-hint">
+              ✎ Mode édition : clique sur le <strong>+</strong> d'une case pour ajouter un événement à cette date
+            </span>
+            <span *ngIf="!editMode()" class="wt-cal-edit-hint" style="opacity:.55">
+              💡 Active le mode édition (🔒 → 🔓 en haut) pour ajouter des événements directement aux cases
+            </span>
+          </div>
+
           <div *ngIf="!calendarMonths().length" class="wt-muted">{{ 'empty.no_date_planned' | t }}</div>
           <div *ngFor="let m of calendarMonths()" class="wt-cal-month">
             <h3 class="wt-cal-month-title">{{ m.label }}</h3>
@@ -1369,11 +1381,17 @@
                    [class.empty]="!cell.day"
                    [class.weekend]="cell.weekend"
                    [class.today]="cell.isToday"
-                   [class.has-collision]="cell.hasCollision">
+                   [class.has-collision]="cell.hasCollision"
+                   [class.is-editable]="editMode() && cell.day">
                 <ng-container *ngIf="cell.day">
                   <div class="wt-cal-daynum">
                     {{ cell.day }}
                     <span *ngIf="cell.hasCollision" class="wt-cal-collision" title="Conflit d'horaires détecté">⚠</span>
+                    <!-- v1.0.15 : bouton "+" en haut de la case en edit mode -->
+                    <button *ngIf="editMode()"
+                            class="wt-cal-add-btn"
+                            (click)="openNewEventOnDay(cell.dateStr)"
+                            title="+ Ajouter un événement le {{ cell.dateStr }}">+</button>
                   </div>
                   <!-- v1.0.13 : Events (daily/planning/review/retro/meeting) — affichés EN PREMIER -->
                   <div *ngFor="let ev of cell.events"
@@ -1394,6 +1412,11 @@
                       </span>
                       <span *ngIf="ev.attendeesCount > 4" class="wt-cal-mini-more">+{{ ev.attendeesCount - 4 }}</span>
                     </span>
+                    <!-- v1.0.15 : icône delete event (edit mode seulement) -->
+                    <button *ngIf="editMode()"
+                            class="wt-cal-event-del"
+                            (click)="$event.stopPropagation(); deleteEventById(ev)"
+                            title="Supprimer cet événement">×</button>
                   </div>
                   <!-- Tickets affectés à ce jour (deadline / range) -->
                   <div class="wt-cal-evt" *ngFor="let t of cell.tickets"
@@ -1402,6 +1425,13 @@
                     <span class="wt-cal-evt-id">{{ t.ticketId }}</span>
                     <span class="wt-cal-evt-title">{{ t.title }}</span>
                   </div>
+                  <!-- v1.0.15 : Drop zone "+ Ajouter" en bas en edit mode (visible seulement au hover) -->
+                  <button *ngIf="editMode()"
+                          class="wt-cal-cell-add-zone"
+                          (click)="openNewEventOnDay(cell.dateStr)"
+                          title="Ajouter un événement">
+                    + événement
+                  </button>
                 </ng-container>
               </div>
             </div>
