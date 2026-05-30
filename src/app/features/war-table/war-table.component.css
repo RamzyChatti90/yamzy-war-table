@@ -3207,271 +3207,40 @@ body { background: #0a0820 !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   YAMZY FAB v1.0.16 — Avatar 3D flottant + Yamzy Guide panel
+   YAMZY COMPANION v1.0.17 — Gros avatar 3D animé sur la gauche
    ──────────────────────────────────────────────────────────────────
-   Présent sur TOUTES les pages : YAMZY t'accompagne partout.
-   Position fixed bottom-right, hors zone topbar et sidebar.
+   Présent sur TOUTES les pages. Taille équivalente au PS hero
+   (~320px). Position fixed bottom-left (l'autre côté du cockpit
+   qui est à droite). Toutes les animations actives : rotate +
+   bobbing + GLB mixer natif.
    ═══════════════════════════════════════════════════════════════════ */
 
 .wt-yamzy-fab {
   position: fixed;
-  bottom: 24px;
-  right: 78px;  /* laisse passer le right sidebar des projets */
-  width: 112px;
-  height: 112px;
-  z-index: 9000;
-  cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation: yamzyFabFloat 4.2s ease-in-out infinite;
-}
-.wt-yamzy-fab:hover {
-  transform: translateY(-6px) scale(1.08);
-}
-.wt-yamzy-fab.is-open {
-  transform: scale(0.85);
-  animation: none;
-}
-.wt-yamzy-fab.is-hidden {
-  opacity: 0;
-  pointer-events: none;
+  bottom: -40px;       /* déborde légèrement comme le hero PS */
+  left: 70px;          /* laisse passer le left sidebar (4 icônes) */
+  width: 320px;
+  height: 320px;
+  z-index: 80;         /* sous les modals (1000+) mais au-dessus du contenu */
+  pointer-events: none; /* purement décoratif, ne bloque pas les clics */
+  filter: drop-shadow(0 24px 32px rgba(0, 0, 0, 0.55))
+          drop-shadow(0 0 30px rgba(217, 154, 81, 0.20));
 }
 
-@keyframes yamzyFabFloat {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-8px); }
-}
-
-/* Glow circulaire en arrière du 3D */
-.wt-yamzy-fab-glow {
-  position: absolute;
-  inset: 8px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%,
-    rgba(217, 154, 81, 0.45) 0%,
-    rgba(102, 71, 191, 0.30) 35%,
-    transparent 70%);
-  filter: blur(14px);
-  animation: yamzyFabGlow 3s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes yamzyFabGlow {
-  0%, 100% { opacity: 0.6; transform: scale(0.95); }
-  50%      { opacity: 1;   transform: scale(1.10); }
-}
-
-/* Canvas avatar 3D */
-.wt-yamzy-fab-avatar {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-}
-.wt-yamzy-fab-avatar app-yamzy-avatar-3d {
+.wt-yamzy-fab app-yamzy-avatar-3d {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-/* Bulle "💬" qui pop dans le coin pour suggérer le clic */
-.wt-yamzy-fab-bubble {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #d99a51, #c25d8d);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  box-shadow: 0 4px 12px rgba(217, 154, 81, 0.55),
-              inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  z-index: 3;
-  animation: yamzyFabBubble 2.4s ease-in-out infinite;
-  border: 2px solid #1d172e;
+/* Responsive : réduit la taille sur écrans étroits */
+@media (max-width: 1400px) {
+  .wt-yamzy-fab { width: 240px; height: 240px; bottom: -24px; left: 64px; }
 }
-@keyframes yamzyFabBubble {
-  0%, 100% { transform: scale(1) rotate(-4deg); }
-  50%      { transform: scale(1.12) rotate(4deg); }
+@media (max-width: 1024px) {
+  .wt-yamzy-fab { width: 180px; height: 180px; bottom: -16px; left: 56px; }
 }
-
-/* Backdrop transparent quand le panel ouvre */
-.wt-yamzy-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 12, 32, 0.35);
-  backdrop-filter: blur(2px);
-  z-index: 9100;
-  animation: yamzyFadeIn 0.2s ease-out;
-}
-@keyframes yamzyFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* Le panel "Yamzy Guide" — sidebar droite */
-.wt-yamzy-guide-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 380px;
-  max-width: 92vw;
-  background: linear-gradient(180deg, #2e2354 0%, #1d172e 100%);
-  border-left: 1px solid rgba(217, 154, 81, 0.30);
-  box-shadow: -16px 0 40px rgba(0, 0, 0, 0.5),
-              inset 1px 0 0 rgba(255, 255, 255, 0.04);
-  z-index: 9200;
-  display: flex;
-  flex-direction: column;
-  animation: yamzyPanelSlide 0.32s cubic-bezier(0.16, 1, 0.3, 1);
-  color: #ece6ff;
-}
-@keyframes yamzyPanelSlide {
-  from { transform: translateX(100%); opacity: 0; }
-  to   { transform: translateX(0); opacity: 1; }
-}
-
-.wt-yamzy-guide-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 20px 14px;
-  border-bottom: 1px solid rgba(217, 154, 81, 0.18);
-  background: linear-gradient(180deg, rgba(217, 154, 81, 0.06), transparent);
-}
-.wt-yamzy-guide-brand {
-  font-family: 'Pirata One', 'Poppins', serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: #d99a51;
-  letter-spacing: 2px;
-  text-shadow: 0 0 12px rgba(217, 154, 81, 0.45);
-}
-
-.wt-yamzy-guide-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px 20px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.wt-yamzy-guide-page-id {
-  font-size: 10px;
-  color: rgba(236, 230, 255, 0.45);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  font-family: monospace;
-}
-.wt-yamzy-guide-yamzy {
-  font-family: 'Pirata One', 'Poppins', serif;
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.1;
-  color: #d99a51;
-  text-shadow: 0 0 18px rgba(217, 154, 81, 0.5);
-  letter-spacing: 0.5px;
-}
-.wt-yamzy-guide-scrum-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 10px 5px 5px;
-  background: rgba(70, 150, 185, 0.15);
-  border: 1px solid rgba(108, 198, 232, 0.40);
-  border-radius: 999px;
-  align-self: flex-start;
-  margin-top: -4px;
-}
-.wt-yamzy-guide-scrum-label {
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  background: rgba(108, 198, 232, 0.30);
-  color: #6cc6e8;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-weight: 700;
-}
-.wt-yamzy-guide-scrum-name {
-  font-size: 12px;
-  color: #6cc6e8;
-  font-weight: 600;
-}
-.wt-yamzy-guide-desc {
-  font-size: 14px;
-  line-height: 1.55;
-  color: rgba(236, 230, 255, 0.92);
-  margin-top: 6px;
-}
-.wt-yamzy-guide-tip {
-  margin-top: 10px;
-  padding: 12px 14px;
-  background: rgba(217, 154, 81, 0.10);
-  border-left: 3px solid #d99a51;
-  border-radius: 4px 8px 8px 4px;
-  font-size: 13px;
-  color: rgba(236, 230, 255, 0.95);
-  line-height: 1.5;
-}
-.wt-yamzy-guide-tip em { font-style: italic; }
-
-.wt-yamzy-guide-empty {
-  font-size: 14px;
-  color: rgba(236, 230, 255, 0.78);
-  line-height: 1.55;
-}
-.wt-yamzy-guide-empty strong {
-  color: #d99a51;
-  font-family: 'Pirata One', serif;
-  font-size: 17px;
-  letter-spacing: 1px;
-}
-
-.wt-yamzy-guide-actions {
-  display: flex;
-  gap: 8px;
-  padding: 14px 20px;
-  border-top: 1px solid rgba(217, 154, 81, 0.15);
-  flex-wrap: wrap;
-}
-.wt-yamzy-quick {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  border: 1px solid rgba(217, 154, 81, 0.30);
-  background: rgba(217, 154, 81, 0.08);
-  color: #d99a51;
-  font-size: 18px;
-  cursor: pointer;
-  transition: all 0.18s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.wt-yamzy-quick:hover {
-  background: #d99a51;
-  color: #1d172e;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(217, 154, 81, 0.45);
-}
-
-.wt-yamzy-guide-foot {
-  padding: 12px 20px 16px;
-  border-top: 1px solid rgba(217, 154, 81, 0.10);
-  background: rgba(15, 12, 32, 0.45);
-  font-size: 11px;
-  color: rgba(236, 230, 255, 0.55);
-  letter-spacing: 0.4px;
-  font-style: italic;
-  text-align: center;
-}
-
-/* Responsive : panel plein écran sur mobile */
-@media (max-width: 600px) {
-  .wt-yamzy-fab { width: 86px; height: 86px; right: 18px; bottom: 18px; }
-  .wt-yamzy-guide-panel { width: 100%; }
+@media (max-width: 720px) {
+  .wt-yamzy-fab { display: none; }
 }
 
