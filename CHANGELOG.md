@@ -6,6 +6,18 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.21] — 2026-05-31
+
+### Changed — YAMZY plus près des bords
+- `bottom: 45px → 20px`
+- `left: 125px → 100px` (= 80px sidebar + 20px marge)
+- Idem responsive (1400: 20/100, 1100: 20/95)
+
+### Why
+> "fais 20 au lieu de 45"
+
+---
+
 ## [1.0.20] — 2026-05-31
 
 🎯 **Fix live pattern fidèle à la référence** : le rendu cockpit
