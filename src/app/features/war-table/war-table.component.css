@@ -1461,229 +1461,120 @@ body { background: #0a0820 !important; }
   .wt-yamzy-sage-title { font-size: 20px; }
 }
 
-/* === v1.0.8 — PS-style Yamzy header card === */
-.wt-ps-header {
-  position: relative;
-  padding: 60px 30px 30px 30px;
-  border-radius: 30px;
-  border: 2px solid rgba(255, 255, 255, 0.10);
-  background-color: #313237;
-  background-image:
-    radial-gradient(ellipse at top left, rgba(110, 71, 191, 0.55), rgba(0, 0, 0, 0.55) 65%),
-    radial-gradient(ellipse at bottom right, rgba(217, 154, 81, 0.35), rgba(0, 0, 0, 0.35) 60%);
-  overflow: hidden;
-  min-height: 320px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  isolation: isolate;
-}
-.wt-ps-header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(ellipse at top, rgba(255, 255, 255, 0.04), transparent 60%);
-  pointer-events: none;
-  z-index: 0;
-}
-.wt-ps-header.is-launchable {
-  background-image:
-    radial-gradient(ellipse at top left, rgba(112, 185, 68, 0.65), rgba(0, 0, 0, 0.55) 65%),
-    radial-gradient(ellipse at bottom right, rgba(70, 150, 185, 0.45), rgba(0, 0, 0, 0.35) 60%);
-  border-color: rgba(112, 185, 68, 0.50);
-}
-.wt-ps-header.is-active {
-  background-image:
-    radial-gradient(ellipse at top left, rgba(46, 161, 203, 0.65), rgba(15, 25, 50, 0.55) 65%),
-    radial-gradient(ellipse at bottom right, rgba(70, 150, 185, 0.45), rgba(15, 25, 50, 0.35) 60%);
-  border-color: rgba(46, 161, 203, 0.55);
-}
-.wt-ps-header.is-today {
-  background-image:
-    radial-gradient(ellipse at top left, rgba(217, 154, 81, 0.65), rgba(43, 0, 0, 0.55) 65%),
-    radial-gradient(ellipse at bottom right, rgba(222, 79, 95, 0.50), rgba(43, 0, 0, 0.35) 60%);
-  border-color: rgba(255, 200, 100, 0.60);
-}
-.wt-ps-header.is-overdue {
-  background-image:
-    radial-gradient(ellipse at top left, rgba(222, 79, 95, 0.70), rgba(43, 0, 0, 0.55) 65%),
-    radial-gradient(ellipse at bottom right, rgba(110, 71, 191, 0.45), rgba(43, 0, 0, 0.35) 60%);
-  border-color: rgba(255, 130, 130, 0.60);
-}
-.wt-ps-header > * { position: relative; z-index: 1; }
 
+/* === v1.0.8 — PS-style hero card (Spider-Man template) avec Yamzy avatar === */
+.wt-ps-header {
+  padding: 70px 30px 30px 30px;
+  border-radius: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background-color: #313237;
+  background-image: radial-gradient(ellipse at top, #3a3c47, rgba(0, 0, 0, 0.6));
+  position: relative;
+  margin-bottom: 30px;
+  flex: 1;
+  min-height: 360px;
+  overflow: visible;
+}
+
+/* Tag rouge */
 .wt-ps-tag {
-  padding: 0.4em 0.85em;
+  padding: 0.3em 0.75em;
   background-color: #ff3d3d;
-  border-radius: 6px;
-  font-size: 11.5px;
-  font-weight: 800;
+  border-radius: 5px;
+  font-size: 12.5px;
   color: white;
   width: max-content;
-  margin-bottom: 16px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-family: 'Poppins', sans-serif;
-  box-shadow: 0 4px 14px rgba(255, 61, 61, 0.45);
-}
-.wt-ps-header.is-launchable .wt-ps-tag { background-color: #70b944; box-shadow: 0 4px 14px rgba(112, 185, 68, .55); }
-.wt-ps-header.is-active     .wt-ps-tag { background-color: #2ea1cb; box-shadow: 0 4px 14px rgba(46, 161, 203, .55); }
-.wt-ps-header.is-today      .wt-ps-tag { background-color: #d99a51; color: #1d172e; box-shadow: 0 4px 14px rgba(217, 154, 81, .55); }
-.wt-ps-header.is-overdue    .wt-ps-tag { background-color: #de4f5f; box-shadow: 0 4px 14px rgba(222, 79, 95, .55); }
-.wt-ps-tag-neutral {
-  background-color: rgba(217, 154, 81, 0.85) !important;
-  color: #1d172e !important;
-  box-shadow: 0 4px 14px rgba(217, 154, 81, .50) !important;
-}
-
-.wt-ps-title {
-  color: #fff;
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1.15;
-  margin: 0 0 14px 0;
-  width: 56%;
-  font-family: 'Poppins', sans-serif;
-  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.50);
-  letter-spacing: 0.005em;
-}
-
-.wt-ps-sage-msg {
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 13.5px;
-  line-height: 1.55;
-  width: 55%;
   margin-bottom: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-family: 'Poppins', sans-serif;
 }
-.wt-ps-sage-msg strong { font-weight: 600; color: rgba(255, 255, 255, 0.92); }
-.wt-ps-sage-msg em {
-  font-style: normal;
-  font-weight: 800;
-  color: #ffe5b8;
-  font-family: 'Courier New', monospace;
-  background: rgba(0, 0, 0, 0.25);
-  padding: 0 6px;
-  border-radius: 4px;
-}
-.wt-ps-sage-msg-muted { color: rgba(255, 255, 255, 0.55); font-size: 13px; }
 
-.wt-ps-action {
+/* Titre h1 */
+.wt-ps-title {
+  color: white;
+  width: 50%;
+  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Purchase row */
+.wt-ps-purchase {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background-color: rgba(255, 255, 255, 0.10);
-  border-radius: 12px;
-  padding: 6px;
+  padding: 5px;
   width: max-content;
-  margin-top: auto;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  min-width: 200px;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
 }
-.wt-ps-action-meta { padding: 4px 18px; color: white; display: flex; flex-direction: column; align-items: flex-start; }
-.wt-ps-action-label {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: rgba(255, 255, 255, 0.55);
-  text-transform: uppercase;
-  font-family: 'Poppins', sans-serif;
-}
-.wt-ps-action-value {
-  font-size: 22px;
-  font-weight: 800;
-  color: #fff;
-  font-family: 'Courier New', monospace;
-  line-height: 1.1;
-  margin-top: 1px;
-}
-.wt-ps-action-value small {
+.wt-ps-price {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.55);
-  font-weight: 600;
-  margin-left: 2px;
+  color: white;
+  padding: 0 14px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.02em;
+  margin: 0;
 }
-
 .wt-ps-btn {
-  padding: 12px 22px;
+  padding: 1em 2em;
   border-radius: 10px;
   border: none;
   outline: none;
-  background-color: #d99a51;
-  color: #1d172e;
-  font-weight: 800;
+  background-color: #3482e7;
+  color: white;
+  font-weight: 700;
   cursor: pointer;
-  font-size: 13.5px;
-  letter-spacing: 0.04em;
+  font-size: 13px;
   font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.03em;
   position: relative;
   z-index: 2;
-  transition: transform .14s, box-shadow .18s;
-  box-shadow: 0 4px 16px rgba(217, 154, 81, .40);
+  transition: filter .18s;
 }
-.wt-ps-header.is-launchable .wt-ps-btn { background-color: #70b944; color: #fff; box-shadow: 0 4px 16px rgba(112, 185, 68, .55); }
-.wt-ps-header.is-active     .wt-ps-btn { background-color: #2ea1cb; color: #fff; box-shadow: 0 4px 16px rgba(46, 161, 203, .55); }
-.wt-ps-header.is-today      .wt-ps-btn {
-  background-color: #ffe066; color: #1d172e;
-  box-shadow: 0 4px 16px rgba(255, 200, 100, .65);
-  animation: wt-ps-btn-pulse-today 1.4s ease-in-out infinite;
+.wt-ps-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: #3482e7;
+  filter: blur(10px);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+  border-radius: 10px;
 }
-@keyframes wt-ps-btn-pulse-today {
-  0%,100% { box-shadow: 0 4px 16px rgba(255, 200, 100, .65); }
-  50%     { box-shadow: 0 8px 26px rgba(255, 200, 100, 1); }
-}
-.wt-ps-header.is-overdue .wt-ps-btn {
-  background-color: #de4f5f; color: #fff;
-  box-shadow: 0 4px 16px rgba(222, 79, 95, .55);
-  animation: wt-ps-btn-pulse-overdue 1.0s ease-in-out infinite;
-}
-@keyframes wt-ps-btn-pulse-overdue {
-  0%,100% { box-shadow: 0 4px 16px rgba(222, 79, 95, .55); }
-  50%     { box-shadow: 0 8px 26px rgba(255, 100, 100, 1); }
-}
-.wt-ps-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.wt-ps-btn:hover:not(:disabled)::after { opacity: 1; }
 .wt-ps-btn:active:not(:disabled) { transform: scale(0.97); }
-.wt-ps-btn:disabled { opacity: .8; cursor: progress; }
-.wt-ps-btn-neutral { background-color: rgba(255, 255, 255, 0.18); color: #fff; box-shadow: none; }
-.wt-ps-btn-neutral:hover { background-color: rgba(255, 255, 255, 0.28); }
+.wt-ps-btn:disabled { opacity: 0.65; cursor: progress; }
 
-.wt-ps-avatar {
-  width: 340px;
-  height: 340px;
+/* Yamzy avatar position (= spiderman-img) */
+.wt-ps-spiderman-img {
+  width: 400px;
+  height: 400px;
   position: absolute;
-  top: -30px;
-  right: -10px;
+  top: -40px;
+  right: -20px;
   pointer-events: none;
-  z-index: 1;
 }
-.wt-ps-avatar app-yamzy-avatar-3d { display: block; width: 100%; height: 100%; }
-
-.wt-ps-live-ping {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #70b944;
-  box-shadow: 0 0 0 0 rgba(112, 185, 68, .85);
-  animation: wt-ps-live-ping-anim 1.6s ease-out infinite;
-  z-index: 3;
-}
-.wt-ps-live-ping.is-today    { background: #ffe066; }
-.wt-ps-live-ping.is-overdue  { background: #de4f5f; }
-.wt-ps-live-ping.is-active   { background: #2ea1cb; }
-@keyframes wt-ps-live-ping-anim {
-  0%   { box-shadow: 0 0 0 0 currentColor; }
-  70%  { box-shadow: 0 0 0 14px transparent; }
-  100% { box-shadow: 0 0 0 0 transparent; }
+.wt-ps-spiderman-img app-yamzy-avatar-3d {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
+/* Responsive (comme dans le template original) */
 @media (max-width: 1000px) {
-  .wt-ps-avatar { width: 240px; height: 240px; right: -30px; }
-  .wt-ps-title, .wt-ps-sage-msg { width: 65%; }
+  .wt-ps-header { padding: 30px 20px; }
+  .wt-ps-title { width: 70%; position: relative; z-index: 2; }
+  .wt-ps-spiderman-img { width: 300px; height: 300px; }
 }
-@media (max-width: 700px) {
-  .wt-ps-avatar { display: none; }
-  .wt-ps-title, .wt-ps-sage-msg { width: 100%; }
-  .wt-ps-title { font-size: 22px; }
+@media (max-width: 600px) {
+  .wt-ps-spiderman-img { top: 0; right: -50px; }
 }

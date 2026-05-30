@@ -197,92 +197,46 @@
         <section *ngIf="activePage() === 'dashboard'" class="wt-sk-dash">
 
           <div class="wt-sk-dash-row">
-            <!-- ③ v1.0.8 — Carte "Le Sage Yamzy" style PlayStation : avatar 3D à droite, message au centre -->
-            <header class="wt-ps-header wt-sk-video-wrap"
-                    [class.is-launchable]="launchableInfo()?.state === 'LAUNCHABLE'"
-                    [class.is-active]="launchableInfo()?.state === 'ACTIVE'"
-                    [class.is-today]="launchableInfo()?.isToday"
-                    [class.is-overdue]="launchableInfo()?.isOverdue">
-
-              <!-- Tag dynamique (style "New" rouge mais selon état) -->
-              <div class="wt-ps-tag" *ngIf="launchableInfo() as li">
-                <span *ngIf="li.state === 'ACTIVE'">⚡ EN COURS</span>
-                <span *ngIf="li.state !== 'ACTIVE' && li.isToday">🔥 PRÊT À LANCER</span>
-                <span *ngIf="li.state !== 'ACTIVE' && li.isOverdue">⚠ EN RETARD</span>
-                <span *ngIf="li.state !== 'ACTIVE' && !li.isToday && !li.isOverdue">📅 PROCHAIN CYCLE</span>
-              </div>
-              <div class="wt-ps-tag wt-ps-tag-neutral" *ngIf="!launchableInfo() && selectedProjectInfo()">
-                {{ 'dash.tag_in_progress' | t }}
+            <!-- ③ v1.0.8 — Carte hero style PlayStation Store (Spider-Man) avec avatar Yamzy 3D -->
+            <header class="wt-ps-header wt-sk-video-wrap">
+              <!-- Tag rouge "New" (couleur fixe — kept simple comme la maquette) -->
+              <div class="wt-ps-tag">
+                <span *ngIf="launchableInfo()?.state === 'ACTIVE'">EN COURS</span>
+                <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE'">{{ launchableInfo()?.isOverdue ? 'EN RETARD' : (launchableInfo()?.isToday ? 'AUJOURD\'HUI' : 'À LANCER') }}</span>
+                <span *ngIf="!launchableInfo()">NEW</span>
               </div>
 
-              <!-- Titre H1 + sous-titre (50% largeur, à gauche) -->
+              <!-- Titre h1 50% largeur -->
               <h1 class="wt-ps-title">
                 <ng-container *ngIf="selectedProjectInfo() as p; else psNoProj">
-                  {{ p.name }}
+                  {{ p.name }}<span *ngIf="launchableInfo()"> · {{ launchableInfo()?.sprintName }}</span>
                 </ng-container>
                 <ng-template #psNoProj>{{ 'empty.no_planning' | t }}</ng-template>
               </h1>
 
-              <!-- Sage message dynamique (façon synopsis du jeu) -->
-              <div class="wt-ps-sage-msg" *ngIf="launchableInfo() as li">
-                <strong *ngIf="li.state === 'ACTIVE'">
-                  Le Sage Yamzy veille. Cycle <em>{{ li.sprintName }}</em> en cours
-                  <span *ngIf="li.dayIndex"> · jour {{ li.dayIndex }}<span *ngIf="li.totalDays">/{{ li.totalDays }}</span></span>.
-                </strong>
-                <strong *ngIf="li.state !== 'ACTIVE' && li.isToday">
-                  Stratège, aujourd'hui c'est le jour de bataille pour <em>{{ li.sprintName }}</em>.
-                </strong>
-                <strong *ngIf="li.state !== 'ACTIVE' && li.isOverdue">
-                  Le Cycle <em>{{ li.sprintName }}</em> attend depuis {{ -1 * (li.daysUntilStart || 0) }} jour(s).
-                </strong>
-                <strong *ngIf="li.state !== 'ACTIVE' && !li.isToday && !li.isOverdue">
-                  Le prochain Cycle <em>{{ li.sprintName }}</em> démarre dans {{ li.daysUntilStart }} jour(s).
-                </strong>
-              </div>
-              <div class="wt-ps-sage-msg" *ngIf="!launchableInfo() && selectedProjectInfo()">
-                <span class="wt-ps-sage-msg-muted">{{ selectedProjectInfo()?.name }}</span>
-              </div>
-
-              <!-- Action row (style "Purchase" : prix + bouton) — adapté en Day counter + Launch/Interrupt -->
-              <div class="wt-ps-action">
-                <div class="wt-ps-action-meta">
-                  <div class="wt-ps-action-label">
-                    <span *ngIf="launchableInfo()?.state === 'ACTIVE'">JOUR</span>
-                    <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE'">{{ launchableInfo()?.isOverdue ? 'RETARD' : 'DANS' }}</span>
-                    <span *ngIf="!launchableInfo()">PROGRESS</span>
-                  </div>
-                  <div class="wt-ps-action-value">
-                    <span *ngIf="launchableInfo()?.state === 'ACTIVE' && launchableInfo()?.dayIndex">
-                      {{ launchableInfo()?.dayIndex }}<small *ngIf="launchableInfo()?.totalDays">/{{ launchableInfo()?.totalDays }}</small>
-                    </span>
-                    <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE'">
-                      J{{ launchableInfo()?.isOverdue ? '+' : '-' }}{{ launchableInfo()?.isOverdue ? Math.abs(launchableInfo()?.daysUntilStart || 0) : launchableInfo()?.daysUntilStart }}
-                    </span>
-                    <span *ngIf="!launchableInfo()">{{ projectProgress() }}<small>%</small></span>
-                  </div>
-                </div>
-                <button class="wt-ps-btn" *ngIf="launchableInfo()"
+              <!-- Purchase row : meta + bouton bleu -->
+              <div class="wt-ps-purchase">
+                <h2 class="wt-ps-price">
+                  <span *ngIf="launchableInfo()?.state === 'ACTIVE' && launchableInfo()?.dayIndex">Jour {{ launchableInfo()?.dayIndex }}<span *ngIf="launchableInfo()?.totalDays">/{{ launchableInfo()?.totalDays }}</span></span>
+                  <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE' && launchableInfo()?.isToday">Aujourd'hui</span>
+                  <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE' && launchableInfo()?.isOverdue">J+{{ -1 * (launchableInfo()?.daysUntilStart || 0) }}</span>
+                  <span *ngIf="launchableInfo()?.state === 'LAUNCHABLE' && !launchableInfo()?.isToday && !launchableInfo()?.isOverdue">J-{{ launchableInfo()?.daysUntilStart }}</span>
+                  <span *ngIf="!launchableInfo()">{{ projectProgress() }}%</span>
+                </h2>
+                <button class="wt-ps-btn"
                         [disabled]="launchingSprint()"
-                        (click)="doLaunchSprint()">
-                  <span *ngIf="launchingSprint()">⟳ ...</span>
-                  <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'ACTIVE'">⏸ Interrompre</span>
-                  <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'LAUNCHABLE'">▶ Lancer</span>
-                </button>
-                <button class="wt-ps-btn wt-ps-btn-neutral" *ngIf="!launchableInfo()" (click)="setPage('roadmap')">
-                  🗺 Roadmap
+                        (click)="launchableInfo() ? doLaunchSprint() : setPage('roadmap')">
+                  <span *ngIf="launchingSprint()">⟳</span>
+                  <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'ACTIVE'">Interrompre</span>
+                  <span *ngIf="!launchingSprint() && launchableInfo()?.state === 'LAUNCHABLE'">Lancer</span>
+                  <span *ngIf="!launchingSprint() && !launchableInfo()">Roadmap</span>
                 </button>
               </div>
 
-              <!-- Yamzy avatar 3D (position "Spider-Man" — coin haut-droite) -->
-              <div class="wt-ps-avatar">
+              <!-- Yamzy avatar 3D (position "Spider-Man" : 400px top -40 right -20) -->
+              <div class="wt-ps-spiderman-img">
                 <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb" [rotate]="true"></app-yamzy-avatar-3d>
               </div>
-
-              <!-- Live ping indicateur (top-right) -->
-              <div *ngIf="launchableInfo()" class="wt-ps-live-ping"
-                   [class.is-today]="launchableInfo()?.isToday"
-                   [class.is-overdue]="launchableInfo()?.isOverdue"
-                   [class.is-active]="launchableInfo()?.state === 'ACTIVE'"></div>
             </header>
 
             <!-- ④ NEWS : activité récente -->
