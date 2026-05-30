@@ -4418,33 +4418,6 @@ body { background: #0a0820 !important; }
    indiquer la position et permettre la nav par dots. */
 .wt-yc { display: none !important; }
 
-/* v1.0.74 — Section wrappant les pages de la super-cat (scroll dédié) */
-.wt-sk-pages-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border: 1px dashed rgba(217, 154, 81, 0.18);
-  border-radius: 14px;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.18);
-  position: relative;
-}
-.wt-sk-scroll-hint {
-  display: inline-block;
-  margin-left: 8px;
-  font-size: 9px;
-  opacity: .6;
-  letter-spacing: .04em;
-  text-transform: none;
-  font-weight: 500;
-  color: #d99a51;
-  animation: scrollHintPulse 2.2s ease-in-out infinite;
-}
-@keyframes scrollHintPulse {
-  0%, 100% { opacity: .4; transform: translateY(0); }
-  50%      { opacity: .9; transform: translateY(2px); }
-}
-
 /* v1.0.70 — Cards "PAGES DE LA SUPER-CAT" dans le cockpit (sous ACTUALITÉ).
    Affiche les pages de la super-cat active, cliquables pour navigation. */
 .wt-sk-page-card {

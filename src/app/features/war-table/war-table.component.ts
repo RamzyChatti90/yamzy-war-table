@@ -161,27 +161,32 @@ export class WarTableComponent implements OnInit {
     this.openPageContent();
   }
 
-  /** v1.0.74 — Wheel sur la section "Super-cat — PAGES" du cockpit :
-   *  navigue entre les pages de la super-cat active (et NON entre les 6 cards
-   *  homeMenuCards). Lock 500ms entre chaque scroll. */
-  private superCatPagesWheelLock: any = null;
-  onSuperCatPagesWheel(ev: WheelEvent): void {
-    if (this.positionMode()) return;
-    const cards = this.superCatPagesCards();
-    if (!cards.length) return;
+  /** v1.0.65 — Wheel sur le PS hero = navigation entre pages (remplace le carousel masqué).
+   *  Lock 600ms entre chaque scroll. */
+  private psHeroWheelLock: any = null;
+  onPsHeroWheel(ev: WheelEvent): void {
+    if (this.studioLevel() !== 'section' || this.pageContentOpen() || this.positionMode()) return;
+    if (this.psHeroWheelLock) { ev.preventDefault(); return; }
     ev.preventDefault();
-    if (this.superCatPagesWheelLock) return;
-    const currentIdx = cards.findIndex(c => c.isActive);
-    const startIdx = currentIdx >= 0 ? currentIdx : 0;
-    let nextIdx = startIdx;
-    if (ev.deltaY > 0) nextIdx = (startIdx + 1) % cards.length;
-    else if (ev.deltaY < 0) nextIdx = (startIdx - 1 + cards.length) % cards.length;
-    if (nextIdx !== currentIdx) {
-      const targetPage = cards[nextIdx].page.id;
-      this.setPage(targetPage);
-      this.openPageContent();
-    }
-    this.superCatPagesWheelLock = setTimeout(() => { this.superCatPagesWheelLock = null; }, 500);
+    if (ev.deltaY > 0) this.yamzyCarouselDown();
+    else if (ev.deltaY < 0) this.yamzyCarouselUp();
+    this.psHeroWheelLock = setTimeout(() => { this.psHeroWheelLock = null; }, 600);
+  }
+
+  /** v1.0.65 — Swipe tactile sur le PS hero. */
+  private psHeroTouchStartY: number | null = null;
+  onPsHeroTouchStart(ev: TouchEvent): void {
+    if (this.studioLevel() !== 'section' || this.pageContentOpen()) return;
+    this.psHeroTouchStartY = ev.touches[0]?.clientY ?? null;
+  }
+  onPsHeroTouchEnd(ev: TouchEvent): void {
+    if (this.psHeroTouchStartY === null) return;
+    const endY = ev.changedTouches[0]?.clientY ?? this.psHeroTouchStartY;
+    const delta = endY - this.psHeroTouchStartY;
+    this.psHeroTouchStartY = null;
+    if (Math.abs(delta) < 30) return;        // ignore micro-swipes
+    if (delta < 0) this.yamzyCarouselDown(); // swipe up → next
+    else this.yamzyCarouselUp();             // swipe down → prev
   }
 
   /** Keyboard handlers : Escape = back, Enter = open page content */

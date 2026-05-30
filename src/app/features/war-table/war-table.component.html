@@ -310,7 +310,10 @@
                     [class.is-today]="launchableInfo()?.isToday"
                     [class.is-overdue]="launchableInfo()?.isOverdue"
                     [class.is-clickable]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
-                    (click)="onPsHeroClick($event)">
+                    (click)="onPsHeroClick($event)"
+                    (wheel)="onPsHeroWheel($event)"
+                    (touchstart)="onPsHeroTouchStart($event)"
+                    (touchend)="onPsHeroTouchEnd($event)">
 
               <!-- ═══ Variante DASHBOARD (project + sprint info) ═══ -->
               <ng-container *ngIf="isDashboardSkin(); else pageHeroContent">
@@ -642,35 +645,29 @@
               </div>
 
               <!-- v1.0.70 — Cards pages de la super-cat active (Dashboard / Sprint / etc.).
-                   v1.0.74 — Section WRAPPED dans .wt-sk-pages-section avec wheel handler :
-                   seul le SCROLL dans CETTE section navigue entre les pages de la super-cat.
-                   Click ouvre la page. -->
-              <div class="wt-sk-pages-section"
-                   *ngIf="superCatPagesCards().length"
-                   (wheel)="onSuperCatPagesWheel($event)">
-                <div class="wt-sk-cockpit-sep">
-                  <span>{{ activeSuperCat() }} — PAGES <small class="wt-sk-scroll-hint">⇅ scroll pour naviguer</small></span>
+                   Click ouvre la page. Affichage similaire aux news cards. -->
+              <div class="wt-sk-cockpit-sep" *ngIf="superCatPagesCards().length">
+                <span>{{ activeSuperCat() }} — PAGES</span>
+              </div>
+              <div *ngFor="let item of superCatPagesCards()"
+                   class="wt-sk-news-card wt-sk-page-card"
+                   [class.is-active-page]="item.isActive"
+                   [style.--ev]="item.color"
+                   (click)="setPage(item.page.id); openPageContent()"
+                   [title]="item.page.label + (item.isActive ? ' (page actuelle)' : ' — cliquer pour ouvrir')">
+                <div class="wt-sk-news-thumb"
+                     [style.background]="'linear-gradient(135deg,' + item.color + ',#3b3363)'">
+                  <span class="wt-sk-thumb-icon">{{ item.page.icon }}</span>
                 </div>
-                <div *ngFor="let item of superCatPagesCards()"
-                     class="wt-sk-news-card wt-sk-page-card"
-                     [class.is-active-page]="item.isActive"
-                     [style.--ev]="item.color"
-                     (click)="setPage(item.page.id); openPageContent()"
-                     [title]="item.page.label + (item.isActive ? ' (page actuelle)' : ' — cliquer pour ouvrir')">
-                  <div class="wt-sk-news-thumb"
-                       [style.background]="'linear-gradient(135deg,' + item.color + ',#3b3363)'">
-                    <span class="wt-sk-thumb-icon">{{ item.page.icon }}</span>
-                  </div>
-                  <div class="wt-sk-news-body">
-                    <div class="wt-sk-news-title">{{ item.page.label }}</div>
-                    <div class="wt-sk-news-sub">{{ catLabel(item.page.cat) }}</div>
-                    <div class="wt-sk-news-tags">
-                      <div *ngIf="item.isActive" class="wt-sk-news-tag" [style.background]="item.color">⚡ Active</div>
-                      <div *ngIf="!item.isActive" class="wt-sk-news-tag"
-                           [style.background]="'rgba(255,255,255,.08)'"
-                           [style.color]="item.color"
-                           [style.border]="'1px solid ' + item.color">Ouvrir →</div>
-                    </div>
+                <div class="wt-sk-news-body">
+                  <div class="wt-sk-news-title">{{ item.page.label }}</div>
+                  <div class="wt-sk-news-sub">{{ catLabel(item.page.cat) }}</div>
+                  <div class="wt-sk-news-tags">
+                    <div *ngIf="item.isActive" class="wt-sk-news-tag" [style.background]="item.color">⚡ Active</div>
+                    <div *ngIf="!item.isActive" class="wt-sk-news-tag"
+                         [style.background]="'rgba(255,255,255,.08)'"
+                         [style.color]="item.color"
+                         [style.border]="'1px solid ' + item.color">Ouvrir →</div>
                   </div>
                 </div>
               </div>
