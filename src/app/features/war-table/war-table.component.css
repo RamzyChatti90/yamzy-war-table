@@ -4406,6 +4406,25 @@ body { background: #0a0820 !important; }
    indiquer la position et permettre la nav par dots. */
 .wt-yc { display: none !important; }
 
+/* v1.0.70 — Cards "PAGES DE LA SUPER-CAT" dans le cockpit (sous ACTUALITÉ).
+   Affiche les pages de la super-cat active, cliquables pour navigation. */
+.wt-sk-page-card {
+  border-left: 3px solid var(--ev, #d99a51);
+  transition: all .2s cubic-bezier(.4, 0, .2, 1);
+  cursor: pointer;
+}
+.wt-sk-page-card:hover {
+  transform: translateX(4px) translateY(-1px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .35), -4px 0 0 var(--ev, #d99a51);
+  border-left-color: var(--ev, #d99a51);
+}
+.wt-sk-page-card.is-active-page {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ev, #d99a51) 22%, transparent), rgba(52, 46, 89, .65)) !important;
+  box-shadow: 0 0 0 1px var(--ev, #d99a51) inset, 0 4px 18px rgba(0, 0, 0, .35);
+}
+.wt-sk-page-card.is-active-page .wt-sk-news-title { color: var(--ev, #d99a51); }
+.wt-sk-page-card .wt-sk-thumb-icon { font-size: 28px; }
+
 /* v1.0.64 — PS hero CLIQUABLE en preview mode pour ouvrir le contenu */
 .wt-ps-header.is-clickable {
   cursor: pointer;

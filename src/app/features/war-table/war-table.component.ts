@@ -1986,6 +1986,19 @@ export class WarTableComponent implements OnInit {
     const p = this.pages.find(p => p.id === this.activePage());
     return p ? p.superCat : null;
   });
+
+  /** v1.0.70 — Pages de la super-cat active, regroupées par sous-cat,
+   *  pour affichage dans le cockpit (cards cliquables après ACTUALITÉ DU PROJET). */
+  superCatPagesCards = computed<{ page: PageDef; isActive: boolean; color: string }[]>(() => {
+    const sc = this.activeSuperCat();
+    if (!sc) return [];
+    const scDef = this.superCats.find(s => s.id === sc);
+    const color = scDef?.color || '#d99a51';
+    const active = this.activePage();
+    return this.pages
+      .filter(p => p.superCat === sc)
+      .map(p => ({ page: p, isActive: p.id === active, color }));
+  });
   /** Pages déjà implémentées (sinon placeholder). */
   readonly implemented = new Set([
     'dashboard', 'backlog', 'backlog-tma', 'sprints', 'burndown', 'gantt', 'risks', 'tech-debt', 'lessons',
