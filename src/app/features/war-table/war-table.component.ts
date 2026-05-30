@@ -240,8 +240,19 @@ export class WarTableComponent implements OnInit {
       return this.homeMenuCards.map(c => ({ ...c, action: { type: 'enter-section', pageId: c.pageId } }));
     }
 
-    // Niveau "section" : messages cockpit dynamiques
+    // Niveau "section" : messages cockpit + card "Retour au menu" en premier
     const cards: any[] = [];
+    // v1.0.33 : Card "Home" toujours en première position pour permettre le retour facile
+    cards.push({
+      kind: 'NAVIGATION',
+      title: '🏠 Retour au menu',
+      subtitle: 'Revenir au menu principal',
+      meta: 'Niveau 1 · Home',
+      icon: '🏠',
+      color: '#d99a51',
+      gradient: 'linear-gradient(135deg, #d99a51, #c25d8d)',
+      action: { type: 'return-home' },
+    });
     const allEvents = this.events() || [];
     const upcoming = this.upcomingEventsList() || [];
     const active = allEvents.find(e => e.status === 'IN_PROGRESS');
@@ -371,6 +382,7 @@ export class WarTableComponent implements OnInit {
     else if (card.action.type === 'new-event') this.openNewEvent();
     else if (card.action.type === 'page') this.setPage(card.action.page);
     else if (card.action.type === 'enter-section') this.enterSection(card.action.pageId);
+    else if (card.action.type === 'return-home') this.returnHome();
   }
 
   // ═══ COCKPIT WIDGET v1.0.12 (style "Chicago" — 4 onglets en carrousel) ═══

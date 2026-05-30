@@ -3242,29 +3242,46 @@ body { background: #0a0820 !important; }
           drop-shadow(0 0 40px rgba(217, 154, 81, 0.55));
 }
 
-/* Hint "💬" qui pulse au coin top-right de l'avatar pour suggérer le click */
-.wt-yamzy-click-hint {
-  position: absolute;
-  top: 10%;
-  right: 10%;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #d99a51, #c25d8d);
-  display: flex;
+/* v1.0.33 : Hint 💬 retiré (sur demande user) — l'avatar seul suffit comme indicateur */
+
+/* Bouton 🏠 Home flottant — visible en mode section, prominent */
+.wt-home-float {
+  position: fixed;
+  top: 90px;
+  left: 130px; /* clear des sidebars */
+  z-index: 99998;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  box-shadow: 0 6px 16px rgba(217, 154, 81, 0.55),
+  gap: 8px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d99a51, #c25d8d);
+  color: #1d172e;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5),
+              0 0 24px rgba(217, 154, 81, 0.45),
               inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  border: 2px solid #1d172e;
-  pointer-events: none;
-  animation: yamzyHintBubble 2.2s ease-in-out infinite;
-  z-index: 5;
+  transition: all 0.22s ease;
+  animation: homeFloatPulse 2.5s ease-in-out infinite;
 }
-@keyframes yamzyHintBubble {
-  0%, 100% { transform: scale(1) rotate(-4deg); }
-  50%      { transform: scale(1.15) rotate(6deg); }
+@keyframes homeFloatPulse {
+  0%, 100% { box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 0 24px rgba(217, 154, 81, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
+  50%      { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 38px rgba(217, 154, 81, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+}
+.wt-home-float:hover {
+  transform: scale(1.06) translateY(-2px);
+  animation: none;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.6), 0 0 44px rgba(217, 154, 81, 0.85);
+}
+.wt-home-float-lbl {
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
 }
 /* v1.0.26 : mode édition — outline EXACTEMENT sur la frontière du div + bg léger pour voir l'aire occupée */
 .wt-yamzy-fab.is-edit {
