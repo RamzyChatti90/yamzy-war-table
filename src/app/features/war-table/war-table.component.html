@@ -352,10 +352,20 @@
           </div>
         </section>
 
-        <!-- ── BACKLOG (éditable inline + auto-save + pagination lazy) ── -->
+        <!-- ── BACKLOG (éditable inline + auto-save + pagination lazy + bulk ops v1.0.10) ── -->
         <section *ngIf="activePage() === 'backlog'" class="wt-backlog">
           <div *ngIf="editMode()" class="wt-crud-bar">
             <button class="wt-btn-add" (click)="addTicket()">+ Ajouter un ticket</button>
+          </div>
+          <!-- Bulk action bar : visible quand >= 1 sélectionné -->
+          <div *ngIf="selectedCount() > 0" class="wt-bulk-bar">
+            <span class="wt-bulk-count">✓ {{ selectedCount() }} sélectionné(s)</span>
+            <button class="wt-bulk-btn" [disabled]="bulkBusy()" (click)="bulkUpdate('status')">Statut…</button>
+            <button class="wt-bulk-btn" [disabled]="bulkBusy()" (click)="bulkUpdate('sprint')">Sprint…</button>
+            <button class="wt-bulk-btn" [disabled]="bulkBusy()" (click)="bulkUpdate('assignee')">Assigné…</button>
+            <button class="wt-bulk-btn" [disabled]="bulkBusy()" (click)="bulkUpdate('priority')">Priorité…</button>
+            <button class="wt-bulk-btn wt-bulk-btn-danger" [disabled]="bulkBusy()" (click)="bulkDelete()">🗑 Supprimer</button>
+            <button class="wt-bulk-btn wt-bulk-btn-ghost" [disabled]="bulkBusy()" (click)="clearTicketSelection()">✕ Désélectionner</button>
           </div>
           <div class="wt-table-tools">
             <input class="wt-filter" [placeholder]="'filter.title_id' | t" [(ngModel)]="ticketFilter" (ngModelChange)="currentPage.set(0)"/>
@@ -366,6 +376,9 @@
             <table class="wt-table">
               <thead>
                 <tr>
+                  <th class="wt-th-check">
+                    <input type="checkbox" (change)="toggleSelectAllVisible()" [checked]="selectedCount() > 0 && paged(filteredTickets()).length > 0 && paged(filteredTickets()).every(isTicketSelected.bind(this))" title="Tout sélectionner / désélectionner la page"/>
+                  </th>
                   <th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.type' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.priority' | t }}</th>
                   <th>{{ 'table.status' | t }}</th>
                   <th title="Estimation (h)">Est.</th>
@@ -379,7 +392,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let t of paged(filteredTickets())" [class]="rowClass(t)">
+                <tr *ngFor="let t of paged(filteredTickets())" [class]="rowClass(t)" [class.wt-row-selected]="isTicketSelected(t)">
+                  <td class="wt-td-check">
+                    <input type="checkbox" [checked]="isTicketSelected(t)" (change)="toggleTicketSelection(t)" (click)="$event.stopPropagation()"/>
+                  </td>
                   <td class="wt-mono" [title]="t.acceptanceCriteria || 'Pas de critères d\'acceptation définis'">{{ t.ticketId }}</td>
                   <td><input class="wt-cell-input wt-cell-title" [value]="t.title" (change)="saveField(t, 'title', $any($event.target).value)" [title]="t.description || ''"/></td>
                   <td>
