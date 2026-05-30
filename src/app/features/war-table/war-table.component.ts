@@ -130,14 +130,14 @@ export class WarTableComponent implements OnInit {
     this.wheelLockTimer = setTimeout(() => { this.wheelLockTimer = null; }, 600);
   }
 
-  // ═══ CAROUSEL TOGGLE v1.0.32 — click avatar pour ouvrir/fermer le carrousel ═══
-  yamzyCarouselOpen = signal(false); // fermé par défaut
+  // ═══ CAROUSEL v1.0.43 — diffusion permanente : toujours ouvert + auto-scroll ═══
+  yamzyCarouselOpen = signal(true); // OUVERT par défaut (mode diffusion auto)
   toggleCarousel(): void {
     if (this.positionMode()) return;
     this.yamzyCarouselOpen.update(v => !v);
     if (this.yamzyCarouselOpen()) {
       this.applyCenterAction();
-      this.startAutoScroll(); // v1.0.41 — auto-rotation
+      this.startAutoScroll();
     } else {
       this.stopAutoScroll();
     }
@@ -2019,6 +2019,11 @@ export class WarTableComponent implements OnInit {
     this.reloadProjects();
     // Filet de sécurité : même si la BDD est vide ou hors-ligne, on ferme le splash après 6s max.
     setTimeout(() => this.markSplashReady(), 6000);
+    // v1.0.43 — Lance le carousel en mode diffusion automatique dès l'init
+    setTimeout(() => {
+      this.applyCenterAction();
+      this.startAutoScroll();
+    }, 800);
 
     // Réagit aux navigations venant de /war-table-skin
     // ?section=backlog → navigue ; ?import=1 → ouvre le modal d'import

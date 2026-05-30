@@ -1944,14 +1944,6 @@
   <div *ngIf="positionMode()" class="wt-pos-label">YAMZY · ({{ fabLeft() }}, {{ fabBottom() }})</div>
 </div>
 
-<!-- v1.0.33 : Bouton 🏠 Home flottant (visible seulement en section) -->
-<button *ngIf="studioLevel() === 'section' && !splashVisible()"
-        class="wt-home-float"
-        (click)="returnHome()"
-        title="Retour au menu principal (Home)">
-  🏠 <span class="wt-home-float-lbl">RETOUR HOME</span>
-</button>
-
 <!-- v1.0.25 : Bouton toggle mode position (toujours visible bottom-right) -->
 <button class="wt-pos-toggle" *ngIf="!splashVisible()"
         [class.is-on]="positionMode()"
