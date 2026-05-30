@@ -1975,7 +1975,7 @@
      (mousedown)="startDrag('yc', $event)">
   <button class="wt-yc-arrow up" (click)="yamzyCarouselUp()" title="Précédent">▲</button>
 
-  <div class="wt-yc-track">
+  <div class="wt-yc-track" (wheel)="onCarouselWheel($event)">
     <div *ngFor="let card of yamzyCarouselCards(); let i = index; trackBy: ycTrack"
          class="wt-yc-card"
          [class.center]="ycPos(i) === 'center'"
@@ -2008,7 +2008,20 @@
   </div>
 
   <button class="wt-yc-arrow down" (click)="yamzyCarouselDown()" title="Suivant">▼</button>
+</div>
 
+<!-- ═══ v1.0.37 — Footer carrousel : breadcrumb HOME > Section + dots au centre-bas ═══ -->
+<div class="wt-yc-footer" *ngIf="!splashVisible() && yamzyCarouselOpen() && yamzyCarouselCards().length">
+  <!-- Breadcrumb HOME > Section, click pour basculer de niveau -->
+  <div class="wt-yc-breadcrumb">
+    <button class="wt-yc-bc-item"
+            [class.is-active]="studioLevel() === 'home'"
+            (click)="returnHome()">⚔ HOME</button>
+    <span *ngIf="studioLevel() === 'section'" class="wt-yc-bc-sep">›</span>
+    <span *ngIf="studioLevel() === 'section'"
+          class="wt-yc-bc-item is-active">{{ activePageLabel() }}</span>
+  </div>
+  <!-- Dots indicateur -->
   <div class="wt-yc-dots">
     <div *ngFor="let card of yamzyCarouselCards(); let i = index"
          class="wt-yc-dot"

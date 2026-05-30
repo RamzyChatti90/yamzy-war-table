@@ -109,6 +109,25 @@ export class WarTableComponent implements OnInit {
   // ═══ YAMZY COMPANION v1.0.17 — Avatar 3D animé fixé sur la gauche, présent partout ═══
   // (Guide panel retiré sur demande utilisateur — juste le gros avatar avec toutes les anims)
 
+  // ═══ CAROUSEL FOOTER + WHEEL v1.0.37 — breadcrumb + scroll wheel ═══
+  /** Label de la page active (utilisé dans le breadcrumb HOME > xxx). */
+  activePageLabel = computed(() => {
+    const pageId = this.activePage();
+    const page = WAR_TABLE_PAGES.find(p => p.id === pageId);
+    return page ? page.label : pageId;
+  });
+
+  /** Wheel sur le carousel = navigation entre cards (debouncé pour éviter rapid-fire). */
+  private wheelLockTimer: any = null;
+  onCarouselWheel(ev: WheelEvent): void {
+    if (!this.yamzyCarouselOpen() || this.positionMode()) return;
+    ev.preventDefault();
+    if (this.wheelLockTimer) return;
+    if (ev.deltaY > 0) this.yamzyCarouselDown();
+    else if (ev.deltaY < 0) this.yamzyCarouselUp();
+    this.wheelLockTimer = setTimeout(() => { this.wheelLockTimer = null; }, 350);
+  }
+
   // ═══ CAROUSEL TOGGLE v1.0.32 — click avatar pour ouvrir/fermer le carrousel ═══
   yamzyCarouselOpen = signal(false); // fermé par défaut
   toggleCarousel(): void {
