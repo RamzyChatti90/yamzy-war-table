@@ -897,9 +897,8 @@
       border:1px solid rgba(139,127,214,.18); border-radius:12px; font-size:11px; color:#a99fd6;
       line-height:1.4; font-family:'Poppins',sans-serif; }
 
-    /* ── ③ DASHBOARD SKIN — v1.0.57 : prend toute la hauteur de .wt-main
-       PS hero + Cockpit en row (flex:1 → grandissent), Mes Plannings flex auto.
-       Le tout tient dans la viewport sans scroll au niveau de main. */
+    /* ── ③ DASHBOARD SKIN — v1.0.59 : Stack vertical, tout full-width
+       PS hero (pleine largeur) → Cockpit (pleine largeur) → Mes Plannings (half right) */
     .wt-sk-dash {
       display: flex;
       flex-direction: column;
@@ -910,35 +909,71 @@
       max-height: 100%;
     }
     .wt-sk-dash-row {
-      display: flex;
-      gap: 16px;
-      align-items: stretch;
-      flex: 1 1 60%;
+      display: block;                /* plus de row : seul PS hero dedans */
+      flex: 0 0 auto;
       min-height: 0;
     }
-    /* PS hero prend l'espace restant dans la row */
     .wt-sk-dash-row .wt-sk-video-wrap {
-      flex: 1;
+      width: 100%;                   /* PS hero pleine largeur */
       min-width: 0;
       min-height: 0;
-      height: 100%;
     }
-    /* Override le clamp original sur .wt-sk-video — laisse la hauteur dynamique */
     .wt-sk-dash-row .wt-ps-header.wt-sk-video-wrap {
-      height: 100%;
-      max-height: 100%;
+      width: 100%;
+      max-height: none;
     }
-    /* Cockpit colonne droite : largeur fixe, hauteur 100%, scroll interne si trop */
-    .wt-sk-dash-row .wt-sk-news {
-      width: 300px;
-      flex-shrink: 0;
-      height: 100%;
-      max-height: 100%;
+
+    /* v1.0.59 — Cockpit EN PLEINE LARGEUR, cards en grille horizontale */
+    .wt-sk-news.wt-sk-news-fullwidth {
+      width: 100% !important;
+      max-width: 100%;
+      flex: 0 1 auto;
+      display: grid;
+      grid-template-columns: 320px 1fr;     /* col 1 : header+nav | col 2 : cards en row */
+      gap: 14px 18px;
+      animation: wt-sk-fade-up 1s ease-out;
+      background: rgba(29, 23, 46, .45);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(217, 154, 81, .14);
+      border-radius: 20px;
+      padding: 14px 18px;
+      max-height: 320px;
       overflow-y: auto;
-      padding-right: 4px;
+      align-items: start;
     }
-    .wt-sk-dash-row .wt-sk-news::-webkit-scrollbar { width: 5px; }
-    .wt-sk-dash-row .wt-sk-news::-webkit-scrollbar-thumb { background: rgba(217,154,81,.35); border-radius: 3px; }
+    .wt-sk-news.wt-sk-news-fullwidth .wt-sk-cockpit-head {
+      grid-column: 1; grid-row: 1;
+    }
+    .wt-sk-news.wt-sk-news-fullwidth .wt-sk-cockpit-nav {
+      grid-column: 1; grid-row: 2;
+      flex-direction: column; align-items: stretch;
+    }
+    /* Cards (active/list/tickets/alerts/news) en row sur la colonne droite */
+    .wt-sk-news.wt-sk-news-fullwidth > *:not(.wt-sk-cockpit-head):not(.wt-sk-cockpit-nav) {
+      grid-column: 2;
+    }
+    /* Wrap les cards en grille auto-fill */
+    .wt-sk-news.wt-sk-news-fullwidth .wt-sk-news-card {
+      display: inline-flex;
+      width: 100%;
+      min-height: 78px;
+    }
+    .wt-sk-news.wt-sk-news-fullwidth .wt-sk-cockpit-sep {
+      grid-column: 1 / -1;
+      margin: 6px 0 2px;
+    }
+    .wt-sk-news.wt-sk-news-fullwidth::-webkit-scrollbar { width: 6px; }
+    .wt-sk-news.wt-sk-news-fullwidth::-webkit-scrollbar-thumb { background: rgba(217,154,81,.35); border-radius: 3px; }
+
+    @media (min-width: 1280px) {
+      /* Sur large écran, cards en 2 colonnes pour mieux remplir l'espace */
+      .wt-sk-news.wt-sk-news-fullwidth {
+        grid-template-columns: 280px repeat(2, 1fr);
+      }
+      .wt-sk-news.wt-sk-news-fullwidth > *:not(.wt-sk-cockpit-head):not(.wt-sk-cockpit-nav):not(.wt-sk-cockpit-sep) {
+        grid-column: auto;
+      }
+    }
     .wt-sk-video-wrap { position:relative; flex:1; min-width:0; }
     .wt-sk-video { position:relative; overflow:hidden; width:100%;
       height:clamp(320px,46vh,560px); border-radius:32px;
