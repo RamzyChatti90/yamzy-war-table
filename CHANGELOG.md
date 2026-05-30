@@ -6,6 +6,16 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.6] — 2026-05-30
+
+### Fixed
+- 🐛 **Calendrier / Légende sprints** : le rebrand propage désormais aux tickets aussi
+  - Avant : `pos_sprints.name` renommé mais `pos_tickets.sprint` (string column) gardait `Sprint 1, 2, 3…` → calendrier affichait les anciens
+  - Maintenant : rebrand met à jour toutes les `t.sprint` matchant l'ancien nom OU les variantes `Sprint N` / `sprint N` / `S{N}` / `S0{N}`
+  - Réponse de l'endpoint enrichie : `ticketsUpdated` ajouté pour debug
+
+---
+
 ## [1.0.5] — 2026-05-30
 
 ### Added
