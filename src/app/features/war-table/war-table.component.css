@@ -1628,3 +1628,112 @@ body { background: #0a0820 !important; }
 /* is-overdue prime sur is-launchable (cumulés) — overdue wins */
 .wt-ps-header.is-launchable.is-overdue { border-color: rgba(222, 79, 95, 0.45); }
 
+
+/* === v1.0.9 — Magic Card glow effect (rotating gradient ring) === */
+/* Inspired by Mythrill's Magic Card — @property --rotate animates the gradient angle */
+
+@property --rotate {
+  syntax: "<angle>";
+  initial-value: 132deg;
+  inherits: false;
+}
+
+/* Override : remplace l'inner highlight par le rotating ring + glow */
+.wt-ps-header {
+  isolation: isolate;
+  z-index: 0;
+  /* Espace pour le glow autour sans clip */
+  margin: 4px 4px 30px 4px;
+}
+
+.wt-ps-header::before {
+  content: "";
+  position: absolute;
+  inset: -3px;  /* dépasse de 3px tout autour pour faire le ring */
+  border-radius: 32px;
+  background-image: linear-gradient(
+    var(--rotate),
+    #d99a51,        /* gold yamzy */
+    #c25d8d 43%,    /* magenta */
+    #6647bf         /* purple */
+  );
+  z-index: -1;
+  animation: wt-ps-glow-spin 3.5s linear infinite;
+  pointer-events: none;
+}
+
+.wt-ps-header::after {
+  content: "";
+  position: absolute;
+  top: 40%;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -2;
+  transform: scale(0.85);
+  filter: blur(60px);
+  background-image: linear-gradient(
+    var(--rotate),
+    #d99a51,
+    #c25d8d 43%,
+    #6647bf
+  );
+  opacity: 0.55;
+  animation: wt-ps-glow-spin 3.5s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes wt-ps-glow-spin {
+  0%   { --rotate: 0deg; }
+  100% { --rotate: 360deg; }
+}
+
+/* === Variantes de gradient par état du sprint === */
+
+/* IDLE : gold → magenta → purple (default ci-dessus) */
+
+/* LAUNCHABLE : vert → cyan → teal */
+.wt-ps-header.is-launchable::before,
+.wt-ps-header.is-launchable::after {
+  background-image: linear-gradient(
+    var(--rotate),
+    #70b944,
+    #4696b9 43%,
+    #2ea1cb
+  );
+}
+
+/* ACTIVE : cyan → bleu → violet (le plus fidèle au Mythrill original) */
+.wt-ps-header.is-active::before,
+.wt-ps-header.is-active::after {
+  background-image: linear-gradient(
+    var(--rotate),
+    #5ddcff,
+    #3c67e3 43%,
+    #4e00c2
+  );
+}
+
+/* TODAY : jaune → doré → rouge orangé */
+.wt-ps-header.is-today::before,
+.wt-ps-header.is-today::after {
+  background-image: linear-gradient(
+    var(--rotate),
+    #ffd166,
+    #d99a51 43%,
+    #de4f5f
+  );
+}
+
+/* OVERDUE : rouge → magenta → violet */
+.wt-ps-header.is-overdue::before,
+.wt-ps-header.is-overdue::after {
+  background-image: linear-gradient(
+    var(--rotate),
+    #de4f5f,
+    #c25d8d 43%,
+    #6647bf
+  );
+}
+
