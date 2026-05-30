@@ -227,6 +227,23 @@
 
     <!-- ═══ MAIN AREA ═══ -->
     <main class="wt-main">
+      <!-- v1.0.42 — Header PS hero générique sur TOUTES les pages (sauf dashboard qui a le sien) -->
+      <header *ngIf="api.selectedProjectId() && studioLevel() === 'section' && activePage() !== 'dashboard'"
+              class="wt-ps-header wt-page-ps-header">
+        <div class="wt-ps-tag" [style.background]="pageHeaderInfo().tagColor">
+          <span>{{ pageHeaderInfo().tag }}</span>
+        </div>
+        <h1 class="wt-ps-title">{{ pageHeaderInfo().title }}</h1>
+        <div class="wt-page-ps-desc">{{ pageHeaderInfo().desc }}</div>
+        <div *ngIf="pageHeaderInfo().tip" class="wt-page-ps-tip">💡 {{ pageHeaderInfo().tip }}</div>
+        <div class="wt-ps-purchase">
+          <h2 class="wt-ps-price">{{ activePage() }}</h2>
+          <button class="wt-ps-btn" [style.background]="pageHeaderInfo().tagColor" (click)="pageHeaderAction()">
+            {{ pageHeaderInfo().actionLabel }}
+          </button>
+        </div>
+      </header>
+
       <!-- No project yet -->
       <div *ngIf="!api.selectedProjectId()" class="wt-empty">
         <div class="wt-empty-3d">

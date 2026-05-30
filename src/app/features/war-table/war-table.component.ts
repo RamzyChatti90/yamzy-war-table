@@ -168,6 +168,50 @@ export class WarTableComponent implements OnInit {
     if (this.yamzyCarouselOpen()) this.startAutoScroll();
   }
 
+  // ═══ PAGE HEADER v1.0.42 — Header PS hero générique sur toutes les pages ═══
+  /** Header info adapté à la page active. */
+  pageHeaderInfo = computed(() => {
+    const id = this.activePage();
+    const proj = this.currentProject();
+    const projName = proj?.name || 'Projet';
+    const lang = this.i18n.lang() as 'fr' | 'en';
+    const entry: any = (TOOLTIP_GUIDE as any)[id];
+    const tr = entry?.[lang] || entry?.fr || null;
+    const tagColor = '#3482e7';
+    const info: { tag: string; tagColor: string; title: string; desc: string; tip?: string; actionLabel: string; pageId: string } = {
+      tag: tr?.scrum ? `[${tr.scrum.toUpperCase()}]` : id.toUpperCase(),
+      tagColor,
+      title: tr?.yamzy ? `${tr.yamzy} · ${projName}` : id,
+      desc: tr?.desc || `Page ${id}`,
+      tip: tr?.tip,
+      actionLabel: 'Mode édition 🔓',
+      pageId: id,
+    };
+    // Per-page custom action
+    if (id === 'backlog' || id === 'backlog-tma') { info.actionLabel = '+ Nouveau ticket'; info.tagColor = '#6647bf'; }
+    else if (id === 'sprints' || id === 'sprint-planning') { info.actionLabel = '+ Nouveau sprint'; info.tagColor = '#4696b9'; }
+    else if (id === 'risks') { info.actionLabel = '+ Nouveau risque'; info.tagColor = '#de4f5f'; }
+    else if (id === 'calendrier' || id === 'agenda') { info.actionLabel = '+ Nouvel événement'; info.tagColor = '#70b944'; }
+    else if (id === 'capacity') { info.actionLabel = '+ Nouveau membre'; info.tagColor = '#9d8ad6'; }
+    else if (id === 'stakeholders') { info.actionLabel = '+ Stakeholder'; info.tagColor = '#d99a51'; }
+    else if (id === 'tech-debt') { info.actionLabel = '+ Dette tech'; info.tagColor = '#eb8052'; }
+    else if (id === 'lessons') { info.actionLabel = '+ Lesson learned'; info.tagColor = '#c25d8d'; }
+    else if (id === 'roadmap') { info.actionLabel = '+ Jalon roadmap'; info.tagColor = '#9d8ad6'; }
+    else if (id === 'parametres') { info.actionLabel = 'Mode édition 🔓'; info.tagColor = '#9d8ad6'; }
+    return info;
+  });
+
+  /** Exécute l'action du header (varie selon la page). */
+  pageHeaderAction(): void {
+    const id = this.activePage();
+    if (id === 'calendrier' || id === 'agenda') {
+      this.openNewEvent();
+      return;
+    }
+    // Pour les autres pages : active le mode édition (les boutons + de chaque page deviennent visibles)
+    if (this.editMode) this.editMode.set(true);
+  }
+
   // ═══ STUDIO LEVELS v1.0.30 — Home (menu) vs Section (cockpit messages) ═══
   // Niveau 1 = home : carousel affiche le menu des sections principales
   // Niveau 2 = section : carousel affiche les messages cockpit (events/alerts/tickets)
