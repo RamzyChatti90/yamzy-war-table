@@ -1993,6 +1993,18 @@ export class WarTableComponent implements OnInit {
     return p ? p.superCat : null;
   });
 
+  /** v1.0.73 — Helpers pour le breadcrumb footer (HOME > Super-cat > Page). */
+  superCatLabel(sc: SuperCat): string {
+    return this.superCats.find(s => s.id === sc)?.label || sc;
+  }
+  superCatColor(sc: SuperCat): string {
+    return this.superCats.find(s => s.id === sc)?.color || '#d99a51';
+  }
+  superCatIndexFor(sc: SuperCat): number {
+    const order: SuperCat[] = ['Dashboard', 'Sprint', 'Planning', 'Reporting', 'Setup'];
+    return order.indexOf(sc);
+  }
+
   /** v1.0.70 — Pages de la super-cat active, regroupées par sous-cat,
    *  pour affichage dans le cockpit (cards cliquables après ACTUALITÉ DU PROJET). */
   superCatPagesCards = computed<{ page: PageDef; isActive: boolean; color: string }[]>(() => {

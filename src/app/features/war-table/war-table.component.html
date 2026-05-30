@@ -2165,14 +2165,22 @@
 
 <!-- ═══ v1.0.37 — Footer carrousel : breadcrumb HOME > Section + dots au centre-bas ═══ -->
 <div class="wt-yc-footer" *ngIf="!splashVisible() && yamzyCarouselOpen() && yamzyCarouselCards().length">
-  <!-- Breadcrumb HOME > Section, click pour basculer de niveau -->
+  <!-- v1.0.73 — Breadcrumb HOME > Super-cat > Page selectionnee -->
   <div class="wt-yc-breadcrumb">
     <button class="wt-yc-bc-item"
             [class.is-active]="studioLevel() === 'home'"
             (click)="returnHome()">⚔ HOME</button>
-    <span *ngIf="studioLevel() === 'section'" class="wt-yc-bc-sep">›</span>
-    <span *ngIf="studioLevel() === 'section'"
-          class="wt-yc-bc-item is-active">{{ activePageLabel() }}</span>
+    <ng-container *ngIf="studioLevel() === 'section' && activeSuperCat() as sc">
+      <span class="wt-yc-bc-sep">›</span>
+      <button class="wt-yc-bc-item wt-yc-bc-supercat"
+              [style.color]="superCatColor(sc)"
+              (click)="onNavClick(superCatIndexFor(sc))"
+              [title]="'Aller à la page par défaut de ' + sc">
+        {{ superCatLabel(sc) }}
+      </button>
+      <span class="wt-yc-bc-sep">›</span>
+      <span class="wt-yc-bc-item is-active wt-yc-bc-page">{{ activePageLabel() }}</span>
+    </ng-container>
   </div>
   <!-- Dots indicateur -->
   <div class="wt-yc-dots">

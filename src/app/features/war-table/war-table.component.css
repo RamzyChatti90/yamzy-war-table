@@ -4255,6 +4255,18 @@ body { background: #0a0820 !important; }
   cursor: default;
   text-shadow: 0 0 6px rgba(217, 154, 81, 0.35);
 }
+/* v1.0.73 — Super-cat dans breadcrumb (couleur dynamique via [style.color]) */
+.wt-yc-bc-supercat {
+  font-weight: 700 !important;
+  text-shadow: 0 0 6px currentColor;
+  cursor: pointer;
+}
+.wt-yc-bc-supercat:hover { text-shadow: 0 0 10px currentColor; }
+/* Page selectionnee : un peu plus discrete */
+.wt-yc-bc-page {
+  opacity: .9;
+  font-weight: 600 !important;
+}
 .wt-yc-bc-sep {
   color: rgba(217, 154, 81, 0.35);
   font-size: 11px;
