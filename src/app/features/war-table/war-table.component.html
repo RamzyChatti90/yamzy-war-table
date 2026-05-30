@@ -1885,4 +1885,61 @@
 
   <!-- ═══ v1.0.8 — Wt-Dialog : popup unifié au style studio (remplace alert/confirm/prompt natifs) ═══ -->
   <app-wt-dialog></app-wt-dialog>
+
+  <!-- ═══ v1.0.16 — YAMZY FAB : avatar 3D flottant présent sur TOUTES les pages ═══ -->
+  <div class="wt-yamzy-fab" [class.is-open]="yamzyFabOpen()"
+       (click)="toggleYamzyFab()"
+       title="Demande conseil à Yamzy">
+    <div class="wt-yamzy-fab-glow"></div>
+    <div class="wt-yamzy-fab-avatar">
+      <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb" [rotate]="false"></app-yamzy-avatar-3d>
+    </div>
+    <div class="wt-yamzy-fab-bubble" *ngIf="!yamzyFabOpen()">
+      <span>💬</span>
+    </div>
+  </div>
+
+  <!-- Yamzy Guide panel (contextuel à la page active) -->
+  <div *ngIf="yamzyFabOpen()" class="wt-yamzy-backdrop" (click)="closeYamzyFab()"></div>
+  <aside *ngIf="yamzyFabOpen()" class="wt-yamzy-guide-panel" (click)="$event.stopPropagation()">
+    <div class="wt-yamzy-guide-head">
+      <span class="wt-yamzy-guide-brand">⚔ YAMZY GUIDE</span>
+      <button class="wt-icon-btn" (click)="closeYamzyFab()" title="Fermer">✕</button>
+    </div>
+    <div class="wt-yamzy-guide-body">
+      <ng-container *ngIf="currentPageGuide() as g; else noGuide">
+        <div class="wt-yamzy-guide-page-id">📍 {{ activePage() }}</div>
+        <div class="wt-yamzy-guide-yamzy">{{ g.yamzy }}</div>
+        <div class="wt-yamzy-guide-scrum-badge">
+          <span class="wt-yamzy-guide-scrum-label">Scrum</span>
+          <span class="wt-yamzy-guide-scrum-name">{{ g.scrum }}</span>
+        </div>
+        <div class="wt-yamzy-guide-desc">{{ g.desc }}</div>
+        <div *ngIf="g.tip" class="wt-yamzy-guide-tip">💡 <em>{{ g.tip }}</em></div>
+      </ng-container>
+      <ng-template #noGuide>
+        <div class="wt-yamzy-guide-empty">
+          Bienvenue dans WAR TABLE ⚔<br><br>
+          Je suis <strong>YAMZY</strong>, ton guide à travers l'univers du Scrum.
+          Clique sur n'importe quelle page de la sidebar pour que je t'explique
+          son rôle dans Scrum et son nom dans le monde Yamzy.
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Actions contextuelles rapides -->
+    <div class="wt-yamzy-guide-actions">
+      <button class="wt-yamzy-quick" (click)="setPage('mode-emploi'); closeYamzyFab()" title="Mode d'emploi">📖</button>
+      <button class="wt-yamzy-quick" (click)="setPage('dashboard'); closeYamzyFab()" title="Dashboard">🏰</button>
+      <button class="wt-yamzy-quick" (click)="setPage('agenda'); closeYamzyFab()" title="Agenda">📅</button>
+      <button class="wt-yamzy-quick" (click)="setPage('backlog'); closeYamzyFab()" title="Backlog">📜</button>
+      <button class="wt-yamzy-quick" (click)="setPage('risks'); closeYamzyFab()" title="Risques">⚠</button>
+      <button class="wt-yamzy-quick" (click)="toggleYamzyLang(); $event.stopPropagation()" [title]="i18n.lang() === 'fr' ? 'Switch to EN' : 'Passer en FR'">🌐</button>
+    </div>
+
+    <!-- Footer narratif -->
+    <div class="wt-yamzy-guide-foot">
+      <span>✨ Yamzy te guide à travers les rituels Scrum.</span>
+    </div>
+  </aside>
 </div>

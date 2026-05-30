@@ -19,6 +19,7 @@ import { LangSwitcherComponent } from '../../core/i18n/lang-switcher.component';
 import { WtDialogService } from '../../core/dialog/dialog.service';
 import { WtDialogComponent } from '../../core/dialog/wt-dialog.component';
 import { WtTooltipDirective } from '../../core/tooltip/wt-tooltip.directive';
+import { TOOLTIP_GUIDE } from '../../core/tooltip/tooltip-guide';
 
 interface PageDef { id: string; label: string; icon: string; cat: string; }
 
@@ -103,6 +104,23 @@ export class WarTableComponent implements OnInit {
     const pid = this.api.selectedProjectId();
     if (!pid) { this.timeAllocation.set(null); return; }
     this.api.timeAllocation(pid).subscribe({ next: d => this.timeAllocation.set(d), error: () => this.timeAllocation.set(null) });
+  }
+
+  // ═══ YAMZY FAB v1.0.16 — Avatar 3D flottant + Guide panel contextuel ═══
+  yamzyFabOpen = signal(false);
+  toggleYamzyFab(): void { this.yamzyFabOpen.update(v => !v); }
+  closeYamzyFab(): void { this.yamzyFabOpen.set(false); }
+  /** Resolve le tooltip de la page active depuis TOOLTIP_GUIDE. */
+  currentPageGuide = computed<any>(() => {
+    const pageId = this.activePage();
+    const lang = this.i18n.lang() as 'fr' | 'en';
+    const entry: any = (TOOLTIP_GUIDE as any)[pageId];
+    if (!entry) return null;
+    return entry[lang] || entry.fr || null;
+  });
+  /** Wrapper toggle FR/EN depuis le FAB Yamzy guide. */
+  toggleYamzyLang(): void {
+    this.i18n.setLang(this.i18n.lang() === 'fr' ? 'en' : 'fr');
   }
 
   // ═══ COCKPIT WIDGET v1.0.12 (style "Chicago" — 4 onglets en carrousel) ═══

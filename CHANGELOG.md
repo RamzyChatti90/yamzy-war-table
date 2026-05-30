@@ -6,6 +6,48 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.16] — 2026-05-31
+
+🐰 **YAMZY FAB partout** : ton compagnon 3D flotte en bas à droite
+sur toutes les pages du studio. Clic = panneau "Yamzy Guide"
+contextuel qui t'explique la page active (Yamzy + Scrum).
+
+### Added — Floating YAMZY 3D avatar
+- **FAB** (Floating Action Button) avec le modèle GLB `YAMZY.glb`
+  positionné `fixed; bottom: 24px; right: 78px;` — laisse passer le
+  right sidebar des projets
+- **Animations subtiles** :
+  - Bobbing flottant 4.2s ease-in-out (translateY ±8px)
+  - Glow radial gold + purple en arrière (blur 14px, scale pulse 3s)
+  - Bulle 💬 en coin top-right, pulse-rotate 2.4s pour inciter au clic
+  - Hover : translateY -6px + scale 1.08 (cubic bezier rebondi)
+- **Visible partout** : ajouté en racine du component (hors page
+  sections), pas seulement sur le dashboard
+
+### Added — Yamzy Guide panel (contextuel)
+- Clic sur le FAB → side panel droite 380px slide-in 0.32s
+- Contenu **réactif à la page active** via `TOOLTIP_GUIDE` :
+  - 📍 Page ID (monospace gris)
+  - **Nom Yamzy** en grand (Pirata One 28px, or glowing)
+  - Badge "Scrum: <nom officiel>" (cyan rounded pill)
+  - Description narrative (14px, line-height 1.55)
+  - 💡 Astuce (italique, fond or léger, bordure gauche)
+- **Actions rapides** : 6 boutons 42px ronds (📖 Mode d'emploi,
+  🏰 Dashboard, 📅 Agenda, 📜 Backlog, ⚠ Risques, 🌐 toggle FR/EN)
+- **Footer narratif** : "✨ Yamzy te guide à travers les rituels Scrum"
+- État empty (page sans tooltip) : message d'accueil Yamzy
+
+### Why
+> "ajoute l'avatar comme fab sur tout le studio"
+
+Avant v1.0.16, l'avatar Yamzy n'apparaissait QUE sur le dashboard
+(dans la card PS hero). Maintenant il accompagne l'utilisateur sur
+toutes les pages comme un vrai compagnon — et il est cliquable pour
+ouvrir un guide narratif contextuel qui mixe vocabulaire Scrum +
+Yamzy World.
+
+---
+
 ## [1.0.15] — 2026-05-31
 
 ✎ **Mode édition sur le calendrier** : créer / supprimer des événements
