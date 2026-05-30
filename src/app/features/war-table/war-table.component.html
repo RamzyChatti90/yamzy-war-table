@@ -1449,82 +1449,130 @@
           </div>
         </div>
 
-        <!-- ── CALENDRIER ── -->
+        <!-- ── CALENDRIER v1.0.58 : view switcher (jour/mois/année) ── -->
         <section *ngIf="activePage() === 'calendrier'" class="wt-calendar">
-          <!-- v1.0.15 : Top crud bar (toujours visible) + hint mode édition -->
-          <div class="wt-crud-bar">
-            <button class="wt-btn-add" (click)="openNewEvent()">+ Nouvel événement</button>
-            <button class="wt-btn-add" style="background:linear-gradient(135deg,#6647bf,#c25d8d)" (click)="regenerateScrumCeremonies()">🔄 Régénérer cérémonies Scrum</button>
-            <span *ngIf="editMode()" class="wt-cal-edit-hint">
-              ✎ Mode édition : clique sur le <strong>+</strong> d'une case pour ajouter un événement à cette date
-            </span>
-            <span *ngIf="!editMode()" class="wt-cal-edit-hint" style="opacity:.55">
-              💡 Active le mode édition (🔒 → 🔓 en haut) pour ajouter des événements directement aux cases
-            </span>
+          <!-- Toolbar : view switcher + navigation + crud -->
+          <div class="wt-cal-toolbar">
+            <!-- View switcher : Jour / Mois / Année -->
+            <div class="wt-cal-view-switch">
+              <button class="wt-cal-view-btn"
+                      [class.is-active]="calendarView() === 'day'"
+                      (click)="setCalendarView('day')">📅 Jour</button>
+              <button class="wt-cal-view-btn"
+                      [class.is-active]="calendarView() === 'month'"
+                      (click)="setCalendarView('month')">🗓 Mois</button>
+              <button class="wt-cal-view-btn"
+                      [class.is-active]="calendarView() === 'year'"
+                      (click)="setCalendarView('year')">📆 Année</button>
+            </div>
+            <!-- Navigation prev/today/next -->
+            <div class="wt-cal-nav">
+              <button class="wt-cal-nav-btn" (click)="calendarPrev()" title="Précédent">‹</button>
+              <button class="wt-cal-nav-today" (click)="calendarToday()" title="Aujourd'hui">Aujourd'hui</button>
+              <button class="wt-cal-nav-btn" (click)="calendarNext()" title="Suivant">›</button>
+              <span class="wt-cal-nav-label">{{ calendarCursorLabel() }}</span>
+            </div>
+            <!-- CRUD actions -->
+            <div class="wt-cal-crud">
+              <button class="wt-btn-add" (click)="openNewEvent()">+ Événement</button>
+              <button class="wt-btn-add" style="background:linear-gradient(135deg,#6647bf,#c25d8d)" (click)="regenerateScrumCeremonies()">🔄 Régénérer Scrum</button>
+            </div>
           </div>
 
-          <div *ngIf="!calendarMonths().length" class="wt-muted">{{ 'empty.no_date_planned' | t }}</div>
-          <div *ngFor="let m of calendarMonths()" class="wt-cal-month">
-            <h3 class="wt-cal-month-title">{{ m.label }}</h3>
+          <!-- ═══ VUE JOUR : timeline events triés par heure ═══ -->
+          <div *ngIf="calendarView() === 'day'" class="wt-cal-day-view">
+            <div *ngIf="!calendarDayEvents().length" class="wt-cal-day-empty">
+              <div class="wt-cal-day-empty-icon">☕</div>
+              <h3>Aucun événement ce jour</h3>
+              <button class="wt-btn-add" (click)="openNewEvent()">+ Planifier une réunion</button>
+            </div>
+            <div *ngFor="let ev of calendarDayEvents()"
+                 class="wt-cal-day-card"
+                 [class.is-collision]="ev.collision"
+                 [class.is-completed]="ev.status === 'COMPLETED'"
+                 [style.--ev]="ev.color"
+                 (click)="openEventDetail(ev.id)">
+              <div class="wt-cal-day-time">
+                <span class="wt-cal-day-time-start">{{ ev.time }}</span>
+                <span *ngIf="ev.endTime" class="wt-cal-day-time-end">→ {{ ev.endTime }}</span>
+              </div>
+              <div class="wt-cal-day-bar" [style.background]="ev.color"></div>
+              <div class="wt-cal-day-body">
+                <div class="wt-cal-day-title">{{ ev.title }}</div>
+                <div class="wt-cal-day-type">
+                  <span class="wt-cal-day-tag" [style.background]="ev.color">{{ eventTypeLabel(ev.type) }}</span>
+                  <span *ngIf="ev.collision" class="wt-cal-day-tag" style="background:#de4f5f">⚠ Chevauchement</span>
+                </div>
+                <div *ngIf="ev.attendees.length" class="wt-cal-day-avatars">
+                  <span *ngFor="let a of ev.attendees" class="wt-cal-mini-avatar"
+                        [style.background]="a.color || '#6b6396'"
+                        [title]="a.name + (a.role ? ' · ' + a.role : '')">
+                    {{ a.emoji || (a.initials || (a.name || '?').charAt(0)) }}
+                  </span>
+                </div>
+              </div>
+              <button *ngIf="editMode()" class="wt-cal-event-del" (click)="$event.stopPropagation(); deleteEventById(ev)" title="Supprimer">×</button>
+            </div>
+          </div>
+
+          <!-- ═══ VUE MOIS : un seul mois, grille classique ═══ -->
+          <div *ngIf="calendarView() === 'month'" class="wt-cal-month">
             <div class="wt-cal-grid">
               <div class="wt-cal-dow" *ngFor="let d of weekdays()">{{ d }}</div>
-              <div *ngFor="let cell of m.cells"
+              <div *ngFor="let cell of calendarMonthView().cells"
                    class="wt-cal-cell"
                    [class.empty]="!cell.day"
                    [class.weekend]="cell.weekend"
                    [class.today]="cell.isToday"
                    [class.has-collision]="cell.hasCollision"
-                   [class.is-editable]="editMode() && cell.day">
+                   [class.is-editable]="editMode() && cell.day"
+                   (click)="cell.day && goToDay(cell.dateStr)">
                 <ng-container *ngIf="cell.day">
                   <div class="wt-cal-daynum">
                     {{ cell.day }}
                     <span *ngIf="cell.hasCollision" class="wt-cal-collision" title="Conflit d'horaires détecté">⚠</span>
-                    <!-- v1.0.15 : bouton "+" en haut de la case en edit mode -->
                     <button *ngIf="editMode()"
                             class="wt-cal-add-btn"
-                            (click)="openNewEventOnDay(cell.dateStr)"
+                            (click)="$event.stopPropagation(); openNewEventOnDay(cell.dateStr)"
                             title="+ Ajouter un événement le {{ cell.dateStr }}">+</button>
                   </div>
-                  <!-- v1.0.13 : Events (daily/planning/review/retro/meeting) — affichés EN PREMIER -->
                   <div *ngFor="let ev of cell.events"
                        class="wt-cal-event"
                        [class.is-collision]="ev.collision"
                        [class.is-completed]="ev.status === 'COMPLETED'"
                        [style.--ev]="ev.color"
-                       (click)="openEventDetail(ev.id)"
+                       (click)="$event.stopPropagation(); openEventDetail(ev.id)"
                        [title]="ev.time + ' · ' + ev.title + (ev.collision ? ' ⚠ CHEVAUCHEMENT' : '')">
                     <span class="wt-cal-event-dot" [style.background]="ev.color"></span>
                     <span class="wt-cal-event-time">{{ ev.time }}</span>
                     <span class="wt-cal-event-title">{{ ev.title }}</span>
-                    <span *ngIf="ev.attendeesCount" class="wt-cal-event-attendees">
-                      <span *ngFor="let a of ev.attendees" class="wt-cal-mini-avatar"
-                            [style.background]="a.color || '#6b6396'"
-                            [title]="a.name + (a.role ? ' · ' + a.role : '')">
-                        {{ a.emoji || (a.initials || (a.name || '?').charAt(0)) }}
-                      </span>
-                      <span *ngIf="ev.attendeesCount > 4" class="wt-cal-mini-more">+{{ ev.attendeesCount - 4 }}</span>
-                    </span>
-                    <!-- v1.0.15 : icône delete event (edit mode seulement) -->
-                    <button *ngIf="editMode()"
-                            class="wt-cal-event-del"
-                            (click)="$event.stopPropagation(); deleteEventById(ev)"
-                            title="Supprimer cet événement">×</button>
                   </div>
-                  <!-- Tickets affectés à ce jour (deadline / range) -->
                   <div class="wt-cal-evt" *ngFor="let t of cell.tickets"
                        [style.--sp]="sprintColor(t.sprint)"
                        [title]="t.ticketId + ' — ' + t.title + ' (' + (t.sprint||'') + ')'">
                     <span class="wt-cal-evt-id">{{ t.ticketId }}</span>
                     <span class="wt-cal-evt-title">{{ t.title }}</span>
                   </div>
-                  <!-- v1.0.15 : Drop zone "+ Ajouter" en bas en edit mode (visible seulement au hover) -->
-                  <button *ngIf="editMode()"
-                          class="wt-cal-cell-add-zone"
-                          (click)="openNewEventOnDay(cell.dateStr)"
-                          title="Ajouter un événement">
-                    + événement
-                  </button>
                 </ng-container>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ VUE ANNÉE : 12 mini-mois cliquables ═══ -->
+          <div *ngIf="calendarView() === 'year'" class="wt-cal-year-view">
+            <div *ngFor="let m of calendarYearView()"
+                 class="wt-cal-mini-month"
+                 (click)="goToMonth(m.idx, m.year)">
+              <div class="wt-cal-mini-head">
+                <span class="wt-cal-mini-label">{{ m.label }}</span>
+                <span *ngIf="m.count" class="wt-cal-mini-badge">{{ m.count }}</span>
+              </div>
+              <div class="wt-cal-mini-grid">
+                <div *ngFor="let d of weekdays()" class="wt-cal-mini-dow">{{ d.charAt(0) }}</div>
+                <div *ngFor="let c of m.cells"
+                     class="wt-cal-mini-cell"
+                     [class.empty]="!c.day"
+                     [class.has-event]="c.hasEvent">{{ c.day }}</div>
               </div>
             </div>
           </div>

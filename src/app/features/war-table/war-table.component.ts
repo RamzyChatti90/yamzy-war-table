@@ -2360,6 +2360,144 @@ export class WarTableComponent implements OnInit {
     return ids;
   }
 
+  // ═══ v1.0.58 — Calendrier view switcher (jour / mois / année) ═══
+  /** Vue active du calendrier — switch UI. */
+  calendarView = signal<'day' | 'month' | 'year'>('month');
+  /** Date "curseur" — point central de la vue. Init à aujourd'hui. */
+  calendarCursor = signal<Date>(new Date());
+
+  setCalendarView(v: 'day' | 'month' | 'year'): void { this.calendarView.set(v); }
+  calendarToday(): void { this.calendarCursor.set(new Date()); }
+  calendarPrev(): void {
+    const c = new Date(this.calendarCursor());
+    const v = this.calendarView();
+    if (v === 'day') c.setDate(c.getDate() - 1);
+    else if (v === 'month') c.setMonth(c.getMonth() - 1);
+    else c.setFullYear(c.getFullYear() - 1);
+    this.calendarCursor.set(c);
+  }
+  calendarNext(): void {
+    const c = new Date(this.calendarCursor());
+    const v = this.calendarView();
+    if (v === 'day') c.setDate(c.getDate() + 1);
+    else if (v === 'month') c.setMonth(c.getMonth() + 1);
+    else c.setFullYear(c.getFullYear() + 1);
+    this.calendarCursor.set(c);
+  }
+  /** Label header selon vue (ex. "Lundi 02 juin 2026" / "Juin 2026" / "2026"). */
+  calendarCursorLabel = computed(() => {
+    const c = this.calendarCursor();
+    const v = this.calendarView();
+    const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    const days = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    if (v === 'day') return `${days[c.getDay()]} ${c.getDate()} ${months[c.getMonth()].toLowerCase()} ${c.getFullYear()}`;
+    if (v === 'month') return `${months[c.getMonth()]} ${c.getFullYear()}`;
+    return `${c.getFullYear()}`;
+  });
+
+  /** Vue JOUR : événements du jour curseur, triés par heure. */
+  calendarDayEvents = computed(() => {
+    const cur = this.calendarCursor();
+    const dateStr = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
+    const events = (this.events() || []).filter(ev => ev.scheduledStart && ev.scheduledStart.substring(0,10) === dateStr);
+    const collisionIds = this.detectCollisions(events);
+    return events
+      .map(ev => ({
+        id: ev.id, type: ev.type, title: ev.title,
+        time: this.formatTime(ev.scheduledStart),
+        endTime: this.formatTime(ev.scheduledEnd),
+        color: ev.colorHex || this.eventTypeColorMap[ev.type] || '#6b6396',
+        collision: collisionIds.has(ev.id),
+        attendees: (ev.attendees || []),
+        status: ev.status,
+      }))
+      .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  });
+
+  /** Vue MOIS : un seul mois (celui du curseur) en grille. */
+  calendarMonthView = computed(() => {
+    const cur = this.calendarCursor();
+    const tickets = this.tickets().filter(t => t.deliveryDate || t.startDate);
+    const events = this.events() || [];
+    const collisionIds = this.detectCollisions(events);
+    const monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    const todayStr = new Date().toISOString().substring(0, 10);
+    const year = cur.getFullYear(), month = cur.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDow = (new Date(year, month, 1).getDay() + 6) % 7;
+    const cells: any[] = [];
+    for (let i = 0; i < firstDow; i++) cells.push({ day: null });
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const dow = (new Date(year, month, d).getDay() + 6) % 7;
+      const dayTickets = tickets.filter(t => {
+        const s = this.parseDate(t.startDate);
+        const e = this.parseDate(t.deliveryDate) || s;
+        const st = s || e;
+        if (!st || !e) return false;
+        const cell = new Date(dateStr);
+        return cell >= new Date(st.toISOString().substring(0,10)) && cell <= new Date(e.toISOString().substring(0,10));
+      });
+      const dayEvents = events
+        .filter(ev => ev.scheduledStart && ev.scheduledStart.substring(0, 10) === dateStr)
+        .map(ev => ({
+          id: ev.id, type: ev.type, title: ev.title,
+          time: this.formatTime(ev.scheduledStart),
+          color: ev.colorHex || this.eventTypeColorMap[ev.type] || '#6b6396',
+          collision: collisionIds.has(ev.id),
+          attendeesCount: (ev.attendees || []).length,
+          attendees: (ev.attendees || []).slice(0, 4),
+          status: ev.status,
+        }))
+        .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+      cells.push({
+        day: d, weekend: dow >= 5, isToday: dateStr === todayStr,
+        tickets: dayTickets, events: dayEvents,
+        hasCollision: dayEvents.some(e => e.collision),
+        dateStr,
+      });
+    }
+    return { label: `${monthNames[month]} ${year}`, cells };
+  });
+
+  /** Vue ANNÉE : 12 mini-mois avec compte d'événements / mois. */
+  calendarYearView = computed(() => {
+    const cur = this.calendarCursor();
+    const events = this.events() || [];
+    const monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    const year = cur.getFullYear();
+    return Array.from({ length: 12 }, (_, m) => {
+      const monthEvents = events.filter(ev => {
+        if (!ev.scheduledStart) return false;
+        const d = new Date(ev.scheduledStart);
+        return d.getFullYear() === year && d.getMonth() === m;
+      });
+      const daysInMonth = new Date(year, m + 1, 0).getDate();
+      const firstDow = (new Date(year, m, 1).getDay() + 6) % 7;
+      const cells: any[] = [];
+      for (let i = 0; i < firstDow; i++) cells.push({ day: null });
+      for (let d = 1; d <= daysInMonth; d++) {
+        const has = monthEvents.some(ev => {
+          const dt = new Date(ev.scheduledStart!);
+          return dt.getDate() === d;
+        });
+        cells.push({ day: d, hasEvent: has });
+      }
+      return { idx: m, label: monthNames[m], year, count: monthEvents.length, cells };
+    });
+  });
+
+  /** Click sur un mini-mois en vue année → switch en vue mois sur ce mois. */
+  goToMonth(monthIdx: number, year: number): void {
+    this.calendarCursor.set(new Date(year, monthIdx, 1));
+    this.calendarView.set('month');
+  }
+  /** Click sur une case en vue mois → switch en vue jour sur cette date. */
+  goToDay(dateStr: string): void {
+    this.calendarCursor.set(new Date(dateStr));
+    this.calendarView.set('day');
+  }
+
   calendarMonths = computed(() => {
     const tickets = this.tickets().filter(t => t.deliveryDate || t.startDate);
     const events = this.events() || [];
