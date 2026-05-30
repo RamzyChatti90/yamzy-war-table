@@ -295,12 +295,10 @@
 
         <!-- ── Template du dashboard universel — défini une seule fois, rendu partout ── -->
         <ng-template #dashHeaderTpl>
-        <!-- v1.0.66 — Layout 2 COLONNES :
-             LEFT col (.wt-sk-dash-left) = PS hero EN HAUT + Mes Plannings EN BAS
-             RIGHT col (.wt-sk-news.wt-sk-news-tall) = COCKPIT pleine HAUTEUR de la page -->
+        <!-- v1.0.67 — Layout 2 COLONNES (sans avatar) :
+             LEFT = HEADER PS hero pleine HAUTEUR avec Mes Plannings IMBRIQUÉ dedans
+             RIGHT = COCKPIT pleine HAUTEUR -->
         <section class="wt-sk-dash">
-          <div class="wt-sk-dash-left">
-          <div class="wt-sk-dash-row">
             <!-- v1.0.53 — PS hero ADAPTATIF par menu :
                  • Sur dashboard : projet + sprint info (Lancer / Interrompre)
                  • Sur autres pages : tag + titre + desc + tip + action page-spécifique
@@ -377,13 +375,55 @@
                 </div>
               </ng-template>
 
-              <!-- Yamzy avatar 3D — toujours présent -->
-              <div class="wt-ps-spiderman-img">
-                <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb" [rotate]="false"></app-yamzy-avatar-3d>
+              <!-- v1.0.67 — Avatar Yamzy 3D retiré du header sur demande utilisateur -->
+
+              <!-- v1.0.67 — Mes Plannings IMBRIQUÉ DANS le header (nested) -->
+              <div class="wt-sk-top wt-sk-top-nested">
+                <div class="wt-sk-top-head">
+                  <div class="wt-sk-top-title">{{ 'dash.my_plannings' | t }}</div>
+                  <div class="wt-sk-live-pill">
+                    <div class="wt-sk-live-dot"></div>
+                    <div class="wt-sk-live-lbl">{{ 'common.live' | t }}</div>
+                  </div>
+                </div>
+                <div class="wt-sk-top-body">
+                  <div class="wt-sk-cats">
+                    <div *ngFor="let c of catsSkin(); let i = index"
+                         class="wt-sk-cat-row"
+                         [class.wt-sk-cat-active]="catActiveSkin() === i"
+                         (click)="$event.stopPropagation(); catActiveSkin.set(i)">
+                      <span class="wt-sk-cat-ico" [innerHTML]="catSkinIconHtml(i)"></span>
+                      <div class="wt-sk-cat-lbl">{{ c }}</div>
+                    </div>
+                  </div>
+                  <div class="wt-sk-projects">
+                    <div *ngFor="let p of filteredProjectsSkin()"
+                         class="wt-sk-proj-card"
+                         [class.wt-sk-proj-active]="p.id === api.selectedProjectId()"
+                         (click)="$event.stopPropagation(); selectProjectCard(p)" [title]="'[' + p.code + '] ' + p.name">
+                      <div class="wt-sk-proj-img" [style.background]="projectCardGradient(p)">
+                        <div class="wt-sk-proj-letter">{{ (p.code || '?').charAt(0) }}</div>
+                        <div class="wt-sk-proj-bar" [style.width.%]="progressOfProject(p)"></div>
+                      </div>
+                      <div class="wt-sk-proj-info">
+                        <div class="wt-sk-proj-avatar" [style.background]="projectCardGradient(p)">{{ (p.code || '?').charAt(0) }}</div>
+                        <div class="wt-sk-proj-meta">
+                          <div class="wt-sk-proj-code">{{ p.code }}</div>
+                          <div class="wt-sk-proj-name">{{ p.name }}</div>
+                          <div class="wt-sk-proj-tags">
+                            <div class="wt-sk-proj-tag" style="background:#6647bf">{{ progressOfProject(p) }}%</div>
+                            <div *ngIf="p.status" class="wt-sk-proj-tag" style="background:#4696b9">{{ p.status }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="filteredProjectsSkin().length === 0" class="wt-sk-empty">
+                      {{ 'empty.no_planning_in_cat' | t }}
+                    </div>
+                  </div>
+                </div>
               </div>
             </header>
-          </div>
-          <!-- ↑ fin de .wt-sk-dash-row (PS hero SEUL, dans colonne gauche) -->
 
           <!-- v1.0.45 — Template cockpit + news réutilisable sur toutes les pages -->
           <ng-template #cockpitNewsBlock>
@@ -605,58 +645,9 @@
               </div>
           </ng-template>
 
-          <!-- v1.0.52 — Mes Plannings PLACÉ APRÈS la dash-row (PS hero + cockpit)
-               pour qu'il soit visuellement SOUS le cockpit, comme demandé. -->
-          <div class="wt-sk-top">
-            <div class="wt-sk-top-head">
-              <div class="wt-sk-top-title">{{ 'dash.my_plannings' | t }}</div>
-              <div class="wt-sk-live-pill">
-                <div class="wt-sk-live-dot"></div>
-                <div class="wt-sk-live-lbl">{{ 'common.live' | t }}</div>
-              </div>
-            </div>
-            <div class="wt-sk-top-body">
-              <div class="wt-sk-cats">
-                <div *ngFor="let c of catsSkin(); let i = index"
-                     class="wt-sk-cat-row"
-                     [class.wt-sk-cat-active]="catActiveSkin() === i"
-                     (click)="catActiveSkin.set(i)">
-                  <span class="wt-sk-cat-ico" [innerHTML]="catSkinIconHtml(i)"></span>
-                  <div class="wt-sk-cat-lbl">{{ c }}</div>
-                </div>
-              </div>
-              <div class="wt-sk-projects">
-                <div *ngFor="let p of filteredProjectsSkin()"
-                     class="wt-sk-proj-card"
-                     [class.wt-sk-proj-active]="p.id === api.selectedProjectId()"
-                     (click)="selectProjectCard(p)" [title]="'[' + p.code + '] ' + p.name">
-                  <div class="wt-sk-proj-img" [style.background]="projectCardGradient(p)">
-                    <div class="wt-sk-proj-letter">{{ (p.code || '?').charAt(0) }}</div>
-                    <div class="wt-sk-proj-bar" [style.width.%]="progressOfProject(p)"></div>
-                  </div>
-                  <div class="wt-sk-proj-info">
-                    <div class="wt-sk-proj-avatar" [style.background]="projectCardGradient(p)">{{ (p.code || '?').charAt(0) }}</div>
-                    <div class="wt-sk-proj-meta">
-                      <div class="wt-sk-proj-code">{{ p.code }}</div>
-                      <div class="wt-sk-proj-name">{{ p.name }}</div>
-                      <div class="wt-sk-proj-tags">
-                        <div class="wt-sk-proj-tag" style="background:#6647bf">{{ progressOfProject(p) }}%</div>
-                        <div *ngIf="p.status" class="wt-sk-proj-tag" style="background:#4696b9">{{ p.status }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div *ngIf="filteredProjectsSkin().length === 0" class="wt-sk-empty">
-                  {{ 'empty.no_planning_in_cat' | t }}
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- ↑ fin de .wt-sk-top (Mes Plannings) -->
-          </div>
-          <!-- ↑ fin de .wt-sk-dash-left (colonne GAUCHE : PS hero + Mes Plannings) -->
+          <!-- v1.0.67 — Mes Plannings est maintenant IMBRIQUÉ DANS le header (au-dessus) -->
 
-          <!-- v1.0.66 — Colonne DROITE : COCKPIT en pleine HAUTEUR de la page -->
+          <!-- v1.0.66/67 — Colonne DROITE : COCKPIT en pleine HAUTEUR de la page -->
           <aside class="wt-sk-news wt-sk-news-tall wt-sk-news-fullheight">
             <ng-container *ngTemplateOutlet="cockpitNewsBlock"></ng-container>
           </aside>

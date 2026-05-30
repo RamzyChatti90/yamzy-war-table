@@ -966,10 +966,10 @@
       border:1px solid rgba(139,127,214,.18); border-radius:12px; font-size:11px; color:#a99fd6;
       line-height:1.4; font-family:'Poppins',sans-serif; }
 
-    /* ── ③ DASHBOARD SKIN — v1.0.66 : LAYOUT 2 COLONNES
-       .wt-sk-dash = flex ROW : LEFT col + RIGHT col (cockpit full height)
-       LEFT (.wt-sk-dash-left) = PS hero EN HAUT + Mes Plannings EN BAS
-       RIGHT (.wt-sk-news-fullheight) = COCKPIT pleine HAUTEUR de la page */
+    /* ── ③ DASHBOARD SKIN — v1.0.67 : LAYOUT 2 COLONNES SIMPLIFIÉ
+       Plus de .wt-sk-dash-left ni .wt-sk-dash-row wrappers.
+       LEFT = HEADER PS hero pleine HAUTEUR avec Mes Plannings IMBRIQUÉ
+       RIGHT = COCKPIT pleine HAUTEUR (.wt-sk-news.wt-sk-news-fullheight) */
     .wt-sk-dash {
       display: flex;
       flex-direction: row;
@@ -980,32 +980,21 @@
       min-height: 0;
       max-height: 100%;
     }
-    .wt-sk-dash-left {
+    /* Header PS hero = colonne gauche, pleine hauteur + flex column pour stack PS-content + Mes Plannings */
+    .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap {
       flex: 1;
       min-width: 0;
       min-height: 0;
+      height: auto;
+      max-height: 100%;
       display: flex;
       flex-direction: column;
       gap: 16px;
+      overflow-y: auto;
     }
-    .wt-sk-dash-row {
-      display: flex;
-      gap: 16px;
-      align-items: stretch;
-      flex: 1 1 60%;
-      min-height: 0;
-    }
-    .wt-sk-dash-row .wt-sk-video-wrap {
-      flex: 1;
-      min-width: 0;
-      min-height: 0;
-      height: 100%;
-    }
-    .wt-sk-dash-row .wt-ps-header.wt-sk-video-wrap {
-      width: 100%;
-      height: 100%;
-      max-height: 100%;
-    }
+    .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap::-webkit-scrollbar { width: 6px; }
+    .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.25); border-radius: 3px; }
+    .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap::-webkit-scrollbar-track { background: transparent; }
 
     /* v1.0.66 — Cockpit pleine HAUTEUR de la page (colonne droite de .wt-sk-dash) */
     .wt-sk-news.wt-sk-news-fullheight {
@@ -1096,34 +1085,36 @@
     .wt-sk-news-tags { display:flex; gap:6px; margin-top:6px; }
     .wt-sk-news-tag { color:#fff; font-size:10px; padding:1px 8px; border-radius:999px; font-weight:600; }
 
-    /* ⑤ Top Selection — v1.0.57 :
-       Mes Plannings sous le header, demi-largeur côté avatar (droite),
-       prend la hauteur restante de .wt-sk-dash via flex (pas de clamp viewport
-       qui forçait le scroll). Tient toujours dans la viewport. */
-    .wt-sk-top {
-      margin: 0;
-      width: 50%;
-      align-self: flex-end;            /* droite (côté avatar) */
-      flex: 0 1 38%;                   /* prend ~38% de la hauteur dispo, shrink OK */
-      min-height: 180px;
-      padding: 16px 20px;
-      border-radius: 24px;
-      background: linear-gradient(135deg, rgba(52,46,89,.85), rgba(29,23,46,.85));
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(217, 154, 81, 0.22);
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+    /* ⑤ Top Selection — v1.0.67 : NESTED dans le header PS hero
+       Position au BAS du header avec margin-top:auto. Bg sombre semi-transparent
+       pour bien ressortir sur le gradient du header. */
+    .wt-sk-top { margin: 0; }
+    .wt-sk-top-nested {
+      margin-top: auto !important;            /* pousse Mes Plannings vers le BAS */
+      width: 100% !important;
+      align-self: stretch;
+      padding: 16px 18px !important;
+      background: rgba(0, 0, 0, 0.32) !important;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      border-radius: 18px !important;
+      flex: 0 1 auto;
+      max-height: 45%;
       overflow-y: auto;
+      position: relative;
+      z-index: 2;
       display: flex;
       flex-direction: column;
     }
-    /* Layout interne compact pour tenir dans 50% de largeur */
-    .wt-sk-top .wt-sk-top-body { gap: 24px; margin-top: 18px; }
-    .wt-sk-top .wt-sk-cats { gap: 14px; }
-    .wt-sk-top .wt-sk-projects { gap: 18px; }
-    .wt-sk-top .wt-sk-proj-img { width: 150px; height: 95px; }
-    .wt-sk-top .wt-sk-top-title { font-size: 22px; }
-    .wt-sk-top::-webkit-scrollbar { width: 6px; }
-    .wt-sk-top::-webkit-scrollbar-thumb { background: rgba(217, 154, 81, 0.4); border-radius: 3px; }
+    .wt-sk-top-nested .wt-sk-top-head { padding: 0; }
+    .wt-sk-top-nested .wt-sk-top-title { font-size: 18px; color: #fff; }
+    .wt-sk-top-nested .wt-sk-top-body { gap: 16px; margin-top: 12px; }
+    .wt-sk-top-nested .wt-sk-cats { gap: 10px; padding-top: 4px; }
+    .wt-sk-top-nested .wt-sk-cat-row { font-size: 11px; }
+    .wt-sk-top-nested .wt-sk-projects { gap: 14px; }
+    .wt-sk-top-nested .wt-sk-proj-img { width: 130px; height: 80px; }
+    .wt-sk-top-nested::-webkit-scrollbar { width: 5px; }
+    .wt-sk-top-nested::-webkit-scrollbar-thumb { background: rgba(255,255,255,.3); border-radius: 3px; }
     .wt-sk-top::-webkit-scrollbar-track { background: transparent; }
 
     @media (max-width: 1100px) {
