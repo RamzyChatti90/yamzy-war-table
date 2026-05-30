@@ -64,6 +64,7 @@ export class YamzyAvatar3dComponent implements AfterViewInit, OnDestroy {
   private clock: any;
   private mixer: any = null;
   private animFrameId: any;
+  private modelBaselineY = 0; // v1.0.27 — y de centrage, sert de baseline pour le bobbing
   private disposed = false;
   private bobPhase = 0;
 
@@ -136,13 +137,15 @@ export class YamzyAvatar3dComponent implements AfterViewInit, OnDestroy {
       const center = new T.Vector3();
       box.getCenter(center);
       this.model.position.sub(center);
+      // v1.0.27 — Mémorise l'y de centrage : le bobbing s'ajoutera dessus
+      // au lieu d'écraser l'offset (sinon le modèle dérive vers le haut)
+      this.modelBaselineY = this.model.position.y;
 
       const size = box.getSize(new T.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
       const fov = this.camera.fov * (Math.PI / 180);
       const dist = maxDim / (2 * Math.tan(fov / 2));
-      // v1.0.26 — caméra droit-devant (y=0) + plus proche (1.4 au lieu de 1.85)
-      // → modèle CENTRÉ dans le canvas + remplit mieux la div
+      // Caméra droit-devant (y=0) → modèle parfaitement centré
       this.camera.position.set(0, 0, dist * 1.4);
       this.camera.lookAt(0, 0, 0);
 
@@ -169,10 +172,11 @@ export class YamzyAvatar3dComponent implements AfterViewInit, OnDestroy {
     if (this.model && this.rotate) {
       this.model.rotation.y += 0.005;
     }
-    // v1.0.17 — Bobbing : translation Y sinusoïdale (8% du modèle, période 2.4s)
+    // v1.0.27 — Bobbing : translation Y sinusoïdale RELATIVE à la baseline
+    // (avant : écrasait l'offset de centrage → modèle qui dérivait vers le haut)
     if (this.model && this.bob) {
       this.bobPhase += dt * 2.6;
-      this.model.position.y = Math.sin(this.bobPhase) * 0.08;
+      this.model.position.y = this.modelBaselineY + Math.sin(this.bobPhase) * 0.08;
     }
     // v1.0.17 — GLB animations natives via mixer
     if (this.mixer) {
