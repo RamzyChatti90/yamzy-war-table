@@ -257,10 +257,16 @@
           <span class="wt-page-cat-badge">{{ catLabel(currentPageDef()?.cat || '') }}</span>
         </div>
 
-        <!-- ── DASHBOARD HEADER (layout SKIN : PS hero + Cockpit + Mes Plannings) ──
-             v1.0.48 — TOUJOURS visible sur toutes les pages comme header commun.
-             Le contenu spécifique à chaque page (Backlog, Sprints, etc.) s'affiche
-             EN-DESSOUS quand pageContentOpen=true. -->
+        <!-- v1.0.49 — DASHBOARD HEADER UNIVERSEL via ng-template.
+             Le bloc dashboard (PS hero + Cockpit + Mes Plannings) est défini
+             ci-dessous comme #dashHeaderTpl et injecté ICI au-dessus de chaque
+             page. Inséré exactement comme l'a demandé l'utilisateur :
+             "prends le dashboard actuel comme template pour chaque page, insère
+             le dans toutes les pages". -->
+        <ng-container *ngTemplateOutlet="dashHeaderTpl"></ng-container>
+
+        <!-- ── Template du dashboard universel — défini une seule fois, rendu partout ── -->
+        <ng-template #dashHeaderTpl>
         <section class="wt-sk-dash">
 
           <div class="wt-sk-dash-row">
@@ -583,6 +589,8 @@
             </div>
           </div>
         </section>
+        </ng-template>
+        <!-- ↑ fin du template #dashHeaderTpl — réutilisable sur toutes les pages -->
 
         <!-- ── BACKLOG (éditable inline + auto-save + pagination lazy + bulk ops v1.0.10) ── -->
         <section *ngIf="activePage() === 'backlog'" class="wt-backlog">

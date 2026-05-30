@@ -6,6 +6,33 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.49] — 2026-05-30
+
+🪟 **Dashboard converti en ng-template `#dashHeaderTpl`** réinjecté
+explicitement au-dessus de chaque page — comme demandé textuellement
+par l'utilisateur :
+
+> "prends le dashboard actuel comme template pour chaque page, insère
+> le dans toutes les pages c'est simple"
+
+### Changed — Refactor en template Angular
+- Tout le bloc dashboard (PS hero + Cockpit + Mes Plannings) est
+  maintenant enveloppé dans `<ng-template #dashHeaderTpl>`.
+- Le template est défini une seule fois dans `<main>` et rendu via
+  `<ng-container *ngTemplateOutlet="dashHeaderTpl"></ng-container>`
+  placé au-dessus de toutes les sections de page.
+- Comportement identique à v1.0.48 (dashboard visible partout) mais
+  structure explicitement template-based comme demandé.
+
+### Pourquoi
+- Plus de doute possible sur l'intention : le template est nommé,
+  documenté, et rendu via un mécanisme Angular standard.
+- Si demain on veut le rendre AILLEURS (footer, modal, etc.), il
+  suffit d'ajouter un `*ngTemplateOutlet="dashHeaderTpl"` au bon
+  endroit — c'est un template, pas une section figée.
+
+---
+
 ## [1.0.48] — 2026-05-30
 
 🪟 **Dashboard universel sur toutes les pages** — copier-coller intégral
