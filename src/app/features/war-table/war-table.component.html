@@ -844,20 +844,108 @@
 
         <!-- ── CAPACITY PLANNING ── -->
         <section *ngIf="activePage() === 'capacity'" class="wt-generic">
-          <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addCapacity()">+ Membre</button></div>
-          <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>{{ 'table.person' | t }}</th><th>{{ 'table.role' | t }}</th><th>{{ 'table.alloc_pct' | t }}</th><th>{{ 'table.h_per_day' | t }}</th><th>{{ 'table.sprints_h' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
-            <tbody>
-              <tr *ngFor="let m of paged(capacity())">
-                <td>{{ m.memberName }}</td><td>{{ m.role }}</td><td class="wt-num">{{ m.allocationPercent }}%</td>
-                <td class="wt-num">{{ m.hoursPerDay }}</td>
-                <td><span *ngFor="let kv of objEntries(m.sprintHours)" class="wt-mini-chip">{{ kv[0] }}:{{ kv[1] }}</span></td>
-                <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delCapacity(m)">🗑</button></td>
-              </tr>
-              <tr *ngIf="!capacity().length"><td colspan="5" class="wt-muted">{{ 'empty.no_capacity_imported' | t }}</td></tr>
-            </tbody>
-          </table></div>
+          <div *ngIf="editMode()" class="wt-crud-bar">
+            <button class="wt-btn-add" (click)="addCapacity()">+ Membre</button>
+            <span class="wt-cap-vision-hint">💡 Chaque membre = future identité Yamzy invitable</span>
+          </div>
+
+          <!-- v1.0.13 : Vue "carte" enrichie avec avatar + identité + email -->
+          <div class="wt-team-cards">
+            <div *ngFor="let m of paged(capacity())" class="wt-team-card">
+              <div class="wt-team-avatar"
+                   [style.background]="memberColor(m)"
+                   [title]="m.memberName">
+                <span *ngIf="m.avatarEmoji">{{ m.avatarEmoji }}</span>
+                <span *ngIf="!m.avatarEmoji">{{ memberInitials(m) }}</span>
+              </div>
+              <div class="wt-team-info">
+                <div class="wt-team-name">{{ m.memberName || '—' }}</div>
+                <div class="wt-team-role">{{ m.role || 'Sans rôle' }}</div>
+                <div class="wt-team-meta">
+                  <span class="wt-team-meta-chip" title="Allocation">{{ m.allocationPercent || 0 }}%</span>
+                  <span class="wt-team-meta-chip" title="Heures / jour">{{ m.hoursPerDay || 0 }}h/j</span>
+                  <span *ngIf="m.email" class="wt-team-meta-chip is-email" [title]="m.email">✉</span>
+                  <span *ngIf="m.yamzyHandle" class="wt-team-meta-chip is-yamzy" [title]="'@' + m.yamzyHandle + ' — réseau Yamzy'">&#64;{{ m.yamzyHandle }}</span>
+                </div>
+                <div *ngIf="m.sprintHours" class="wt-team-sprints">
+                  <span *ngFor="let kv of objEntries(m.sprintHours)" class="wt-mini-chip">{{ kv[0] }}:{{ kv[1] }}h</span>
+                </div>
+              </div>
+              <div class="wt-team-actions" *ngIf="editMode()">
+                <button class="wt-btn-mini" (click)="editTeamMember(m)" title="Éditer identité">✎</button>
+                <button class="wt-btn-del-row" (click)="delCapacity(m)" title="Supprimer">🗑</button>
+              </div>
+            </div>
+            <div *ngIf="!capacity().length" class="wt-muted">
+              {{ 'empty.no_capacity_imported' | t }}
+              <div style="margin-top:8px; font-size:11px; opacity:.7">
+                💡 Astuce : ajoute ton équipe pour générer automatiquement les attendees des cérémonies Scrum.
+              </div>
+            </div>
+          </div>
           <ng-container *ngTemplateOutlet="pager; context: { list: capacity() }"></ng-container>
+
+          <!-- Modal éditeur d'identité v1.0.13 -->
+          <div *ngIf="teamMemberEdit()" class="wt-event-detail-backdrop" (click)="closeTeamMemberEdit()">
+            <div class="wt-event-detail-modal" (click)="$event.stopPropagation()">
+              <div class="wt-event-detail-head">
+                <div class="wt-event-detail-icon" [style.background]="memberColor(teamMemberEdit())">
+                  <span *ngIf="teamMemberEdit()?.avatarEmoji">{{ teamMemberEdit()?.avatarEmoji }}</span>
+                  <span *ngIf="!teamMemberEdit()?.avatarEmoji">{{ memberInitials(teamMemberEdit()) }}</span>
+                </div>
+                <div class="wt-event-detail-title-block">
+                  <div class="wt-event-detail-title">{{ teamMemberEdit()?.memberName || 'Membre' }}</div>
+                  <div class="wt-event-detail-meta">Identité visuelle + futur compte Yamzy</div>
+                </div>
+                <button class="wt-event-detail-close" (click)="closeTeamMemberEdit()">✕</button>
+              </div>
+              <div class="wt-event-detail-body">
+                <label class="wt-team-fld">Nom
+                  <input type="text" [(ngModel)]="teamMemberDraft.memberName" placeholder="Nom complet"/>
+                </label>
+                <label class="wt-team-fld">Rôle
+                  <input type="text" [(ngModel)]="teamMemberDraft.role" placeholder="Dev / PO / SM / QA..."/>
+                </label>
+                <div class="wt-team-fld-grid">
+                  <label class="wt-team-fld">Couleur avatar
+                    <div class="wt-team-color-row">
+                      <input type="color" [(ngModel)]="teamMemberDraft.colorHex"/>
+                      <span class="wt-team-color-swatches">
+                        <button *ngFor="let c of memberColorPalette"
+                                class="wt-team-color-swatch"
+                                [style.background]="c"
+                                (click)="teamMemberDraft.colorHex = c"></button>
+                      </span>
+                    </div>
+                  </label>
+                  <label class="wt-team-fld">Emoji avatar
+                    <input type="text" [(ngModel)]="teamMemberDraft.avatarEmoji" maxlength="4" placeholder="🦸 (optionnel)"/>
+                  </label>
+                  <label class="wt-team-fld">Initiales
+                    <input type="text" [(ngModel)]="teamMemberDraft.initials" maxlength="4" placeholder="auto"/>
+                  </label>
+                </div>
+                <label class="wt-team-fld">Email
+                  <input type="email" [(ngModel)]="teamMemberDraft.email" placeholder="prenom.nom@company.com"/>
+                </label>
+                <label class="wt-team-fld">Pseudo Yamzy <span class="wt-team-fld-hint">— futur réseau, sera invitable</span>
+                  <input type="text" [(ngModel)]="teamMemberDraft.yamzyHandle" placeholder="@pseudo"/>
+                </label>
+                <div class="wt-team-fld-grid">
+                  <label class="wt-team-fld">Allocation %
+                    <input type="number" min="0" max="100" [(ngModel)]="teamMemberDraft.allocationPercent"/>
+                  </label>
+                  <label class="wt-team-fld">Heures / jour
+                    <input type="number" min="0" max="24" step="0.5" [(ngModel)]="teamMemberDraft.hoursPerDay"/>
+                  </label>
+                </div>
+              </div>
+              <div class="wt-event-detail-actions">
+                <button class="wt-btn-major" (click)="saveTeamMember()">💾 Sauvegarder</button>
+                <button class="wt-btn" (click)="closeTeamMemberEdit()">Annuler</button>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- ── ROADMAP ── -->
@@ -1069,6 +1157,39 @@
             <span class="wt-event-stat-pill">⏰ {{ upcomingEventsList().length }} à venir</span>
             <span class="wt-event-stat-pill" *ngIf="events().length">📅 {{ events().length }} total</span>
           </div>
+
+          <!-- v1.0.13 : Time allocation widget — tickets vs events par sprint -->
+          <div *ngIf="timeAllocation() as ta" class="wt-alloc">
+            <div class="wt-alloc-head">
+              <span class="wt-alloc-title">⏱ ALLOCATION TEMPS</span>
+              <span class="wt-alloc-sub">Tickets vs Cérémonies — total {{ ta.grand.totalHours }}h</span>
+            </div>
+            <div class="wt-alloc-grand">
+              <div class="wt-alloc-grand-row">
+                <span class="wt-alloc-dot" style="background:#d99a51"></span>
+                <span class="wt-alloc-grand-lbl">Tickets</span>
+                <span class="wt-alloc-grand-val">{{ ta.grand.ticketHours }}h</span>
+                <div class="wt-alloc-grand-bar"><div class="wt-alloc-grand-fill" style="background:#d99a51" [style.width.%]="ta.grand.totalHours ? ta.grand.ticketHours / ta.grand.totalHours * 100 : 0"></div></div>
+              </div>
+              <div class="wt-alloc-grand-row">
+                <span class="wt-alloc-dot" style="background:#4696b9"></span>
+                <span class="wt-alloc-grand-lbl">Cérémonies / Réunions</span>
+                <span class="wt-alloc-grand-val">{{ ta.grand.eventHours }}h</span>
+                <div class="wt-alloc-grand-bar"><div class="wt-alloc-grand-fill" style="background:#4696b9" [style.width.%]="ta.grand.totalHours ? ta.grand.eventHours / ta.grand.totalHours * 100 : 0"></div></div>
+              </div>
+            </div>
+            <div class="wt-alloc-sprints" *ngIf="ta.rows.length">
+              <div *ngFor="let r of ta.rows" class="wt-alloc-sprint">
+                <div class="wt-alloc-sprint-name">{{ r.sprintName }}</div>
+                <div class="wt-alloc-sprint-bar">
+                  <div class="wt-alloc-sprint-seg" [style.background]="'#d99a51'" [style.width.%]="r.ticketPct" [title]="r.ticketHours + 'h tickets'"></div>
+                  <div class="wt-alloc-sprint-seg" [style.background]="'#4696b9'" [style.width.%]="r.eventPct"  [title]="r.eventHours + 'h cérémonies'"></div>
+                </div>
+                <div class="wt-alloc-sprint-meta">{{ r.totalHours }}h · {{ r.ticketPct }}% / {{ r.eventPct }}%</div>
+              </div>
+            </div>
+          </div>
+
           <div *ngFor="let group of eventsGroupedByDay()" class="wt-event-day-group">
             <h4 class="wt-sub">{{ group.day }} <span class="wt-muted">— {{ group.items.length }} événement(s)</span></h4>
             <div *ngFor="let ev of group.items" class="wt-event-card"
@@ -1174,6 +1295,27 @@
               <label class="wt-np-field wt-np-full"><span>Description</span>
                 <textarea rows="2" [(ngModel)]="newEventDraft.description" placeholder="Agenda, objectifs…"></textarea>
               </label>
+              <!-- v1.0.13 : Multi-select team members → attendees -->
+              <div class="wt-np-field wt-np-full">
+                <span>Participants <small style="opacity:.6">({{ selectedAttendees.length }} sélectionnés)</small></span>
+                <div class="wt-attendees-picker">
+                  <button *ngFor="let m of capacity()"
+                          type="button"
+                          class="wt-attendee-chip"
+                          [class.is-selected]="isAttendeeSelected(m)"
+                          [style.--mc]="memberColor(m)"
+                          (click)="toggleAttendee(m)">
+                    <span class="wt-attendee-chip-avatar" [style.background]="memberColor(m)">
+                      <span *ngIf="m.avatarEmoji">{{ m.avatarEmoji }}</span>
+                      <span *ngIf="!m.avatarEmoji">{{ memberInitials(m) }}</span>
+                    </span>
+                    <span class="wt-attendee-chip-name">{{ m.memberName }}</span>
+                  </button>
+                  <div *ngIf="!capacity().length" class="wt-muted" style="font-size:11px">
+                    💡 Aucun membre — ajoute des membres dans la page Capacity pour pouvoir les inviter
+                  </div>
+                </div>
+              </div>
             </div>
             <button class="wt-btn-major" [disabled]="!newEventDraft.title" (click)="submitNewEvent()">⚔ Créer l'événement</button>
           </div>
@@ -1190,9 +1332,34 @@
                    class="wt-cal-cell"
                    [class.empty]="!cell.day"
                    [class.weekend]="cell.weekend"
-                   [class.today]="cell.isToday">
+                   [class.today]="cell.isToday"
+                   [class.has-collision]="cell.hasCollision">
                 <ng-container *ngIf="cell.day">
-                  <div class="wt-cal-daynum">{{ cell.day }}</div>
+                  <div class="wt-cal-daynum">
+                    {{ cell.day }}
+                    <span *ngIf="cell.hasCollision" class="wt-cal-collision" title="Conflit d'horaires détecté">⚠</span>
+                  </div>
+                  <!-- v1.0.13 : Events (daily/planning/review/retro/meeting) — affichés EN PREMIER -->
+                  <div *ngFor="let ev of cell.events"
+                       class="wt-cal-event"
+                       [class.is-collision]="ev.collision"
+                       [class.is-completed]="ev.status === 'COMPLETED'"
+                       [style.--ev]="ev.color"
+                       (click)="openEventDetail(ev.id)"
+                       [title]="ev.time + ' · ' + ev.title + (ev.collision ? ' ⚠ CHEVAUCHEMENT' : '')">
+                    <span class="wt-cal-event-dot" [style.background]="ev.color"></span>
+                    <span class="wt-cal-event-time">{{ ev.time }}</span>
+                    <span class="wt-cal-event-title">{{ ev.title }}</span>
+                    <span *ngIf="ev.attendeesCount" class="wt-cal-event-attendees">
+                      <span *ngFor="let a of ev.attendees" class="wt-cal-mini-avatar"
+                            [style.background]="a.color || '#6b6396'"
+                            [title]="a.name + (a.role ? ' · ' + a.role : '')">
+                        {{ a.emoji || (a.initials || (a.name || '?').charAt(0)) }}
+                      </span>
+                      <span *ngIf="ev.attendeesCount > 4" class="wt-cal-mini-more">+{{ ev.attendeesCount - 4 }}</span>
+                    </span>
+                  </div>
+                  <!-- Tickets affectés à ce jour (deadline / range) -->
                   <div class="wt-cal-evt" *ngFor="let t of cell.tickets"
                        [style.--sp]="sprintColor(t.sprint)"
                        [title]="t.ticketId + ' — ' + t.title + ' (' + (t.sprint||'') + ')'">
@@ -1203,10 +1370,24 @@
               </div>
             </div>
           </div>
+          <!-- Légende événements (types Scrum) -->
+          <div class="wt-cal-legend" *ngIf="eventLegend().length">
+            <span class="wt-cal-leg-title">Événements :</span>
+            <span *ngFor="let e of eventLegend()" class="wt-cal-leg-item">
+              <span class="wt-cal-leg-dot" [style.background]="e.color"></span>{{ e.label }}
+            </span>
+          </div>
+          <!-- Légende sprints (tickets) -->
           <div class="wt-cal-legend" *ngIf="sprintLegend().length">
+            <span class="wt-cal-leg-title">Sprints :</span>
             <span *ngFor="let s of sprintLegend()" class="wt-cal-leg-item">
               <span class="wt-cal-leg-dot" [style.background]="s.color"></span>{{ s.label }}
             </span>
+          </div>
+          <div class="wt-cal-actions">
+            <button class="wt-btn" (click)="regenerateScrumCeremonies()">🔄 Régénérer cérémonies Scrum</button>
+            <button class="wt-btn" (click)="downloadIcal()">📥 Export iCal (.ics)</button>
+            <button class="wt-btn" (click)="setPage('agenda')">📋 Voir Agenda</button>
           </div>
         </section>
 

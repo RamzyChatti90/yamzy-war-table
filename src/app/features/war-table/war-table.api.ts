@@ -292,6 +292,19 @@ export class WarTableApi {
   }
   icalUrl(projectId: number): string { return `${this.base}/projects/${projectId}/events/ical`; }
 
+  /** v1.0.13 — Collisions d'events (paires qui se chevauchent). */
+  eventCollisions(projectId: number): Observable<Array<{ eventA: any; eventB: any }>> {
+    return this.http.get<any[]>(`${this.base}/projects/${projectId}/events/collisions`);
+  }
+
+  /** v1.0.13 — Time allocation : tickets vs events par sprint. */
+  timeAllocation(projectId: number): Observable<{
+    rows: Array<{ sprintId: number; sprintName: string; ticketHours: number; eventHours: number; totalHours: number; ticketPct: number; eventPct: number; }>;
+    grand: { ticketHours: number; eventHours: number; totalHours: number; };
+  }> {
+    return this.http.get<any>(`${this.base}/projects/${projectId}/time-allocation`);
+  }
+
   /** Récupère la liste des rappels/alertes pour ce projet. */
   reminders(projectId: number): Observable<{
     items: Array<{

@@ -6,6 +6,82 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.13] — 2026-05-30
+
+👥 **Identité d'équipe + Calendrier riche** : chaque membre a un vrai
+avatar (couleur, emoji, initiales) — base du futur réseau Yamzy où
+chaque équipier sera un user invitable. Le calendrier mensuel affiche
+enfin les daily/planning/review/retro à côté des tickets, avec
+détection automatique des collisions d'horaires.
+
+### Added — Team Members (capacity enrichi)
+- **V63 migration** : 5 nouvelles colonnes sur `pos_capacity_team`
+  (`color_hex`, `avatar_emoji`, `initials`, `email`, `yamzy_handle`)
+- **Page Capacity refondue** en cartes-avatars (au lieu d'un tableau plat) :
+  - Avatar circulaire 56px (couleur auto-hash + emoji ou initiales)
+  - Nom + rôle + chips meta (alloc %, h/j, email, **handle @yamzy**)
+  - Modal d'édition d'identité (couleur picker + palette 12 swatches,
+    emoji 4 chars, initiales auto, email, handle Yamzy)
+- **Vision future** : le `yamzy_handle` est la base du réseau —
+  "@pseudo" deviendra une vraie invitation cross-user dans le futur
+
+### Added — Attendees avec avatars
+- Multi-select de team members dans la modal "Nouvel événement" :
+  chips cliquables avec mini-avatar coloré + nom
+- Au launch d'un sprint, `PosCalendarService.generateScrumCeremonies`
+  populate automatiquement les attendees de tous les events Scrum
+  (planning / daily / review / retro) depuis la team du projet
+- Mini-avatars (13px) visibles directement sur le calendrier mensuel
+  dans chaque event cell (jusqu'à 4 + "+N" pour le reste)
+
+### Fixed — Calendrier monthly affiche les events
+- **Bug majeur** : la page Calendrier ne montrait QUE les tickets,
+  pas les daily/planning/review/retro/meetings — corrigé.
+- Chaque cellule du calendrier affiche maintenant :
+  - Events en haut (color-coded par type, heure + titre + mini-avatars)
+  - Tickets en bas (range par sprint color)
+- **Couleurs par type d'event** : DAILY vert, PLANNING bleu,
+  REVIEW or, RETRO rose, MEETING violet, CALL cyan
+- **2 légendes séparées** : "Événements" + "Sprints"
+
+### Added — Détection de collisions
+- Backend : nouvel endpoint `/api/pos/projects/{id}/events/collisions`
+  qui retourne les paires d'events qui se chevauchent
+- Frontend : détection locale temps-réel sur le calendrier
+  - Cellules en conflit : bordure rouge + ⚠ pulsant
+  - Events en collision : fond rouge + bordure rouge
+  - Tooltip "CHEVAUCHEMENT" sur hover
+
+### Added — Time Allocation widget (Agenda)
+- Backend : endpoint `/api/pos/projects/{id}/time-allocation`
+  qui calcule par sprint : `ticketHours` + `eventHours` + pourcentages
+- Frontend : nouveau widget sur la page Agenda
+  - Total tickets vs cérémonies (barre or vs bleue)
+  - Breakdown par sprint avec stacked bar + meta `Xh · %t / %e`
+- Permet de **voir le coût réel** des cérémonies vs travail prod
+
+### Added — Excel sheets v1.0.13
+- **Sheet "Team"** : Nom, Rôle, Email, Yamzy Handle, Alloc %, H/jour,
+  Couleur, Initiales, Emoji, Sprint Hours
+- **Sheet "Calendar"** : Type, Titre, Début, Fin, Status, Lieu,
+  Couleur, Attendees (formaté "name (response); name (response)"), Notes
+- Round-trip complet : modifie l'équipe dans Excel → ré-importe →
+  les avatars persistent
+
+### Why
+> "les icon des avatar des utilisateurs en réunion en choix dépend
+> de l'excel qui aura le team que l'utilisateur pourra ajouter des
+> membres dans son excel et studio pour avoir vraiment l'impression
+> qui sont des gens réelles qu'on contactera vraiment dans le futur
+> avec le réseau yamzy ;)"
+
+> "pk je vois pas les daily sur le calender???!!! ni les réunion."
+
+> "il faut avoir un calendrier asser riche en infos avec des couleurs
+> différentes avec un system qui detecte les collisions aussi"
+
+---
+
 ## [1.0.12] — 2026-05-30
 
 🎯 **Cockpit "Chicago"** : widget dashboard 4 onglets carrousel — vue
