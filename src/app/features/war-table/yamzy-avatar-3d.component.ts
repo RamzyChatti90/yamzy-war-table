@@ -141,7 +141,9 @@ export class YamzyAvatar3dComponent implements AfterViewInit, OnDestroy {
       const maxDim = Math.max(size.x, size.y, size.z);
       const fov = this.camera.fov * (Math.PI / 180);
       const dist = maxDim / (2 * Math.tan(fov / 2));
-      this.camera.position.set(0, dist * 0.35, dist * 1.85);
+      // v1.0.26 — caméra droit-devant (y=0) + plus proche (1.4 au lieu de 1.85)
+      // → modèle CENTRÉ dans le canvas + remplit mieux la div
+      this.camera.position.set(0, 0, dist * 1.4);
       this.camera.lookAt(0, 0, 0);
 
       // v1.0.17 — Mixer activé si playGlbAnim, joue toutes les clips natives du GLB.
