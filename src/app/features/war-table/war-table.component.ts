@@ -11,6 +11,9 @@ import { WarTableApi, PosProject, PosTicket, ImportResult } from './war-table.ap
 import { AuthService } from '../../core/services/auth.service';
 import { WAR_TABLE_PAGES, PageDef as SharedPageDef, SUPER_CATS, SuperCat, SuperCatDef } from './war-table.pages';
 import { WarTableSplashComponent } from './war-table-splash.component';
+// v1.0.79 — Wheel Menu (Ctrl+Win) + Arcane Scrolls (Ctrl+Space) repris de Yamzy core
+import { WheelMenuComponent } from '../../core/wheel-menu/wheel-menu.component';
+import { ArcaneScrollComponent } from '../../core/arcane-scroll/arcane-scroll.component';
 import { WarTableBg3dComponent } from './war-table-bg-3d.component';
 import { YamzyAvatar3dComponent } from './yamzy-avatar-3d.component';
 import { I18nService } from '../../core/i18n/i18n.service';
@@ -26,7 +29,7 @@ interface PageDef { id: string; label: string; icon: string; cat: string; superC
 @Component({
   selector: 'app-war-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, YamzyAvatar3dComponent, TranslatePipe, LangSwitcherComponent, WtDialogComponent, WtTooltipDirective],
+  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, YamzyAvatar3dComponent, TranslatePipe, LangSwitcherComponent, WtDialogComponent, WtTooltipDirective, WheelMenuComponent, ArcaneScrollComponent],
   templateUrl: './war-table.component.html',
   styleUrls: ['./war-table.component.css'],
 })
