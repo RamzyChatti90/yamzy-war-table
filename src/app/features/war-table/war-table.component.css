@@ -3650,11 +3650,11 @@ body { background: #0a0820 !important; }
 
 .wt-yc {
   position: fixed;
-  /* v1.0.25 : defaults via inline style binding (signals) — rapproché de l'avatar */
+  /* v1.0.36 : defaults via inline style binding (signals), élargi pour cards 380×190 */
   left: 380px;
   bottom: 50px;
-  width: 360px;
-  height: 480px;
+  width: 420px;
+  height: 560px;
   z-index: 99998;
   pointer-events: none;
   perspective: 1000px;
@@ -3668,7 +3668,7 @@ body { background: #0a0820 !important; }
 
 .wt-yc-track {
   width: 100%;
-  height: 360px;
+  height: 440px;
   position: relative;
   transform-style: preserve-3d;
   display: flex;
@@ -3676,28 +3676,27 @@ body { background: #0a0820 !important; }
   justify-content: center;
 }
 
-/* v1.0.35 — ancienne structure restaurée, juste le background change pour matcher PS hero */
+/* v1.0.36 — cards agrandies (380×190, icon 64) sans casser le layout */
 .wt-yc-card {
   position: absolute;
   left: 50%;
   top: 50%;
-  margin-left: -160px;
-  margin-top: -75px;
-  width: 320px;
-  height: 150px;
-  border-radius: 18px;
+  margin-left: -190px;  /* = -width/2 */
+  margin-top: -95px;    /* = -height/2 */
+  width: 380px;
+  height: 190px;
+  border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  /* PS hero background — radial gradient cosmic */
   background-color: #313237;
   background-image: radial-gradient(ellipse at top, #3a3c47, rgba(0, 0, 0, 0.6));
   border: 2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
   display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 10px;
-  padding: 14px;
+  grid-template-columns: 68px 1fr;
+  gap: 14px;
+  padding: 18px;
   align-items: center;
 }
 
@@ -3712,13 +3711,13 @@ body { background: #0a0820 !important; }
 .wt-yc-card > *:not(.wt-yc-card-bg) { position: relative; z-index: 1; }
 
 .wt-yc-card-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  width: 68px;
+  height: 68px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 34px;
   background: var(--card-color, #d99a51);
   color: #fff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
@@ -3726,34 +3725,34 @@ body { background: #0a0820 !important; }
 }
 .wt-yc-card-body { min-width: 0; }
 .wt-yc-card-kind {
-  font-size: 9px;
-  letter-spacing: 1.6px;
+  font-size: 10px;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
   color: var(--card-color, #d99a51);
   font-weight: 700;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 .wt-yc-card-title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #ece6ff;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 .wt-yc-card-sub {
-  font-size: 11px;
-  color: rgba(236, 230, 255, 0.55);
+  font-size: 12px;
+  color: rgba(236, 230, 255, 0.60);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .wt-yc-card-meta {
-  font-size: 10px;
-  color: rgba(236, 230, 255, 0.45);
-  margin-top: 3px;
-  letter-spacing: 0.4px;
+  font-size: 11px;
+  color: rgba(236, 230, 255, 0.50);
+  margin-top: 4px;
+  letter-spacing: 0.5px;
 }
 
 .wt-yc-card-avatars {
@@ -3801,7 +3800,7 @@ body { background: #0a0820 !important; }
   animation: wt-card-rec-blink 1.6s ease-in-out infinite;
 }
 
-/* ── Positions 3D (réf Team Carousel) — stack vertical droit ── */
+/* ── Positions 3D — stack vertical droit (ajusté pour cards 380×190) ── */
 .wt-yc-card.center {
   z-index: 10;
   transform: scale(1.06) translateZ(0);
@@ -3810,25 +3809,25 @@ body { background: #0a0820 !important; }
 }
 .wt-yc-card.up-1 {
   z-index: 5;
-  transform: translateY(-95px) scale(0.85) translateZ(-100px);
+  transform: translateY(-120px) scale(0.85) translateZ(-100px);
   opacity: 0.88;
   filter: grayscale(40%);
 }
 .wt-yc-card.up-2 {
   z-index: 1;
-  transform: translateY(-160px) scale(0.7) translateZ(-300px);
+  transform: translateY(-200px) scale(0.7) translateZ(-300px);
   opacity: 0.55;
   filter: grayscale(70%);
 }
 .wt-yc-card.down-1 {
   z-index: 5;
-  transform: translateY(95px) scale(0.85) translateZ(-100px);
+  transform: translateY(120px) scale(0.85) translateZ(-100px);
   opacity: 0.88;
   filter: grayscale(40%);
 }
 .wt-yc-card.down-2 {
   z-index: 1;
-  transform: translateY(160px) scale(0.7) translateZ(-300px);
+  transform: translateY(200px) scale(0.7) translateZ(-300px);
   opacity: 0.55;
   filter: grayscale(70%);
 }
@@ -3885,19 +3884,24 @@ body { background: #0a0820 !important; }
 }
 .wt-yc-dot:hover { background: rgba(217, 154, 81, 0.55); }
 
-/* Responsive */
+/* Responsive — ajusté pour cards 380×190 */
 @media (max-width: 1500px) {
-  .wt-yc { left: 400px; width: 340px; bottom: 40px; }
-  .wt-yc-card { width: 280px; margin-left: -140px; }
+  .wt-yc { left: 400px; width: 380px; bottom: 40px; height: 500px; }
+  .wt-yc-card { width: 340px; margin-left: -170px; height: 170px; margin-top: -85px; }
+  .wt-yc-track { height: 400px; }
+  .wt-yc-card.up-1 { transform: translateY(-110px) scale(0.85) translateZ(-100px); }
+  .wt-yc-card.up-2 { transform: translateY(-180px) scale(0.7) translateZ(-300px); }
+  .wt-yc-card.down-1 { transform: translateY(110px) scale(0.85) translateZ(-100px); }
+  .wt-yc-card.down-2 { transform: translateY(180px) scale(0.7) translateZ(-300px); }
 }
 @media (max-width: 1200px) {
-  .wt-yc { left: 340px; width: 300px; height: 380px; }
-  .wt-yc-card { width: 250px; margin-left: -125px; height: 130px; margin-top: -65px; }
-  .wt-yc-track { height: 280px; }
-  .wt-yc-card.up-1 { transform: translateY(-80px) scale(0.85) translateZ(-100px); }
-  .wt-yc-card.up-2 { transform: translateY(-130px) scale(0.7) translateZ(-300px); }
-  .wt-yc-card.down-1 { transform: translateY(80px) scale(0.85) translateZ(-100px); }
-  .wt-yc-card.down-2 { transform: translateY(130px) scale(0.7) translateZ(-300px); }
+  .wt-yc { left: 340px; width: 320px; height: 420px; }
+  .wt-yc-card { width: 280px; margin-left: -140px; height: 150px; margin-top: -75px; }
+  .wt-yc-track { height: 320px; }
+  .wt-yc-card.up-1 { transform: translateY(-95px) scale(0.85) translateZ(-100px); }
+  .wt-yc-card.up-2 { transform: translateY(-155px) scale(0.7) translateZ(-300px); }
+  .wt-yc-card.down-1 { transform: translateY(95px) scale(0.85) translateZ(-100px); }
+  .wt-yc-card.down-2 { transform: translateY(155px) scale(0.7) translateZ(-300px); }
 }
 @media (max-width: 900px) {
   .wt-yc { display: none; }

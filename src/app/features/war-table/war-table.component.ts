@@ -140,7 +140,7 @@ export class WarTableComponent implements OnInit {
   fabSize = signal(320);
   ycLeft = signal(380);    // était 440 — rapproché de 60px
   ycBottom = signal(50);
-  ycWidth = signal(360);   // était 380 — légèrement réduit pour rapprochement visuel
+  ycWidth = signal(420);   // v1.0.36 — élargi pour accommoder cards 380px
   positionMode = signal(false);
   togglePositionMode(): void { this.positionMode.update(v => !v); }
 
