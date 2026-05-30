@@ -269,13 +269,14 @@ export class WarTableComponent implements OnInit {
     this.yamzyCarouselIndex.set(0);
   }
   returnHome(): void {
-    // v1.0.76 — Click HOME dans le footer = navigation vers Dashboard.
-    // Avant : passait studioLevel à 'home' ce qui cachait TOUT le contenu via
-    // la règle CSS .wt-shell.is-home .wt-main > section/div { display:none }
-    // Maintenant : ouvre la page Dashboard comme un click sidebar (onNavClick(0)).
+    // v1.0.77 — Click HOME footer = retour Dashboard.
+    // CRITIQUE : sur Dashboard, on ne fait PAS openPageContent() car la
+    // dashboard EST le contenu (pas de section .wt-dashboard separee).
+    // openPageContent => .is-content-open => fade-out anim de .wt-sk-dash
+    // => ecran vide. Sur dashboard on reste en preview mode.
     this.studioLevel.set('section');
     this.setPage('dashboard');
-    this.openPageContent();
+    this.pageContentOpen.set(false);   // preview mode pour dashboard
   }
 
   // ═══ YAMZY POSITION EDITOR v1.0.25 — Drag + Copy CSS coords ═══
@@ -1818,13 +1819,13 @@ export class WarTableComponent implements OnInit {
     const order: SuperCat[] = ['Dashboard', 'Sprint', 'Planning', 'Reporting', 'Setup'];
     const sc = order[i];
     if (!sc) return;
-    // v1.0.71 — Click sidebar : navigation complète
-    //   1. setPage : change activePage
-    //   2. studioLevel='section' : sort du home menu si on y est
-    //   3. openPageContent : ouvre directement le contenu de la page (pas juste preview)
-    this.setPage(this.superCatDefaults[sc]);
+    const targetPage = this.superCatDefaults[sc];
+    this.setPage(targetPage);
     this.studioLevel.set('section');
-    this.openPageContent();
+    // v1.0.77 — Sur dashboard, on reste en preview (pas de section page-specifique
+    // a ouvrir, le dashboard EST le contenu). Sinon openPageContent.
+    if (targetPage === 'dashboard') this.pageContentOpen.set(false);
+    else this.openPageContent();
   }
 
   /** Bouclier de navigation : la page DASHBOARD affiche le layout skin. */
