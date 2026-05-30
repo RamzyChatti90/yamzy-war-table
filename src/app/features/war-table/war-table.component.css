@@ -112,15 +112,14 @@
     .wt-foot-code { font-family:monospace; font-weight:800; color:#fde047; font-size:12px; }
     .wt-foot-name { font-size:10px; color:#8b80c0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:170px; }
 
-    /* v1.0.57 — Main = viewport height, NO scroll global.
-       Display flex column → enfants se partagent la hauteur dispo via flex:1.
-       Le dashboard (wt-sk-dash) prend toute la hauteur restante après le hint. */
+    /* v1.0.57/60 — Main = viewport height, NO scroll global.
+       v1.0.60 : padding-bottom 80px pour eviter superpos avec footer carousel fixed. */
     .wt-main {
       flex: 1;
       min-width: 0;
       min-height: 0;
       overflow: hidden;
-      padding: 16px 24px;
+      padding: 16px 24px 80px;
       display: flex;
       flex-direction: column;
       gap: 12px;
