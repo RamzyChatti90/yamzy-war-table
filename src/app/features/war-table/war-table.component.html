@@ -252,11 +252,9 @@
            Les anciens duplicatas wt-page-ps-header (v1.0.42) et wt-page-cockpit-aside (v1.0.45)
            sont supprimés car redondants. -->
 
-      <!-- v1.0.47 — Hint clavier en mode preview : seul le header universel visible -->
-      <div *ngIf="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
-           class="wt-preview-hint">
-        <kbd>Entrée</kbd> ou <kbd>Click dot</kbd> pour ouvrir la page · <kbd>Échap</kbd> pour retour
-      </div>
+      <!-- v1.0.64 — Hint clavier retiré sur demande utilisateur. Le PS hero
+           est désormais cliquable pour ouvrir le contenu (cf. dashHeaderTpl). -->
+
 
       <!-- v1.0.51 — Mes Plannings TOUJOURS visible (même sans projet sélectionné).
            Le dashboard header est rendu hors *ngIf="selectedProjectId" pour que
@@ -305,12 +303,15 @@
             <!-- v1.0.53 — PS hero ADAPTATIF par menu :
                  • Sur dashboard : projet + sprint info (Lancer / Interrompre)
                  • Sur autres pages : tag + titre + desc + tip + action page-spécifique
-                 (pageHeaderInfo() fournit tag/title/desc/tip/actionLabel par page) -->
+                 v1.0.64 — Header CLIQUABLE : ouvre le contenu de la page
+                 (remplace l'ancien hint clavier "Entrée / Click dot"). -->
             <header class="wt-ps-header wt-sk-video-wrap"
                     [class.is-launchable]="launchableInfo()?.state === 'LAUNCHABLE'"
                     [class.is-active]="launchableInfo()?.state === 'ACTIVE'"
                     [class.is-today]="launchableInfo()?.isToday"
-                    [class.is-overdue]="launchableInfo()?.isOverdue">
+                    [class.is-overdue]="launchableInfo()?.isOverdue"
+                    [class.is-clickable]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
+                    (click)="onPsHeroClick($event)">
 
               <!-- ═══ Variante DASHBOARD (project + sprint info) ═══ -->
               <ng-container *ngIf="isDashboardSkin(); else pageHeroContent">

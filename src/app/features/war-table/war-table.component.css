@@ -4389,7 +4389,34 @@ body { background: #0a0820 !important; }
 }
 .wt-pick-hint strong { color: #d99a51; }
 
-/* Hint clavier flottant en preview */
+/* v1.0.64 — PS hero CLIQUABLE en preview mode pour ouvrir le contenu */
+.wt-ps-header.is-clickable {
+  cursor: pointer;
+  transition: transform .2s cubic-bezier(.4, 0, .2, 1), box-shadow .2s, filter .2s;
+}
+.wt-ps-header.is-clickable:hover {
+  transform: translateY(-3px) scale(1.003);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .45), 0 0 0 1px rgba(217, 154, 81, .35) inset;
+  filter: brightness(1.05);
+}
+.wt-ps-header.is-clickable::after {
+  content: 'Cliquer pour ouvrir →';
+  position: absolute;
+  bottom: 14px; right: 18px;
+  font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+  color: rgba(255, 255, 255, 0.75); letter-spacing: .15em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, .18);
+  pointer-events: none; opacity: .85;
+  animation: psHeroHintPulse 2s ease-in-out infinite;
+}
+@keyframes psHeroHintPulse {
+  0%, 100% { opacity: .55; transform: translateX(0); }
+  50%      { opacity: .95; transform: translateX(3px); }
+}
+
+/* Hint clavier flottant en preview (legacy v1.0.47, conservé pour compat) */
 .wt-preview-hint {
   margin: 16px 0 24px;
   padding: 10px 16px;

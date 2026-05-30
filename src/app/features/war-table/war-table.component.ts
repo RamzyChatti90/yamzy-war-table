@@ -150,6 +150,17 @@ export class WarTableComponent implements OnInit {
   openPageContent(): void { this.pageContentOpen.set(true); }
   closePageContent(): void { this.pageContentOpen.set(false); }
 
+  /** v1.0.64 — Click sur le PS hero en mode preview ouvre le contenu de la page.
+   *  Ignore les clicks sur boutons enfants (Lancer/Interrompre/Roadmap/Action page). */
+  onPsHeroClick(ev: MouseEvent): void {
+    // Si le click vient d'un bouton ou d'un enfant interactif, ne fait rien
+    const target = ev.target as HTMLElement;
+    if (target.closest('button')) return;
+    // Uniquement en mode preview (section level + content pas ouvert + projet sélectionné)
+    if (this.studioLevel() !== 'section' || this.pageContentOpen() || !this.api.selectedProjectId()) return;
+    this.openPageContent();
+  }
+
   /** Keyboard handlers : Escape = back, Enter = open page content */
   private setupKeyboardHandlers(): void {
     document.addEventListener('keydown', (ev: KeyboardEvent) => {
