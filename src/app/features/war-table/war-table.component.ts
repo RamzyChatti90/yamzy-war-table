@@ -2189,6 +2189,10 @@ export class WarTableComponent implements OnInit {
   setPage(id: string): void {
     this.activePage.set(id);
     this.currentPage.set(0);      // reset pagination quand on change de page
+    // v1.0.72 — Sync yamzyCarouselIndex avec la nouvelle page si elle est dans
+    // le menu carousel (sinon le scroll suivant repartirait d'un mauvais index).
+    const idx = this.homeMenuCards.findIndex(c => c.pageId === id);
+    if (idx >= 0) this.yamzyCarouselIndex.set(idx);
     this.loadPageData(id);
   }
 
