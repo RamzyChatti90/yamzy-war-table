@@ -311,7 +311,10 @@
                     [class.is-today]="launchableInfo()?.isToday"
                     [class.is-overdue]="launchableInfo()?.isOverdue"
                     [class.is-clickable]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
-                    (click)="onPsHeroClick($event)">
+                    (click)="onPsHeroClick($event)"
+                    (wheel)="onPsHeroWheel($event)"
+                    (touchstart)="onPsHeroTouchStart($event)"
+                    (touchend)="onPsHeroTouchEnd($event)">
 
               <!-- ═══ Variante DASHBOARD (project + sprint info) ═══ -->
               <ng-container *ngIf="isDashboardSkin(); else pageHeroContent">

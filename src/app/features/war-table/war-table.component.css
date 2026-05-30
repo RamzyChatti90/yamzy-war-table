@@ -4389,6 +4389,12 @@ body { background: #0a0820 !important; }
 }
 .wt-pick-hint strong { color: #d99a51; }
 
+/* v1.0.65 — Carousel cards (.wt-yc) CACHÉES.
+   Le PS hero devient l'objet scrollable qui pilote la navigation.
+   Le footer (.wt-yc-footer avec breadcrumb + dots) reste visible pour
+   indiquer la position et permettre la nav par dots. */
+.wt-yc { display: none !important; }
+
 /* v1.0.64 — PS hero CLIQUABLE en preview mode pour ouvrir le contenu */
 .wt-ps-header.is-clickable {
   cursor: pointer;

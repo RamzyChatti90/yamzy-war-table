@@ -161,6 +161,34 @@ export class WarTableComponent implements OnInit {
     this.openPageContent();
   }
 
+  /** v1.0.65 — Wheel sur le PS hero = navigation entre pages (remplace le carousel masqué).
+   *  Lock 600ms entre chaque scroll. */
+  private psHeroWheelLock: any = null;
+  onPsHeroWheel(ev: WheelEvent): void {
+    if (this.studioLevel() !== 'section' || this.pageContentOpen() || this.positionMode()) return;
+    if (this.psHeroWheelLock) { ev.preventDefault(); return; }
+    ev.preventDefault();
+    if (ev.deltaY > 0) this.yamzyCarouselDown();
+    else if (ev.deltaY < 0) this.yamzyCarouselUp();
+    this.psHeroWheelLock = setTimeout(() => { this.psHeroWheelLock = null; }, 600);
+  }
+
+  /** v1.0.65 — Swipe tactile sur le PS hero. */
+  private psHeroTouchStartY: number | null = null;
+  onPsHeroTouchStart(ev: TouchEvent): void {
+    if (this.studioLevel() !== 'section' || this.pageContentOpen()) return;
+    this.psHeroTouchStartY = ev.touches[0]?.clientY ?? null;
+  }
+  onPsHeroTouchEnd(ev: TouchEvent): void {
+    if (this.psHeroTouchStartY === null) return;
+    const endY = ev.changedTouches[0]?.clientY ?? this.psHeroTouchStartY;
+    const delta = endY - this.psHeroTouchStartY;
+    this.psHeroTouchStartY = null;
+    if (Math.abs(delta) < 30) return;        // ignore micro-swipes
+    if (delta < 0) this.yamzyCarouselDown(); // swipe up → next
+    else this.yamzyCarouselUp();             // swipe down → prev
+  }
+
   /** Keyboard handlers : Escape = back, Enter = open page content */
   private setupKeyboardHandlers(): void {
     document.addEventListener('keydown', (ev: KeyboardEvent) => {
