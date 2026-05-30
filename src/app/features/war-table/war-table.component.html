@@ -984,7 +984,46 @@
             <div class="wt-param"><span>{{ 'params.end_date' | t }}</span><strong>{{ p.endDate || '—' }}</strong></div>
             <div class="wt-param"><span>{{ 'params.h_per_day' | t }}</span><strong>{{ p.hoursPerDay }}</strong></div>
             <div class="wt-param"><span>{{ 'params.d_per_sprint' | t }}</span><strong>{{ p.daysPerSprint }}</strong></div>
+            <div class="wt-param"><span>Jours / semaine</span><strong>{{ p.workDaysPerWeek }}</strong></div>
             <div class="wt-param"><span>{{ 'params.sprint_capacity_h' | t }}</span><strong>{{ p.sprintCapacityHours }}</strong></div>
+            <div class="wt-param"><span>Jours alloués</span><strong>{{ p.allocatedDays || 0 }}</strong></div>
+            <div class="wt-param"><span>Jours consommés</span><strong>{{ p.consumedDays || 0 }}</strong></div>
+            <div class="wt-param"><span>Statut</span><strong>{{ p.status }}</strong></div>
+          </div>
+
+          <!-- ═══ v1.0.10 — Holidays / Leaves editor ═══ -->
+          <div class="wt-hol-block" *ngIf="currentProject() as p">
+            <h3 class="wt-sub">📅 Jours fériés <small class="wt-muted">({{ p.holidays?.length || 0 }})</small></h3>
+            <div *ngIf="editMode()" class="wt-hol-add-row">
+              <input type="date" [(ngModel)]="newHolidayDate" placeholder="Date"/>
+              <input type="text" [(ngModel)]="newHolidayLabel" placeholder="Libellé (ex: Noël)"/>
+              <button class="wt-btn-add" (click)="addHoliday()">+ Ajouter</button>
+            </div>
+            <div class="wt-hol-list" *ngIf="p.holidays?.length; else noHols">
+              <div *ngFor="let h of p.holidays" class="wt-hol-chip">
+                <span class="wt-hol-date">{{ h.date }}</span>
+                <span class="wt-hol-label">{{ h.label || '—' }}</span>
+                <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delHoliday(h)">🗑</button>
+              </div>
+            </div>
+            <ng-template #noHols><div class="wt-muted">Aucun jour férié enregistré.</div></ng-template>
+          </div>
+
+          <div class="wt-hol-block" *ngIf="currentProject() as p">
+            <h3 class="wt-sub">🏖 Congés <small class="wt-muted">({{ p.leaves?.length || 0 }})</small></h3>
+            <div *ngIf="editMode()" class="wt-hol-add-row">
+              <input type="date" [(ngModel)]="newLeaveDate" placeholder="Date"/>
+              <input type="text" [(ngModel)]="newLeaveReason" placeholder="Raison (ex: vacances)"/>
+              <button class="wt-btn-add" (click)="addLeave()">+ Ajouter</button>
+            </div>
+            <div class="wt-hol-list" *ngIf="p.leaves?.length; else noLeaves">
+              <div *ngFor="let l of p.leaves" class="wt-hol-chip wt-hol-chip-leave">
+                <span class="wt-hol-date">{{ l.date }}</span>
+                <span class="wt-hol-label">{{ l.reason || '—' }}</span>
+                <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delLeave(l)">🗑</button>
+              </div>
+            </div>
+            <ng-template #noLeaves><div class="wt-muted">Aucun congé enregistré.</div></ng-template>
           </div>
         </section>
 

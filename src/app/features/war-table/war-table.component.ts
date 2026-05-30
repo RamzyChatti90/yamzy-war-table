@@ -45,6 +45,45 @@ export class WarTableComponent implements OnInit {
     return Math.round((est - spent) * 10) / 10;
   }
 
+  // ═══ HOLIDAYS / LEAVES editor v1.0.10 ═══
+  newHolidayDate = '';
+  newHolidayLabel = '';
+  newLeaveDate = '';
+  newLeaveReason = '';
+
+  addHoliday(): void {
+    if (!this.newHolidayDate) return;
+    const p = this.currentProject(); if (!p) return;
+    const list = [...((p as any).holidays || []), { date: this.newHolidayDate, label: this.newHolidayLabel || '' }];
+    this.persistHolidaysOrLeaves(p, 'holidays', list);
+    this.newHolidayDate = ''; this.newHolidayLabel = '';
+  }
+  delHoliday(h: any): void {
+    const p = this.currentProject(); if (!p) return;
+    const list = ((p as any).holidays || []).filter((x: any) => x !== h);
+    this.persistHolidaysOrLeaves(p, 'holidays', list);
+  }
+  addLeave(): void {
+    if (!this.newLeaveDate) return;
+    const p = this.currentProject(); if (!p) return;
+    const list = [...((p as any).leaves || []), { date: this.newLeaveDate, reason: this.newLeaveReason || '' }];
+    this.persistHolidaysOrLeaves(p, 'leaves', list);
+    this.newLeaveDate = ''; this.newLeaveReason = '';
+  }
+  delLeave(l: any): void {
+    const p = this.currentProject(); if (!p) return;
+    const list = ((p as any).leaves || []).filter((x: any) => x !== l);
+    this.persistHolidaysOrLeaves(p, 'leaves', list);
+  }
+  private persistHolidaysOrLeaves(p: any, field: 'holidays'|'leaves', list: any[]): void {
+    (p as any)[field] = list;
+    this.api.projects.set([...this.api.projects()]);
+    this.api.updateProject(p.id, { [field]: list } as any).subscribe({
+      next: () => { this.notifyExcelChanged(p.id); },
+      error: (err) => console.warn('[wt] holidays/leaves patch failed', err)
+    });
+  }
+
   /** Auto-recompute sprintCapacityHours quand h/jour ou jours/sprint change. */
   recomputeSprintCapacity(): void {
     const h = Number(this.newProjectDraft.hoursPerDay) || 0;
