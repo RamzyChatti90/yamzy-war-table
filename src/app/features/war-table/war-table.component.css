@@ -873,8 +873,15 @@
     .wt-sk-news-tags { display:flex; gap:6px; margin-top:6px; }
     .wt-sk-news-tag { color:#fff; font-size:10px; padding:1px 8px; border-radius:999px; font-weight:600; }
 
-    /* ⑤ Top Selection */
-    .wt-sk-top { margin-top:8px; }
+    /* ⑤ Top Selection — v1.0.52 : visuellement sous le cockpit avec séparateur */
+    .wt-sk-top {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(217, 154, 81, 0.18);
+      display: block;
+      width: 100%;
+      clear: both;
+    }
     .wt-sk-top-head { display:flex; justify-content:space-between; align-items:center; }
     .wt-sk-top-title { color:#fff; font-size:26px; font-family:'Poppins',sans-serif; font-weight:500; }
     .wt-sk-live-pill { background:#f65164; color:#fff; display:flex; align-items:center;
