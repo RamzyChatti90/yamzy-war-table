@@ -6,7 +6,7 @@
                       [dataReady]="splashDataReady()"
                       (ready)="onSplashReady()"></app-war-table-splash>
 
-<div class="wt-shell wt-shell-row wt-shell-bg-3d">
+<div class="wt-shell wt-shell-row wt-shell-bg-3d" [class.is-home]="studioLevel() === 'home'">
   <!-- Cosmic background -->
   <div class="wt-bg"></div>
   <div class="wt-bg-aurora"></div>
@@ -30,6 +30,14 @@
         <div class="wt-brand-sub-skin">{{ 'brand.subtitle' | t }}</div>
       </div>
     </div>
+
+    <!-- v1.0.30 : Bouton retour Home (visible seulement en section) -->
+    <button *ngIf="studioLevel() === 'section'"
+            class="wt-home-btn"
+            (click)="returnHome()"
+            title="Retour au Home (menu principal)">
+      🏠 <span class="wt-home-btn-lbl">Home</span>
+    </button>
 
     <!-- SEARCH (skin style) -->
     <div class="wt-skin-search-wrap">

@@ -3410,6 +3410,90 @@ body { background: #0a0820 !important; }
   border-radius: 18px;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   HOME LEVEL v1.0.30 — Niveau 1 : menu principal
+   ──────────────────────────────────────────────────────────────────
+   En home : on cache le contenu studio (topbar/sidebar/pages) et on
+   centre l'avatar + carousel comme un menu game-style.
+   ═══════════════════════════════════════════════════════════════════ */
+.wt-shell.is-home > .wt-shell-main {
+  visibility: hidden; /* cache mais garde la place pour la layout */
+}
+.wt-shell.is-home .wt-skin-rsidebar {
+  display: none;
+}
+.wt-shell.is-home .wt-bg,
+.wt-shell.is-home .wt-bg-aurora,
+.wt-shell.is-home .wt-bg-stars,
+.wt-shell.is-home .wt-vignette { display: block; opacity: 1; }
+
+/* Bouton "Home" dans la topbar (visible en mode section) */
+.wt-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, rgba(217, 154, 81, 0.18), rgba(217, 154, 81, 0.06));
+  border: 1px solid rgba(217, 154, 81, 0.45);
+  border-radius: 999px;
+  color: #d99a51;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.wt-home-btn:hover {
+  background: #d99a51;
+  color: #1d172e;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(217, 154, 81, 0.45);
+}
+.wt-home-btn-lbl { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+
+/* En home, repositionne l'avatar et le carousel au centre */
+.wt-shell.is-home ~ .wt-yamzy-fab {
+  /* L'avatar reste à sa position, mais on peut le centrer si on veut */
+  left: 50% !important;
+  bottom: 50% !important;
+  transform: translate(-50%, 50%) !important;
+}
+.wt-shell.is-home ~ .wt-yc {
+  /* Le carousel se positionne à droite de l'avatar centré */
+  left: calc(50% + 200px) !important;
+  bottom: 50% !important;
+  top: auto !important;
+  transform: translateY(50%) !important;
+}
+
+/* En home, les cards menu ont un style "luxe game" plus prononcé */
+.wt-shell.is-home ~ .wt-yc .wt-yc-card {
+  border: 2px solid rgba(217, 154, 81, 0.35);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.wt-shell.is-home ~ .wt-yc .wt-yc-card.center {
+  border-color: #d99a51;
+  box-shadow: 0 0 40px rgba(217, 154, 81, 0.5), 0 24px 48px rgba(0, 0, 0, 0.6);
+}
+
+/* Hint "click pour entrer" en home */
+.wt-shell.is-home ~ .wt-yc::before {
+  content: '⚔ MENU PRINCIPAL · clique sur une carte pour entrer';
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Pirata One', 'Poppins', serif;
+  font-size: 14px;
+  color: #d99a51;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  text-shadow: 0 0 12px rgba(217, 154, 81, 0.4);
+  pointer-events: none;
+}
+
 .wt-yamzy-fab app-yamzy-avatar-3d {
   display: block;
   width: 100%;

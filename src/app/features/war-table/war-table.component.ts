@@ -109,6 +109,20 @@ export class WarTableComponent implements OnInit {
   // ═══ YAMZY COMPANION v1.0.17 — Avatar 3D animé fixé sur la gauche, présent partout ═══
   // (Guide panel retiré sur demande utilisateur — juste le gros avatar avec toutes les anims)
 
+  // ═══ STUDIO LEVELS v1.0.30 — Home (menu) vs Section (cockpit messages) ═══
+  // Niveau 1 = home : carousel affiche le menu des sections principales
+  // Niveau 2 = section : carousel affiche les messages cockpit (events/alerts/tickets)
+  studioLevel = signal<'home' | 'section'>('home');
+  enterSection(pageId: string): void {
+    this.studioLevel.set('section');
+    this.setPage(pageId);
+    this.yamzyCarouselIndex.set(0);
+  }
+  returnHome(): void {
+    this.studioLevel.set('home');
+    this.yamzyCarouselIndex.set(0);
+  }
+
   // ═══ YAMZY POSITION EDITOR v1.0.25 — Drag + Copy CSS coords ═══
   // Permet à l'utilisateur de positionner avatar + carousel manuellement
   // puis de copier les coords pour les communiquer à Claude.
@@ -201,7 +215,24 @@ export class WarTableComponent implements OnInit {
   // Inspiré du Team Carousel codepen : center/up-1/up-2/down-1/down-2/hidden
   // Affiche les "messages" que Yamzy lance : événements, alertes, tickets prio
   yamzyCarouselIndex = signal(0);
+
+  // v1.0.30 — Menu items pour le niveau "home" : sections principales du studio
+  homeMenuCards = [
+    { kind: 'MENU',      title: 'Dashboard',   subtitle: 'Tour de garde du projet',  meta: 'Vue d\'ensemble',      icon: '🏰', color: '#d99a51', gradient: 'linear-gradient(135deg, #d99a51, #c25d8d)', pageId: 'dashboard' },
+    { kind: 'MENU',      title: 'Backlog',     subtitle: 'Carnet de quêtes',         meta: 'Tickets prioritaires', icon: '📜', color: '#6647bf', gradient: 'linear-gradient(135deg, #6647bf, #514a7b)', pageId: 'backlog' },
+    { kind: 'MENU',      title: 'Sprints',     subtitle: 'Carte des expéditions',    meta: 'Cycles en cours',      icon: '🏃', color: '#4696b9', gradient: 'linear-gradient(135deg, #4696b9, #70b944)', pageId: 'sprints' },
+    { kind: 'MENU',      title: 'Calendrier',  subtitle: 'Calendrier de bataille',   meta: 'Cérémonies + tickets', icon: '🗓', color: '#70b944', gradient: 'linear-gradient(135deg, #70b944, #4696b9)', pageId: 'calendrier' },
+    { kind: 'MENU',      title: 'Risques',     subtitle: 'Sortilèges sombres',       meta: 'Risk register',        icon: '⚠', color: '#de4f5f', gradient: 'linear-gradient(135deg, #de4f5f, #eb8052)', pageId: 'risks' },
+    { kind: 'MENU',      title: 'Paramètres',  subtitle: 'Forge des réglages',       meta: 'Config projet',        icon: '⚙', color: '#9d8ad6', gradient: 'linear-gradient(135deg, #9d8ad6, #6647bf)', pageId: 'parametres' },
+  ];
+
   yamzyCarouselCards = computed<any[]>(() => {
+    // v1.0.30 — Au niveau "home" : retourne le menu des sections
+    if (this.studioLevel() === 'home') {
+      return this.homeMenuCards.map(c => ({ ...c, action: { type: 'enter-section', pageId: c.pageId } }));
+    }
+
+    // Niveau "section" : messages cockpit dynamiques
     const cards: any[] = [];
     const allEvents = this.events() || [];
     const upcoming = this.upcomingEventsList() || [];
@@ -331,6 +362,7 @@ export class WarTableComponent implements OnInit {
     if (card.action.type === 'event') this.openEventDetail(card.action.id);
     else if (card.action.type === 'new-event') this.openNewEvent();
     else if (card.action.type === 'page') this.setPage(card.action.page);
+    else if (card.action.type === 'enter-section') this.enterSection(card.action.pageId);
   }
 
   // ═══ COCKPIT WIDGET v1.0.12 (style "Chicago" — 4 onglets en carrousel) ═══
