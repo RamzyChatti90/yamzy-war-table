@@ -106,22 +106,8 @@ export class WarTableComponent implements OnInit {
     this.api.timeAllocation(pid).subscribe({ next: d => this.timeAllocation.set(d), error: () => this.timeAllocation.set(null) });
   }
 
-  // ═══ YAMZY FAB v1.0.16 — Avatar 3D flottant + Guide panel contextuel ═══
-  yamzyFabOpen = signal(false);
-  toggleYamzyFab(): void { this.yamzyFabOpen.update(v => !v); }
-  closeYamzyFab(): void { this.yamzyFabOpen.set(false); }
-  /** Resolve le tooltip de la page active depuis TOOLTIP_GUIDE. */
-  currentPageGuide = computed<any>(() => {
-    const pageId = this.activePage();
-    const lang = this.i18n.lang() as 'fr' | 'en';
-    const entry: any = (TOOLTIP_GUIDE as any)[pageId];
-    if (!entry) return null;
-    return entry[lang] || entry.fr || null;
-  });
-  /** Wrapper toggle FR/EN depuis le FAB Yamzy guide. */
-  toggleYamzyLang(): void {
-    this.i18n.setLang(this.i18n.lang() === 'fr' ? 'en' : 'fr');
-  }
+  // ═══ YAMZY COMPANION v1.0.17 — Avatar 3D animé fixé sur la gauche, présent partout ═══
+  // (Guide panel retiré sur demande utilisateur — juste le gros avatar avec toutes les anims)
 
   // ═══ COCKPIT WIDGET v1.0.12 (style "Chicago" — 4 onglets en carrousel) ═══
   cockpitTab = signal<'action' | 'upcoming' | 'tickets' | 'alerts'>('action');

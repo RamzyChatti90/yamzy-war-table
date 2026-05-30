@@ -6,6 +6,46 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.17] — 2026-05-31
+
+🎮 **YAMZY companion full-anim** : retour à l'essentiel — juste le gros
+avatar 3D animé en bas à gauche, partout dans le studio.
+
+### Changed — FAB simplifié
+- **Plus de Guide panel** (popup latérale retirée)
+- **Avatar seul**, taille équivalente au PS hero (~320px)
+- **Position bottom-left** au lieu de bottom-right (l'autre côté du
+  cockpit qui est à droite)
+- **Déborde de 40px en bas** comme le PS hero original
+- `pointer-events: none` → purement décoratif, ne bloque pas les clics
+- Drop-shadow renforcée (24px black + 30px gold glow)
+
+### Added — Toutes les animations actives
+- **`rotate`** : rotation Y idle (0.005 rad/frame)
+- **`bob`** : translation Y sinusoïdale (period 2.4s, amplitude 8%)
+- **`playGlbAnim`** : THREE.AnimationMixer joue toutes les clips
+  natives du GLB
+
+```html
+<app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb"
+                     [rotate]="true" [bob]="true" [playGlbAnim]="true">
+```
+
+### Responsive
+- ≤1400px : 240×240
+- ≤1024px : 180×180
+- ≤720px  : masqué (place pour le contenu)
+
+### Why
+> "nn tu mets seulement l'avatar et duplique sa taille et dans l'autre
+> partie de l'écran et active toutes les anim"
+
+NB : ça déroge à la règle précédente "laisse le glb fix pas d'anim" qui
+ne concernait que **l'avatar du PS hero du dashboard** (qui reste fixe).
+Le compagnon FAB v1.0.17 = anim ON.
+
+---
+
 ## [1.0.16] — 2026-05-31
 
 🐰 **YAMZY FAB partout** : ton compagnon 3D flotte en bas à droite

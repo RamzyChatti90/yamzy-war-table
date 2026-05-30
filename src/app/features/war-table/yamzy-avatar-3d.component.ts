@@ -46,6 +46,10 @@ export class YamzyAvatar3dComponent implements AfterViewInit, OnDestroy {
   @Input() glbUrl = '/assets/agents/YAMZY.glb';
   /** Rotation idle Y. Par défaut désactivée — avatar fixe. */
   @Input() rotate = false;
+  /** v1.0.17 — Bobbing vertical idle (translateY sinusoïdal). */
+  @Input() bob = false;
+  /** v1.0.17 — Joue les animations natives du GLB via THREE.AnimationMixer. */
+  @Input() playGlbAnim = false;
   /** Tint optionnel (vert quand actif, etc.). Si null, GLB natif. */
   @Input() tintColor: string | null = null;
 
@@ -140,7 +144,13 @@ export class YamzyAvatar3dComponent implements AfterViewInit, OnDestroy {
       this.camera.position.set(0, dist * 0.35, dist * 1.85);
       this.camera.lookAt(0, 0, 0);
 
-      // Mixer désactivé : avatar fixe — pas d'anim idle même si le GLB en contient.
+      // v1.0.17 — Mixer activé si playGlbAnim, joue toutes les clips natives du GLB.
+      if (this.playGlbAnim && gltf.animations && gltf.animations.length) {
+        this.mixer = new T.AnimationMixer(this.model);
+        for (const clip of gltf.animations) {
+          this.mixer.clipAction(clip).play();
+        }
+      }
 
       this.scene.add(this.model);
     }, undefined, (err: any) => {
@@ -152,10 +162,19 @@ export class YamzyAvatar3dComponent implements AfterViewInit, OnDestroy {
   private animate = () => {
     if (this.disposed) return;
     this.animFrameId = requestAnimationFrame(this.animate);
-    // Pas d'animation : rotation + bobbing + mixer désactivés.
-    // Le rAF reste actif pour gérer le resize / re-render au besoin.
+    const dt = this.clock ? this.clock.getDelta() : 0.016;
+    // v1.0.17 — Rotation Y idle
     if (this.model && this.rotate) {
       this.model.rotation.y += 0.005;
+    }
+    // v1.0.17 — Bobbing : translation Y sinusoïdale (8% du modèle, période 2.4s)
+    if (this.model && this.bob) {
+      this.bobPhase += dt * 2.6;
+      this.model.position.y = Math.sin(this.bobPhase) * 0.08;
+    }
+    // v1.0.17 — GLB animations natives via mixer
+    if (this.mixer) {
+      this.mixer.update(dt);
     }
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
