@@ -3246,96 +3246,78 @@ body { background: #0a0820 !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   COCKPIT LIVE CARDS v1.0.18 — pattern "LIVE STREAM"
-   (réf React Streaming Dashboard : .ping-outer + .player + ruban)
+   COCKPIT LIVE CARDS v1.0.20 — REPRO FIDÈLE de la ref React Streaming
    ──────────────────────────────────────────────────────────────────
-   Toutes les cards .wt-sk-card-live du cockpit reçoivent 3 décos :
-     1. Ping rouge pulsant (top-right) — "EN DIRECT"
-     2. Frame TV (border-top + right 6px couleur fond) — encastré
-     3. Ruban rouge corner avec témoin blanc — record/live indicator
+   Réf SVG dans le code d'origine :
+     - Path rouge en L tracant le bord TOP + bord RIGHT (épaisseur 3px)
+     - Deux cercles concentriques au coin top-right :
+         outer r=7.25 blanc, inner r=4.25 rouge
+   Implémentation 2 éléments seulement (.wt-card-frame + .wt-card-rec) :
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Position relative obligatoire sur les cards pour ancrer les déco */
+/* Position relative sur les cards + overflow VISIBLE pour le record dot */
 .wt-sk-news-card { position: relative; }
+.wt-sk-card-live { overflow: visible !important; }
 
-/* ── 1) Ping rouge pulsant ── */
-.wt-sk-card-live .wt-card-ping {
-  position: absolute;
-  right: 14px;
-  top: 14px;
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background-color: #ea4d5f;
-  z-index: 5;
-  pointer-events: none;
-}
-.wt-sk-card-live .wt-card-ping::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  background-color: #ea4d5f;
-  animation: wt-card-ping-pulse 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-@keyframes wt-card-ping-pulse {
-  0%        { transform: scale(1);   opacity: 0.85; }
-  75%, 100% { transform: scale(3.5); opacity: 0;    }
-}
-
-/* ── 2) Frame "TV" — border-top + right 6px couleur fond cosmic ── */
-.wt-sk-card-live .wt-card-tv {
+/* ── 1) Bord rouge en L — top + right (réf SVG path) ── */
+.wt-sk-card-live .wt-card-frame {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 4;
-  border-top: 6px solid #2b2549;
-  border-right: 6px solid #2b2549;
   border-radius: 24px;
+  /* Bord rouge en L : top + right en plein rouge,
+     bottom + left transparents pour ne pas tracer le bas/gauche */
+  border-top: 3px solid #ea4d60;
+  border-right: 3px solid #ea4d60;
+  border-bottom: 3px solid transparent;
+  border-left: 3px solid transparent;
+  filter: drop-shadow(0 0 6px rgba(234, 77, 95, 0.45));
 }
 
-/* ── 3) Ruban rouge corner ── */
-.wt-sk-card-live .wt-card-ribbon {
+/* ── 2) Record dot au coin top-right (deux cercles concentriques) ── */
+.wt-sk-card-live .wt-card-rec {
   position: absolute;
   top: 0;
   right: 0;
-  width: 86px;
-  height: 28px;
+  width: 16px;
+  height: 16px;
   z-index: 6;
   pointer-events: none;
+  transform: translate(50%, -50%); /* centré sur le coin */
 }
-.wt-sk-card-live .wt-card-ribbon::before {
-  /* Rectangle rouge horizontal (la barre du ruban) */
+.wt-sk-card-live .wt-card-rec::before {
+  /* Cercle externe blanc */
   content: '';
   position: absolute;
-  top: 18px;
-  right: 24px;
-  height: 3px;
-  width: 60px;
-  background: #ea4d60;
-  border-radius: 2px;
-  box-shadow: 0 0 8px rgba(234, 77, 95, 0.55);
-}
-.wt-sk-card-live .wt-card-ribbon::after {
-  /* Témoin blanc avec rouge dedans (REC light) */
-  content: '';
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
+  inset: 0;
+  border-radius: 50%;
   background: #fff;
-  box-shadow: inset 0 0 0 3px #ea4d5f, 0 0 10px rgba(234, 77, 95, 0.6);
+  box-shadow: 0 0 8px rgba(234, 77, 95, 0.45);
+}
+.wt-sk-card-live .wt-card-rec::after {
+  /* Cercle interne rouge avec pulse subtil */
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #ea4d5f;
+  animation: wt-card-rec-blink 1.6s ease-in-out infinite;
+}
+@keyframes wt-card-rec-blink {
+  0%, 100% { opacity: 1;    transform: scale(1);   }
+  50%      { opacity: 0.55; transform: scale(0.82); }
 }
 
 /* Variantes par type de card */
-.wt-sk-card-hero.wt-sk-card-live .wt-card-ping::after { animation-duration: 1.2s; }
-.wt-sk-card-hero.wt-sk-card-live .wt-card-ribbon::after {
-  box-shadow: inset 0 0 0 3px #ea4d5f, 0 0 14px rgba(234, 77, 95, 0.9);
+.wt-sk-card-hero.wt-sk-card-live .wt-card-rec::after { animation-duration: 1.2s; }
+.wt-sk-card-hero.wt-sk-card-live .wt-card-rec::before {
+  box-shadow: 0 0 12px rgba(234, 77, 95, 0.7);
 }
-.wt-sk-card-alert.wt-sk-card-live .wt-card-ping,
-.wt-sk-card-alert.wt-sk-card-live .wt-card-ping::after { background: #ff5c5c; }
-.wt-sk-card-alert.wt-sk-card-live .wt-card-ribbon::before { background: #ff5c5c; }
+.wt-sk-card-alert.wt-sk-card-live .wt-card-frame {
+  border-top-color: #ff5c5c;
+  border-right-color: #ff5c5c;
+}
+.wt-sk-card-alert.wt-sk-card-live .wt-card-rec::after { background: #ff5c5c; }
 
 

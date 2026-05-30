@@ -6,6 +6,50 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.20] — 2026-05-31
+
+🎯 **Fix live pattern fidèle à la référence** : le rendu cockpit
+ne matchait pas le code d'origine — le frame TV en couleur fond
+cosmic était invisible, et la barre rouge horizontale n'était pas
+le bon pattern.
+
+### Fixed — Bord rouge en L (top + right)
+- **Avant** : `border-top: 6px solid #2b2549; border-right: 6px solid
+  #2b2549` — la couleur étant celle du fond cosmic, le frame était
+  **invisible** sur le dashboard.
+- **Maintenant** : repris du SVG path d'origine — un bord rouge
+  `#ea4d60` 3px qui trace **uniquement le bord top + right** de la
+  card, avec drop-shadow rouge pour le glow.
+- Bottom + left en `transparent` pour ne PAS tracer le bas/gauche.
+- `border-radius: 24px` matche la card → courbe du coin top-right.
+
+### Fixed — Record dot au coin (2 cercles concentriques)
+- **Avant** : `.wt-card-ribbon` séparée avec barre horizontale +
+  cercle en deux pseudo-éléments — ne matchait pas la ref.
+- **Maintenant** : repris du SVG d'origine — deux cercles
+  concentriques au coin top-right :
+  - `::before` = cercle blanc 16×16 (outer r=8 = 50%)
+  - `::after`  = cercle rouge 8×8 inset (inner r=4 ≈ 50% du parent)
+  - `translate(50%, -50%)` → centré pile sur le coin
+- Pulse blink subtil (`opacity 1↔0.55` + `scale 1↔0.82` 1.6s) sur
+  le cercle interne — plus discret que l'ancien ping qui scalait
+  jusqu'à 3.5×.
+
+### Architecture
+- Simplifié de 3 décorations (ping + tv + ribbon) à **2** (frame + rec)
+- `.wt-sk-card-live { overflow: visible !important }` pour laisser
+  passer le record dot qui déborde de 8px du coin (effet record cam)
+- ng-template `#liveDeco` raccourci d'une div
+
+### Why
+> "le rendu n'est pas pareil dans le code d'origine"
+
+Le pattern original a un bord rouge en L (continu) + un seul record
+dot au coin. Pas de barre horizontale détachée + pas de point pulsant
+séparé.
+
+---
+
 ## [1.0.19] — 2026-05-31
 
 🩹 **Hotfix YAMZY** : reste dans le cadre + plus de rotation
