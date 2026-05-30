@@ -6,6 +6,22 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.22] — 2026-05-31
+
+### Fixed — YAMZY FAB sur TOUTES les pages (vraiment)
+Le FAB était dans `.wt-shell` qui est `display:flex; flex-direction:row`.
+Théoriquement `position:fixed` devrait sortir du flux, mais selon le
+navigateur et les filtres backdrop des parents, ça pouvait foirer.
+- **Déplacé HORS de `.wt-shell`** — maintenant sibling direct du host
+- **z-index 80 → 950** (au-dessus de tout sauf les modals/wt-dialog)
+- **`*ngIf="!splashVisible()"`** — n'apparaît plus pendant le splash
+  d'ouverture (sinon il flashe par-dessus l'anim)
+
+### Why
+> "je pense il est pas mit comme fab button sur tout l'app"
+
+---
+
 ## [1.0.21] — 2026-05-31
 
 ### Changed — YAMZY plus près des bords

@@ -1897,12 +1897,12 @@
 
   <!-- ═══ v1.0.8 — Wt-Dialog : popup unifié au style studio (remplace alert/confirm/prompt natifs) ═══ -->
   <app-wt-dialog></app-wt-dialog>
+</div>
 
-  <!-- ═══ v1.0.19 — YAMZY companion : pas de rotation (anti-dizziness), bob + GLB anim seulement ═══ -->
-  <div class="wt-yamzy-fab">
-    <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb"
-                         [rotate]="false"
-                         [bob]="true"
-                         [playGlbAnim]="true"></app-yamzy-avatar-3d>
-  </div>
+<!-- ═══ v1.0.22 — YAMZY companion : SORTI du .wt-shell pour rendu sur TOUTES les pages, z-index élevé ═══ -->
+<div class="wt-yamzy-fab" *ngIf="!splashVisible()">
+  <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb"
+                       [rotate]="false"
+                       [bob]="true"
+                       [playGlbAnim]="true"></app-yamzy-avatar-3d>
 </div>
