@@ -117,7 +117,9 @@ export class WarTableComponent implements OnInit {
     return page ? page.label : pageId;
   });
 
-  /** Wheel sur le carousel = navigation entre cards (debouncé pour éviter rapid-fire). */
+  /** v1.0.39 — Wheel sur le carousel : navigation entre cards.
+   *  Lock 600ms entre chaque scroll + settle delay 500ms avant chargement page.
+   *  Donc tu peux scroller librement entre les cards et seule la dernière chargera. */
   private wheelLockTimer: any = null;
   onCarouselWheel(ev: WheelEvent): void {
     if (!this.yamzyCarouselOpen() || this.positionMode()) return;
@@ -125,7 +127,7 @@ export class WarTableComponent implements OnInit {
     if (this.wheelLockTimer) return;
     if (ev.deltaY > 0) this.yamzyCarouselDown();
     else if (ev.deltaY < 0) this.yamzyCarouselUp();
-    this.wheelLockTimer = setTimeout(() => { this.wheelLockTimer = null; }, 350);
+    this.wheelLockTimer = setTimeout(() => { this.wheelLockTimer = null; }, 600);
   }
 
   // ═══ CAROUSEL TOGGLE v1.0.32 — click avatar pour ouvrir/fermer le carrousel ═══
@@ -378,31 +380,45 @@ export class WarTableComponent implements OnInit {
     const n = this.yamzyCarouselCards().length;
     if (!n) return;
     this.yamzyCarouselIndex.update(i => (i - 1 + n) % n);
-    this.applyCenterAction();
+    this.scheduleCenterAction(); // v1.0.39 — différé (settle delay)
   }
   yamzyCarouselDown(): void {
     const n = this.yamzyCarouselCards().length;
     if (!n) return;
     this.yamzyCarouselIndex.update(i => (i + 1) % n);
-    this.applyCenterAction();
+    this.scheduleCenterAction(); // v1.0.39 — différé
   }
   setYamzyCarouselIndex(i: number): void {
     this.yamzyCarouselIndex.set(i);
-    this.applyCenterAction();
+    this.applyCenterAction(); // dot click = immédiat
   }
 
   /** v1.0.38 — Auto-fire l'action de la card center (pas besoin de cliquer).
    *  Pour les enter-section : navigate à la page sans reset l'index. */
   private applyCenterAction(): void {
+    if (this.centerActionTimer) {
+      clearTimeout(this.centerActionTimer);
+      this.centerActionTimer = null;
+    }
     const cards = this.yamzyCarouselCards();
     const idx = this.yamzyCarouselIndex();
     const card = cards[idx];
     if (!card?.action) return;
     if (card.action.type === 'enter-section') {
-      // setPage sans reset l'index (sinon boucle infinie)
       this.studioLevel.set('section');
       this.setPage(card.action.pageId);
     }
+  }
+
+  /** v1.0.39 — Settle delay : ne charge la page QU'après l'arrêt du scroll.
+   *  Chaque scroll reset le timer. Quand le user s'arrête > 500ms, action fire. */
+  private centerActionTimer: any = null;
+  private scheduleCenterAction(): void {
+    if (this.centerActionTimer) clearTimeout(this.centerActionTimer);
+    this.centerActionTimer = setTimeout(() => {
+      this.applyCenterAction();
+      this.centerActionTimer = null;
+    }, 500);
   }
 
   /** Click sur la card : action contextuelle. */
