@@ -45,6 +45,222 @@ export class WarTableComponent implements OnInit {
     return Math.round((est - spent) * 10) / 10;
   }
 
+  // ═══ CALENDAR EVENTS v1.0.11 ═══
+  events = signal<any[]>([]);
+  upcomingEventsList = signal<any[]>([]);
+  eventNotifShown = signal<Set<number>>(new Set());
+  newEventOpen = signal(false);
+  newEventDraft: any = { type: 'MEETING', title: '', description: '', location: '', scheduledStart: '', scheduledEnd: '' };
+  eventDetailId = signal<number | null>(null);
+  eventLiveNotes = '';
+  private eventPollInterval: any = null;
+
+  refreshEvents(): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) { this.events.set([]); this.upcomingEventsList.set([]); return; }
+    this.api.listEvents(pid).subscribe({ next: e => this.events.set(e || []) });
+    this.api.upcomingEvents(pid).subscribe({ next: e => this.upcomingEventsList.set(e || []) });
+  }
+
+  private startEventPoll(): void {
+    if (this.eventPollInterval) return;
+    const checkSoon = () => {
+      const pid = this.api.selectedProjectId();
+      if (!pid) return;
+      this.api.startingSoonEvents(pid, 5).subscribe({
+        next: list => {
+          const shown = new Set(this.eventNotifShown());
+          for (const ev of list) {
+            if (shown.has(ev.id)) continue;
+            shown.add(ev.id);
+            this.showEventNotification(ev);
+          }
+          this.eventNotifShown.set(shown);
+        }
+      });
+    };
+    this.eventPollInterval = setInterval(checkSoon, 60_000);
+    setTimeout(checkSoon, 2000);
+  }
+
+  private async showEventNotification(ev: any): Promise<void> {
+    const startMs = new Date(ev.scheduledStart).getTime();
+    const minutes = Math.max(0, Math.round((startMs - Date.now()) / 60000));
+    const action = await this.dialog.prompt({
+      title: `⏰ ${this.eventTypeLabel(ev.type)} dans ${minutes} min`,
+      message: `**${ev.title}**\nDébut prévu : ${this.formatDateTime(ev.scheduledStart)}`,
+      kind: 'warning',
+      choices: [
+        { value: 'start',  label: '▶ Démarrer maintenant', kind: 'primary', hint: 'Enregistre actualStart = now' },
+        { value: 'snooze', label: '⏸ Rappeler dans 5 min', kind: 'neutral', hint: 'Re-notification après 5 min' },
+        { value: 'open',   label: '👁 Voir détails',       kind: 'neutral' },
+      ],
+      details: [
+        { label: 'Type', value: ev.type },
+        { label: 'Durée prévue', value: this.formatDuration(ev.scheduledStart, ev.scheduledEnd) },
+      ]
+    });
+    if (action === 'start') this.startEventNow(ev);
+    else if (action === 'snooze') {
+      const shown = new Set(this.eventNotifShown());
+      shown.delete(ev.id);
+      this.eventNotifShown.set(shown);
+    } else if (action === 'open') this.openEventDetail(ev.id);
+  }
+
+  startEventNow(ev: any): void {
+    this.api.startEvent(ev.id).subscribe({
+      next: () => {
+        this.refreshEvents();
+        this.setPage('agenda');
+        this.eventDetailId.set(ev.id);
+      }
+    });
+  }
+  async endEventNow(ev: any): Promise<void> {
+    this.api.endEvent(ev.id, this.eventLiveNotes).subscribe({
+      next: async () => {
+        this.refreshEvents();
+        this.eventDetailId.set(null);
+        this.eventLiveNotes = '';
+        await this.dialog.alert({
+          title: 'Événement terminé',
+          message: `**${ev.title}** a été marqué comme COMPLETED.`,
+          kind: 'success',
+          details: [
+            { label: 'Durée prévue', value: this.formatDuration(ev.scheduledStart, ev.scheduledEnd) },
+            { label: 'Durée réelle', value: this.formatDuration(ev.actualStart || ev.scheduledStart, new Date().toISOString()) },
+          ]
+        });
+      }
+    });
+  }
+  respondToEvent(ev: any, response: 'ACCEPTED'|'DECLINED'|'TENTATIVE'): void {
+    const name = this.user()?.githubLogin || 'Guest';
+    this.api.respondEvent(ev.id, name, response).subscribe({ next: () => this.refreshEvents() });
+  }
+  deleteEventById(ev: any): void {
+    this.delEntity(() => this.api.deleteEvent(ev.id));
+    setTimeout(() => this.refreshEvents(), 400);
+  }
+
+  openEventDetail(id: number): void {
+    this.eventDetailId.set(id);
+    this.eventLiveNotes = (this.events().find(e => e.id === id) || {}).notes || '';
+  }
+  closeEventDetail(): void { this.eventDetailId.set(null); this.eventLiveNotes = ''; }
+  getEventById(id: number | null): any { return id == null ? null : this.events().find(e => e.id === id); }
+
+  openNewEvent(): void {
+    const now = new Date();
+    const inHour = new Date(now.getTime() + 3600_000);
+    this.newEventDraft = {
+      type: 'MEETING', title: '', description: '', location: '',
+      scheduledStart: this.toDatetimeLocal(now),
+      scheduledEnd: this.toDatetimeLocal(inHour),
+      attendees: []
+    };
+    this.newEventOpen.set(true);
+  }
+  cancelNewEvent(): void { this.newEventOpen.set(false); }
+  submitNewEvent(): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) return;
+    const draft = { ...this.newEventDraft,
+      scheduledStart: new Date(this.newEventDraft.scheduledStart).toISOString(),
+      scheduledEnd: new Date(this.newEventDraft.scheduledEnd).toISOString(),
+    };
+    this.api.createEvent(pid, draft).subscribe({
+      next: () => { this.newEventOpen.set(false); this.refreshEvents(); this.notifyExcelChanged(pid); }
+    });
+  }
+
+  async regenerateScrumCeremonies(): Promise<void> {
+    const pid = this.api.selectedProjectId();
+    if (!pid) return;
+    const ok = await this.dialog.confirm({
+      title: 'Régénérer les cérémonies Scrum',
+      message: `Crée les Daily, Sprint Planning, Review et Retro pour le sprint **EN COURS** s'ils n'existent pas déjà.`,
+      kind: 'question',
+      confirmLabel: '🔄 Générer'
+    });
+    if (!ok) return;
+    this.api.regenerateScrumCeremonies(pid).subscribe({
+      next: async r => {
+        await this.dialog.alert({
+          title: 'Régénération terminée',
+          message: r.reason || `${r.created} cérémonie(s) créée(s) pour le sprint ${r.sprintName}.`,
+          kind: 'success',
+        });
+        this.refreshEvents();
+      }
+    });
+  }
+
+  downloadIcal(): void {
+    const pid = this.api.selectedProjectId();
+    if (!pid) return;
+    window.open(this.api.icalUrl(pid), '_blank');
+  }
+
+  eventTypeLabel(type: string): string {
+    const map: Record<string, string> = {
+      DAILY: '📅 Daily Stand-up',
+      PLANNING: '🎯 Sprint Planning',
+      REVIEW: '🔍 Sprint Review',
+      RETRO: '🔄 Rétrospective',
+      MEETING: '👥 Réunion',
+      CALL: '📞 Call',
+      OTHER: '📌 Autre',
+    };
+    return map[type] || type;
+  }
+  eventTypeColor(type: string): string {
+    const map: Record<string, string> = {
+      DAILY: '#70b944', PLANNING: '#4696b9', REVIEW: '#d99a51',
+      RETRO: '#c25d8d', MEETING: '#6647bf', CALL: '#2ea1cb', OTHER: '#8b7fd6'
+    };
+    return map[type] || '#8b7fd6';
+  }
+  eventStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      SCHEDULED: '○ Planifié',
+      IN_PROGRESS: '▶ En cours',
+      COMPLETED: '✓ Terminé',
+      CANCELLED: '✕ Annulé',
+      MISSED: '⚠ Manqué',
+    };
+    return map[status] || status;
+  }
+  formatDateTime(iso?: string): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+  formatTime(iso?: string): string {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  }
+  formatDuration(start?: string, end?: string): string {
+    if (!start || !end) return '—';
+    const min = Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000);
+    if (min < 60) return min + ' min';
+    return Math.floor(min / 60) + 'h' + String(min % 60).padStart(2, '0');
+  }
+  private toDatetimeLocal(d: Date): string {
+    const tz = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tz).toISOString().slice(0, 16);
+  }
+  eventsGroupedByDay = computed(() => {
+    const list = this.events().slice().sort((a, b) => new Date(a.scheduledStart).getTime() - new Date(b.scheduledStart).getTime());
+    const groups: Record<string, any[]> = {};
+    for (const ev of list) {
+      const key = (ev.scheduledStart || '').slice(0, 10);
+      (groups[key] ||= []).push(ev);
+    }
+    return Object.entries(groups).map(([day, items]) => ({ day, items }));
+  });
+
   // ═══ HOLIDAYS / LEAVES editor v1.0.10 ═══
   newHolidayDate = '';
   newHolidayLabel = '';
@@ -1096,7 +1312,7 @@ export class WarTableComponent implements OnInit {
     'dashboard', 'backlog', 'backlog-tma', 'sprints', 'burndown', 'gantt', 'risks', 'tech-debt', 'lessons',
     'phases', 'capacity', 'roadmap', 'overtime', 'retros', 'knowledge', 'cfd-velocity', 'dependances',
     'projets', 'detail-tickets', 'vue-reviewer', 'vue-sprint', 'sprint-review', 'sprint-planning',
-    'calendrier', 'dod', 'dor', 'templates', 'parametres', 'mode-emploi', 'routine', 'checkup',
+    'calendrier', 'agenda', 'dod', 'dor', 'templates', 'parametres', 'mode-emploi', 'routine', 'checkup',
     'daily', 'nouveau-projet', 'regen-alloc', 'dashboard-param', 'dashboard-legacy', 'vue-stakeholder',
     'stakeholders', 'export-stakeholder', 'allocation', 'charge', 'listes',
   ]);
@@ -1259,6 +1475,8 @@ export class WarTableComponent implements OnInit {
     this.refreshLaunchable();
     this.refreshReminders();
     this.startReminderPoll();
+    this.refreshEvents();
+    this.startEventPoll();
   }
 
   /** Change de page + lazy-load des données spécifiques. */
@@ -1342,6 +1560,8 @@ export class WarTableComponent implements OnInit {
       case 'projets': this.api.listProjects().subscribe({ next: (v:any) => this.allProjects.set(v), error: () => {} }); break;
       case 'dod': g(this.api.dodDor(pid, 'DoD'), this.dodDorList); break;
       case 'dor': g(this.api.dodDor(pid, 'DoR'), this.dodDorList); break;
+      case 'agenda': this.refreshEvents(); break;
+      case 'calendrier': this.refreshEvents(); break;
       case 'checkup': g(this.api.checklist(pid), this.checklistList); break;
       case 'stakeholders': case 'vue-stakeholder': case 'export-stakeholder':
         g(this.api.stakeholders(pid), this.stakeholdersList);

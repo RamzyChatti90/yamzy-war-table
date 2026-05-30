@@ -2031,3 +2031,199 @@ body { background: #0a0820 !important; }
 .wt-hol-label { color: rgba(255, 255, 255, 0.85); }
 .wt-hol-chip .wt-btn-del-row { margin-left: 4px; padding: 2px 6px; font-size: 10px; }
 
+
+/* === v1.0.11 — Agenda page + Event detail modal === */
+.wt-event-stats { display: flex; gap: 10px; margin: 8px 0 16px; }
+.wt-event-stat-pill {
+  background: rgba(70, 150, 185, 0.20);
+  border: 1px solid rgba(70, 150, 185, 0.45);
+  color: #f4ecff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.wt-event-day-group { margin-bottom: 18px; }
+.wt-event-day-group .wt-sub {
+  font-family: 'Courier New', monospace;
+  color: #ffe5b8;
+  margin-bottom: 8px;
+  font-size: 13.5px;
+}
+
+.wt-event-card {
+  display: flex; align-items: stretch; gap: 14px;
+  padding: 12px 14px;
+  background: rgba(43, 37, 73, 0.55);
+  border: 1px solid rgba(139, 127, 214, 0.25);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.16s;
+  position: relative;
+}
+.wt-event-card:hover {
+  background: rgba(54, 44, 96, 0.85);
+  transform: translateX(3px);
+  border-color: rgba(217, 154, 81, 0.45);
+}
+.wt-event-card.is-in-progress {
+  background: rgba(46, 161, 203, 0.18);
+  border-color: rgba(46, 161, 203, 0.65);
+  animation: wt-event-pulse 2s ease-in-out infinite;
+}
+@keyframes wt-event-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(46, 161, 203, 0); }
+  50%     { box-shadow: 0 0 0 6px rgba(46, 161, 203, 0.18); }
+}
+.wt-event-card.is-completed { opacity: 0.65; }
+.wt-event-card.is-missed { background: rgba(222, 79, 95, 0.12); border-color: rgba(222, 79, 95, 0.45); }
+.wt-event-marker {
+  width: 4px; min-width: 4px;
+  border-radius: 4px;
+  background: #8b7fd6;
+  box-shadow: 0 0 10px currentColor;
+}
+.wt-event-time {
+  min-width: 70px;
+  text-align: center;
+}
+.wt-event-time-start {
+  font-size: 18px; font-weight: 800;
+  font-family: 'Courier New', monospace;
+  color: #ffe5b8;
+}
+.wt-event-time-dur {
+  font-size: 10.5px; color: rgba(200, 188, 230, 0.65);
+  margin-top: 2px;
+}
+.wt-event-body { flex: 1; min-width: 0; }
+.wt-event-type {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em;
+  color: rgba(200, 188, 230, 0.78);
+  text-transform: uppercase;
+}
+.wt-event-title {
+  font-size: 13.5px; font-weight: 700;
+  color: #fff; margin-top: 2px;
+}
+.wt-event-meta {
+  font-size: 11px; color: rgba(200, 188, 230, 0.72);
+  margin-top: 3px;
+}
+.wt-event-status {
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 4px;
+  min-width: 110px;
+}
+.wt-event-status-pill {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
+  padding: 3px 10px; border-radius: 999px;
+  background: rgba(139, 127, 214, 0.20);
+  color: rgba(200, 188, 230, 0.85);
+}
+.wt-event-status-pill[data-st="IN_PROGRESS"] { background: rgba(46, 161, 203, 0.45); color: #fff; }
+.wt-event-status-pill[data-st="COMPLETED"]   { background: rgba(112, 185, 68, 0.45); color: #fff; }
+.wt-event-status-pill[data-st="CANCELLED"]   { background: rgba(139, 127, 214, 0.20); color: rgba(200, 188, 230, 0.65); }
+.wt-event-status-pill[data-st="MISSED"]      { background: rgba(222, 79, 95, 0.45); color: #fff; }
+.wt-event-btn-start {
+  background: linear-gradient(135deg, #70b944, #4696b9);
+  color: #fff; border: none;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(112, 185, 68, 0.45);
+}
+.wt-event-btn-start:hover { transform: scale(1.10); }
+
+/* Detail modal */
+.wt-event-detail-modal { max-width: 660px; }
+.wt-event-detail-head {
+  border-left: 4px solid #8b7fd6;
+  padding-left: 14px;
+  margin-bottom: 18px;
+}
+.wt-event-detail-type {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.10em;
+  color: rgba(200, 188, 230, 0.78);
+  text-transform: uppercase;
+}
+.wt-event-detail-title {
+  font-size: 22px; font-weight: 800;
+  color: #fff; margin: 4px 0 6px;
+  line-height: 1.25;
+}
+.wt-event-detail-when {
+  font-size: 13px; color: #ffe5b8;
+  font-family: 'Courier New', monospace;
+}
+.wt-event-detail-loc {
+  font-size: 12px; color: rgba(200, 188, 230, 0.85);
+  margin-top: 4px;
+}
+.wt-event-detail-status { margin-top: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.wt-event-detail-desc {
+  background: rgba(15, 11, 32, 0.45);
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.wt-event-detail-notes {
+  margin-bottom: 14px;
+}
+.wt-event-detail-notes label {
+  display: block;
+  font-size: 12px; font-weight: 700;
+  color: rgba(200, 188, 230, 0.85);
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.wt-event-notes-area {
+  width: 100%;
+  background: rgba(15, 11, 32, 0.55);
+  border: 1px solid rgba(139, 127, 214, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #f4ecff;
+  font-size: 13px;
+  font-family: 'Courier New', monospace;
+  resize: vertical;
+  min-height: 100px;
+}
+.wt-event-attendees { margin-bottom: 14px; }
+.wt-event-attendee {
+  display: flex;
+  align-items: center; justify-content: space-between;
+  padding: 7px 12px;
+  background: rgba(43, 37, 73, 0.55);
+  border-radius: 8px;
+  margin-bottom: 5px;
+  font-size: 12.5px;
+}
+.wt-event-attendee-name { color: #f4ecff; font-weight: 600; }
+.wt-event-attendee-response {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
+  padding: 3px 9px; border-radius: 999px;
+}
+.wt-event-attendee-response[data-resp="ACCEPTED"]  { background: rgba(112, 185, 68, 0.45); color: #fff; }
+.wt-event-attendee-response[data-resp="DECLINED"]  { background: rgba(222, 79, 95, 0.45); color: #fff; }
+.wt-event-attendee-response[data-resp="TENTATIVE"] { background: rgba(217, 154, 81, 0.45); color: #fff; }
+.wt-event-attendee-response[data-resp="PENDING"]   { background: rgba(139, 127, 214, 0.25); color: rgba(200, 188, 230, 0.85); }
+.wt-event-respond-row {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  margin: 8px 0 14px;
+}
+.wt-event-detail-actions {
+  display: flex; gap: 10px;
+  align-items: center; justify-content: flex-end;
+  padding-top: 10px;
+  border-top: 1px solid rgba(139, 127, 214, 0.20);
+}
+.wt-event-detail-actions .wt-btn-major { flex: 1; }
+
