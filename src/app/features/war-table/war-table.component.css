@@ -3217,14 +3217,15 @@ body { background: #0a0820 !important; }
 
 .wt-yamzy-fab {
   position: fixed;
-  bottom: -40px;       /* déborde comme le PS hero original (top: -40px) */
-  left: 88px;          /* laisse passer le left sidebar (4 icônes) */
-  width: 400px;        /* MÊME taille que le PS hero du dashboard */
-  height: 400px;
-  z-index: 80;         /* sous les modals (1000+) mais au-dessus du contenu */
-  pointer-events: none; /* purement décoratif, ne bloque pas les clics */
-  filter: drop-shadow(0 28px 40px rgba(0, 0, 0, 0.55))
-          drop-shadow(0 0 32px rgba(217, 154, 81, 0.22));
+  /* v1.0.19 : RESTE DANS LE CADRE — 45px de marge bas + côté gauche après le sidebar */
+  bottom: 45px;
+  left: 125px;         /* 80px sidebar + 45px marge */
+  width: 320px;        /* canvas — l'avatar prend ~70% au centre */
+  height: 320px;
+  z-index: 80;
+  pointer-events: none; /* purement décoratif */
+  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.45))
+          drop-shadow(0 0 22px rgba(217, 154, 81, 0.20));
 }
 
 .wt-yamzy-fab app-yamzy-avatar-3d {
@@ -3233,12 +3234,12 @@ body { background: #0a0820 !important; }
   height: 100%;
 }
 
-/* Responsive : réduit la taille sur écrans étroits — équivalent au PS hero responsive */
+/* Responsive : réduit la taille sur écrans étroits — toujours dans le cadre */
 @media (max-width: 1400px) {
-  .wt-yamzy-fab { width: 320px; height: 320px; bottom: -32px; left: 80px; }
+  .wt-yamzy-fab { width: 260px; height: 260px; bottom: 40px; left: 110px; }
 }
 @media (max-width: 1100px) {
-  .wt-yamzy-fab { width: 240px; height: 240px; bottom: -24px; left: 72px; }
+  .wt-yamzy-fab { width: 200px; height: 200px; bottom: 32px; left: 95px; }
 }
 @media (max-width: 900px) {
   .wt-yamzy-fab { display: none; }

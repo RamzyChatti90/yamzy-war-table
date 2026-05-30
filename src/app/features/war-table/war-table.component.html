@@ -1899,10 +1899,10 @@
   <!-- ═══ v1.0.8 — Wt-Dialog : popup unifié au style studio (remplace alert/confirm/prompt natifs) ═══ -->
   <app-wt-dialog></app-wt-dialog>
 
-  <!-- ═══ v1.0.17 — YAMZY companion : avatar 3D animé sur la gauche, présent sur toutes les pages ═══ -->
+  <!-- ═══ v1.0.19 — YAMZY companion : pas de rotation (anti-dizziness), bob + GLB anim seulement ═══ -->
   <div class="wt-yamzy-fab">
     <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb"
-                         [rotate]="true"
+                         [rotate]="false"
                          [bob]="true"
                          [playGlbAnim]="true"></app-yamzy-avatar-3d>
   </div>

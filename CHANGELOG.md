@@ -6,6 +6,34 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.19] — 2026-05-31
+
+🩹 **Hotfix YAMZY** : reste dans le cadre + plus de rotation
+(anti-dizziness).
+
+### Fixed — Position avatar
+- **Avant v1.0.19** : `bottom: -40px` poussait l'avatar sous la
+  bordure inférieure du viewport — la moitié basse était coupée.
+- **Maintenant** : `bottom: 45px; left: 125px` (80px sidebar + 45px
+  marge). L'avatar reste entièrement visible dans le cadre.
+- Taille ajustée à 320×320 (au lieu de 400×400) pour éviter de
+  déborder même sur petits écrans — un compromis taille/visibilité.
+
+### Fixed — Rotation désactivée
+- `[rotate]="false"` (était `true`) — le tournoiement constant
+  rendait dizzy.
+- **Bobbing conservé** (`[bob]="true"`) — translation Y douce
+  sinusoïdale, beaucoup moins agressif que la rotation.
+- **GLB anims natives conservées** (`[playGlbAnim]="true"`) — joue
+  les clips d'idle si présentes dans le modèle.
+
+### Why
+> "l'avatar est mal positionné il sort du cadre et n'est pas
+> positionné vraiment à 45 px bot et les côtés"
+> "il faut qu'il arrête de tourner il m'a fait mal aux yeux"
+
+---
+
 ## [1.0.18] — 2026-05-31
 
 📺 **YAMZY 400px + Cockpit LIVE stream** : taille exacte du PS hero
