@@ -1986,24 +1986,23 @@
          [class.hidden]="ycPos(i) === 'hidden'"
          [style.--card-color]="card.color"
          (click)="setYamzyCarouselIndex(i); ycCardAction(card)">
-      <!-- v1.0.34 — Style PS hero : gradient radial + tag + titre + purchase row + icône à droite -->
-      <div class="wt-yc-ps-bg" [style.background]="card.gradient"></div>
-      <div class="wt-yc-ps-tag" [style.background]="card.color">{{ card.kind }}</div>
-      <h2 class="wt-yc-ps-title">{{ card.title }}</h2>
-      <div class="wt-yc-ps-purchase">
-        <span class="wt-yc-ps-price">{{ card.subtitle }}</span>
-        <button class="wt-yc-ps-btn" [style.background]="card.color">
-          {{ card.meta || 'OUVRIR' }}
-        </button>
+      <!-- v1.0.35 — ancienne structure (icon + body + record dot), background PS hero -->
+      <div class="wt-yc-card-bg" [style.background]="card.gradient"></div>
+      <div class="wt-yc-card-icon">{{ card.icon }}</div>
+      <div class="wt-yc-card-body">
+        <div class="wt-yc-card-kind">{{ card.kind }}</div>
+        <div class="wt-yc-card-title">{{ card.title }}</div>
+        <div class="wt-yc-card-sub">{{ card.subtitle }}</div>
+        <div class="wt-yc-card-meta" *ngIf="card.meta">{{ card.meta }}</div>
+        <div class="wt-yc-card-avatars" *ngIf="card.attendees?.length">
+          <span *ngFor="let a of card.attendees.slice(0, 5)" class="wt-yc-card-av"
+                [style.background]="a.color || '#6b6396'" [title]="a.name">
+            {{ a.emoji || a.initials || (a.name || '?').charAt(0) }}
+          </span>
+        </div>
       </div>
-      <!-- Icône (remplace l'avatar du PS hero) -->
-      <div class="wt-yc-ps-icon">{{ card.icon }}</div>
-      <!-- Mini-avatars participants si présents -->
-      <div class="wt-yc-ps-avatars" *ngIf="card.attendees?.length">
-        <span *ngFor="let a of card.attendees.slice(0, 4)" class="wt-yc-ps-av"
-              [style.background]="a.color || '#6b6396'" [title]="a.name">
-          {{ a.emoji || a.initials || (a.name || '?').charAt(0) }}
-        </span>
+      <div class="wt-yc-card-corner">
+        <div class="wt-yc-card-rec"></div>
       </div>
     </div>
   </div>
