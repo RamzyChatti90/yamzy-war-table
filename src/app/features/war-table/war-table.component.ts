@@ -135,10 +135,37 @@ export class WarTableComponent implements OnInit {
   toggleCarousel(): void {
     if (this.positionMode()) return;
     this.yamzyCarouselOpen.update(v => !v);
-    // v1.0.38 — Auto-fire l'action de la card center à l'ouverture (pas besoin de cliquer)
     if (this.yamzyCarouselOpen()) {
       this.applyCenterAction();
+      this.startAutoScroll(); // v1.0.41 — auto-rotation
+    } else {
+      this.stopAutoScroll();
     }
+  }
+
+  /** v1.0.41 — Auto-scroll : tourne le carrousel automatiquement toutes les 5s.
+   *  Reset au moindre user-interact (scroll, click dot) pour pas couper l'utilisateur. */
+  private autoScrollInterval: any = null;
+  private startAutoScroll(): void {
+    this.stopAutoScroll();
+    this.autoScrollInterval = setInterval(() => {
+      if (this.yamzyCarouselOpen() && !this.positionMode()) {
+        const n = this.yamzyCarouselCards().length;
+        if (n) {
+          this.yamzyCarouselIndex.update(i => (i + 1) % n);
+          this.scheduleCenterAction();
+        }
+      }
+    }, 5000);
+  }
+  private stopAutoScroll(): void {
+    if (this.autoScrollInterval) {
+      clearInterval(this.autoScrollInterval);
+      this.autoScrollInterval = null;
+    }
+  }
+  private resetAutoScroll(): void {
+    if (this.yamzyCarouselOpen()) this.startAutoScroll();
   }
 
   // ═══ STUDIO LEVELS v1.0.30 — Home (menu) vs Section (cockpit messages) ═══
@@ -380,17 +407,20 @@ export class WarTableComponent implements OnInit {
     const n = this.yamzyCarouselCards().length;
     if (!n) return;
     this.yamzyCarouselIndex.update(i => (i - 1 + n) % n);
-    this.scheduleCenterAction(); // v1.0.39 — différé (settle delay)
+    this.scheduleCenterAction();
+    this.resetAutoScroll(); // v1.0.41 — reset timer auto-scroll
   }
   yamzyCarouselDown(): void {
     const n = this.yamzyCarouselCards().length;
     if (!n) return;
     this.yamzyCarouselIndex.update(i => (i + 1) % n);
-    this.scheduleCenterAction(); // v1.0.39 — différé
+    this.scheduleCenterAction();
+    this.resetAutoScroll();
   }
   setYamzyCarouselIndex(i: number): void {
     this.yamzyCarouselIndex.set(i);
     this.applyCenterAction(); // dot click = immédiat
+    this.resetAutoScroll();
   }
 
   /** v1.0.38 — Auto-fire l'action de la card center (pas besoin de cliquer).
