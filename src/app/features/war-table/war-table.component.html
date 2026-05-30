@@ -367,13 +367,21 @@
               <thead>
                 <tr>
                   <th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.type' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.priority' | t }}</th>
-                  <th>{{ 'table.status' | t }}</th><th>{{ 'table.est_h' | t }}</th><th>{{ 'table.sp' | t }}</th><th>{{ 'table.progress' | t }}</th><th>{{ 'table.assignee' | t }}</th><th></th>
+                  <th>{{ 'table.status' | t }}</th>
+                  <th title="Estimation (h)">Est.</th>
+                  <th title="Heures passées">Spent</th>
+                  <th title="Reste (h)">Reste</th>
+                  <th>{{ 'table.sp' | t }}</th>
+                  <th>{{ 'table.progress' | t }}</th>
+                  <th>{{ 'table.assignee' | t }}</th>
+                  <th title="Cycle / Lead time (j)">⏱</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let t of paged(filteredTickets())" [class]="rowClass(t)">
-                  <td class="wt-mono">{{ t.ticketId }}</td>
-                  <td><input class="wt-cell-input wt-cell-title" [value]="t.title" (change)="saveField(t, 'title', $any($event.target).value)"/></td>
+                  <td class="wt-mono" [title]="t.acceptanceCriteria || 'Pas de critères d\'acceptation définis'">{{ t.ticketId }}</td>
+                  <td><input class="wt-cell-input wt-cell-title" [value]="t.title" (change)="saveField(t, 'title', $any($event.target).value)" [title]="t.description || ''"/></td>
                   <td>
                     <select class="wt-cell-sel" (change)="saveField(t, 'type', $any($event.target).value)">
                       <option *ngFor="let o of TYPES" [value]="o" [selected]="t.type===o">{{ o }}</option>
@@ -391,9 +399,17 @@
                     </select>
                   </td>
                   <td class="wt-num"><input class="wt-cell-input wt-cell-num" type="number" [value]="t.estimationHours" (change)="saveField(t, 'estimationHours', $any($event.target).value)"/></td>
+                  <td class="wt-num"><input class="wt-cell-input wt-cell-num" type="number" min="0" step="0.5" [value]="t.spentHours || 0" (change)="saveField(t, 'spentHours', $any($event.target).value)"/></td>
+                  <td class="wt-num" [title]="'Reste = Estimation - Spent'">
+                    <span class="wt-sp" [class.row-blocked]="remainingHours(t) < 0">{{ remainingHours(t) }}</span>
+                  </td>
                   <td class="wt-num"><span class="wt-sp">{{ t.storyPoints }}</span></td>
                   <td class="wt-num"><input class="wt-cell-input wt-cell-num" type="number" min="0" max="100" [value]="t.progressPercent" (change)="saveField(t, 'progressPercent', $any($event.target).value)"/></td>
                   <td><input class="wt-cell-input" [value]="t.assignee || ''" (change)="saveField(t, 'assignee', $any($event.target).value)"/></td>
+                  <td class="wt-num" [title]="'Cycle: ' + (t.cycleTimeDays ?? '—') + ' j · Lead: ' + (t.leadTimeDays ?? '—') + ' j'">
+                    <span class="wt-sp" *ngIf="t.cycleTimeDays != null">{{ t.cycleTimeDays }}<small>/{{ t.leadTimeDays ?? '?' }}</small></span>
+                    <span *ngIf="t.cycleTimeDays == null" class="wt-muted">—</span>
+                  </td>
                   <td class="wt-save-cell">
                     <span *ngIf="savingId() === t.id" class="wt-saving">⟳</span>
                     <span *ngIf="savedId() === t.id" class="wt-saved">✓</span>
@@ -494,13 +510,41 @@
           <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addRisk()">+ Risque</button></div>
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.risk' | t }}</th><th>{{ 'table.type' | t }}</th><th>{{ 'table.proba' | t }}</th><th>{{ 'table.severity' | t }}</th><th>{{ 'table.score' | t }}</th><th>{{ 'table.status' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
+              <thead><tr>
+                <th>{{ 'table.id' | t }}</th>
+                <th>{{ 'table.risk' | t }}</th>
+                <th>{{ 'table.type' | t }}</th>
+                <th>Proba</th><th>Impact</th><th>Score</th>
+                <th>Owner</th><th>Ticket lié</th>
+                <th>Mitigation</th>
+                <th>Détecté</th><th>Échéance</th>
+                <th>{{ 'table.status' | t }}</th>
+                <th *ngIf="editMode()"></th>
+              </tr></thead>
               <tbody>
                 <tr *ngFor="let r of paged(risks())">
-                  <td class="wt-mono">{{ r.riskId }}</td><td>{{ r.description }}</td><td>{{ r.type }}</td>
-                  <td>{{ r.probability }}</td><td>{{ r.impact }}</td>
+                  <td class="wt-mono">{{ r.riskId }}</td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input wt-cell-title" [value]="r.description || ''" (change)="saveRisk(r, 'description', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ r.description }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" [value]="r.type || ''" (change)="saveRisk(r, 'type', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ r.type }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input wt-cell-num" type="number" min="1" max="5" [value]="r.probability || ''" (change)="onRiskProbaImpactChange(r, 'probability', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ r.probability }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input wt-cell-num" type="number" min="1" max="5" [value]="r.impact || ''" (change)="onRiskProbaImpactChange(r, 'impact', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ r.impact }}</span></td>
                   <td><span class="wt-score" [class.high]="r.score >= 6">{{ r.score }}</span></td>
-                  <td>{{ r.status }}</td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" [value]="r.owner || ''" (change)="saveRisk(r, 'owner', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ r.owner }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input wt-cell-sprint" [value]="r.linkedTicket || ''" (change)="saveRisk(r, 'linkedTicket', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()" class="wt-mono">{{ r.linkedTicket }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" [value]="r.mitigation || ''" (change)="saveRisk(r, 'mitigation', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ r.mitigation }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" type="date" [value]="r.identifiedAt || ''" (change)="saveRisk(r, 'identifiedAt', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()" class="wt-mono">{{ r.identifiedAt }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" type="date" [value]="r.dueDate || ''" (change)="saveRisk(r, 'dueDate', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()" class="wt-mono">{{ r.dueDate }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" [value]="r.status || ''" (change)="saveRisk(r, 'status', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ r.status }}</span></td>
                   <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delRisk(r)">🗑</button></td>
                 </tr>
               </tbody>
@@ -514,11 +558,34 @@
           <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addDebt()">+ Dette</button></div>
           <div class="wt-table-wrap">
             <table class="wt-table">
-              <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.category' | t }}</th><th>{{ 'table.severity' | t }}</th><th>{{ 'table.cost_h' | t }}</th><th>{{ 'table.status' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
+              <thead><tr>
+                <th>{{ 'table.id' | t }}</th>
+                <th>{{ 'table.title' | t }}</th>
+                <th>{{ 'table.category' | t }}</th>
+                <th>{{ 'table.severity' | t }}</th>
+                <th>{{ 'table.cost_h' | t }}</th>
+                <th>Détecté</th>
+                <th>Plan de résolution</th>
+                <th>{{ 'table.status' | t }}</th>
+                <th *ngIf="editMode()"></th>
+              </tr></thead>
               <tbody>
                 <tr *ngFor="let d of paged(techDebt())">
-                  <td class="wt-mono">{{ d.debtId }}</td><td>{{ d.title }}</td><td>{{ d.category }}</td>
-                  <td>{{ d.severity }}</td><td class="wt-num">{{ d.estimatedCostHours }}</td><td>{{ d.status }}</td>
+                  <td class="wt-mono">{{ d.debtId }}</td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input wt-cell-title" [value]="d.title || ''" (change)="saveDebt(d, 'title', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ d.title }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" [value]="d.category || ''" (change)="saveDebt(d, 'category', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ d.category }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" [value]="d.severity || ''" (change)="saveDebt(d, 'severity', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ d.severity }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input wt-cell-num" type="number" min="0" step="0.5" [value]="d.estimatedCostHours || 0" (change)="saveDebt(d, 'estimatedCostHours', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()" class="wt-num">{{ d.estimatedCostHours }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" type="date" [value]="d.detectedAt || ''" (change)="saveDebt(d, 'detectedAt', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()" class="wt-mono">{{ d.detectedAt }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" [value]="d.resolutionPlan || ''" (change)="saveDebt(d, 'resolutionPlan', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ d.resolutionPlan }}</span></td>
+                  <td><input *ngIf="editMode()" class="wt-cell-input" [value]="d.status || ''" (change)="saveDebt(d, 'status', $any($event.target).value)"/>
+                      <span *ngIf="!editMode()">{{ d.status }}</span></td>
                   <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delDebt(d)">🗑</button></td>
                 </tr>
               </tbody>
@@ -583,13 +650,18 @@
         <section *ngIf="activePage() === 'phases'" class="wt-generic">
           <div *ngIf="editMode()" class="wt-crud-bar"><button class="wt-btn-add" (click)="addPhase()">+ Phase</button></div>
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>{{ 'table.phase' | t }}</th><th>{{ 'table.planned_d' | t }}</th><th>{{ 'table.consumed_days' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
+            <thead><tr><th>{{ 'table.phase' | t }}</th><th>{{ 'table.planned_d' | t }}</th><th>{{ 'table.consumed_days' | t }}</th><th>{{ 'table.rest' | t }}</th><th *ngIf="editMode()"></th></tr></thead>
             <tbody>
               <tr *ngFor="let ph of paged(phases())">
-                <td>{{ ph.name }}</td><td class="wt-num">{{ ph.plannedDays }}</td><td class="wt-num">{{ ph.consumedDays }}</td>
+                <td>{{ ph.name }}</td>
+                <td class="wt-num"><input *ngIf="editMode()" class="wt-cell-input wt-cell-num" type="number" min="0" [value]="ph.plannedDays || 0" (change)="savePhase(ph, 'plannedDays', $any($event.target).value)"/>
+                    <span *ngIf="!editMode()">{{ ph.plannedDays }}</span></td>
+                <td class="wt-num"><input *ngIf="editMode()" class="wt-cell-input wt-cell-num" type="number" min="0" [value]="ph.consumedDays || 0" (change)="savePhase(ph, 'consumedDays', $any($event.target).value)"/>
+                    <span *ngIf="!editMode()">{{ ph.consumedDays }}</span></td>
+                <td class="wt-num"><span class="wt-sp" [class.row-blocked]="(ph.plannedDays || 0) - (ph.consumedDays || 0) < 0">{{ (ph.plannedDays || 0) - (ph.consumedDays || 0) }}</span></td>
                 <td *ngIf="editMode()"><button class="wt-btn-del-row" (click)="delPhase(ph)">🗑</button></td>
               </tr>
-              <tr *ngIf="!phases().length"><td colspan="4" class="wt-muted">{{ 'empty.no_phase' | t }}</td></tr>
+              <tr *ngIf="!phases().length"><td colspan="5" class="wt-muted">{{ 'empty.no_phase' | t }}</td></tr>
             </tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: phases() }"></ng-container>
@@ -739,18 +811,23 @@
           <div *ngFor="let t of paged(filteredTickets())" class="wt-detail-card">
             <div class="wt-detail-head"><span class="wt-mono">{{ t.ticketId }}</span> {{ t.title }}
               <span class="wt-status" [attr.data-st]="statusKey(t.status)">{{ t.status }}</span></div>
-            <div class="wt-detail-meta">{{ t.type }} · {{ t.component }} · {{ t.sprint }} · {{ t.estimationHours }}h · {{ t.storyPoints }} SP</div>
+            <div class="wt-detail-meta">{{ t.type }} · {{ t.component }} · {{ t.sprint }} · {{ t.estimationHours }}h (spent {{ t.spentHours || 0 }}h, reste {{ remainingHours(t) }}h) · {{ t.storyPoints }} SP · cycle {{ t.cycleTimeDays ?? '—' }}j</div>
             <div class="wt-detail-desc" *ngIf="t.description">{{ t.description }}</div>
+            <div class="wt-detail-ac" *ngIf="t.acceptanceCriteria">
+              <strong>✓ Critères d'acceptation</strong>
+              <pre>{{ t.acceptanceCriteria }}</pre>
+            </div>
           </div>
           <ng-container *ngTemplateOutlet="pager; context: { list: filteredTickets() }"></ng-container>
         </section>
         <section *ngIf="activePage() === 'vue-reviewer'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">
-            <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.status' | t }}</th><th>{{ 'table.pr_notes' | t }}</th><th>{{ 'table.verdict' | t }}</th></tr></thead>
+            <thead><tr><th>{{ 'table.id' | t }}</th><th>{{ 'table.title' | t }}</th><th>{{ 'table.sprint' | t }}</th><th>{{ 'table.status' | t }}</th><th>{{ 'table.pr_notes' | t }}</th><th>{{ 'table.verdict' | t }}</th><th>Commentaire reviewer</th></tr></thead>
             <tbody><tr *ngFor="let t of paged(tickets())">
               <td class="wt-mono">{{ t.ticketId }}</td><td class="wt-title-cell">{{ t.title }}</td><td>{{ t.sprint }}</td>
               <td><span class="wt-status" [attr.data-st]="statusKey(t.status)">{{ t.status }}</span></td>
               <td>{{ t.prLink || '—' }}</td><td>{{ t.reviewVerdict || '—' }}</td>
+              <td>{{ t.reviewerComment || '—' }}</td>
             </tr></tbody>
           </table></div>
           <ng-container *ngTemplateOutlet="pager; context: { list: tickets() }"></ng-container>
@@ -1164,14 +1241,14 @@
         </label>
         <label class="wt-np-field">
           <span>Heures / jour</span>
-          <input type="number" min="1" max="24" step="0.5" [(ngModel)]="newProjectDraft.hoursPerDay"/>
+          <input type="number" min="1" max="24" step="0.5" [(ngModel)]="newProjectDraft.hoursPerDay" (ngModelChange)="recomputeSprintCapacity()"/>
         </label>
         <label class="wt-np-field">
           <span>Jours / sprint</span>
-          <input type="number" min="1" max="30" [(ngModel)]="newProjectDraft.daysPerSprint"/>
+          <input type="number" min="1" max="30" [(ngModel)]="newProjectDraft.daysPerSprint" (ngModelChange)="recomputeSprintCapacity()"/>
         </label>
         <label class="wt-np-field">
-          <span>Capacité sprint (h)</span>
+          <span>Capacité sprint (h) <small style="opacity:.6">= h/jour × jours/sprint</small></span>
           <input type="number" min="1" step="0.5" [(ngModel)]="newProjectDraft.sprintCapacityHours"/>
         </label>
         <label class="wt-np-field">

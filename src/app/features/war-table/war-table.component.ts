@@ -38,6 +38,20 @@ export class WarTableComponent implements OnInit {
   dialog = inject(WtDialogService);
   Math = Math;  // expose Math global au template
 
+  /** Reste(h) = Estimation - Spent. */
+  remainingHours(t: any): number {
+    const est = Number(t?.estimationHours) || 0;
+    const spent = Number(t?.spentHours) || 0;
+    return Math.round((est - spent) * 10) / 10;
+  }
+
+  /** Auto-recompute sprintCapacityHours quand h/jour ou jours/sprint change. */
+  recomputeSprintCapacity(): void {
+    const h = Number(this.newProjectDraft.hoursPerDay) || 0;
+    const d = Number(this.newProjectDraft.daysPerSprint) || 0;
+    if (h > 0 && d > 0) this.newProjectDraft.sprintCapacityHours = Math.round(h * d * 10) / 10;
+  }
+
   /** Helpers i18n exposés au template. */
   pageLabel(p: PageDef | null | undefined): string {
     if (!p) return '';
@@ -552,6 +566,21 @@ export class WarTableComponent implements OnInit {
   }
   delRisk(r: any): void { this.delEntity(() => this.api.deleteRisk(r.id)); }
   saveRisk(r: any, field: string, value: any): void { this.patchEntity(this.api.updateRisk.bind(this.api), r, field, value); }
+  /** Recompute score = proba × impact quand l'un des deux change. */
+  onRiskProbaImpactChange(r: any, field: 'probability' | 'impact', value: any): void {
+    const num = Number(value);
+    (r as any)[field] = num;
+    const p = Number(r.probability) || 0;
+    const i = Number(r.impact) || 0;
+    const score = p * i;
+    r.score = score;
+    // Push 2 patchs : le champ modifié + score
+    const pid = this.api.selectedProjectId();
+    this.api.updateRisk(r.id, { [field]: num, score }).subscribe({
+      next: () => { if (pid) this.notifyExcelChanged(pid); },
+      error: (err) => console.warn('[wt] risk patch failed', err)
+    });
+  }
 
   // ── TechDebt
   addDebt(): void {
