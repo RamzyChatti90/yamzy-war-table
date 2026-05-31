@@ -2935,6 +2935,189 @@ body { background: #0a0820 !important; }
   .wt-pro-hero-title { font-size: 22px; }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   v1.0.124 — VESPER's CONCLAVE 3D NAV
+   Replace ancient .wt-sk-nav par cartes 3D verticales avec dots latéraux.
+   Style : simple, élégant, perspective + slide UX.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.wt-pages3d-nav {
+  position: fixed;
+  top: 64px;
+  left: 12px;
+  bottom: 64px;
+  z-index: 70;
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  pointer-events: none; /* Children only */
+}
+
+/* Stack des cartes super-cats — perspective 3D */
+.wt-pages3d-stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  perspective: 1000px;
+  perspective-origin: 0% 50%;
+  pointer-events: auto;
+}
+
+/* Une carte super-cat */
+.wt-pages3d-card {
+  position: relative;
+  width: 84px;
+  min-height: 78px;
+  padding: 0;
+  background: var(--cat-grad, linear-gradient(135deg, rgba(217,154,81,0.15), rgba(15,11,32,0.55)));
+  border: 1.5px solid rgba(139, 127, 214, 0.30);
+  border-radius: 14px;
+  cursor: pointer;
+  color: #f4ecff;
+  font-family: inherit;
+  overflow: visible;
+  /* Default state : tilted back slightly */
+  transform: rotateY(-12deg) translateX(-6px) scale(0.92);
+  opacity: 0.72;
+  transition:
+    transform .35s cubic-bezier(.32, 1.4, .55, 1.05),
+    opacity .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease;
+  transform-origin: left center;
+}
+.wt-pages3d-card:hover {
+  transform: rotateY(-4deg) translateX(0) scale(1);
+  opacity: 1;
+  border-color: var(--sc-color, #d99a51);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .45);
+}
+.wt-pages3d-card.is-active {
+  transform: rotateY(0deg) translateX(6px) scale(1.08);
+  opacity: 1;
+  border-color: var(--sc-color, #d99a51);
+  border-width: 2px;
+  box-shadow:
+    0 0 0 1px var(--sc-color, #d99a51),
+    0 12px 28px rgba(0, 0, 0, .55),
+    0 0 24px color-mix(in srgb, var(--sc-color, #d99a51) 35%, transparent);
+  z-index: 2;
+}
+.wt-pages3d-card-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  padding: 10px 6px;
+}
+.wt-pages3d-icon {
+  display: inline-flex;
+  width: 32px; height: 32px;
+  align-items: center;
+  justify-content: center;
+  color: var(--sc-color, #d99a51);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .55));
+}
+.wt-pages3d-icon svg { width: 26px; height: 26px; }
+.wt-pages3d-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #fff;
+  text-align: center;
+  line-height: 1.15;
+}
+/* Glow effet derrière la carte active */
+.wt-pages3d-card-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 18px;
+  background: radial-gradient(circle at left, var(--sc-color, #d99a51), transparent 70%);
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity .35s;
+}
+.wt-pages3d-card.is-active .wt-pages3d-card-glow { opacity: 0.45; }
+
+/* Dots column on the right */
+.wt-pages3d-dots {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  pointer-events: auto;
+  padding: 8px 4px;
+}
+.wt-pages3d-dot {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  background: rgba(15, 11, 32, 0.55);
+  border: 1.5px solid rgba(139, 127, 214, 0.35);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all .22s cubic-bezier(.32, 1.4, .55, 1.05);
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wt-pages3d-dot:hover {
+  transform: scale(1.4);
+  border-color: var(--dot-color, #d99a51);
+}
+.wt-pages3d-dot.is-active {
+  background: var(--dot-color, #d99a51);
+  border-color: var(--dot-color, #d99a51);
+  transform: scale(1.55);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--dot-color, #d99a51) 80%, transparent);
+}
+/* Label révélée au hover (tooltip cute) */
+.wt-pages3d-dot-label {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-6px);
+  padding: 3px 10px;
+  background: rgba(15, 11, 32, 0.92);
+  border: 1px solid rgba(217, 154, 81, 0.40);
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  color: #ffe5b8;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .18s ease;
+  text-transform: uppercase;
+}
+.wt-pages3d-dot:hover .wt-pages3d-dot-label,
+.wt-pages3d-dot.is-active .wt-pages3d-dot-label {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+.wt-pages3d-dot-more { background: rgba(43, 37, 73, 0.65); }
+.wt-pages3d-dot-more .wt-pages3d-dot-label { color: #d4cbe9; }
+
+/* Cache la vieille sidebar .wt-sk-nav (au cas où il reste des refs) */
+.wt-sk-nav { display: none !important; }
+
+/* Responsive : masque sur petit écran */
+@media (max-width: 1100px) {
+  .wt-pages3d-nav { left: 4px; }
+  .wt-pages3d-card { width: 70px; min-height: 64px; }
+  .wt-pages3d-icon svg { width: 22px; height: 22px; }
+  .wt-pages3d-label { font-size: 8px; }
+}
+
 /* ═══ v1.0.118 — Today timeline widget (Mes Plannings dashboard only) ═══ */
 .wt-today-timeline {
   margin-bottom: 14px;

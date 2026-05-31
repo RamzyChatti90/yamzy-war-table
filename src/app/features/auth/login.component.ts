@@ -16,11 +16,12 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
+import { YamzyAvatar3dComponent } from '../war-table/yamzy-avatar-3d.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, YamzyAvatar3dComponent],
   template: `
     <div class="lg-host">
       <!-- BG gradient + animated orbs -->
@@ -29,18 +30,25 @@ import { AuthService } from '../../core/services/auth.service';
       <div class="lg-bg-orb lg-orb-3"></div>
 
       <div class="lg-card">
-        <!-- Brand -->
+        <!-- Brand — VESPER, l'ange du purgatoire chantant la cadence des rituels Scrum -->
         <div class="lg-brand">
-          <div class="lg-brand-mark">⚔</div>
+          <div class="lg-vesper-3d">
+            <app-yamzy-avatar-3d
+              glbUrl="/assets/agents/vesper.glb"
+              [rotate]="true"
+              [bob]="true">
+            </app-yamzy-avatar-3d>
+          </div>
           <div class="lg-brand-name">WAR TABLE</div>
-          <div class="lg-brand-tag">Planning Organisator Studio</div>
+          <div class="lg-brand-tag">Vesper's Conclave · Planning Organisator Studio</div>
         </div>
 
         <!-- Hero -->
         <h1 class="lg-title">Bienvenue, Architect</h1>
         <p class="lg-subtitle">
-          Connecte-toi avec GitHub pour accéder à ton War Table.<br/>
-          Tes plannings, sprints et rituels Scrum te attendent.
+          <strong style="color:#ffe5b8">VESPER</strong>, gardienne des cadences,
+          t'attend dans son atelier du purgatoire.<br/>
+          Connecte-toi avec GitHub pour ouvrir la Conclave.
         </p>
 
         <!-- Error -->
@@ -128,6 +136,33 @@ import { AuthService } from '../../core/services/auth.service';
     }
 
     .lg-brand { margin-bottom: 24px; }
+    /* v1.0.124 — VESPER 3D viewer (replace l'orb ⚔) */
+    .lg-vesper-3d {
+      width: 130px;
+      height: 130px;
+      margin: 0 auto;
+      position: relative;
+      filter: drop-shadow(0 8px 24px rgba(217, 154, 81, 0.55));
+      animation: lg-vesper-float 6s ease-in-out infinite;
+    }
+    @keyframes lg-vesper-float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+    /* Halo angélique derrière VESPER */
+    .lg-vesper-3d::before {
+      content: "";
+      position: absolute;
+      inset: -16px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(217, 154, 81, 0.30), transparent 70%);
+      z-index: -1;
+      animation: lg-halo 4s ease-in-out infinite;
+    }
+    @keyframes lg-halo {
+      0%, 100% { opacity: 0.55; transform: scale(1); }
+      50%      { opacity: 0.85; transform: scale(1.12); }
+    }
     .lg-brand-mark {
       font-size: 56px;
       color: #d99a51;

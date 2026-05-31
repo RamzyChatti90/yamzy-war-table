@@ -167,26 +167,47 @@
   </div>
 
   <div class="wt-body">
-    <!-- ═══ SIDEBAR LEFT SKIN — v1.0.63 : 5 super-cats + MORE (drawer 43 pages) ═══ -->
-    <aside class="wt-sk-nav">
-      <button *ngFor="let i of [0,1,2,3,4]"
-              class="wt-sk-nav-item"
-              [class.wt-sk-nav-active]="navActive() === i && !morePanelOpen()"
-              [style.--sc-color]="navSuperCatColor(i)"
-              (click)="onNavClick(i)"
-              [title]="navLabels()[i]">
-        <span class="wt-sk-nav-ico" [innerHTML]="navIconHtml(i)"></span>
-        <span class="wt-sk-nav-label">{{ navLabels()[i] }}</span>
-      </button>
-      <div class="wt-sk-nav-spacer"></div>
-      <!-- MORE : drawer 43 pages avec hiérarchie 5 super-cats > sous-cats -->
-      <button class="wt-sk-nav-item wt-sk-nav-more"
-              [class.wt-sk-nav-active]="morePanelOpen()"
-              (click)="morePanelOpen.set(!morePanelOpen())"
-              [title]="'nav.all_pages_short' | t">
-        <span class="wt-sk-nav-ico" [innerHTML]="moreIconHtml()"></span>
-        <span class="wt-sk-nav-label">{{ 'nav.more' | t }}</span>
-      </button>
+    <!-- ═══ v1.0.124 — VESPER's CONCLAVE : 3D cards nav + scroll dots ═══
+         Vesper, l'ange du purgatoire chantant la cadence des rituels Scrum,
+         organise les 5 super-categories du Realm en cartes 3D verticales.
+         Inspiré du Codepen "vertical 3D carousel" + scroll dots latéraux. -->
+    <aside class="wt-pages3d-nav">
+      <!-- Stack des cartes super-cats avec perspective -->
+      <div class="wt-pages3d-stack">
+        <button *ngFor="let i of [0,1,2,3,4]; let idx = index"
+                class="wt-pages3d-card"
+                [class.is-active]="navActive() === idx && !morePanelOpen()"
+                [style.--sc-color]="navSuperCatColor(idx)"
+                [style.--cat-grad]="'linear-gradient(135deg,' + navSuperCatColor(idx) + ',rgba(15,11,32,.45))'"
+                [attr.data-idx]="idx"
+                (click)="onNavClick(idx)"
+                [title]="navLabels()[idx]">
+          <div class="wt-pages3d-card-inner">
+            <span class="wt-pages3d-icon" [innerHTML]="navIconHtml(idx)"></span>
+            <span class="wt-pages3d-label">{{ navLabels()[idx] }}</span>
+          </div>
+          <div class="wt-pages3d-card-glow"></div>
+        </button>
+      </div>
+
+      <!-- Dots indicators (cliquables aussi) -->
+      <div class="wt-pages3d-dots">
+        <button *ngFor="let i of [0,1,2,3,4]; let idx = index"
+                class="wt-pages3d-dot"
+                [class.is-active]="navActive() === idx && !morePanelOpen()"
+                [style.--dot-color]="navSuperCatColor(idx)"
+                (click)="onNavClick(idx)"
+                [title]="navLabels()[idx]">
+          <span class="wt-pages3d-dot-label">{{ navLabels()[idx] }}</span>
+        </button>
+        <!-- MORE dot -->
+        <button class="wt-pages3d-dot wt-pages3d-dot-more"
+                [class.is-active]="morePanelOpen()"
+                (click)="morePanelOpen.set(!morePanelOpen())"
+                [title]="'nav.all_pages_short' | t">
+          <span class="wt-pages3d-dot-label">⋯</span>
+        </button>
+      </div>
     </aside>
 
     <!-- ═══ DRAWER : accordéon 42 pages (skin style) ═══ -->
