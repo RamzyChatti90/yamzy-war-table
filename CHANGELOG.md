@@ -6,6 +6,305 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.102] — 2026-05-31
+
+🎯 **State classes du header restreintes au dashboard uniquement** — Vraie solution propre au problème "header reste bleu malgré pick".
+
+### Changed
+- HTML : `[class.is-active]`, `[class.is-launchable]`, `[class.is-today]`, `[class.is-overdue]` ne s'appliquent **que** quand `isDashboardSkin()` est vrai.
+- Sur les autres pages : aucune classe d'état → `var(--card-c1/c2/c3)` du gradient s'applique naturellement, sans hack `!important`.
+- Dashboard inchangé : continue de switcher entre cyan/bleu/violet (ACTIVE), vert (LAUNCHABLE), jaune (TODAY), rouge (OVERDUE) selon état sprint.
+
+### Removed
+- Règle CSS `!important` ajoutée en v1.0.101 (faux fix) — supprimée.
+
+---
+
+## [1.0.100] — 2026-05-31
+
+🐛 **Fix hover flicker mini cartes** + 🌈 **Live preview couleur header** via roue chromatique native.
+
+### Fixed — Hover flicker minis
+- `translateY(-12px)` au hover supprimé (la carte se déplaçait hors curseur → mouseleave → revenait → mouseenter → boucle infinie).
+- `transform-origin: center` → grandit depuis le centre.
+- `z-index: 100` au hover (au lieu de 20) → toujours par-dessus les autres minis.
+- `animation-play-state: paused` au lieu de `animation: none` → pas de snap brutal.
+- `::before` invisible avec `inset: -15px` → hitbox élargi de 15px tout autour.
+- `transition: transform .28s cubic-bezier(.32, 1.4, .55, 1.1)` → grow/shrink smooth.
+
+### Added — Live color preview
+- `<input type="color">` natif englobé dans `<label>` 🌈 (cross-browser).
+- `(input)` event = preview LIVE pendant que l'user glisse dans la roue chromatique.
+- `(change)` event final = copy clipboard + toast inline non-bloquant.
+- Toast `.wt-ps-color-toast` dans le header (top:52px right:16px) avec chip, mapping, boutons 📋 et ✕.
+- Auto-dismiss 4.5s.
+
+### Changed
+- `pickHeaderColor()` ne montre plus de modal alert (bloquait la vue du header) — remplacé par toast inline.
+
+---
+
+## [1.0.99] — 2026-05-31
+
+🎨 **Color picker EyeDropper API per card** — Chaque carte peut être mappée à une couleur custom qui devient la base du gradient animé du header.
+
+### Added
+- `cardColors = signal<Record<string,string>>(loadCardColors())` — persisté en `localStorage` (`wt_card_colors`).
+- `activeCardColor()` computed — retourne la couleur custom ou la valeur de `CARD_COLOR_MAP[card]` (mapping permanent hardcoded).
+- `activeCardGradient()` computed — dérive 3 couleurs HSL (hueShift ±25/-30°, lightness ±0.18/-0.22) pour les 3 stops du gradient animé.
+- `pickHeaderColor()` — ouvre `EyeDropper API` (Chrome/Edge 95+), extrait la couleur du pixel cliqué, sauvegarde + copie auto dans le presse-papier au format `'NomCarte': '#hex',`.
+- Bouton **🎨** dans le coin haut-droit du header (visible si carte active + `studioLevel === 'section'`).
+- Bouton **↺ Reset** (visible si couleur custom) — revient au gradient par défaut.
+- Color chip de la couleur active.
+- `CARD_COLOR_MAP` static readonly (vide initialement) — destiné à être enrichi avec les valeurs envoyées par l'user pour mapping permanent cross-device.
+
+### Changed
+- `.wt-ps-header::before` et `::after` utilisent désormais `var(--card-c1/c2/c3, default)` au lieu de couleurs hardcodées — permet override inline via `[style.--card-c1]`.
+- Helpers `hexToHsl()` + `hslToHex()` ajoutés pour dérivation chromatique.
+
+---
+
+## [1.0.98] — 2026-05-31
+
+🃏 **Mini cartes dispersées en TRIANGLE diagonal** dans le header (top-right → bot-left), grande carte ancrée Q4 (bottom-right "yellow square").
+
+### Changed
+- `superCatFloatingMinis()` retourne 11 positions `topPct` / `leftPct` cascadant sur la diagonale (5%/78% → 68%/4%) avec rotation random et delay séquentiel.
+- HTML : minis utilisent `[style.top.%]` et `[style.left.%]` pour positionnement absolute en %.
+- CSS : `.wt-ps-mini-row.wt-ps-quad-bl` = `position: relative` spanning `grid-column: 1/-1` (toute la rangée 2 du header).
+- En **edit mode** : `clip-path: polygon(0% 100%, 100% 100%, 100% 0%)` visualise le triangle avec gradient orangé.
+- `.wt-ps-mini-card.wt-ps-mini-float` = `position: absolute`, `miniCardPour` + `miniCardIdle` keyframes (without `--yoff` removed).
+
+---
+
+## [1.0.97] — 2026-05-31
+
+📐 **Fix grid : Q3 (mini row) et Q4 (big card) fusionnés en `grid-column: 1 / -1`** pour rapprocher les minis de la big card. Big card avec `justify-self: end` + `z-index: 10` pour rester au coin BR par-dessus les minis. Mini row avec `padding-right: 172px` pour laisser place à la big card.
+
+---
+
+## [1.0.96] — 2026-05-31
+
+📐 **Big card collée au coin BR du header** + minis collées à droite de Q3. `align-self: end` + `justify-self: end` sur big card. Minis row `justify-content: flex-end` + `padding-right: 24px`.
+
+---
+
+## [1.0.95] — 2026-05-31
+
+🐛 **Fix grid : Q3 et Q4 SORTIS du wrapper `.wt-ps-en-cours`** pour devenir direct children du `.wt-ps-header` grid container — sans ça, les `grid-area` ne s'appliquaient pas et les cartes restaient au milieu avec lots of empty space.
+
+---
+
+## [1.0.94] — 2026-05-31
+
+📐 **Header en grid 2×2** : Q1 = Planning (top-left), Q2 = En cours (top-right), Q3 = Mini cards (bot-left), Q4 = Big card (bot-right). User : *"il faut diviser la moitié inférieure en 2 quadrants : la grande carte dans le Q4 (coin BR)"*.
+
+---
+
+## [1.0.93] — 2026-05-31
+
+🛠 **Valeurs cards user-tuned en défauts** : `cardsBottom=68, Left=300, Right=300, Height=160, MiniW=130, MiniH=182, BigW=162, BigH=392, Gap=40`. Plages des sliders élargies pour permettre plus de marge.
+
+---
+
+## [1.0.92] — 2026-05-31
+
+🛠 **Edit mode = Cards row uniquement** (déplacement YAMZY + Carousel retiré, plus utile depuis qu'on a viré l'avatar).
+
+---
+
+## [1.0.91] — 2026-05-31
+
+🛠 **Cards row éditable en edit mode** : sliders pour position (bottom/left/right/height/gap) et tailles (miniW/miniH/bigW/bigH). User envoie les valeurs ou clique `📋 Copy CSS coords`.
+
+---
+
+## [1.0.90] — 2026-05-31
+
+🃏 **Cartes étalées horizontalement au BAS du header** (au lieu d'à côté du big PNG) — laisse plus d'espace pour distribuer les sous-pages d'une super-cat chargée comme Sprint (10 pages).
+
+---
+
+## [1.0.89] — 2026-05-31
+
+📐 **Réduit hauteur de `Mes Plannings` dans le header** — occupait trop d'espace pour rien.
+
+---
+
+## [1.0.88] — 2026-05-31
+
+🎯 **Pattern preview + commit** : click sur une mini carte du header = preview (le header se met à jour avec la carte sélectionnée). Click sur le header (PS hero) = ouvre vraiment la page. Évite les navigations accidentelles.
+
+---
+
+## [1.0.87] — 2026-05-31
+
+📐 **Header split 50/50** : LEFT = Planning (Mes Plannings nested), RIGHT = En cours (tag + title + desc + action + cards).
+
+---
+
+## [1.0.86] — 2026-05-31
+
+🃏 **Planning en HAUT du header** + **cartes versées dans la partie inférieure** comme si on versait de vraies cartes sur une table.
+
+---
+
+## [1.0.85] — 2026-05-31
+
+🃏 **Mini cartes flottantes positionnées aléatoirement** + même style que le grand PNG parent (filter, drop-shadow, animation idle). Tailles fils légèrement agrandies.
+
+---
+
+## [1.0.84] — 2026-05-31
+
+🃏 **Mini cartes des sous-pages affichées à côté du grand PNG actif** dans le header.
+
+---
+
+## [1.0.83] — 2026-05-31
+
+↩ **Revert v1.0.82** — User : *"revert png c'estait bcp mieux"*. Retour aux PNG cartes, suppression du composant `YamzyGlbIconComponent`.
+
+---
+
+## [1.0.82] — 2026-05-31
+
+🃏 **Composant réutilisable `YamzyGlbIconComponent`** (Three.js + GLTFLoader CDN) — remplace temporairement les PNG cards par des GLB animées 3D. (Réverté en v1.0.83.)
+
+---
+
+## [1.0.81] — 2026-05-31
+
+🃏 **Chaque page reçoit une carte Yamzy PNG unique ou partagée** — 30 cartes mappées aux 43 pages via `PageDef.card`. Affichée dans le cockpit + PS hero header. Assets copiées de `frontend/dist/assets/cards/` vers `war-table/src/assets/cards/`.
+
+---
+
+## [1.0.80] — 2026-05-31
+
+🐛 **Fix arcane-scroll Tailwind absent** — Tailwind n'est pas installé dans war-table standalone, donc toutes les classes `.fixed inset-0 bg-black/30 backdrop-blur-sm` étaient invisibles. Réécriture du template avec **CSS natif** (`.as-overlay`, `.as-panel`, `.as-card`, `.as-color-yellow/blue/pink/green/purple`).
+
+---
+
+## [1.0.79] — 2026-05-31
+
+⚛ **Wheel Menu (Ctrl+Win) + Arcane Scrolls (Ctrl+Space)** repris du core Yamzy.
+
+### Added
+- `wheel-menu.component.ts` (951 lignes) copié de `frontend/src/app/core/wheel-menu/`.
+  - Strippé : `FlowLaunchModalComponent` + `AgentIconComponent` (deps Yamzy core).
+  - `HostListener` track `ctrlDown` + `metaDown` flags pour shortcut **Ctrl+Win**.
+  - Persistance via `/api/users/me/wheel-config`.
+- `arcane-scroll.component.ts` (217 lignes) copié de `frontend/src/app/core/arcane-scroll/`.
+  - `HostListener Ctrl+Space` toggle, ESC close.
+  - Persistance via `/api/arcane-scrolls`.
+
+---
+
+## [1.0.78] — 2026-05-31
+
+🎨 **Header PS hero reçoit le bg style cellule du calendrier** (au lieu du bleu uni).
+
+---
+
+## [1.0.77] — 2026-05-31
+
+🐛 **Fix HOME footer ouvre Dashboard** (au lieu d'écran vide).
+
+### Fixed
+- `returnHome()` : `studioLevel='section'` (au lieu de `'home'`) + `setPage('dashboard')` + `pageContentOpen.set(false)` (preview mode).
+- Sur Dashboard, NE PAS `openPageContent()` car la dashboard EST le contenu (pas de section `.wt-dashboard` séparée). `.is-content-open` déclenchait `fade-out` de `.wt-sk-dash` → écran vide.
+
+---
+
+## [1.0.76] — 2026-05-31
+
+🐛 Fix click HOME footer (intermédiaire — abouti en v1.0.77).
+
+---
+
+## [1.0.74-75] — 2026-05-31
+
+⏪ **Tentative scroll restreint à la section "Super-cat PAGES" du cockpit + revert** — User : *"nn revert quelque chose est cassé"*.
+
+---
+
+## [1.0.73] — 2026-05-31
+
+🧭 **Breadcrumb footer 3 niveaux** : `HOME > Super-cat > Page sélectionnée` avec couleur de la super-cat (`superCatLabel()`, `superCatColor()`, `superCatIndexFor()`).
+
+---
+
+## [1.0.72] — 2026-05-31
+
+🐛 **Fix sync `yamzyCarouselIndex` avec `setPage()`** — User a trouvé lui-même : *"j'utilise le scroll et le scroll n'est pas adapté au clique menu"*. Le carousel et le menu étaient désynchronisés.
+
+---
+
+## [1.0.71] — 2026-05-31
+
+🐛 **Fix click super-cat sidebar ouvre vraiment la page** — `onNavClick()` ne changeait pas `studioLevel` ni n'ouvrait le content. Ajout `studioLevel='section'` + `openPageContent`.
+
+---
+
+## [1.0.70] — 2026-05-31
+
+🃏 **Cockpit affiche les cards des pages de la super-cat active** sous "ACTUALITÉ DU PROJET" (ex : super-cat Dashboard → 3 pages en sous-cards : Dashboard Global, Dashboard Paramétré, Dashboard Legacy).
+
+---
+
+## [1.0.67-69] — 2026-05-31
+
+📐 **Layout évolution majeure** : avatar viré du header, header pleine hauteur, `Mes Plannings` imbriqué demi-largeur à l'intérieur, scrollbar moche retirée.
+
+---
+
+## [1.0.66] — 2026-05-31
+
+📐 **Cockpit colonne droite, pleine HAUTEUR viewport**.
+
+---
+
+## [1.0.65] — 2026-05-31
+
+🎯 **Carousel cards cachées, PS hero devient l'objet scrollable principal** (wheel + swipe).
+
+---
+
+## [1.0.64] — 2026-05-31
+
+🎯 **Hint clavier retiré + PS hero cliquable** → ouvre le contenu de la page (`openPageContent()` au lieu du wheel hint).
+
+---
+
+## [1.0.63] — 2026-05-31
+
+🧭 **Sidebar gauche = 5 super-cats** (Dashboard / Sprint / Planning / Reporting / Setup) au lieu des 43 pages directement.
+
+---
+
+## [1.0.62] — 2026-05-31
+
+⏪ **Revert v1.0.59** — User : *"désolé je voulais dire occuper la hauteur pas la largeur"*. Cockpit retrouve pleine HAUTEUR (à droite du PS hero) au lieu de pleine largeur dessous.
+
+---
+
+## [1.0.61] — 2026-05-31
+
+🗂 **43 pages réorganisées en 5 super-catégories avec sous-cats préservées**.
+
+### Added
+- `PageDef.superCat: SuperCat` (Dashboard / Sprint / Planning / Reporting / Setup).
+- `SUPER_CATS: SuperCatDef[]` avec icon, label, desc, color.
+- Mapping complet : Dashboard (3 pages), Sprint (10), Planning (9), Reporting (11), Setup & Guides (10).
+
+---
+
+## [1.0.60] — 2026-05-31
+
+📐 **`padding-bottom: 80px` sur main** pour éviter la superposition `Mes Plannings` / footer carousel.
+
+---
+
 ## [1.0.51] — 2026-05-30
 
 🔍 **Fix : "je trouve plus mon projet"** — Mes Plannings désormais
