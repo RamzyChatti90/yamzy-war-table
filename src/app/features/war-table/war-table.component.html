@@ -315,6 +315,9 @@
                     (touchstart)="onPsHeroTouchStart($event)"
                     (touchend)="onPsHeroTouchEnd($event)">
 
+              <!-- v1.0.87 — Wrapper EN COURS (RIGHT half, 50%) qui contient tag/title/desc/action + cards. -->
+              <div class="wt-ps-en-cours">
+
               <!-- ═══ Variante DASHBOARD (project + sprint info) ═══ -->
               <ng-container *ngIf="isDashboardSkin(); else pageHeroContent">
                 <div class="wt-ps-tag">
@@ -403,7 +406,10 @@
                 </div>
               </div>
 
-              <!-- v1.0.67 — Mes Plannings IMBRIQUÉ DANS le header (nested) -->
+              </div>
+              <!-- ↑ fin de .wt-ps-en-cours (RIGHT half) -->
+
+              <!-- v1.0.67 — Mes Plannings IMBRIQUÉ DANS le header (nested) — v1.0.87 : LEFT half 50% -->
               <div class="wt-sk-top wt-sk-top-nested">
                 <div class="wt-sk-top-head">
                   <div class="wt-sk-top-title">{{ 'dash.my_plannings' | t }}</div>

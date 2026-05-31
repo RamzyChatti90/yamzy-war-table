@@ -980,10 +980,10 @@
       min-height: 0;
       max-height: 100%;
     }
-    /* Header PS hero = colonne gauche, pleine hauteur + flex column.
-       v1.0.69 — overflow:hidden (plus de scroll moche sur le header lui-même).
-       Le header occupe déjà toute la page ; le scroll interne reste UNIQUEMENT
-       sur .wt-sk-top-nested si Mes Plannings déborde. */
+    /* Header PS hero = colonne gauche, pleine hauteur + flex.
+       v1.0.87 — flex-direction:ROW pour split 50/50 :
+       LEFT (.wt-sk-top-nested) = Mes Plannings 50%
+       RIGHT (.wt-ps-en-cours) = tag/title/desc/action + cards 50% */
     .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap {
       flex: 1;
       min-width: 0;
@@ -991,9 +991,21 @@
       height: auto;
       max-height: 100%;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       gap: 16px;
       overflow: hidden;
+      padding: 24px 28px !important;
+    }
+
+    /* v1.0.87 — Wrapper EN COURS (RIGHT half) : tag/title/desc/action + cards */
+    .wt-ps-en-cours {
+      flex: 1 1 50%;
+      min-width: 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
     }
 
     /* v1.0.66 — Cockpit pleine HAUTEUR de la page (colonne droite de .wt-sk-dash) */
@@ -1085,27 +1097,24 @@
     .wt-sk-news-tags { display:flex; gap:6px; margin-top:6px; }
     .wt-sk-news-tag { color:#fff; font-size:10px; padding:1px 8px; border-radius:999px; font-weight:600; }
 
-    /* ⑤ Top Selection — v1.0.86 : NESTED dans le header PS hero, REMONTÉ EN HAUT.
-       Mes Plannings est désormais au TOP du header (margin-top:0, order:-1).
-       La zone du bas est libérée pour la pile de cartes (pour effect). */
+    /* ⑤ Top Selection — v1.0.87 : LEFT HALF (50%) du header (split avec en-cours) */
     .wt-sk-top { margin: 0; }
     .wt-sk-top-nested {
-      margin-top: 0 !important;               /* TOP au lieu de auto (bas) */
-      order: -1;                              /* tout en haut du flex-column */
-      width: 100% !important;                 /* pleine largeur en haut */
+      margin: 0 !important;
+      flex: 1 1 50%;                          /* LEFT half 50% du header */
       align-self: stretch;
-      padding: 12px 16px !important;
+      padding: 14px 18px !important;
       background: rgba(0, 0, 0, 0.32) !important;
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.14) !important;
       border-radius: 18px !important;
-      flex: 0 1 auto;
-      max-height: 38%;
+      max-height: 100%;
       overflow-y: auto;
       position: relative;
       z-index: 2;
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
     @media (max-width: 1100px) {
       .wt-sk-top-nested { width: 100% !important; align-self: stretch; }
@@ -4439,14 +4448,14 @@ body { background: #0a0820 !important; }
   border-color: rgba(217, 154, 81, 0.32) !important;
 }
 
-/* v1.0.85 — Wrapper = anchor (position relative pour mini-cards absolutes) */
+/* v1.0.87 — Wrapper anchor pour cards (DANS .wt-ps-en-cours right half) */
 .wt-ps-cards-wrap {
   position: absolute;
   top: 50%;
-  right: 24px;
+  right: 0;
   transform: translateY(-50%);
-  width: 240px;
-  height: 336px;
+  width: 220px;
+  height: 308px;
   z-index: 3;
   pointer-events: none;
 }
@@ -4518,11 +4527,11 @@ body { background: #0a0820 !important; }
   background: rgba(217, 154, 81, .15);
 }
 
-/* v1.0.86 — Grande carte Yamzy : effet POUR aussi (chute majestueuse) */
+/* v1.0.86/87 — Grande carte Yamzy : effet POUR (taille réduite vs split 50%) */
 .wt-ps-card-display {
   position: relative;
-  width: 240px;
-  height: 336px;
+  width: 220px;
+  height: 308px;
   filter: drop-shadow(0 18px 36px rgba(0, 0, 0, .55));
   animation:
     bigCardPour 1s cubic-bezier(.32, 1.6, .55, .98) backwards,
