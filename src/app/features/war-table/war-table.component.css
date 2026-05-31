@@ -2024,11 +2024,12 @@ body { background: #0a0820 !important; }
   position: absolute;
   inset: -3px;  /* dépasse de 3px tout autour pour faire le ring */
   border-radius: 32px;
+  /* v1.0.99 — Variables CSS pour permettre l'override par carte (EyeDropper). */
   background-image: linear-gradient(
     var(--rotate),
-    #d99a51,        /* gold yamzy */
-    #c25d8d 43%,    /* magenta */
-    #6647bf         /* purple */
+    var(--card-c1, #d99a51),        /* gold yamzy (default) */
+    var(--card-c2, #c25d8d) 43%,    /* magenta (default) */
+    var(--card-c3, #6647bf)         /* purple (default) */
   );
   z-index: -1;
   animation: wt-ps-glow-spin 3.5s linear infinite;
@@ -2048,9 +2049,9 @@ body { background: #0a0820 !important; }
   filter: blur(60px);
   background-image: linear-gradient(
     var(--rotate),
-    #d99a51,
-    #c25d8d 43%,
-    #6647bf
+    var(--card-c1, #d99a51),
+    var(--card-c2, #c25d8d) 43%,
+    var(--card-c3, #6647bf)
   );
   opacity: 0.55;
   animation: wt-ps-glow-spin 3.5s linear infinite;
@@ -4455,6 +4456,55 @@ body { background: #0a0820 !important; }
 .wt-ps-header.is-clickable:hover {
   background-color: rgba(28, 22, 70, 0.65) !important;
   border-color: rgba(217, 154, 81, 0.32) !important;
+}
+
+/* ═══ v1.0.99 — Color Picker Tools (pipette EyeDropper sur le header) ═══ */
+.wt-ps-color-tools {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+.wt-ps-color-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, .35);
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+}
+.wt-ps-color-btn:hover {
+  transform: scale(1.12) rotate(-8deg);
+  background: rgba(217, 154, 81, .8);
+  border-color: rgba(255, 255, 255, .7);
+  box-shadow: 0 4px 14px rgba(217, 154, 81, .6);
+}
+.wt-ps-color-btn.wt-ps-color-reset:hover {
+  transform: scale(1.12) rotate(180deg);
+  background: rgba(222, 79, 95, .8);
+  box-shadow: 0 4px 14px rgba(222, 79, 95, .6);
+}
+.wt-ps-color-chip {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .65);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .35), 0 2px 6px rgba(0, 0, 0, .4);
 }
 
 /* v1.0.94 — Quadrant BOTTOM-LEFT (Q3) : rangée des mini cartes */

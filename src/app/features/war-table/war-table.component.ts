@@ -2030,6 +2030,143 @@ export class WarTableComponent implements OnInit {
     return p?.card || null;
   });
 
+  // ═══ v1.0.99 — CARD COLOR PICKER (EyeDropper API) ═══
+  // Chaque carte est mappee a une couleur custom (extraite via pipette du PNG).
+  // Cette couleur sert au background gradient anime de .wt-ps-header.
+  // Mapping persiste en localStorage + bouton "Copy" pour que l'user me communique
+  // la valeur finale, que je hardcode ensuite dans CARD_COLOR_MAP (mapping permanent).
+  /** Mapping permanent (hardcode) carte → couleur de base. Sera enrichi au fur et a mesure. */
+  static readonly CARD_COLOR_MAP: Record<string, string> = {
+    // Hardcoder ici les couleurs que l'user me communique (via Copy color)
+    // Format : 'NomCarte': '#hexcolor'
+  };
+  /** Couleurs custom (localStorage, override le mapping permanent). */
+  cardColors = signal<Record<string, string>>(this.loadCardColors());
+  /** Couleur de la carte active (null si pas de couleur custom). */
+  activeCardColor = computed<string | null>(() => {
+    const card = this.activePageCard();
+    if (!card) return null;
+    return this.cardColors()[card] || WarTableComponent.CARD_COLOR_MAP[card] || null;
+  });
+  /** 3 couleurs derivees (claire / base / sombre) pour le gradient header. */
+  activeCardGradient = computed<{ c1: string; c2: string; c3: string } | null>(() => {
+    const base = this.activeCardColor();
+    if (!base) return null;
+    return this.deriveGradientColors(base);
+  });
+
+  private loadCardColors(): Record<string, string> {
+    try {
+      const raw = localStorage.getItem('wt_card_colors');
+      return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+  }
+  private saveCardColors(map: Record<string, string>): void {
+    try { localStorage.setItem('wt_card_colors', JSON.stringify(map)); } catch {}
+  }
+
+  /** Convertit hex (#rrggbb) → HSL. */
+  private hexToHsl(hex: string): { h: number; s: number; l: number } {
+    const m = hex.replace('#', '').match(/.{2}/g);
+    if (!m || m.length < 3) return { h: 0, s: 0, l: 0.5 };
+    const [r, g, b] = m.slice(0, 3).map(x => parseInt(x, 16) / 255);
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const l = (max + min) / 2;
+    let s = 0, h = 0;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      if (max === r) h = ((g - b) / d + (g < b ? 6 : 0));
+      else if (max === g) h = ((b - r) / d + 2);
+      else h = ((r - g) / d + 4);
+      h *= 60;
+    }
+    return { h, s, l };
+  }
+  /** HSL → hex (#rrggbb). */
+  private hslToHex(h: number, s: number, l: number): string {
+    h = ((h % 360) + 360) % 360;
+    s = Math.max(0, Math.min(1, s));
+    l = Math.max(0, Math.min(1, l));
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = l - c / 2;
+    let r = 0, g = 0, b = 0;
+    if      (h <  60) { r = c; g = x; b = 0; }
+    else if (h < 120) { r = x; g = c; b = 0; }
+    else if (h < 180) { r = 0; g = c; b = x; }
+    else if (h < 240) { r = 0; g = x; b = c; }
+    else if (h < 300) { r = x; g = 0; b = c; }
+    else              { r = c; g = 0; b = x; }
+    const toHex = (n: number) => Math.round((n + m) * 255).toString(16).padStart(2, '0');
+    return '#' + toHex(r) + toHex(g) + toHex(b);
+  }
+  /** A partir d'une couleur base, derive 3 stops complementaires pour le gradient. */
+  private deriveGradientColors(base: string): { c1: string; c2: string; c3: string } {
+    const hsl = this.hexToHsl(base);
+    // c1 = teinte +25°, plus lumineuse (highlight gold-like)
+    const c1 = this.hslToHex(hsl.h + 25, Math.min(1, hsl.s + 0.1), Math.min(0.85, hsl.l + 0.18));
+    // c2 = couleur base exacte (le centre du gradient, 43%)
+    const c2 = base;
+    // c3 = teinte -30°, plus sombre + plus saturee (purple-like depth)
+    const c3 = this.hslToHex(hsl.h - 30, Math.min(1, hsl.s + 0.15), Math.max(0.18, hsl.l - 0.22));
+    return { c1, c2, c3 };
+  }
+
+  /** Ouvre la pipette EyeDropper (Chrome/Edge 95+) pour extraire une couleur. */
+  async pickHeaderColor(ev: Event): Promise<void> {
+    ev.stopPropagation();
+    ev.preventDefault();
+    const card = this.activePageCard();
+    if (!card) return;
+    const Eye = (window as any).EyeDropper;
+    if (!Eye) {
+      await this.dialog.alert({
+        title: 'EyeDropper indisponible',
+        message: 'La pipette necessite Chrome ou Edge 95+. Firefox/Safari ne supportent pas encore cette API.',
+        kind: 'warning'
+      });
+      return;
+    }
+    try {
+      const eyeDropper = new Eye();
+      const result = await eyeDropper.open();
+      const color = result.sRGBHex as string;
+      // Sauvegarde
+      const map = { ...this.cardColors(), [card]: color };
+      this.cardColors.set(map);
+      this.saveCardColors(map);
+      // Copie auto dans le presse-papier pour que l'user me l'envoie
+      try { await navigator.clipboard.writeText(`'${card}': '${color}',`); } catch {}
+      // Toast confirmation
+      await this.dialog.alert({
+        title: '🎨 Couleur extraite',
+        message: `**${card}** → \`${color}\`\n\nCopie automatique du mapping dans ton presse-papier. Colle-le dans le chat pour que je le rende permanent.`,
+        kind: 'success',
+        details: [
+          { label: 'Carte', value: card },
+          { label: 'Couleur', value: color },
+          { label: 'Format envoye', value: `'${card}': '${color}',` },
+        ]
+      });
+    } catch (e: any) {
+      // User annule (Escape) → silencieux
+      if (e?.name === 'AbortError') return;
+      console.warn('[EyeDropper]', e);
+    }
+  }
+
+  /** Reset la couleur custom de la carte active (revient au gradient default). */
+  resetHeaderColor(ev: Event): void {
+    ev.stopPropagation();
+    const card = this.activePageCard();
+    if (!card) return;
+    const map = { ...this.cardColors() };
+    delete map[card];
+    this.cardColors.set(map);
+    this.saveCardColors(map);
+  }
+
   /** v1.0.98 — Mini cartes dispersées en TRIANGLE diagonal (top-right → bot-left).
    *  Chaque mini reçoit top%/left% absolute pour se positionner DANS le triangle
    *  formé par la diagonale du header. Le big card occupe le coin bot-right. */

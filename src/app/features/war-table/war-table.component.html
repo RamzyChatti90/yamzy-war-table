@@ -310,10 +310,32 @@
                     [class.is-today]="launchableInfo()?.isToday"
                     [class.is-overdue]="launchableInfo()?.isOverdue"
                     [class.is-clickable]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
+                    [class.has-card-color]="activeCardGradient()"
+                    [style.--card-c1]="activeCardGradient()?.c1"
+                    [style.--card-c2]="activeCardGradient()?.c2"
+                    [style.--card-c3]="activeCardGradient()?.c3"
                     (click)="onPsHeroClick($event)"
                     (wheel)="onPsHeroWheel($event)"
                     (touchstart)="onPsHeroTouchStart($event)"
                     (touchend)="onPsHeroTouchEnd($event)">
+              <!-- v1.0.99 — Pipette EyeDropper pour extraire couleur de la carte active. -->
+              <div *ngIf="activePageCard() && studioLevel() === 'section'" class="wt-ps-color-tools">
+                <button class="wt-ps-color-btn"
+                        (click)="pickHeaderColor($event)"
+                        [title]="'Pipette : extraire une couleur de la carte ' + activePageCard() + ' et la mapper'">
+                  <span>🎨</span>
+                </button>
+                <button *ngIf="activeCardColor()"
+                        class="wt-ps-color-btn wt-ps-color-reset"
+                        (click)="resetHeaderColor($event)"
+                        [title]="'Reset (revenir au gradient par defaut)'">
+                  <span>↺</span>
+                </button>
+                <span *ngIf="activeCardColor()"
+                      class="wt-ps-color-chip"
+                      [style.background]="activeCardColor()!"
+                      [title]="activeCardColor()!"></span>
+              </div>
 
               <!-- v1.0.87 — Wrapper EN COURS (RIGHT half, 50%) qui contient tag/title/desc/action + cards. -->
               <div class="wt-ps-en-cours">
