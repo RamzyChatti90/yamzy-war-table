@@ -1079,6 +1079,24 @@ export class WarTableComponent implements OnInit {
   openMeetingReport(ev: any): void { this.meetingReportsPreview.set(ev); }
   closeMeetingReport(): void { this.meetingReportsPreview.set(null); }
 
+  /** v1.0.108 — Click sur un scroll auto dans Arcane → navigation vers la source. */
+  onArcaneNavigate(req: { kind: string; page: string; id?: number; ticketKey?: string }): void {
+    this.studioLevel.set('section');
+    this.setPage(req.page);
+    this.openPageContent();
+    // Si Meeting Reports : ouvrir le compte-rendu direct
+    if (req.page === 'meeting-reports' && req.id) {
+      const ev = this.events().find((e: any) => e.id === req.id);
+      if (ev) this.openMeetingReport(ev);
+    }
+    // Si Agenda + id : ouvrir le detail event
+    else if (req.page === 'agenda' && req.id) {
+      this.openEventDetail(req.id);
+    }
+    // Si Backlog + ticketKey : utilise le sprint filter pour mettre en avant.
+    // Note : pas de focus inline implem pour l'instant (TODO future).
+  }
+
   eventsGroupedByDay = computed(() => {
     const list = this.events().slice().sort((a, b) => new Date(a.scheduledStart).getTime() - new Date(b.scheduledStart).getTime());
     const groups: Record<string, any[]> = {};

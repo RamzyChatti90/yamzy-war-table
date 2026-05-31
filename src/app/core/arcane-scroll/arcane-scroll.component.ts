@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -167,7 +167,8 @@ interface Scroll {
                [class.as-color-green]="s.color==='green'"
                [class.as-color-purple]="s.color==='purple'"
                [class.as-card-auto]="s.isAuto"
-               [style.outline]="s.pinned ? '2px solid #5412fc' : 'none'">
+               [style.outline]="s.pinned ? '2px solid #5412fc' : 'none'"
+               (click)="onAutoCardClick(s, $event)">
 
             <!-- v1.0.107 — Badge AUTO sur les scrolls auto-generes -->
             <span *ngIf="s.isAuto" class="as-auto-badge" title="Auto-sync depuis WAR TABLE">🔄 AUTO</span>
@@ -231,16 +232,20 @@ interface Scroll {
     </div>
   `
 })
-export class ArcaneScrollComponent implements OnInit {
+export class ArcaneScrollComponent implements OnInit, OnDestroy {
   /** v1.0.107 — Chantier D : si fourni, on enrichit l'arcane avec un feed
    *  auto-genere depuis /api/pos/projects/{pid}/arcane-feed (read-only). */
   @Input() posProjectId?: number | null;
+  /** v1.0.108 — Emit quand l'user clique sur un scroll auto pour naviguer
+   *  vers la source (backlog/agenda). Le parent peut fermer l'arcane et router. */
+  @Output() navigateRequest = new EventEmitter<{ kind: string; page: string; id?: number; ticketKey?: string }>();
 
   open = false;
   scrolls: Scroll[] = [];
   autoScrolls: Scroll[] = []; // v1.0.107 — feed auto (read-only)
   filterCat = 'all';
   copied = false;
+  private refreshTimer: any = null; // v1.0.108 — auto-reload toutes 60s tant qu'ouvert
 
   categories = [
     { id: 'all', icon: '✦', label: 'All' },
@@ -265,15 +270,59 @@ export class ArcaneScrollComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() { this.load(); }
+  ngOnDestroy() { this.stopAutoRefresh(); }
 
   @HostListener('document:keydown', ['$event'])
   onKey(e: KeyboardEvent) {
     if (e.ctrlKey && e.code === 'Space') {
       e.preventDefault();
       this.open = !this.open;
-      if (this.open) this.load();
+      if (this.open) {
+        this.load();
+        this.startAutoRefresh();
+      } else {
+        this.stopAutoRefresh();
+      }
     }
-    if (e.key === 'Escape' && this.open) this.open = false;
+    if (e.key === 'Escape' && this.open) {
+      this.open = false;
+      this.stopAutoRefresh();
+    }
+  }
+
+  /** v1.0.108 — Auto-refresh des scrolls auto toutes les 60s tant qu'ouvert. */
+  private startAutoRefresh() {
+    if (this.refreshTimer) return;
+    this.refreshTimer = setInterval(() => {
+      if (this.open) this.load();
+    }, 60_000);
+  }
+  private stopAutoRefresh() {
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+  }
+
+  /** v1.0.108 — Click sur un scroll auto = navigue vers la source. */
+  onAutoCardClick(s: Scroll, ev: MouseEvent) {
+    if (!s.isAuto) return;
+    // Ignore le click si c'est sur un bouton (📋 copy, 📌 pin)
+    if ((ev.target as HTMLElement).closest('button')) return;
+    const meta = s.autoMetadata || {};
+    let page = 'agenda';
+    if (s.autoKind === 'my-todo') page = 'backlog';
+    else if (s.autoKind === 'meeting-notes') page = 'meeting-reports';
+    else if (s.autoKind === 'upcoming-event') page = 'agenda';
+    this.navigateRequest.emit({
+      kind: s.autoKind || '',
+      page,
+      id: meta.ticketId || meta.eventId,
+      ticketKey: meta.ticketKey
+    });
+    // Ferme l'arcane apres click
+    this.open = false;
+    this.stopAutoRefresh();
   }
 
   load() {
