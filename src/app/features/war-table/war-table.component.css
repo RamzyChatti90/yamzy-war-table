@@ -994,9 +994,9 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
-      gap: 16px;
+      gap: 12px;
       overflow: hidden;
-      padding: 24px 28px !important;
+      padding: 16px 16px 0 16px !important;   /* v1.0.96 : bottom 0 pour que Q4 colle au bord */
     }
 
     /* v1.0.94 — En-cours = quadrant TOP-RIGHT (Q2) */
@@ -4464,12 +4464,12 @@ body { background: #0a0820 !important; }
   display: flex;
   flex-direction: row;
   align-items: flex-end;
-  justify-content: flex-start;
+  justify-content: flex-end;     /* v1.0.96 : minis collees a DROITE (vers Q4) */
   gap: 8px;
   min-width: 0;
   min-height: 0;
   overflow: visible;
-  padding: 8px;
+  padding: 0;
   position: relative;
 }
 .wt-ps-mini-row.is-edit {
@@ -4492,9 +4492,9 @@ body { background: #0a0820 !important; }
   grid-column: 2;
   grid-row: 2;
   position: relative;
-  margin: 0 auto auto auto;       /* centré horizontalement, collé en haut du quadrant */
-  align-self: end;                /* collé en bas du quadrant */
-  justify-self: end;              /* collé à droite */
+  margin: 0;                       /* v1.0.96 : plus de margin auto, vraiment colle */
+  align-self: end;                 /* colle en bas du quadrant */
+  justify-self: end;               /* colle a droite */
   z-index: 5;
 }
 .wt-ps-card-display.is-edit {
