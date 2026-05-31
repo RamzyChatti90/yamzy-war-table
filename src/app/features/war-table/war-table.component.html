@@ -269,7 +269,10 @@
           [class.is-hero-action]="!isDashboardSkin() && pageContentOpen() && heroTab() === 'action'"
           [class.is-non-dashboard]="!isDashboardSkin() && studioLevel() === 'section'"
           [class.is-dashboard-skin]="isDashboardSkin()"
-          [class.is-guide-open]="guideOpen()">
+          [class.is-guide-open]="guideOpen()"
+          [class.is-consultation]="consultationMode()"
+          [class.is-cons-guide]="consultationMode() && consultationTab() === 'guide'"
+          [class.is-cons-data]="consultationMode() && consultationTab() === 'data'">
 
       <!-- ═══ v1.0.135 — CASSOLETTE pattern (pages non-dashboard) ═══
            Petite barre compacte EN HAUT de la page contenant le tag + titre +
@@ -278,29 +281,92 @@
            ouvre le drawer flottant a droite avec la description / tips /
            inputs-outputs. -->
       <div *ngIf="!isDashboardSkin() && studioLevel() === 'section' && activePageMeta() as pm"
-           class="wt-cassolette">
-        <div class="wt-cassolette-left">
-          <button class="wt-cassolette-back"
-                  (click)="returnHome()"
-                  title="Retour au studio">←</button>
-          <div class="wt-cassolette-tag"
-               [style.background]="pageHeaderInfo().tagColor"
-               [style.color]="'#fff'">
-            {{ pageHeaderInfo().tag }}
+           class="wt-cassolette"
+           [class.is-consultation]="consultationMode()"
+           [style.--cas-bg]="pageHeaderInfo().tagColor">
+        <!-- v1.0.137 — Ligne 1 : header (back + tag + title + cadence + GO + GUIDE) -->
+        <div class="wt-cassolette-row">
+          <div class="wt-cassolette-left">
+            <button class="wt-cassolette-back"
+                    (click)="returnHome()"
+                    title="Retour au studio">←</button>
+            <div class="wt-cassolette-tag"
+                 [style.background]="pageHeaderInfo().tagColor"
+                 [style.color]="'#fff'">
+              {{ pageHeaderInfo().tag }}
+            </div>
+            <h2 class="wt-cassolette-title">{{ activePageLabel() }}</h2>
+            <span class="wt-cassolette-sub">{{ pm.summary }}</span>
           </div>
-          <h2 class="wt-cassolette-title">{{ activePageLabel() }}</h2>
-          <span class="wt-cassolette-sub">{{ pm.summary }}</span>
+          <div class="wt-cassolette-right">
+            <span *ngIf="pm.cadence" class="wt-cassolette-cadence" title="Cadence Scrum">
+              ⏱ {{ pm.cadence }}
+            </span>
+            <!-- v1.0.137 — Bouton GO : entre/sort du mode consultation -->
+            <button class="wt-cassolette-go-btn"
+                    [class.is-active]="consultationMode()"
+                    (click)="toggleConsultation()"
+                    [title]="consultationMode() ? 'Sortir du mode consultation' : 'Entrer en mode consultation (tabs Data/Guide)'">
+              {{ consultationMode() ? '✕ FERMER' : '🚀 GO' }}
+            </button>
+            <button class="wt-cassolette-guide-btn"
+                    [class.is-active]="guideOpen()"
+                    (click)="toggleGuide()"
+                    title="Ouvrir le guide complet de la page">
+              📖 GUIDE
+            </button>
+          </div>
         </div>
-        <div class="wt-cassolette-right">
-          <span *ngIf="pm.cadence" class="wt-cassolette-cadence" title="Cadence Scrum">
-            ⏱ {{ pm.cadence }}
-          </span>
-          <button class="wt-cassolette-guide-btn"
-                  [class.is-active]="guideOpen()"
-                  (click)="toggleGuide()"
-                  title="Ouvrir le guide complet de la page">
-            📖 GUIDE
+
+        <!-- v1.0.137 — Ligne 2 (visible UNIQUEMENT en consultation mode) :
+             tabs horizontaux DATA / GUIDE swipeables -->
+        <div *ngIf="consultationMode()" class="wt-cassolette-tabs">
+          <button class="wt-cassolette-tab"
+                  [class.is-active]="consultationTab() === 'data'"
+                  (click)="setConsultationTab('data')">
+            📊 DATA
+            <span class="wt-cassolette-tab-sub">{{ activePageLabel() }}</span>
           </button>
+          <button class="wt-cassolette-tab"
+                  [class.is-active]="consultationTab() === 'guide'"
+                  (click)="setConsultationTab('guide')">
+            📖 GUIDE
+            <span class="wt-cassolette-tab-sub">Scrum + Tips</span>
+          </button>
+          <div class="wt-cassolette-tab-indicator"
+               [class.tab-data]="consultationTab() === 'data'"
+               [class.tab-guide]="consultationTab() === 'guide'"></div>
+        </div>
+      </div>
+
+      <!-- v1.0.137 — Pane GUIDE de consultation : visible quand consultationMode +
+           tab=guide. Contient meme info que le drawer. Bg color uniforme avec
+           cassolette (cas-bg). -->
+      <div *ngIf="consultationMode() && consultationTab() === 'guide' && activePageMeta() as pm"
+           class="wt-cons-guide-pane"
+           [style.--cas-bg]="pageHeaderInfo().tagColor"
+           (touchstart)="onConsTouchStart($event)"
+           (touchend)="onConsTouchEnd($event)">
+        <div *ngIf="activePageCard()" class="wt-cons-guide-card">
+          <img [src]="'assets/cards/' + activePageCard() + '.png'" [alt]="activePageLabel()"/>
+        </div>
+        <div *ngIf="pm.description" class="wt-cons-guide-section">
+          <h3>📜 Description</h3>
+          <p>{{ pm.description }}</p>
+        </div>
+        <div *ngIf="pm.inputs?.length || pm.outputs?.length" class="wt-cons-guide-section wt-cons-guide-io">
+          <div *ngIf="pm.inputs?.length" class="wt-cons-guide-io-col">
+            <h4>↘ INPUTS</h4>
+            <ul><li *ngFor="let i of pm.inputs">{{ i }}</li></ul>
+          </div>
+          <div *ngIf="pm.outputs?.length" class="wt-cons-guide-io-col">
+            <h4>↗ OUTPUTS</h4>
+            <ul><li *ngFor="let o of pm.outputs">{{ o }}</li></ul>
+          </div>
+        </div>
+        <div *ngIf="pm.tipsScrum?.length" class="wt-cons-guide-section">
+          <h3>💡 Pro-tips Scrum.org</h3>
+          <ul><li *ngFor="let t of pm.tipsScrum">{{ t }}</li></ul>
         </div>
       </div>
 

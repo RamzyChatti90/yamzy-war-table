@@ -163,6 +163,37 @@ export class WarTableComponent implements OnInit {
   toggleGuide(): void { this.guideOpen.update(v => !v); }
   closeGuide(): void { this.guideOpen.set(false); }
 
+  /** v1.0.137 — Mode CONSULTATION : la cassolette s'agrandit et inclut
+   *  les tabs horizontaux DATA / GUIDE. Permet de naviguer entre la donnee
+   *  (calendrier, backlog...) et le guide info sans changer de "container".
+   *  Active par le bouton GO. Swipe horizontal change l'onglet actif. */
+  consultationMode = signal(false);
+  consultationTab = signal<'data' | 'guide'>('data');
+  toggleConsultation(): void {
+    this.consultationMode.update(v => !v);
+    if (this.consultationMode()) {
+      this.consultationTab.set('data'); // reset a DATA quand on entre
+      this.guideOpen.set(false);         // ferme le drawer side si ouvert
+    }
+  }
+  setConsultationTab(tab: 'data' | 'guide'): void { this.consultationTab.set(tab); }
+
+  /** Swipe horizontal sur la zone consultation : delta > 50px => switch tab */
+  private consTouchStartX: number | null = null;
+  onConsTouchStart(ev: TouchEvent): void {
+    this.consTouchStartX = ev.touches[0]?.clientX ?? null;
+  }
+  onConsTouchEnd(ev: TouchEvent): void {
+    if (this.consTouchStartX === null) return;
+    const endX = ev.changedTouches[0]?.clientX ?? this.consTouchStartX;
+    const delta = endX - this.consTouchStartX;
+    this.consTouchStartX = null;
+    if (Math.abs(delta) < 50) return;
+    // swipe right (delta > 0) = aller a gauche (guide), swipe left = data
+    if (delta > 0) this.consultationTab.set('guide');
+    else this.consultationTab.set('data');
+  }
+
   /** v1.0.64 — Click sur le PS hero en mode preview ouvre le contenu de la page.
    *  Ignore les clicks sur boutons enfants (Lancer/Interrompre/Roadmap/Action page). */
   onPsHeroClick(ev: MouseEvent): void {
@@ -215,11 +246,13 @@ export class WarTableComponent implements OnInit {
       if (ev.key === 'Escape') {
         ev.preventDefault();
         if (this.guideOpen()) {
-          this.closeGuide();                 // v1.0.135 : 1er Echap = ferme la cassolette guide
+          this.closeGuide();                 // 1er Echap = ferme guide drawer
+        } else if (this.consultationMode()) {
+          this.consultationMode.set(false);  // v1.0.137 : 2e Echap = sort consultation
         } else if (this.pageContentOpen()) {
-          this.closePageContent();           // 2e Echap : ferme le contenu
+          this.closePageContent();           // 3e Echap : ferme le contenu
         } else if (this.studioLevel() === 'section') {
-          this.returnHome();                 // 3e Echap : retour home
+          this.returnHome();                 // 4e Echap : retour home
         }
       } else if (ev.key === 'Enter') {
         if (!this.pageContentOpen() && this.studioLevel() === 'section') {

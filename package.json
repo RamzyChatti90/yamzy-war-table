@@ -1,6 +1,6 @@
 {
   "name": "yamzy-war-table-frontend",
-  "version": "1.0.136",
+  "version": "1.0.137",
   "description": "WAR TABLE — Planning Studio standalone Angular app (port 4201)",
   "scripts": {
     "ng": "ng",
