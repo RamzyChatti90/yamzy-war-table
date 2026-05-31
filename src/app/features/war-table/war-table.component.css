@@ -4473,6 +4473,22 @@ body { background: #0a0820 !important; }
   flex-wrap: nowrap;
   overflow: visible;
 }
+/* v1.0.91 — Highlight visible en edit mode pour montrer la zone editable */
+.wt-ps-cards-wrap.is-edit {
+  outline: 2px dashed rgba(217, 154, 81, .6);
+  outline-offset: 4px;
+  background: rgba(217, 154, 81, .06);
+  border-radius: 8px;
+}
+.wt-ps-cards-wrap.is-edit::before {
+  content: 'CARDS ROW';
+  position: absolute;
+  top: -22px; left: 0;
+  font-size: 9px; font-weight: 800; letter-spacing: .12em;
+  color: #d99a51;
+  text-transform: uppercase;
+  pointer-events: none;
+}
 
 /* v1.0.90 — Mini cartes : flex children, taille fixe, hover scale up */
 .wt-ps-mini-card.wt-ps-mini-float {
