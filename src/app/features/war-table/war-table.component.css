@@ -3213,6 +3213,155 @@ body { background: #0a0820 !important; }
 .wt-skin-avatar-wrap.is-clickable:hover { transform: scale(1.05); transition: transform .18s; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   v1.0.126 — NEW NAV : PNG cards Yamzy + scroll dots (replace buggy 3D nav)
+   Design propre : carte PNG verticale + label + dots cliquables a droite.
+   Click fiable, hover elegant, sans transformations agressives.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.wt-pcards-nav {
+  position: fixed;
+  top: 70px;
+  left: 14px;
+  bottom: 70px;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wt-pcards-stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  pointer-events: auto;
+}
+.wt-pcards-card {
+  position: relative;
+  width: 78px;
+  height: 110px;
+  padding: 0;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #f4ecff;
+  font-family: inherit;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 6px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .55)) brightness(.78);
+  transition:
+    filter .25s ease,
+    border-color .25s ease,
+    transform .25s cubic-bezier(.32, 1.4, .55, 1.05),
+    box-shadow .25s ease;
+}
+.wt-pcards-card:hover {
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .65)) brightness(1);
+  transform: translateX(4px) scale(1.04);
+  border-color: var(--sc-color, #d99a51);
+}
+.wt-pcards-card.is-active {
+  filter: drop-shadow(0 12px 28px var(--sc-color, #d99a51)) brightness(1.05);
+  transform: translateX(10px) scale(1.10);
+  border-color: var(--sc-color, #d99a51);
+  box-shadow: 0 0 0 2px rgba(15, 11, 32, .65), 0 0 24px color-mix(in srgb, var(--sc-color, #d99a51) 60%, transparent);
+  z-index: 2;
+}
+.wt-pcards-img {
+  width: 100%;
+  height: 70px;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 8px;
+  display: block;
+  pointer-events: none;
+}
+.wt-pcards-label {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffe5b8;
+  text-align: center;
+  line-height: 1.15;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, .85);
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+/* MORE card : fond gradient, sans image */
+.wt-pcards-card-more {
+  background: linear-gradient(135deg, rgba(43, 37, 73, .85), rgba(15, 11, 32, .85));
+  border: 2px dashed rgba(139, 127, 214, .50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .55));
+}
+.wt-pcards-card-more .wt-pcards-more-icon {
+  font-size: 28px;
+  color: #d4cbe9;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+.wt-pcards-card-more .wt-pcards-label { color: #d4cbe9; }
+.wt-pcards-card-more.is-active {
+  border-color: #d99a51;
+  background: linear-gradient(135deg, rgba(217, 154, 81, .35), rgba(15, 11, 32, .85));
+}
+
+/* Scroll dots column a droite */
+.wt-pcards-dots {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  padding: 6px 4px;
+  pointer-events: auto;
+}
+.wt-pcards-dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  background: rgba(15, 11, 32, .60);
+  border: 1.5px solid rgba(139, 127, 214, .40);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all .25s cubic-bezier(.32, 1.4, .55, 1.05);
+  position: relative;
+}
+.wt-pcards-dot:hover {
+  background: var(--dot-color, #d99a51);
+  border-color: var(--dot-color, #d99a51);
+  transform: scale(1.55);
+}
+.wt-pcards-dot.is-active {
+  background: var(--dot-color, #d99a51);
+  border-color: var(--dot-color, #d99a51);
+  transform: scale(1.7);
+  box-shadow: 0 0 0 3px rgba(15, 11, 32, .55), 0 0 10px color-mix(in srgb, var(--dot-color, #d99a51) 70%, transparent);
+}
+.wt-pcards-dot-more { background: rgba(139, 127, 214, .30); }
+
+/* Hide old buggy 3D nav (au cas ou ref restantes) */
+.wt-pages3d-nav, .wt-sk-nav { display: none !important; }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .wt-pcards-nav { left: 6px; gap: 4px; }
+  .wt-pcards-card { width: 64px; height: 92px; }
+  .wt-pcards-img { height: 58px; }
+  .wt-pcards-label { font-size: 7.5px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    v1.0.124 — VESPER's CONCLAVE 3D NAV
    Replace ancient .wt-sk-nav par cartes 3D verticales avec dots latéraux.
    Style : simple, élégant, perspective + slide UX.

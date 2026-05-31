@@ -2185,6 +2185,20 @@ export class WarTableComponent implements OnInit {
     'Setup':     'parametres',
   };
 
+  // v1.0.126 — Carte PNG par super-cat (cards encore peu utilisées comme icones).
+  // Ordre : Dashboard, Sprint, Planning, Reporting, Setup
+  private readonly superCatCards: string[] = [
+    '6_King',              // Dashboard — vue royale
+    '1_Fireball',          // Sprint — action / vitesse
+    '22_Element_Air',      // Planning — temps / flux
+    '18_WaterDragon',      // Reporting — sagesse profonde
+    '30_Wizard',           // Setup & Guides — maitrise
+  ];
+  /** Path PNG complet pour la super-cat i. */
+  navCardPng(i: number): string {
+    return 'assets/cards/' + (this.superCatCards[i] || '6_King') + '.png';
+  }
+
   onNavClick(i: number): void {
     this.morePanelOpen.set(false);
     const order: SuperCat[] = ['Dashboard', 'Sprint', 'Planning', 'Reporting', 'Setup'];
