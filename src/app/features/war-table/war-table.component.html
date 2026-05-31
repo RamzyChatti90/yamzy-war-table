@@ -388,14 +388,13 @@
                        [alt]="activePageLabel()"
                        class="wt-ps-card-img"/>
                 </div>
-                <!-- Minis flottantes positionnées en absolute autour.
-                     v1.0.88 — Click sur mini = UPDATE HEADER ONLY (preview),
-                     pas d'ouverture de page. Pour ouvrir, click sur le header. -->
+                <!-- v1.0.90 — Minis étalées en ligne au BAS via flex row.
+                     Chaque carte a sa rotation + slight Y offset (effet main).
+                     Click = preview seulement, click header pour ouvrir. -->
                 <div *ngFor="let item of superCatFloatingMinis()"
                      class="wt-ps-mini-card wt-ps-mini-float"
                      [style.--ev]="item.color"
-                     [style.top.px]="item.top"
-                     [style.left.px]="item.left"
+                     [style.--yoff]="item.yOffset + 'px'"
                      [style.--rot]="item.rotate + 'deg'"
                      [style.--delay]="item.delay + 's'"
                      (click)="$event.stopPropagation(); setPage(item.page.id)"
