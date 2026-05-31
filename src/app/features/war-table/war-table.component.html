@@ -768,6 +768,120 @@
         </ng-template>
         <!-- ↑ fin du template #dashHeaderTpl — réutilisable sur toutes les pages -->
 
+        <!-- ═══ v1.0.111 — PAGE HERO GAMING TEMPLATE (#pageHeroPro)
+             Reutilisable par chaque page : consomme PAGE_META + activePageCard +
+             relatedPagesResolved + activeQuickActions. Style gaming organisationnel
+             inspire du Studio (Hearthstone × Scrum.org). Pleine hauteur d'ecran. -->
+        <ng-template #pageHeroPro>
+          <section *ngIf="activePageMeta() as pm" class="wt-pro-hero">
+            <!-- LEFT COLUMN : grande carte + cards reference -->
+            <aside class="wt-pro-hero-left">
+              <div *ngIf="activePageCard()" class="wt-pro-hero-card">
+                <img [src]="'assets/cards/' + activePageCard() + '.png'"
+                     [alt]="activePageLabel()" class="wt-pro-hero-card-img"/>
+                <div class="wt-pro-hero-card-glow"></div>
+              </div>
+              <div *ngIf="relatedPagesResolved().length" class="wt-pro-hero-related">
+                <div class="wt-pro-related-title">📚 Pages reliées</div>
+                <div class="wt-pro-related-grid">
+                  <button *ngFor="let r of relatedPagesResolved()" class="wt-pro-related-card"
+                          [style.borderColor]="r.color"
+                          (click)="setPage(r.id); openPageContent()"
+                          [title]="r.label">
+                    <img [src]="'assets/cards/' + r.card + '.png'" [alt]="r.label" class="wt-pro-related-img"/>
+                    <span class="wt-pro-related-icon">{{ r.icon }}</span>
+                    <span class="wt-pro-related-label">{{ r.label }}</span>
+                  </button>
+                </div>
+              </div>
+            </aside>
+
+            <!-- RIGHT COLUMN : header + infos + quick actions + tips -->
+            <div class="wt-pro-hero-right">
+              <!-- Header bar : bouton retour + titre + cadence -->
+              <div class="wt-pro-hero-head">
+                <button class="wt-pro-back-btn" (click)="closePageContent()" title="Retour preview">
+                  ← Retour
+                </button>
+                <div class="wt-pro-hero-title-block">
+                  <div class="wt-pro-hero-tag" [style.background]="pageHeaderInfo().tagColor">
+                    {{ pageHeaderInfo().tag }}
+                  </div>
+                  <h1 class="wt-pro-hero-title">{{ activePageLabel() }}</h1>
+                  <div class="wt-pro-hero-tagline">{{ pm.summary }}</div>
+                </div>
+                <div *ngIf="pm.cadence" class="wt-pro-hero-cadence" title="Cadence Scrum">
+                  <span class="wt-pro-cadence-label">CADENCE</span>
+                  <span class="wt-pro-cadence-value">{{ pm.cadence }}</span>
+                </div>
+              </div>
+
+              <!-- Description Scrum.org -->
+              <div *ngIf="pm.description" class="wt-pro-hero-section wt-pro-description">
+                <h3>📖 À quoi ça sert</h3>
+                <p>{{ pm.description }}</p>
+                <div *ngIf="pm.scrumRefs?.length" class="wt-pro-refs">
+                  <span class="wt-pro-refs-label">Réf. Scrum.org :</span>
+                  <span *ngFor="let r of pm.scrumRefs" class="wt-pro-ref-chip">{{ r }}</span>
+                </div>
+              </div>
+
+              <!-- Pour qui (rôles Scrum) -->
+              <div *ngIf="pm.forRoles?.length" class="wt-pro-hero-section wt-pro-roles">
+                <h3>👥 Pour quel rôle Scrum</h3>
+                <div class="wt-pro-roles-grid">
+                  <div *ngFor="let role of pm.forRoles" class="wt-pro-role-chip"
+                       [style.borderColor]="roleInfo(role).color"
+                       [style.background]="roleInfo(role).color + '22'"
+                       [title]="roleInfo(role).label">
+                    <span class="wt-pro-role-icon">{{ roleInfo(role).icon }}</span>
+                    <span class="wt-pro-role-label">{{ roleInfo(role).label }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick actions grid -->
+              <div *ngIf="activeQuickActions().length" class="wt-pro-hero-section wt-pro-actions">
+                <h3>⚡ Actions rapides</h3>
+                <div class="wt-pro-actions-grid">
+                  <button *ngFor="let a of activeQuickActions()"
+                          class="wt-pro-action-card"
+                          [class.is-primary]="a.primary"
+                          [title]="a.description"
+                          (click)="executeAction(a.id)">
+                    <span class="wt-pro-action-icon">{{ a.icon }}</span>
+                    <span class="wt-pro-action-label">{{ a.label }}</span>
+                    <span class="wt-pro-action-desc">{{ a.description }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Inputs / Outputs -->
+              <div *ngIf="pm.inputs?.length || pm.outputs?.length"
+                   class="wt-pro-hero-section wt-pro-io">
+                <div class="wt-pro-io-col">
+                  <h4>↘ INPUTS</h4>
+                  <ul><li *ngFor="let i of pm.inputs">{{ i }}</li></ul>
+                </div>
+                <div class="wt-pro-io-arrow">⇒</div>
+                <div class="wt-pro-io-col">
+                  <h4>↗ OUTPUTS</h4>
+                  <ul><li *ngFor="let o of pm.outputs">{{ o }}</li></ul>
+                </div>
+              </div>
+
+              <!-- Tips Scrum.org -->
+              <div *ngIf="pm.tipsScrum?.length" class="wt-pro-hero-section wt-pro-tips">
+                <h3>💡 Pro-tips Scrum.org</h3>
+                <ul>
+                  <li *ngFor="let t of pm.tipsScrum">{{ t }}</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        </ng-template>
+        <!-- ↑ fin du template #pageHeroPro -->
+
         <!-- ── BACKLOG (éditable inline + auto-save + pagination lazy + bulk ops v1.0.10) ── -->
         <section *ngIf="activePage() === 'backlog'" class="wt-backlog">
           <div *ngIf="editMode()" class="wt-crud-bar">

@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { WarTableApi, PosProject, PosTicket, ImportResult } from './war-table.api';
 import { AuthService } from '../../core/services/auth.service';
 import { WAR_TABLE_PAGES, PageDef as SharedPageDef, SUPER_CATS, SuperCat, SuperCatDef } from './war-table.pages';
+import { PAGE_META, ROLE_LABELS, ScrumRole, ActionDef, PageMeta, getPageMeta } from './war-table.pages-meta';
 import { WarTableSplashComponent } from './war-table-splash.component';
 // v1.0.79 — Wheel Menu (Ctrl+Win) + Arcane Scrolls (Ctrl+Space) repris de Yamzy core
 import { WheelMenuComponent } from '../../core/wheel-menu/wheel-menu.component';
@@ -2239,6 +2240,92 @@ export class WarTableComponent implements OnInit {
     const p = this.pages.find(p => p.id === this.activePage());
     return p ? p.superCat : null;
   });
+
+  // ═══ v1.0.111 — PAGE HERO GAMING ═══
+  /** Metadata enrichies de la page active. */
+  activePageMeta = computed<PageMeta>(() => getPageMeta(this.activePage()));
+  /** Pages liees (relatedPages dans PAGE_META) avec leur card + label resolus. */
+  relatedPagesResolved = computed(() => {
+    const meta = this.activePageMeta();
+    return (meta.relatedPages || [])
+      .map(pid => WAR_TABLE_PAGES.find(p => p.id === pid))
+      .filter((p): p is PageDef => !!p)
+      .map(p => ({
+        id: p.id,
+        label: p.label,
+        icon: p.icon,
+        card: p.card,
+        color: this.superCats.find(s => s.id === p.superCat)?.color || '#d99a51',
+      }));
+  });
+  /** Labels role -> { label, icon, color } (helper template). */
+  roleInfo(role: ScrumRole) { return ROLE_LABELS[role]; }
+  /** Active actions (filtre selon editMode). */
+  activeQuickActions = computed<ActionDef[]>(() => {
+    return (this.activePageMeta().quickActions || []).filter(a => !a.edit || this.editMode());
+  });
+
+  /** Map des actionId vers les vraies methodes du composant.
+   *  Si une action n'a pas de mapping, on tente un fallback intelligent. */
+  executeAction(actionId: string): void {
+    switch (actionId) {
+      // Tickets
+      case 'add-ticket':        this.addTicket(); break;
+      case 'bulk-edit':         this.editMode.set(true); break;
+      case 'export-excel':      this.doExport(); break;
+      case 'refinement':        this.ticketFilter = ''; this.editMode.set(true); break;
+      // Sprints
+      case 'add-sprint':        if (this.editMode) this.editMode.set(true); break;
+      case 'launch-sprint':     if (this.launchableInfo()) this.doLaunchSprint(); else this.setPage('sprints'); break;
+      case 'reset-archive':     this.resetAndArchive(); break;
+      case 'regen-ceremonies':  this.regenerateScrumCeremonies(); break;
+      case 'rebrand-sprints':   this.rebrandSprints(); break;
+      // Events / Calendrier
+      case 'new-event':         this.openNewEvent(); break;
+      case 'start-planning':
+      case 'start-review':
+      case 'start-retro':
+      case 'start-daily':       this.openNewEvent(); break;
+      case 'export-ical':       this.downloadIcal(); break;
+      // Risks / Lessons
+      case 'add-risk':          this.editMode.set(true); this.setPage('risks'); break;
+      case 'add-lesson':        this.editMode.set(true); this.setPage('lessons'); break;
+      case 'add-debt':          this.editMode.set(true); this.setPage('tech-debt'); break;
+      // Stakeholders
+      case 'add-stake':         this.editMode.set(true); this.setPage('stakeholders'); break;
+      // Setup / Config
+      case 'edit-config':
+      case 'edit-dod':
+      case 'edit-dor':
+      case 'edit-ticket':
+      case 'edit-allocation':
+      case 'create-template':
+      case 'create-project':
+      case 'configure-widgets':
+      case 'customize-template':
+      case 'customize':         this.editMode.set(true); break;
+      // Capacity / Team
+      case 'add-member':        this.editMode.set(true); this.setPage('capacity'); break;
+      // Recherche / filtres
+      case 'search-reports':
+      case 'filter-reports':    this.setPage('meeting-reports'); break;
+      case 'show-blockers':     this.ticketFilter = 'BLOQUE'; break;
+      case 'show-cfd':
+      case 'show-velocity':     this.setPage('cfd-velocity'); break;
+      // Roadmap / phases
+      case 'open-roadmap':      this.setPage('roadmap'); break;
+      case 'add-milestone':     this.editMode.set(true); this.setPage('roadmap'); break;
+      // Onboarding
+      case 'open-tour':
+      case 'show-shortcuts':    this.setPage('mode-emploi'); break;
+      // Language
+      case 'language':          this.i18n.setLang(this.i18n.lang() === 'fr' ? 'en' : 'fr'); break;
+      // Defaults / unmapped : juste set edit mode
+      default:
+        console.info('[PageHeroAction] action non mappee :', actionId, '- mode edition active');
+        this.editMode.set(true);
+    }
+  }
 
   /** v1.0.81 — Carte Yamzy de la page active (nom de fichier sans extension). */
   activePageCard = computed<string | null>(() => {
