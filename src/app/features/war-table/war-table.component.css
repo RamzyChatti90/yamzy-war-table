@@ -6171,14 +6171,26 @@ body { background: #0a0820 !important; }
 
 /* v1.0.54 — CONTENT OPEN (Enter pressé) : dashboard section disparaît
    smoothement (opacity + slide up + max-height 0), puis la page-section
-   s'affiche en fade-in. */
-.wt-main.is-content-open .wt-sk-dash {
+   s'affiche en fade-in.
+   v1.0.141 — :not(.is-consultation) : pas de fadeout en mode visite !
+   Le visit-overlay est DANS .wt-sk-dash, donc le header doit rester. */
+.wt-main.is-content-open:not(.is-consultation) .wt-sk-dash {
   animation: dashFadeOut .55s cubic-bezier(.4, 0, .2, 1) forwards;
   transform-origin: top center;
 }
 @keyframes dashFadeOut {
   0%   { opacity: 1; transform: translateY(0); max-height: 1500px; margin-bottom: 24px; }
   100% { opacity: 0; transform: translateY(-32px); max-height: 0; margin: 0; padding: 0; overflow: hidden; pointer-events: none; }
+}
+/* v1.0.141 — Garantie : en consultation, le dashboard header reste pleinement
+   visible (override toute regle d'animation/collapse). */
+.wt-main.is-consultation > .wt-sk-dash {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  max-height: none !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
 }
 /* Les sections de page apparaissent en fade-in après le fade-out du dashboard */
 .wt-main.is-content-open > section:not(.wt-sk-dash) {
