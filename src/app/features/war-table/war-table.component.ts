@@ -20,6 +20,7 @@ import { YamzyAvatar3dComponent } from './yamzy-avatar-3d.component';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { LangSwitcherComponent } from '../../core/i18n/lang-switcher.component';
+import { UserMenuComponent } from '../../core/user-menu/user-menu.component';
 import { WtDialogService } from '../../core/dialog/dialog.service';
 import { WtDialogComponent } from '../../core/dialog/wt-dialog.component';
 import { WtTooltipDirective } from '../../core/tooltip/wt-tooltip.directive';
@@ -30,7 +31,7 @@ interface PageDef { id: string; label: string; icon: string; cat: string; superC
 @Component({
   selector: 'app-war-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, YamzyAvatar3dComponent, TranslatePipe, LangSwitcherComponent, WtDialogComponent, WtTooltipDirective, WheelMenuComponent, ArcaneScrollComponent],
+  imports: [CommonModule, FormsModule, WarTableSplashComponent, WarTableBg3dComponent, YamzyAvatar3dComponent, TranslatePipe, LangSwitcherComponent, UserMenuComponent, WtDialogComponent, WtTooltipDirective, WheelMenuComponent, ArcaneScrollComponent],
   templateUrl: './war-table.component.html',
   styleUrls: ['./war-table.component.css'],
 })
