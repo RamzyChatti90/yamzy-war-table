@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -12,6 +12,10 @@ interface Scroll {
   category: string;
   pinned: boolean;
   editing?: boolean;
+  // v1.0.107/108 — Chantier D : scrolls auto-generes depuis POS DB
+  isAuto?: boolean;
+  autoKind?: string;        // meeting-notes | upcoming-event | my-todo
+  autoMetadata?: any;       // { eventId, ticketId, ... }
 }
 
 @Component({
@@ -108,6 +112,24 @@ interface Scroll {
     :host .as-color-green { background: #dcfce7; border: 1px solid #bbf7d0; }
     :host .as-color-purple { background: #ede9fe; border: 1px solid #ddd6fe; }
     :host .as-empty { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #9ca3af; }
+    /* v1.0.107 — Card auto-generee depuis WAR TABLE (read-only) */
+    :host .as-card-auto {
+      position: relative;
+      border-style: dashed !important;
+      border-width: 1.5px !important;
+    }
+    :host .as-auto-badge {
+      position: absolute;
+      top: 6px; right: 8px;
+      font-size: 8px; font-weight: 900;
+      letter-spacing: 0.10em;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      pointer-events: none;
+    }
+    :host .as-pre-auto { font-style: italic; }
   `],
   template: `
     <!-- Full screen overlay — Ctrl+Space -->
@@ -144,24 +166,28 @@ interface Scroll {
                [class.as-color-pink]="s.color==='pink'"
                [class.as-color-green]="s.color==='green'"
                [class.as-color-purple]="s.color==='purple'"
+               [class.as-card-auto]="s.isAuto"
                [style.outline]="s.pinned ? '2px solid #5412fc' : 'none'">
+
+            <!-- v1.0.107 — Badge AUTO sur les scrolls auto-generes -->
+            <span *ngIf="s.isAuto" class="as-auto-badge" title="Auto-sync depuis WAR TABLE">🔄 AUTO</span>
 
             <!-- Card Header -->
             <div class="as-card-head">
               <span style="cursor:pointer; font-size:14px" (click)="togglePin(s)" [title]="s.pinned ? 'Unpin' : 'Pin'">{{s.pinned ? '📌' : '📍'}}</span>
               <span *ngIf="!s.editing" class="as-card-title" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{s.title}}</span>
-              <input *ngIf="s.editing" [(ngModel)]="s.title" class="as-card-title-input" placeholder="Title...">
+              <input *ngIf="s.editing && !s.isAuto" [(ngModel)]="s.title" class="as-card-title-input" placeholder="Title...">
               <div class="as-card-actions">
-                <button *ngIf="!s.editing" (click)="s.editing=true" class="as-card-btn" title="Edit">✏️</button>
-                <button *ngIf="s.editing" (click)="saveScroll(s)" class="as-card-btn" title="Save">💾</button>
+                <button *ngIf="!s.editing && !s.isAuto" (click)="s.editing=true" class="as-card-btn" title="Edit">✏️</button>
+                <button *ngIf="s.editing && !s.isAuto" (click)="saveScroll(s)" class="as-card-btn" title="Save">💾</button>
                 <button (click)="copyContent(s)" class="as-card-btn" title="Copy">📋</button>
-                <button (click)="deleteScroll(s)" class="as-card-btn" title="Delete">🗑</button>
+                <button *ngIf="!s.isAuto" (click)="deleteScroll(s)" class="as-card-btn" title="Delete">🗑</button>
               </div>
             </div>
 
             <!-- Card Body -->
-            <pre *ngIf="!s.editing" class="as-card-pre" (dblclick)="s.editing=true">{{s.content || 'Double-click to edit...'}}</pre>
-            <textarea *ngIf="s.editing" [(ngModel)]="s.content" class="as-card-textarea"
+            <pre *ngIf="!s.editing" class="as-card-pre" [class.as-pre-auto]="s.isAuto" (dblclick)="!s.isAuto && (s.editing=true)">{{s.content || (s.isAuto ? '(read-only auto-feed)' : 'Double-click to edit...')}}</pre>
+            <textarea *ngIf="s.editing && !s.isAuto" [(ngModel)]="s.content" class="as-card-textarea"
                       placeholder="Your notes, commands, credentials..." rows="6"></textarea>
 
             <!-- Card Footer -->
@@ -206,13 +232,23 @@ interface Scroll {
   `
 })
 export class ArcaneScrollComponent implements OnInit {
+  /** v1.0.107 — Chantier D : si fourni, on enrichit l'arcane avec un feed
+   *  auto-genere depuis /api/pos/projects/{pid}/arcane-feed (read-only). */
+  @Input() posProjectId?: number | null;
+
   open = false;
   scrolls: Scroll[] = [];
+  autoScrolls: Scroll[] = []; // v1.0.107 — feed auto (read-only)
   filterCat = 'all';
   copied = false;
 
   categories = [
     { id: 'all', icon: '✦', label: 'All' },
+    // v1.0.107 — categories auto-generees apparaissent en premier
+    { id: 'Notes reunions',      icon: '📝', label: 'Notes reunions' },
+    { id: 'Ceremonies a venir',  icon: '⏰', label: 'A venir' },
+    { id: 'Mes TODOs',           icon: '✅', label: 'Mes TODOs' },
+    // categories manuelles d'origine
     { id: 'notes', icon: '📝', label: 'Notes' },
     { id: 'credentials', icon: '🔑', label: 'Credentials' },
     { id: 'commands', icon: '⌨️', label: 'Commands' },
@@ -241,15 +277,40 @@ export class ArcaneScrollComponent implements OnInit {
   }
 
   load() {
+    // Scrolls manuels
     this.http.get<Scroll[]>(environment.apiUrl + '/arcane-scrolls').subscribe({
       next: s => this.scrolls = s,
       error: () => {}
     });
+    // v1.0.107 — Feed auto (Notes reunions + Ceremonies a venir + Mes TODOs)
+    if (this.posProjectId) {
+      this.http.get<any[]>(environment.apiUrl + '/pos/projects/' + this.posProjectId + '/arcane-feed').subscribe({
+        next: items => {
+          this.autoScrolls = (items || []).map(item => ({
+            title: item.title,
+            content: item.content,
+            color: item.color,
+            category: item.category,
+            pinned: !!item.pinned,
+            isAuto: true,
+            autoKind: item.kind,
+            autoMetadata: item.metadata
+          }));
+        },
+        error: () => { this.autoScrolls = []; }
+      });
+    } else {
+      this.autoScrolls = [];
+    }
   }
 
   filtered(): Scroll[] {
-    if (this.filterCat === 'all') return this.scrolls;
-    return this.scrolls.filter(s => s.category === this.filterCat);
+    // v1.0.107 — Combine auto (en premier) + manuels. Pinned remontent en haut.
+    const combined = [...this.autoScrolls, ...this.scrolls];
+    const list = this.filterCat === 'all'
+      ? combined
+      : combined.filter(s => s.category === this.filterCat);
+    return list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
   }
 
   addScroll() {
