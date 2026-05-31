@@ -2207,10 +2207,12 @@ export class WarTableComponent implements OnInit {
     const targetPage = this.superCatDefaults[sc];
     this.setPage(targetPage);
     this.studioLevel.set('section');
-    // v1.0.77 — Sur dashboard, on reste en preview (pas de section page-specifique
-    // a ouvrir, le dashboard EST le contenu). Sinon openPageContent.
-    if (targetPage === 'dashboard') this.pageContentOpen.set(false);
-    else this.openPageContent();
+    // v1.0.133 — Coherence avec scroll : NE PAS auto-ouvrir le contenu.
+    // Comme le scroll molette, on laisse le user sur le preview header (hero
+    // + golden card + tabs). Pour ouvrir le contenu, il clique sur le hero
+    // ou appuie Enter. Sur dashboard, pageContentOpen reste a false (le
+    // dashboard EST son propre contenu).
+    this.pageContentOpen.set(false);
   }
 
   /** Bouclier de navigation : la page DASHBOARD affiche le layout skin. */

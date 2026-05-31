@@ -3234,8 +3234,9 @@ body { background: #0a0820 !important; }
   gap: 10px;
   pointer-events: auto;
 }
-/* v1.0.129 — Sans cadre : juste la PNG avec drop-shadow + glow active.
-   Pas de border, pas de box-shadow encadre. PNG flotte librement. */
+/* v1.0.133 — Sans cadre + transitions rapides pour eviter le bug visuel
+   pendant le scroll (l'active state change vite, les transitions de 350ms
+   se superposaient et creaient un effet de flicker/glitch). */
 .wt-pcards-card {
   position: relative;
   width: 78px;
@@ -3254,23 +3255,25 @@ body { background: #0a0820 !important; }
   justify-content: flex-start;
   gap: 4px;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .50)) brightness(.72) saturate(.85);
-  transition:
-    filter .35s ease,
-    transform .35s cubic-bezier(.32, 1.4, .55, 1.05);
+  /* v1.0.133 : 180ms ease-out plus rapide + only filter (pas de transform pour
+     eviter cumul scale entre card et img). Plus stable pendant le scroll. */
+  transition: filter .18s ease-out;
+  will-change: filter;
 }
 .wt-pcards-card:hover {
-  filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--sc-color, #d99a51) 50%, rgba(0,0,0,.5))) brightness(.92) saturate(1);
-  transform: translateX(4px) scale(1.04);
+  filter:
+    drop-shadow(0 6px 14px color-mix(in srgb, var(--sc-color, #d99a51) 50%, rgba(0,0,0,.5)))
+    brightness(.92)
+    saturate(1);
 }
 .wt-pcards-card.is-active {
   /* Triple drop-shadow pour effet halo couleur super-cat sans cadre */
   filter:
     drop-shadow(0 0 12px var(--sc-color, #d99a51))
-    drop-shadow(0 0 22px color-mix(in srgb, var(--sc-color, #d99a51) 60%, transparent))
+    drop-shadow(0 0 24px color-mix(in srgb, var(--sc-color, #d99a51) 65%, transparent))
     drop-shadow(0 6px 16px rgba(0, 0, 0, .55))
-    brightness(1.08)
-    saturate(1.15);
-  transform: translateX(8px) scale(1.10);
+    brightness(1.10)
+    saturate(1.20);
   z-index: 2;
 }
 /* v1.0.130 — Crop le cadre peint dans le PNG (bordure bleu clair + crochets).
@@ -6850,4 +6853,68 @@ body { background: #0a0820 !important; }
   min-height: 0;
   max-height: 100%;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   v1.0.133 — Animation d'entree coherente pour click ET scroll
+   Le user voyait une difference : scroll = transition fluide (fade-in du
+   header), click = saut sec sans animation. On unifie en appliquant la meme
+   animation a chaque changement de page, quelle que soit la source.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Hero pro : fade + slide up quand la page change */
+.wt-main .wt-pro-hero {
+  animation: page-entry-hero .42s cubic-bezier(.25, .8, .25, 1) both;
+}
+@keyframes page-entry-hero {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* PS hero (dashboard) : fade + slide up sur changement de page */
+.wt-main > .wt-sk-dash > .wt-ps-header {
+  animation: page-entry-ps-header .36s ease-out both;
+}
+@keyframes page-entry-ps-header {
+  from { opacity: .35; transform: scale(.985); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Page content sections (calendar, backlog, etc) : fade + slide quand
+   pageContentOpen passe a true */
+.wt-main.is-hero-action > section {
+  animation: page-entry-content .50s cubic-bezier(.25, .8, .25, 1) both;
+}
+@keyframes page-entry-content {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Indicateur "entrer pour ouvrir" subtil quand on est sur preview */
+.wt-main:not(.is-hero-action):not(.is-hero-guide) .wt-pro-hero {
+  position: relative;
+}
+.wt-main:not(.is-hero-action):not(.is-hero-guide) .wt-pro-hero::after {
+  content: "▼ Clique l'hero ou Entrée pour ouvrir";
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(217, 154, 81, .65);
+  padding: 4px 12px;
+  border: 1px solid rgba(217, 154, 81, .25);
+  border-radius: 99px;
+  background: rgba(15, 11, 32, .55);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  animation: hint-pulse 2s ease-in-out infinite;
+  z-index: 5;
+}
+@keyframes hint-pulse {
+  0%, 100% { opacity: .55; }
+  50%      { opacity: 1; }
+}
+
 
