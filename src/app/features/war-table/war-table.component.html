@@ -320,6 +320,7 @@
                     [class.is-overdue]="isDashboardSkin() && launchableInfo()?.isOverdue"
                     [class.is-clickable]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
                     [class.has-card-color]="activeCardGradient()"
+                    [class.is-fullwidth-encours]="!isDashboardSkin()"
                     [style.--card-c1]="activeCardGradient()?.c1"
                     [style.--card-c2]="activeCardGradient()?.c2"
                     [style.--card-c3]="activeCardGradient()?.c3"

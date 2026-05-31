@@ -1011,6 +1011,21 @@
       gap: 12px;
     }
 
+    /* v1.0.119 — Quand Mes Plannings est masque (non-dashboard) : En-cours s'etale
+       sur toute la largeur du header (span Q1 + Q2). */
+    .wt-ps-header.is-fullwidth-encours .wt-ps-en-cours {
+      grid-column: 1 / -1;
+    }
+    /* Le titre peut grandir sans s'ecraser */
+    .wt-ps-header.is-fullwidth-encours .wt-ps-en-cours .wt-ps-title {
+      font-size: 30px;
+    }
+    /* La description / tip prennent toute la largeur disponible */
+    .wt-ps-header.is-fullwidth-encours .wt-ps-en-cours .wt-page-ps-desc,
+    .wt-ps-header.is-fullwidth-encours .wt-ps-en-cours .wt-page-ps-tip {
+      max-width: 75%;
+    }
+
     /* v1.0.66 — Cockpit pleine HAUTEUR de la page (colonne droite de .wt-sk-dash) */
     .wt-sk-news.wt-sk-news-fullheight {
       width: 320px;
