@@ -7612,6 +7612,22 @@ body { background: #0a0820 !important; }
   position: relative;
 }
 
+/* v1.0.143 — Background COLOR du header derive de --cas-bg (couleur du tag
+   de la page active : violet Planning, orange Sprint, etc.). Override le
+   gradient dark de v1.0.8 par un gradient TINTE de la couleur de la page. */
+.wt-main > .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap,
+.wt-main > .wt-sk-dash > .wt-ps-header {
+  background-color:
+    color-mix(in srgb, var(--cas-bg, #d99a51) 18%, #313237) !important;
+  background-image:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--cas-bg, #d99a51) 30%, transparent) 0%,
+      color-mix(in srgb, var(--cas-bg, #d99a51) 12%, transparent) 45%,
+      color-mix(in srgb, var(--cas-bg, #d99a51) 22%, transparent) 100%),
+    radial-gradient(ellipse at top, rgba(58, 60, 71, .55), rgba(0, 0, 0, .60)) !important;
+  border-color: color-mix(in srgb, var(--cas-bg, #d99a51) 35%, rgba(255, 255, 255, 0.12)) !important;
+}
+
 /* En mode consultation, le dashboard header devient COMPACT (~110px) pour
    ne montrer que le visit-overlay (retour + cassolette + tabs). */
 .wt-main.is-consultation > .wt-sk-dash {

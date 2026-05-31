@@ -272,7 +272,8 @@
           [class.is-guide-open]="guideOpen()"
           [class.is-consultation]="consultationMode()"
           [class.is-cons-guide]="consultationMode() && consultationTab() === 'guide'"
-          [class.is-cons-data]="consultationMode() && consultationTab() === 'data'">
+          [class.is-cons-data]="consultationMode() && consultationTab() === 'data'"
+          [style.--cas-bg]="pageHeaderInfo().tagColor || '#d99a51'">
 
       <!-- ═══ v1.0.139 — Cassolette + pane separes RETIRES.
            Toute la logique cassolette/visit mode est maintenant INSIDE le dashboard
