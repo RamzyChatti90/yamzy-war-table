@@ -6,6 +6,112 @@ Toutes les modifications notables de WAR TABLE ⚔ — format basé sur [Keep a 
 
 ---
 
+## [1.0.108] — 2026-06-01
+
+✅ **Chantier D2 (Pack complet) — Arcane Mes TODOs live + click navigation + auto-refresh**.
+
+### Added
+- `@Output() navigateRequest` sur `<app-arcane-scroll>` qui émet `{ kind, page, id?, ticketKey? }` quand l'user clique sur un scroll auto.
+- `onAutoCardClick(scroll, ev)` : route selon `autoKind` (`my-todo` → backlog, `meeting-notes` → meeting-reports, `upcoming-event` → agenda). Ferme l'arcane après émission.
+- Auto-refresh `setInterval(60_000)` du feed arcane tant que l'arcane est ouvert. Stop sur Escape + Ctrl+Space toggle off + ngOnDestroy.
+- Guard sur boutons (📋 copy, 📌 pin) : intercepte le click avant la nav.
+- `war-table.component.ts.onArcaneNavigate(req)` : `studioLevel='section'` + `setPage` + `openPageContent` + ouvre Meeting Report preview ou event detail selon contexte.
+
+---
+
+## [1.0.107] — 2026-06-01
+
+🔮 **Chantier D1 (Pack complet) — Arcane sync notes réunions + cérémonies à venir**.
+
+### Added — Backend (monolithe yamzy-world local)
+- Nouveau service `PosArcaneFeedService` :
+  - `buildFeed(projectId, userName)` → `List<ScrollFeedItem>` (id, kind, title, category, color, content, metadata, readOnly, pinned).
+  - `buildMeetingNotes` : last 10 events COMPLETED avec notes non vides.
+  - `buildUpcomingEvents` : next 5 events SCHEDULED dans 7j (pin auto si today).
+  - `buildMyTodos` : tickets assignés (case-insensitive match), pin si HIGH priority, limit 10 (utilisé par v1.0.108).
+- Nouveau endpoint `GET /api/pos/projects/{id}/arcane-feed`.
+- `PosUserResolver.currentUserLogin()` expose le login GitHub courant.
+- `@Autowired(required = false)` → graceful degradation si service absent.
+
+### Added — Frontend
+- `arcane-scroll.component.ts` :
+  - `@Input() posProjectId?: number | null`
+  - `autoScrolls: Scroll[]` (feed auto, read-only)
+  - `Scroll` interface étendue : `isAuto, autoKind, autoMetadata`
+  - `load()` fetch `/pos/projects/{pid}/arcane-feed` quand `posProjectId` set
+  - `filtered()` merge `[...autoScrolls, ...scrolls]` puis sort par `pinned desc`
+  - 3 nouvelles catégories au début : "Notes reunions" / "Ceremonies a venir" / "Mes TODOs"
+- Badge **🔄 AUTO** sur scrolls auto, boutons edit/save/delete cachés si `isAuto`.
+- Style `.as-card-auto` : border dashed pour distinction visuelle.
+- `war-table.component.html` : `[posProjectId]="api.selectedProjectId()"` passé en Input.
+
+---
+
+## [1.0.106] — 2026-06-01
+
+📋 **Chantier B (Pack complet) — Page Comptes-rendus de réunions**.
+
+### Added
+- `war-table.pages.ts` : nouvelle page `meeting-reports` sous `superCat: Reporting`, `cat: Métriques`, icon `📋`, card `27_Book`. Reporting passe de 11 à 12 pages.
+- Signals : `meetingReportsFilter`, `meetingReportsPreview`, computed `meetingReports` (filtre events COMPLETED+MISSED par type/sprint/search), computed `meetingReportsSprints`.
+- HTML : section avec 3 filtres (search + type + sprint), empty state, grid auto-fill 320px de cards (head + notes preview fade-out + attendees count + badges TERMINÉ/MANQUÉ), modal preview readonly réutilisant `.wt-event-detail-modal`.
+- CSS : `.wt-meeting-grid`, `.wt-meeting-card`, `.wt-meeting-card-notes` avec gradient fade-out bas, badges TERMINÉ/MANQUÉ couleurs.
+
+---
+
+## [1.0.105] — 2026-06-01
+
+⏰ **Chantier C (Pack complet) — Auto-MISSED `@Scheduled` + reminders re-notif**.
+
+### Added — Backend
+- `PosCalendarService.detectMissedEvents()` — `@Scheduled(fixedDelay = 300_000L, initialDelay = 60_000L)` (5 min).
+  - Cherche events `SCHEDULED` dont `scheduledEnd < now` → status `MISSED`.
+  - Try/catch + log.info, ne crash jamais le scheduler.
+- `PosCalendarEventRepository.findScheduledPastEnd(now)` + `findByProjectIdAndStatusOrderByScheduledStartDesc`.
+- `PosReminderService` : injecte `PosCalendarEventRepository` + nouvelle catégorie 10 `event-missed` (severity HIGH).
+
+### Changed — Frontend
+- `showEventNotification()` : si action `snooze`, `setTimeout 5 * 60 * 1000` qui **re-pop** la notif SI event toujours `SCHEDULED`. Sinon silencieux (démarré/MISSED/annulé).
+
+---
+
+## [1.0.104] — 2026-06-01
+
+🏁 **Chantier A (Pack complet) — Wrap-up modal intelligent**.
+
+Remplace le simple `dialog.alert("Event terminé")` après `endEventNow()` par un modal complet en 4 sections.
+
+### Added
+- 4 sections du modal :
+  1. **📝 Notes / compte-rendu** — textarea pré-remplie.
+  2. **🎫 Tickets créés** — `+ Nouveau ticket`, champs titre/type/priorité/estim. Chaque ticket `sourceEventId = event.id`.
+  3. **📅 Follow-up** — 3 options : Aucun / Daily 15min / Réunion personnalisée (datetime + durée + type).
+  4. **👥 Présences** — click cycle ACCEPTED → TENTATIVE → DECLINED → PENDING.
+- State : `wrapUpEvent` signal, `wrapUpDraft` object, `wrapUpSaving` signal (anti double-click).
+- Orchestration cascade `submitWrapUp()` : `endEvent → createTicket × N → createEvent (followup) → respondEvent × M → notifyExcelChanged`.
+
+### Changed
+- `endEventNow(ev)` ouvre le wrap-up au lieu de terminer directement.
+
+---
+
+## [1.0.103] — 2026-06-01
+
+🔗 **Chantier E (Pack complet) — Liaison ticket ↔ event**.
+
+### Added — Backend (monolithe yamzy-world local)
+- **V64 migration** : `ALTER TABLE pos_tickets ADD COLUMN source_event_id BIGINT NULL` + index `idx_pos_tickets_source_event_id`. Nullable = rétrocompatible.
+- `PosTicket` entity : champ `sourceEventId` (Long).
+- `PosTicketRepository` : `findBySourceEventIdOrderByCreatedAtAsc` + `countBySourceEventId`.
+- `PosController.ticketsForEvent(eventId)` : `GET /api/pos/calendar-events/{id}/tickets`.
+- `PosExcelExportService` : col "Source Event" sur sheet Backlog (label `#<eventId> <eventTitle>`).
+
+### Added — Frontend
+- `WarTableApi.PosTicket` interface : `sourceEventId?: number`.
+- `api.ticketsForEvent(eventId)`.
+
+---
+
 ## [1.0.102] — 2026-05-31
 
 🎯 **State classes du header restreintes au dashboard uniquement** — Vraie solution propre au problème "header reste bleu malgré pick".
