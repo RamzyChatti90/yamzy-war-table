@@ -268,11 +268,102 @@
           [class.is-hero-guide]="!isDashboardSkin() && pageContentOpen() && heroTab() === 'guide'"
           [class.is-hero-action]="!isDashboardSkin() && pageContentOpen() && heroTab() === 'action'"
           [class.is-non-dashboard]="!isDashboardSkin() && studioLevel() === 'section'"
-          [class.is-dashboard-skin]="isDashboardSkin()">
-      <!-- v1.0.48 — Le header universel (PS hero + cockpit + Mes Plannings) est désormais
-           fourni par la section .wt-sk-dash plus bas (toujours visible sur toutes les pages).
-           Les anciens duplicatas wt-page-ps-header (v1.0.42) et wt-page-cockpit-aside (v1.0.45)
-           sont supprimés car redondants. -->
+          [class.is-dashboard-skin]="isDashboardSkin()"
+          [class.is-guide-open]="guideOpen()">
+
+      <!-- ═══ v1.0.135 — CASSOLETTE pattern (pages non-dashboard) ═══
+           Petite barre compacte EN HAUT de la page contenant le tag + titre +
+           bouton Guide. Le contenu de la page (calendrier, backlog, etc.)
+           s'affiche directement plein viewport en dessous. Le bouton Guide
+           ouvre le drawer flottant a droite avec la description / tips /
+           inputs-outputs. -->
+      <div *ngIf="!isDashboardSkin() && studioLevel() === 'section' && activePageMeta() as pm"
+           class="wt-cassolette">
+        <div class="wt-cassolette-left">
+          <button class="wt-cassolette-back"
+                  (click)="returnHome()"
+                  title="Retour au studio">←</button>
+          <div class="wt-cassolette-tag"
+               [style.background]="pageHeaderInfo().tagColor"
+               [style.color]="'#fff'">
+            {{ pageHeaderInfo().tag }}
+          </div>
+          <h2 class="wt-cassolette-title">{{ activePageLabel() }}</h2>
+          <span class="wt-cassolette-sub">{{ pm.summary }}</span>
+        </div>
+        <div class="wt-cassolette-right">
+          <span *ngIf="pm.cadence" class="wt-cassolette-cadence" title="Cadence Scrum">
+            ⏱ {{ pm.cadence }}
+          </span>
+          <button class="wt-cassolette-guide-btn"
+                  [class.is-active]="guideOpen()"
+                  (click)="toggleGuide()"
+                  title="Ouvrir le guide complet de la page">
+            📖 GUIDE
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ v1.0.135 — GUIDE DRAWER (slide-in depuis la droite) ═══
+           Contient l'ancien contenu de .wt-pro-hero (tag, title, golden card,
+           description, inputs/outputs, tips, cadence) mais sous forme de
+           drawer accessible a la demande, qui ne mange pas l'espace de la
+           page par defaut. -->
+      <div *ngIf="guideOpen() && !isDashboardSkin() && activePageMeta() as pm"
+           class="wt-guide-drawer-overlay"
+           (click)="closeGuide()">
+        <aside class="wt-guide-drawer" (click)="$event.stopPropagation()">
+          <div class="wt-guide-drawer-head">
+            <div class="wt-guide-drawer-title-block">
+              <div class="wt-guide-drawer-tag" [style.background]="pageHeaderInfo().tagColor">
+                {{ pageHeaderInfo().tag }}
+              </div>
+              <h2 class="wt-guide-drawer-title">{{ activePageLabel() }}</h2>
+              <div class="wt-guide-drawer-tagline">{{ pm.summary }}</div>
+            </div>
+            <button class="wt-guide-drawer-close"
+                    (click)="closeGuide()" title="Fermer (Echap)">×</button>
+          </div>
+
+          <!-- Carte associee (PNG) -->
+          <div *ngIf="activePageCard()" class="wt-guide-drawer-card">
+            <img [src]="'assets/cards/' + activePageCard() + '.png'"
+                 [alt]="activePageLabel()"/>
+          </div>
+
+          <!-- Cadence Scrum -->
+          <div *ngIf="pm.cadence" class="wt-guide-drawer-cadence">
+            <span class="wt-guide-drawer-cadence-label">⏱ Cadence</span>
+            <span class="wt-guide-drawer-cadence-value">{{ pm.cadence }}</span>
+          </div>
+
+          <!-- Description longue -->
+          <div *ngIf="pm.description" class="wt-guide-drawer-section">
+            <h3>📜 Description</h3>
+            <p>{{ pm.description }}</p>
+          </div>
+
+          <!-- Inputs / Outputs -->
+          <div *ngIf="pm.inputs?.length || pm.outputs?.length" class="wt-guide-drawer-section wt-guide-drawer-io">
+            <div *ngIf="pm.inputs?.length" class="wt-guide-drawer-io-col">
+              <h4>↘ INPUTS</h4>
+              <ul><li *ngFor="let i of pm.inputs">{{ i }}</li></ul>
+            </div>
+            <div *ngIf="pm.outputs?.length" class="wt-guide-drawer-io-col">
+              <h4>↗ OUTPUTS</h4>
+              <ul><li *ngFor="let o of pm.outputs">{{ o }}</li></ul>
+            </div>
+          </div>
+
+          <!-- Tips Scrum -->
+          <div *ngIf="pm.tipsScrum?.length" class="wt-guide-drawer-section wt-guide-drawer-tips">
+            <h3>💡 Pro-tips Scrum.org</h3>
+            <ul>
+              <li *ngFor="let t of pm.tipsScrum">{{ t }}</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
 
       <!-- v1.0.64 — Hint clavier retiré sur demande utilisateur. Le PS hero
            est désormais cliquable pour ouvrir le contenu (cf. dashHeaderTpl). -->

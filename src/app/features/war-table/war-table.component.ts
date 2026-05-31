@@ -155,6 +155,14 @@ export class WarTableComponent implements OnInit {
   openPageContent(): void { this.pageContentOpen.set(true); }
   closePageContent(): void { this.pageContentOpen.set(false); }
 
+  /** v1.0.135 — Cassolette pattern : guideOpen pilote le drawer flottant
+   *  qui contient title/description/tabs/inputs/outputs/tips de la page
+   *  active. Par defaut FERME : la page (calendrier, backlog, ...) est
+   *  visible directement plein viewport. */
+  guideOpen = signal(false);
+  toggleGuide(): void { this.guideOpen.update(v => !v); }
+  closeGuide(): void { this.guideOpen.set(false); }
+
   /** v1.0.64 — Click sur le PS hero en mode preview ouvre le contenu de la page.
    *  Ignore les clicks sur boutons enfants (Lancer/Interrompre/Roadmap/Action page). */
   onPsHeroClick(ev: MouseEvent): void {
@@ -206,10 +214,12 @@ export class WarTableComponent implements OnInit {
 
       if (ev.key === 'Escape') {
         ev.preventDefault();
-        if (this.pageContentOpen()) {
-          this.closePageContent();          // 1er Échap : ferme le contenu
+        if (this.guideOpen()) {
+          this.closeGuide();                 // v1.0.135 : 1er Echap = ferme la cassolette guide
+        } else if (this.pageContentOpen()) {
+          this.closePageContent();           // 2e Echap : ferme le contenu
         } else if (this.studioLevel() === 'section') {
-          this.returnHome();                 // 2e Échap : retour home
+          this.returnHome();                 // 3e Echap : retour home
         }
       } else if (ev.key === 'Enter') {
         if (!this.pageContentOpen() && this.studioLevel() === 'section') {
