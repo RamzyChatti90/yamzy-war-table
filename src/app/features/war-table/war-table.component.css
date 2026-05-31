@@ -6739,10 +6739,15 @@ body { background: #0a0820 !important; }
    3. Calendar grid auto-fit rows avec minmax(0, 1fr) (plus de min-height:92px)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* v1.0.135 — CASSOLETTE PATTERN : sur non-dashboard on cache COMPLETEMENT
-   le gros dash header + le gros .wt-pro-hero. Les infos page se retrouvent
-   dans une cassolette compacte en haut + un drawer slide-in a la demande. */
-.wt-main.is-non-dashboard > .wt-sk-dash,
+/* v1.0.138 — Revert v1.0.135 : .wt-sk-dash (dashboard header avec planning +
+   en-cours + cards) reste TOUJOURS visible sur non-dashboard tant que le user
+   n'a pas clique GO. La cassolette ne remplace le header QU'EN CONSULTATION.
+   Si is-consultation : le dash header se collapse via dashFadeOut existant. */
+.wt-main.is-non-dashboard.is-consultation > .wt-sk-dash,
+.wt-main.is-non-dashboard.is-consultation > .wt-pro-hero {
+  display: none !important;
+}
+/* Pro-hero reste cache sur non-dashboard (l'info est dans la cassolette guide) */
 .wt-main.is-non-dashboard > .wt-pro-hero {
   display: none !important;
 }
@@ -7510,4 +7515,142 @@ body { background: #0a0820 !important; }
   .wt-cons-guide-io { grid-template-columns: 1fr; }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   v1.0.138 — Bouton GO du gros dashboard header (floating top-right)
+   + carte principale dans la cassolette consultation
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Bouton GO flottant en haut a droite du dashboard header (.wt-sk-dash) */
+.wt-dash-go-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 18px 10px;
+  background: linear-gradient(135deg, #70b944, #4a8b2c);
+  color: #fff;
+  border: 2px solid rgba(182, 224, 138, .65);
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  box-shadow:
+    0 8px 24px rgba(112, 185, 68, .45),
+    0 0 0 1px rgba(255, 255, 255, .12) inset,
+    0 -2px 0 rgba(0, 0, 0, .15) inset;
+  transition: all .25s cubic-bezier(.32, 1.4, .55, 1.05);
+  animation: dash-go-attract 2.4s ease-in-out infinite;
+}
+.wt-dash-go-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow:
+    0 12px 32px rgba(112, 185, 68, .65),
+    0 0 0 1px rgba(255, 255, 255, .18) inset,
+    0 -2px 0 rgba(0, 0, 0, .15) inset;
+  filter: brightness(1.10);
+  animation: none;
+}
+.wt-dash-go-btn:active {
+  transform: translateY(0) scale(.98);
+}
+@keyframes dash-go-attract {
+  0%, 100% { box-shadow: 0 8px 24px rgba(112, 185, 68, .45), 0 0 0 1px rgba(255, 255, 255, .12) inset, 0 -2px 0 rgba(0, 0, 0, .15) inset; }
+  50%      { box-shadow: 0 8px 24px rgba(112, 185, 68, .75), 0 0 0 3px rgba(182, 224, 138, .35) inset, 0 -2px 0 rgba(0, 0, 0, .15) inset; }
+}
+
+.wt-dash-go-icon {
+  font-size: 24px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .3));
+}
+.wt-dash-go-label {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: .22em;
+  margin-top: 2px;
+}
+.wt-dash-go-sub {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  opacity: .85;
+  text-transform: uppercase;
+  margin-top: 1px;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* La cassolette en mode consultation : carte principale a gauche (200px) */
+.wt-cassolette-maincard {
+  width: 78px;
+  height: 110px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter:
+    drop-shadow(0 0 14px var(--card-glow, #d99a51))
+    drop-shadow(0 4px 10px rgba(0, 0, 0, .55));
+  animation: cas-maincard-in .42s cubic-bezier(.32, 1.4, .55, 1.05) both;
+}
+@keyframes cas-maincard-in {
+  from { opacity: 0; transform: scale(.6) translateX(-20px); }
+  to   { opacity: 1; transform: scale(1) translateX(0); }
+}
+.wt-cassolette-maincard-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  clip-path: inset(10% 6% 12% 6% round 6px);
+  transform: scale(1.28);
+  transform-origin: center 45%;
+}
+
+/* Quand consultation active : le footer pill HOME > Section > Page reste */
+/* Tab data: la section page (calendar, backlog etc.) prend tout l'espace
+   sous la cassolette */
+.wt-main.is-cons-data > section:not(.wt-sk-dash):not(.wt-pro-hero) {
+  display: flex !important;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Animation enter/exit de la consultation : dashboard header collapses */
+.wt-main.is-consultation > .wt-sk-dash {
+  animation: dash-collapse .55s cubic-bezier(.4, 0, .2, 1) forwards;
+  transform-origin: top center;
+}
+@keyframes dash-collapse {
+  0%   { opacity: 1; transform: translateY(0) scale(1); max-height: 1500px; margin-bottom: 16px; }
+  100% { opacity: 0; transform: translateY(-30px) scale(.96); max-height: 0; margin: 0; padding: 0; overflow: hidden; pointer-events: none; }
+}
+
+/* En mode non-consultation, sur non-dashboard : on cache les sections page
+   pour que seul le dashboard header soit visible. C'est le mode "browse" :
+   user voit son planning, ses cards, ses infos. Le calendrier/backlog/etc.
+   n'apparaitra qu'apres click GO. */
+.wt-main.is-non-dashboard:not(.is-consultation) > section:not(.wt-sk-dash):not(.wt-pro-hero) {
+  display: none !important;
+}
+
+@media (max-width: 720px) {
+  .wt-dash-go-btn {
+    top: 8px;
+    right: 8px;
+    padding: 10px 14px 8px;
+  }
+  .wt-dash-go-icon { font-size: 20px; }
+  .wt-dash-go-label { font-size: 13px; }
+  .wt-dash-go-sub { display: none; }
+}
 

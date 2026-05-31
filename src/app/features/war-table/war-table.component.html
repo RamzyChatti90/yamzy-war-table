@@ -280,16 +280,26 @@
            s'affiche directement plein viewport en dessous. Le bouton Guide
            ouvre le drawer flottant a droite avec la description / tips /
            inputs-outputs. -->
-      <div *ngIf="!isDashboardSkin() && studioLevel() === 'section' && activePageMeta() as pm"
+      <!-- v1.0.138 — Cassolette visible UNIQUEMENT en mode consultation (apres click GO).
+           Tant qu'on n'a pas clique GO, le gros dashboard header est visible. -->
+      <div *ngIf="consultationMode() && !isDashboardSkin() && activePageMeta() as pm"
            class="wt-cassolette"
            [class.is-consultation]="consultationMode()"
            [style.--cas-bg]="pageHeaderInfo().tagColor">
-        <!-- v1.0.137 — Ligne 1 : header (back + tag + title + cadence + GO + GUIDE) -->
+        <!-- v1.0.138 — Ligne 1 : header avec carte principale + tag + title + buttons -->
         <div class="wt-cassolette-row">
           <div class="wt-cassolette-left">
             <button class="wt-cassolette-back"
                     (click)="returnHome()"
                     title="Retour au studio">←</button>
+            <!-- v1.0.138 — Carte PRINCIPALE de la page conservee dans la cassolette
+                 (user a explicite : "on garde la carte principale") -->
+            <div *ngIf="activePageCard()" class="wt-cassolette-maincard"
+                 [style.--card-glow]="pageHeaderInfo().tagColor">
+              <img [src]="'assets/cards/' + activePageCard() + '.png'"
+                   [alt]="activePageLabel()"
+                   class="wt-cassolette-maincard-img"/>
+            </div>
             <div class="wt-cassolette-tag"
                  [style.background]="pageHeaderInfo().tagColor"
                  [style.color]="'#fff'">
@@ -341,8 +351,9 @@
 
       <!-- v1.0.137 — Pane GUIDE de consultation : visible quand consultationMode +
            tab=guide. Contient meme info que le drawer. Bg color uniforme avec
-           cassolette (cas-bg). -->
-      <div *ngIf="consultationMode() && consultationTab() === 'guide' && activePageMeta() as pm"
+           cassolette (cas-bg).
+           v1.0.138 : pas isDashboardSkin pour show pane meme sur "dashboard". -->
+      <div *ngIf="consultationMode() && consultationTab() === 'guide' && !isDashboardSkin() && activePageMeta() as pm"
            class="wt-cons-guide-pane"
            [style.--cas-bg]="pageHeaderInfo().tagColor"
            (touchstart)="onConsTouchStart($event)"
@@ -546,6 +557,19 @@
                 <button class="wt-ps-color-toast-btn" (click)="copyColorMapping()" title="Recopier le mapping">📋</button>
                 <button class="wt-ps-color-toast-btn" (click)="dismissColorToast()" title="Fermer">✕</button>
               </div>
+
+              <!-- ═══ v1.0.138 — Bouton GO flottant top-right du dashboard header.
+                   Click GO : entre en mode consultation (collapse du big header +
+                   apparition de la cassolette avec carte principale + tabs).
+                   Visible uniquement si projet sélectionné ET pas déjà en consultation. -->
+              <button *ngIf="api.selectedProjectId() && !consultationMode()"
+                      class="wt-dash-go-btn"
+                      (click)="goConsultation()"
+                      title="Entrer en mode consultation — focus sur la page sélectionnée">
+                <span class="wt-dash-go-icon">🚀</span>
+                <span class="wt-dash-go-label">GO</span>
+                <span class="wt-dash-go-sub">{{ activePageLabel() }}</span>
+              </button>
 
               <!-- v1.0.87 — Wrapper EN COURS (RIGHT half, 50%) qui contient tag/title/desc/action + cards. -->
               <div class="wt-ps-en-cours">

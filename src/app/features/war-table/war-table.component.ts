@@ -174,9 +174,21 @@ export class WarTableComponent implements OnInit {
     if (this.consultationMode()) {
       this.consultationTab.set('data'); // reset a DATA quand on entre
       this.guideOpen.set(false);         // ferme le drawer side si ouvert
+      this.openPageContent();            // ouvre le contenu page
+    } else {
+      this.closePageContent();           // sort = ferme contenu
     }
   }
   setConsultationTab(tab: 'data' | 'guide'): void { this.consultationTab.set(tab); }
+
+  /** v1.0.138 — Bouton GO du gros dashboard header : entre directement en
+   *  mode consultation (collapse le header + show cassolette + page content). */
+  goConsultation(): void {
+    this.consultationMode.set(true);
+    this.consultationTab.set('data');
+    this.guideOpen.set(false);
+    this.openPageContent();
+  }
 
   /** Swipe horizontal sur la zone consultation : delta > 50px => switch tab */
   private consTouchStartX: number | null = null;
@@ -593,9 +605,8 @@ export class WarTableComponent implements OnInit {
   }
 
   /** v1.0.38 — Auto-fire l'action de la card center (pas besoin de cliquer).
-   *  Pour les enter-section : navigate à la page sans reset l'index.
-   *  v1.0.134 — Auto-openPageContent comme onNavClick pour coherence : scroll
-   *  et click menu donnent le meme resultat avec entry animation. */
+   *  v1.0.138 — Plus d'openPageContent : on reste en preview avec dashboard
+   *  header visible jusqu'a ce que le user clique GO (coherent avec onNavClick). */
   private applyCenterAction(): void {
     if (this.centerActionTimer) {
       clearTimeout(this.centerActionTimer);
@@ -608,7 +619,6 @@ export class WarTableComponent implements OnInit {
     if (card.action.type === 'enter-section') {
       this.studioLevel.set('section');
       this.setPage(card.action.pageId);
-      if (card.action.pageId !== 'dashboard') this.openPageContent();
     }
   }
 
@@ -2253,14 +2263,13 @@ export class WarTableComponent implements OnInit {
     const targetPage = this.superCatDefaults[sc];
     this.setPage(targetPage);
     this.studioLevel.set('section');
-    // v1.0.134 — Sur dashboard, on reste en preview (pas de section
-    // page-specifique a ouvrir). Sinon openPageContent pour que le contenu
-    // de la page soit visible immediatement avec animation d'entree (les
-    // animations CSS .wt-pro-hero / .wt-ps-header / sections gerent la
-    // transition fluide). Coherent avec le scroll molette (cf
-    // applyCenterAction qui openPageContent aussi).
-    if (targetPage === 'dashboard') this.pageContentOpen.set(false);
-    else this.openPageContent();
+    // v1.0.138 — NE PAS auto-ouvrir le contenu. Le user a explicite : tant qu'on
+    // clique pas GO, le gros dashboard header reste visible. Click menu = juste
+    // change la page selectionnee, le header dashboard reste pour montrer la
+    // carte principale qui s'update + le contexte. Click GO = focus mode
+    // (cassolette + page content).
+    this.pageContentOpen.set(false);
+    this.consultationMode.set(false);
   }
 
   /** Bouclier de navigation : la page DASHBOARD affiche le layout skin. */
