@@ -2030,29 +2030,29 @@ export class WarTableComponent implements OnInit {
     return p?.card || null;
   });
 
-  /** v1.0.90 — Mini cartes étalées HORIZONTALEMENT au BAS du header.
-   *  Chaque mini reçoit une rotation random + slight Y offset pour un effet
-   *  "main de cartes étalée comme un croupier". Bien plus d'espace que la
-   *  constellation pour gérer 10+ cartes (Sprint super-cat). */
+  /** v1.0.98 — Mini cartes dispersées en TRIANGLE diagonal (top-right → bot-left).
+   *  Chaque mini reçoit top%/left% absolute pour se positionner DANS le triangle
+   *  formé par la diagonale du header. Le big card occupe le coin bot-right. */
   superCatFloatingMinis = computed(() => {
     const cards = this.superCatPagesCards().filter(c => !c.isActive);
-    // Rotation + offset Y random stable par index. left est calculé via CSS flex.
-    const variations = [
-      { rot: -10, yOff:  4, delay: 0    },
-      { rot:   6, yOff: -3, delay: 0.18 },
-      { rot:  -4, yOff:  6, delay: 0.36 },
-      { rot:   9, yOff: -5, delay: 0.54 },
-      { rot:  -7, yOff:  2, delay: 0.72 },
-      { rot:   3, yOff: -7, delay: 0.90 },
-      { rot:  -8, yOff:  5, delay: 1.08 },
-      { rot:   5, yOff: -2, delay: 1.26 },
-      { rot:  -3, yOff:  8, delay: 1.44 },
-      { rot:   7, yOff: -4, delay: 1.62 },
-      { rot:  -6, yOff:  3, delay: 1.80 },
+    // Positions absolute en % du container .wt-ps-mini-row.
+    // x+y ≈ 100% (sur la diagonale) avec variance + rotation random.
+    const positions = [
+      { top: 5,  left: 78, rot: -12, delay: 0    },
+      { top: 12, left: 64, rot:   6, delay: 0.18 },
+      { top: 22, left: 50, rot:  -7, delay: 0.36 },
+      { top: 32, left: 38, rot:  10, delay: 0.54 },
+      { top: 42, left: 26, rot:  -5, delay: 0.72 },
+      { top: 55, left: 14, rot:   8, delay: 0.90 },
+      { top: 18, left: 70, rot:   4, delay: 1.08 },
+      { top: 28, left: 56, rot:  -9, delay: 1.26 },
+      { top: 40, left: 42, rot:   5, delay: 1.44 },
+      { top: 52, left: 28, rot:  -6, delay: 1.62 },
+      { top: 68, left: 4,  rot:   3, delay: 1.80 },
     ];
     return cards.map((c, i) => {
-      const v = variations[i % variations.length];
-      return { ...c, rotate: v.rot, yOffset: v.yOff, delay: v.delay };
+      const p = positions[i % positions.length];
+      return { ...c, topPct: p.top, leftPct: p.left, rotate: p.rot, delay: p.delay };
     });
   });
 

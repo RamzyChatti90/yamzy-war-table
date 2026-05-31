@@ -390,16 +390,16 @@
                      [alt]="activePageLabel()"
                      class="wt-ps-card-img"/>
               </div>
-              <!-- QUADRANT 3 (bottom-left) : MINI CARTES row -->
+              <!-- v1.0.98 — MINI CARTES dispersées dans le TRIANGLE diagonal (top-right→bot-left) -->
               <div *ngIf="superCatFloatingMinis().length" class="wt-ps-mini-row wt-ps-quad-bl"
-                   [class.is-edit]="positionMode()"
-                   [style.gap.px]="cardsGap()">
+                   [class.is-edit]="positionMode()">
                 <div *ngFor="let item of superCatFloatingMinis()"
                      class="wt-ps-mini-card wt-ps-mini-float"
                      [style.--ev]="item.color"
-                     [style.--yoff]="item.yOffset + 'px'"
                      [style.--rot]="item.rotate + 'deg'"
                      [style.--delay]="item.delay + 's'"
+                     [style.top.%]="item.topPct"
+                     [style.left.%]="item.leftPct"
                      [style.width.px]="cardsMiniW()"
                      [style.height.px]="cardsMiniH()"
                      (click)="$event.stopPropagation(); setPage(item.page.id)"
