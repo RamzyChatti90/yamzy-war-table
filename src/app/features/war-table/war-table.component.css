@@ -1085,21 +1085,22 @@
     .wt-sk-news-tags { display:flex; gap:6px; margin-top:6px; }
     .wt-sk-news-tag { color:#fff; font-size:10px; padding:1px 8px; border-radius:999px; font-weight:600; }
 
-    /* ⑤ Top Selection — v1.0.67 : NESTED dans le header PS hero
-       Position au BAS du header avec margin-top:auto. Bg sombre semi-transparent
-       pour bien ressortir sur le gradient du header. */
+    /* ⑤ Top Selection — v1.0.86 : NESTED dans le header PS hero, REMONTÉ EN HAUT.
+       Mes Plannings est désormais au TOP du header (margin-top:0, order:-1).
+       La zone du bas est libérée pour la pile de cartes (pour effect). */
     .wt-sk-top { margin: 0; }
     .wt-sk-top-nested {
-      margin-top: auto !important;            /* pousse Mes Plannings vers le BAS */
-      width: 50% !important;                  /* v1.0.68 — demi-largeur du header */
-      align-self: flex-end;                   /* aligné à DROITE du header */
-      padding: 16px 18px !important;
+      margin-top: 0 !important;               /* TOP au lieu de auto (bas) */
+      order: -1;                              /* tout en haut du flex-column */
+      width: 100% !important;                 /* pleine largeur en haut */
+      align-self: stretch;
+      padding: 12px 16px !important;
       background: rgba(0, 0, 0, 0.32) !important;
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.14) !important;
       border-radius: 18px !important;
       flex: 0 1 auto;
-      max-height: 45%;
+      max-height: 38%;
       overflow-y: auto;
       position: relative;
       z-index: 2;
@@ -4450,8 +4451,8 @@ body { background: #0a0820 !important; }
   pointer-events: none;
 }
 
-/* v1.0.85 — Mini cartes flottantes : MÊME style que la grande carte
-   (float-in elastic + idle bobbing + glow), positionnées en absolute aléatoire. */
+/* v1.0.86 — Mini cartes "POUR" effect : tombent du haut avec rotation chaotique
+   puis se posent en place avec léger rebond, COMME ON VERSE DES VRAIES CARTES. */
 .wt-ps-mini-card.wt-ps-mini-float {
   position: absolute;
   width: 100px;
@@ -4463,29 +4464,43 @@ body { background: #0a0820 !important; }
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .55)) brightness(.9) saturate(.95);
   border: 2px solid transparent;
   background: rgba(0, 0, 0, .25);
-  /* Anim float-in (apparition) PUIS float idle (boucle) avec delay décalé */
+  /* "Pour" anim : chute depuis le haut + rotation chaotique puis settle */
   animation:
-    miniCardFloatIn .7s cubic-bezier(.34, 1.56, .64, 1) backwards,
-    miniCardIdle 5s ease-in-out infinite;
-  animation-delay: var(--delay, 0s), calc(var(--delay, 0s) + .7s);
+    miniCardPour 1.1s cubic-bezier(.32, 1.6, .55, .98) backwards,
+    miniCardIdle 4.5s ease-in-out infinite;
+  animation-delay: var(--delay, 0s), calc(var(--delay, 0s) + 1.1s);
   transform: rotate(var(--rot, 0deg));
   transition: filter .25s, border-color .25s, z-index 0s .25s;
 }
 .wt-ps-mini-card.wt-ps-mini-float:hover {
-  /* Stoppe l'idle pour booster sur hover, reprend la rotation random + scale */
   animation: none;
   transform: rotate(var(--rot, 0deg)) scale(1.25);
   filter: drop-shadow(0 14px 28px var(--ev, #d99a51)) brightness(1.15) saturate(1.25);
   border-color: var(--ev, #d99a51);
   z-index: 20;
 }
-@keyframes miniCardFloatIn {
-  0%   { opacity: 0; transform: rotate(var(--rot, 0deg)) translateY(-40px) scale(.6); }
-  100% { opacity: 1; transform: rotate(var(--rot, 0deg)) translateY(0) scale(1); }
+/* CHUTE comme on verse des cartes : commence haut + rotation chaotique
+   (-180deg → 0), passe par dépassement légèrement et settle */
+@keyframes miniCardPour {
+  0% {
+    opacity: 0;
+    transform: rotate(calc(var(--rot, 0deg) - 270deg)) translateY(-450px) translateX(-80px) scale(.45);
+  }
+  55% {
+    opacity: 1;
+    transform: rotate(calc(var(--rot, 0deg) + 20deg)) translateY(15px) translateX(8px) scale(1.05);
+  }
+  78% {
+    transform: rotate(calc(var(--rot, 0deg) - 4deg)) translateY(-4px) scale(.98);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(var(--rot, 0deg)) translateY(0) scale(1);
+  }
 }
 @keyframes miniCardIdle {
   0%, 100% { transform: rotate(var(--rot, 0deg)) translateY(0); }
-  50%      { transform: rotate(calc(var(--rot, 0deg) + 2deg)) translateY(-6px); }
+  50%      { transform: rotate(calc(var(--rot, 0deg) + 2deg)) translateY(-4px); }
 }
 .wt-ps-mini-card .wt-ps-mini-img {
   width: 100%;
@@ -4503,15 +4518,27 @@ body { background: #0a0820 !important; }
   background: rgba(217, 154, 81, .15);
 }
 
-/* v1.0.81/85 — Grande carte Yamzy de la page active (anchor du wrap) */
+/* v1.0.86 — Grande carte Yamzy : effet POUR aussi (chute majestueuse) */
 .wt-ps-card-display {
   position: relative;
   width: 240px;
   height: 336px;
   filter: drop-shadow(0 18px 36px rgba(0, 0, 0, .55));
-  animation: cardFloatIn .6s cubic-bezier(.34, 1.56, .64, 1);
+  animation:
+    bigCardPour 1s cubic-bezier(.32, 1.6, .55, .98) backwards,
+    bigCardIdle 6s ease-in-out infinite 1s;
   pointer-events: none;
   z-index: 5;
+}
+@keyframes bigCardPour {
+  0%   { opacity: 0; transform: rotate(-180deg) translateY(-500px) scale(.4); }
+  60%  { opacity: 1; transform: rotate(8deg) translateY(20px) scale(1.04); }
+  82%  { transform: rotate(-2deg) translateY(-6px) scale(.99); }
+  100% { opacity: 1; transform: rotate(0deg) translateY(0) scale(1); }
+}
+@keyframes bigCardIdle {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50%      { transform: rotate(.8deg) translateY(-6px); }
 }
 .wt-ps-card-img {
   width: 100%;
