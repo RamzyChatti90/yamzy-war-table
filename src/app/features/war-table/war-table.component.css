@@ -6752,50 +6752,11 @@ body { background: #0a0820 !important; }
   display: none !important;
 }
 
-/* Les regles v1.0.134 ci-dessous restent en place pour le cas dashboard ou
-   pour fallback si .wt-sk-dash est forcement affiche par un autre selecteur. */
-.wt-main.is-non-dashboard > .wt-sk-dash {
-  flex: 0 0 180px !important;
-  max-height: 180px !important;
-  height: 180px !important;
-  margin-bottom: 10px;
-}
-.wt-main.is-non-dashboard > .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap {
-  padding: 10px 14px !important;
-  max-height: 180px;
-  /* Reduire le 3D bg video pour qu'il ne mange pas tout le visuel */
-  background-size: cover;
-  background-position: center top;
-}
-/* Le big card Q4 devient plus petit pour ne pas envahir l'header reduit */
-.wt-main.is-non-dashboard .wt-sk-dash .wt-ps-quad-br {
-  max-height: 150px;
-}
-.wt-main.is-non-dashboard .wt-sk-dash .wt-ps-quad-br .wt-ps-bigcard {
-  max-height: 150px;
-  width: auto;
-}
-/* Mini cards row dans Q3 : reduire la taille */
-.wt-main.is-non-dashboard .wt-sk-dash .wt-ps-quad-bl {
-  max-height: 150px;
-}
-/* Cockpit colonne droite : compact */
-.wt-main.is-non-dashboard .wt-sk-news.wt-sk-news-fullheight {
-  max-height: 180px;
-  height: 180px;
-  padding: 8px 10px;
-}
-/* En-cours titre plus petit pour s'integrer */
-.wt-main.is-non-dashboard .wt-ps-en-cours .wt-ps-title,
-.wt-main.is-non-dashboard .wt-ps-header.is-fullwidth-encours .wt-ps-en-cours .wt-ps-title {
-  font-size: 22px !important;
-}
-.wt-main.is-non-dashboard .wt-ps-en-cours .wt-page-ps-desc {
-  font-size: 11px !important;
-}
-.wt-main.is-non-dashboard .wt-ps-en-cours .wt-page-ps-tip {
-  display: none; /* Tip cache dans header reduit, deja dans Guide tab */
-}
+/* v1.0.140 — Anciennes contraintes v1.0.134 supprimees : sur non-dashboard,
+   le header garde sa pleine hauteur naturelle (comme sur dashboard) pour
+   afficher correctement la grid 2x2 (en cours + mini cards Q3 + big card
+   Q4). Les contraintes max-height 180px cassaient le layout (mini cards
+   debordaient horizontalement). */
 
 /* 1bis) Cacher l'arriere-plan 3D table (.wt-sk-video) qui prend trop de
    place visuelle sur les pages non-dashboard. Le user n'a pas besoin de
