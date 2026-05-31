@@ -3273,13 +3273,19 @@ body { background: #0a0820 !important; }
   transform: translateX(8px) scale(1.10);
   z-index: 2;
 }
+/* v1.0.130 — Crop le cadre peint dans le PNG (bordure bleu clair + crochets).
+   inset(top right bottom left) en % + scale pour compenser la perte de surface
+   et ne montrer QUE le perso/objet central de la carte. */
 .wt-pcards-img {
   width: 100%;
-  height: 80px;
+  height: 95px;
   object-fit: contain;
   object-position: center center;
   display: block;
   pointer-events: none;
+  clip-path: inset(11% 7% 13% 7% round 6px);
+  transform: scale(1.30);
+  transform-origin: center 45%;
 }
 .wt-pcards-label {
   font-size: 8.5px;
@@ -5987,17 +5993,16 @@ body { background: #0a0820 !important; }
 .wt-yc-arrow.up { order: -1; }
 .wt-yc-arrow.down { order: 2; }
 
-/* v1.0.40 — Footer carrousel minimal, transparent, style streaming game ref */
+/* v1.0.130 — Footer reduit a un simple breadcrumb inline-pill flottant.
+   Plus de "footer" visible : juste le chemin Home > Section > Page en bas. */
 .wt-yc-footer {
   position: fixed;
-  bottom: 16px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 99998;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
   padding: 0;
   background: transparent;
   border: 0;
@@ -6005,7 +6010,7 @@ body { background: #0a0820 !important; }
   pointer-events: auto;
 }
 
-/* Breadcrumb : texte simple, gris clair, hover/active or */
+/* v1.0.130 — Breadcrumb seul : pill flottant subtle, pas de "footer box" */
 .wt-yc-breadcrumb {
   display: flex;
   align-items: center;
@@ -6014,6 +6019,12 @@ body { background: #0a0820 !important; }
   font-size: 10px;
   letter-spacing: 1.5px;
   opacity: 0.85;
+  padding: 6px 14px;
+  background: rgba(15, 11, 32, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 999px;
+  border: 1px solid rgba(217, 154, 81, 0.18);
 }
 .wt-yc-bc-item {
   background: transparent;
@@ -6055,8 +6066,10 @@ body { background: #0a0820 !important; }
   font-weight: 500;
 }
 
-/* Dots minimaux : petits ronds gris, actif = or */
-.wt-yc-dots {
+/* v1.0.130 — Dots desactives partout (sidebar + footer). User wants juste breadcrumb. */
+.wt-yc-dots,
+.wt-pcards-dots { display: none !important; }
+.wt-yc-dots-legacy { /* placeholder pour compat ancien template */
   display: flex;
   gap: 6px;
 }
