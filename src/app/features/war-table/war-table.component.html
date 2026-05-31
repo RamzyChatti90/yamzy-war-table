@@ -320,7 +320,6 @@
                     [class.is-overdue]="isDashboardSkin() && launchableInfo()?.isOverdue"
                     [class.is-clickable]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
                     [class.has-card-color]="activeCardGradient()"
-                    [class.is-fullwidth-encours]="!isDashboardSkin()"
                     [style.--card-c1]="activeCardGradient()?.c1"
                     [style.--card-c2]="activeCardGradient()?.c2"
                     [style.--card-c3]="activeCardGradient()?.c3"
@@ -468,8 +467,8 @@
               </div>
 
               <!-- v1.0.67 — Mes Plannings IMBRIQUÉ DANS le header (nested) — v1.0.87 : LEFT half 50% -->
-              <!-- v1.0.116 — Affiché UNIQUEMENT sur Dashboard. Sur autres pages : remplacé par le hero pro. -->
-              <div *ngIf="isDashboardSkin()" class="wt-sk-top wt-sk-top-nested">
+              <!-- v1.0.121 — Revert v1.0.116 : Mes Plannings + Timeline visibles partout (user request "partout"). -->
+              <div class="wt-sk-top wt-sk-top-nested">
                 <div class="wt-sk-top-head">
                   <div class="wt-sk-top-title">{{ 'dash.my_plannings' | t }}</div>
                   <div class="wt-sk-live-pill">
