@@ -6726,4 +6726,128 @@ body { background: #0a0820 !important; }
   .wt-yc { display: none; }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   v1.0.132 — FIT VIEWPORT GARANTI sur pages non-dashboard
+   Probleme : .wt-sk-dash + .wt-pro-hero + page content (calendrier) >
+   viewport, donc overflow visible et calendrier coupe en bas.
+   Solution :
+   1. .wt-sk-dash devient COMPACT (max-height 240px) sur non-dashboard
+   2. La page content (calendrier, backlog, ...) flex: 1 + min-height: 0
+   3. Calendar grid auto-fit rows avec minmax(0, 1fr) (plus de min-height:92px)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1) Sur non-dashboard avec contenu page ouvert (is-hero-action/is-hero-guide) :
+      le dash header devient COMPACT (max 240px) au lieu de prendre 50% du viewport */
+.wt-main.is-hero-action > .wt-sk-dash,
+.wt-main.is-hero-guide > .wt-sk-dash {
+  flex: 0 0 240px !important;
+  max-height: 240px !important;
+  height: 240px !important;
+  margin-bottom: 12px;
+}
+.wt-main.is-hero-action > .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap,
+.wt-main.is-hero-guide > .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap {
+  padding: 12px 16px !important;
+  max-height: 240px;
+}
+/* Le big card Q4 devient plus petit pour ne pas envahir l'header reduit */
+.wt-main.is-hero-action .wt-sk-dash .wt-ps-quad-br,
+.wt-main.is-hero-guide .wt-sk-dash .wt-ps-quad-br {
+  max-height: 200px;
+}
+/* Cockpit colonne droite : meme reduction */
+.wt-main.is-hero-action .wt-sk-news.wt-sk-news-fullheight,
+.wt-main.is-hero-guide .wt-sk-news.wt-sk-news-fullheight {
+  max-height: 240px;
+  height: 240px;
+}
+
+/* 2) Toutes les sections de page (calendrier inclus) flex: 1 pour
+      prendre le reste du viewport */
+.wt-main > section.wt-calendar,
+.wt-main > section.wt-backlog,
+.wt-main > section.wt-sprints,
+.wt-main > section.wt-burndown,
+.wt-main > section.wt-cfd,
+.wt-main > section.wt-gantt,
+.wt-main > section.wt-roadmap,
+.wt-main > section.wt-generic,
+.wt-main > section.wt-stakeholders,
+.wt-main > section.wt-team,
+.wt-main > section.wt-detail-tickets,
+.wt-main > section.wt-dod,
+.wt-main > section.wt-dor,
+.wt-main > section.wt-checklist,
+.wt-main > section.wt-templates,
+.wt-main > section.wt-params,
+.wt-main > section.wt-deps,
+.wt-main > section.wt-tech-debt,
+.wt-main > section.wt-knowledge,
+.wt-main > section.wt-risks,
+.wt-main > section.wt-retros,
+.wt-main > section.wt-meetings,
+.wt-main > section.wt-overtime,
+.wt-main > section.wt-allocation,
+.wt-main > section.wt-charge,
+.wt-main > section.wt-capacity,
+.wt-main > section.wt-phases,
+.wt-main > section.wt-projets,
+.wt-main > section.wt-dashboard-param,
+.wt-main > section.wt-vue-sprint,
+.wt-main > section.wt-vue-stakeholder,
+.wt-main > section.wt-vue-reviewer,
+.wt-main > section.wt-export-stakeholder,
+.wt-main > section.wt-mode-emploi,
+.wt-main > section.wt-routine,
+.wt-main > section.wt-checkup,
+.wt-main > section.wt-listes,
+.wt-main > section.wt-lessons,
+.wt-main > section.wt-regen-alloc,
+.wt-main > section.wt-nouveau-projet,
+.wt-main > section.wt-sprint-planning,
+.wt-main > section.wt-sprint-review,
+.wt-main > section.wt-backlog-tma {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 3) Calendar grid : fill available space, cells fluides */
+.wt-cal-month {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0 !important;
+}
+.wt-cal-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  grid-auto-rows: minmax(60px, 1fr) !important;
+  grid-template-rows: 24px repeat(6, minmax(0, 1fr)) !important;
+}
+/* Cells fluides : pas de min-height fixe qui force le scroll */
+.wt-cal-cell {
+  min-height: 0 !important;
+}
+.wt-cal-cell .wt-cal-evt {
+  font-size: 9px;
+  padding: 2px 4px;
+}
+/* La toolbar du calendar reste a sa taille naturelle */
+.wt-cal-toolbar {
+  flex-shrink: 0;
+}
+/* Pas de margin-bottom 26px qui pousse */
+.wt-cal-month + * { margin-top: 0; }
+
+/* 4) Cas backlog et autres tables : meme principe avec overflow auto INTERNE */
+.wt-main > section.wt-backlog .wt-table-wrap,
+.wt-main > section.wt-sprints .wt-table-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+}
 
