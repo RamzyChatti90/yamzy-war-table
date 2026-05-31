@@ -388,7 +388,9 @@
                        [alt]="activePageLabel()"
                        class="wt-ps-card-img"/>
                 </div>
-                <!-- Minis flottantes positionnées en absolute autour -->
+                <!-- Minis flottantes positionnées en absolute autour.
+                     v1.0.88 — Click sur mini = UPDATE HEADER ONLY (preview),
+                     pas d'ouverture de page. Pour ouvrir, click sur le header. -->
                 <div *ngFor="let item of superCatFloatingMinis()"
                      class="wt-ps-mini-card wt-ps-mini-float"
                      [style.--ev]="item.color"
@@ -396,8 +398,8 @@
                      [style.left.px]="item.left"
                      [style.--rot]="item.rotate + 'deg'"
                      [style.--delay]="item.delay + 's'"
-                     (click)="setPage(item.page.id); openPageContent()"
-                     [title]="item.page.label + ' — cliquer pour ouvrir'">
+                     (click)="$event.stopPropagation(); setPage(item.page.id)"
+                     [title]="item.page.label + ' — apercu (clic sur header pour ouvrir)'">
                   <img *ngIf="item.page.card"
                        [src]="'assets/cards/' + item.page.card + '.png'"
                        [alt]="item.page.label"
