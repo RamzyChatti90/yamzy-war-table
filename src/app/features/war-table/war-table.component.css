@@ -2518,6 +2518,135 @@ body { background: #0a0820 !important; }
 }
 .wt-event-btn-start:hover { transform: scale(1.10); }
 
+/* ═══ v1.0.104 — Wrap-up modal (chantier A) ═══ */
+.wt-wrapup-modal {
+  max-width: 780px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.wt-wrapup-head {
+  border-left: 4px solid #8b7fd6;
+  padding-left: 16px;
+  margin-bottom: 20px;
+}
+.wt-wrapup-tag {
+  display: inline-block;
+  font-size: 10px; font-weight: 900; letter-spacing: 0.14em;
+  color: #fff;
+  background: linear-gradient(135deg, #70b944, #4696b9);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.wt-wrapup-head h2 {
+  font-size: 22px; font-weight: 800;
+  color: #fff; margin: 4px 0 6px;
+  line-height: 1.25;
+}
+.wt-wrapup-meta {
+  font-size: 12px; color: rgba(200, 188, 230, 0.82);
+  font-family: 'Courier New', monospace;
+}
+.wt-wrapup-section {
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(139, 127, 214, 0.18);
+}
+.wt-wrapup-section:last-of-type { border-bottom: none; }
+.wt-wrapup-section h3 {
+  font-size: 13px; font-weight: 800;
+  color: #ffe5b8;
+  letter-spacing: 0.06em;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+.wt-wrapup-section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.wt-wrapup-section-head h3 { margin: 0; }
+.wt-wrapup-empty {
+  font-size: 12px;
+  font-style: italic;
+  padding: 12px;
+  text-align: center;
+  background: rgba(15, 11, 32, 0.4);
+  border-radius: 8px;
+  border: 1px dashed rgba(139, 127, 214, 0.25);
+}
+.wt-wrapup-ticket {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+.wt-wrapup-ticket .wt-input {
+  background: rgba(15, 11, 32, 0.55);
+  border: 1px solid rgba(139, 127, 214, 0.30);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #f4ecff;
+  font-size: 12.5px;
+}
+.wt-wrapup-ticket .wt-input-grow { flex: 1 1 auto; min-width: 0; }
+.wt-wrapup-ticket .wt-input-small { width: 90px; flex: 0 0 auto; }
+.wt-wrapup-ticket .wt-input-tiny  { width: 70px; flex: 0 0 auto; }
+.wt-wrapup-followup-choices {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 12px;
+}
+.wt-radio {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  background: rgba(15, 11, 32, 0.4);
+  border: 1px solid rgba(139, 127, 214, 0.18);
+  border-radius: 8px;
+  font-size: 13px;
+  color: #f4ecff;
+  transition: background .18s, border-color .18s;
+}
+.wt-radio:hover { background: rgba(43, 37, 73, 0.55); border-color: rgba(217, 154, 81, 0.40); }
+.wt-radio input[type="radio"] { accent-color: #d99a51; }
+.wt-wrapup-followup-fields {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 12px;
+  background: rgba(15, 11, 32, 0.4);
+  border-radius: 8px;
+  border: 1px solid rgba(217, 154, 81, 0.30);
+}
+.wt-wrapup-followup-fields .wt-input { flex: 1 1 auto; min-width: 140px; }
+.wt-wrapup-attendances {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.wt-wrapup-attendance {
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(15, 11, 32, 0.55);
+  border: 1.5px solid rgba(139, 127, 214, 0.25);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, transform .12s;
+  font-size: 12px;
+  color: #f4ecff;
+}
+.wt-wrapup-attendance:hover { transform: translateY(-1px); }
+.wt-wrapup-attendance[data-resp="ACCEPTED"]  { border-color: #70b944; background: rgba(112, 185, 68, 0.18); }
+.wt-wrapup-attendance[data-resp="TENTATIVE"] { border-color: #d99a51; background: rgba(217, 154, 81, 0.18); }
+.wt-wrapup-attendance[data-resp="DECLINED"]  { border-color: #de4f5f; background: rgba(222, 79, 95, 0.18); }
+.wt-wrapup-attendance[data-resp="PENDING"]   { border-color: rgba(139, 127, 214, 0.5); }
+.wt-wrapup-att-name { font-weight: 600; }
+.wt-wrapup-att-resp {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.06em;
+}
+.wt-wrapup-actions {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(139, 127, 214, 0.18);
+}
+
 /* Detail modal */
 .wt-event-detail-modal { max-width: 660px; }
 .wt-event-detail-head {

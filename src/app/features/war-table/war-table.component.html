@@ -1479,6 +1479,116 @@
         </section>
 
         <!-- Modal détail événement -->
+        <!-- ═══ v1.0.104 — Wrap-up modal (chantier A) ═══
+             Remplace le simple alert apres endEventNow. Permet d'ajouter notes
+             + creer tickets discutes pendant la reunion + planifier follow-up
+             + corriger presences. -->
+        <div *ngIf="wrapUpEvent() as wev" class="wt-modal-backdrop" (click)="cancelWrapUp()">
+          <div class="wt-modal wt-wrapup-modal" (click)="$event.stopPropagation()">
+            <button class="wt-modal-close" (click)="cancelWrapUp()" [disabled]="wrapUpSaving()">✕</button>
+            <div class="wt-wrapup-head" [style.borderLeftColor]="eventTypeColor(wev.type)">
+              <div class="wt-wrapup-tag">🏁 WRAP-UP</div>
+              <h2>{{ wev.title }}</h2>
+              <div class="wt-wrapup-meta">
+                {{ eventTypeLabel(wev.type) }} · {{ formatDateTime(wev.scheduledStart) }} · {{ formatDuration(wev.scheduledStart, wev.scheduledEnd) }}
+              </div>
+            </div>
+
+            <!-- Section 1 : Notes -->
+            <section class="wt-wrapup-section">
+              <h3>📝 Notes / compte-rendu</h3>
+              <textarea class="wt-event-notes-area" rows="6"
+                        [(ngModel)]="wrapUpDraft.notes"
+                        placeholder="Hier : ce qui a ete fait&#10;Aujourd'hui : ce qui va etre fait&#10;Blockers : ce qui bloque&#10;Decisions : ce qui a ete decide"></textarea>
+            </section>
+
+            <!-- Section 2 : Tickets crees pendant la reunion -->
+            <section class="wt-wrapup-section">
+              <div class="wt-wrapup-section-head">
+                <h3>🎫 Tickets crees pendant la reunion</h3>
+                <button class="wt-bulk-btn" (click)="addWrapUpTicket()">+ Nouveau ticket</button>
+              </div>
+              <div *ngIf="!wrapUpDraft.newTickets.length" class="wt-muted wt-wrapup-empty">
+                Aucun ticket. Click "+ Nouveau ticket" pour en ajouter un.
+              </div>
+              <div *ngFor="let t of wrapUpDraft.newTickets; let i = index" class="wt-wrapup-ticket">
+                <input class="wt-input wt-input-grow" [(ngModel)]="t.title" placeholder="Titre du ticket"/>
+                <select class="wt-input wt-input-small" [(ngModel)]="t.type">
+                  <option value="Task">Task</option>
+                  <option value="Bug">Bug</option>
+                  <option value="Story">Story</option>
+                  <option value="Spike">Spike</option>
+                </select>
+                <select class="wt-input wt-input-small" [(ngModel)]="t.priority">
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+                <input class="wt-input wt-input-tiny" type="number" min="0" step="0.5"
+                       [(ngModel)]="t.estimationHours" placeholder="Estim. h" title="Estimation en heures"/>
+                <button class="wt-bulk-btn wt-bulk-btn-danger" (click)="removeWrapUpTicket(i)" title="Retirer">🗑</button>
+              </div>
+            </section>
+
+            <!-- Section 3 : Follow-up -->
+            <section class="wt-wrapup-section">
+              <h3>📅 Planifier un follow-up</h3>
+              <div class="wt-wrapup-followup-choices">
+                <label class="wt-radio">
+                  <input type="radio" name="fu" value="none" [(ngModel)]="wrapUpDraft.followUp.kind"/>
+                  <span>○ Aucun</span>
+                </label>
+                <label class="wt-radio">
+                  <input type="radio" name="fu" value="quick-daily" [(ngModel)]="wrapUpDraft.followUp.kind"/>
+                  <span>⚡ Daily de demain (15 min)</span>
+                </label>
+                <label class="wt-radio">
+                  <input type="radio" name="fu" value="meeting" [(ngModel)]="wrapUpDraft.followUp.kind"/>
+                  <span>👥 Reunion de suivi personnalisee</span>
+                </label>
+              </div>
+              <div *ngIf="wrapUpDraft.followUp.kind !== 'none'" class="wt-wrapup-followup-fields">
+                <input class="wt-input wt-input-grow" [(ngModel)]="wrapUpDraft.followUp.title"
+                       [placeholder]="wrapUpDraft.followUp.kind === 'quick-daily' ? 'Daily de suivi (auto)' : 'Titre de la reunion suivi'"/>
+                <input class="wt-input" type="datetime-local" [(ngModel)]="wrapUpDraft.followUp.datetime"/>
+                <input class="wt-input wt-input-tiny" type="number" min="5" step="5"
+                       [(ngModel)]="wrapUpDraft.followUp.durationMin" title="Duree en minutes"/>
+                <select class="wt-input wt-input-small" [(ngModel)]="wrapUpDraft.followUp.type">
+                  <option value="DAILY">DAILY</option>
+                  <option value="MEETING">MEETING</option>
+                  <option value="REVIEW">REVIEW</option>
+                  <option value="PLANNING">PLANNING</option>
+                  <option value="RETRO">RETRO</option>
+                </select>
+              </div>
+            </section>
+
+            <!-- Section 4 : Presences -->
+            <section *ngIf="wrapUpDraft.attendances.length" class="wt-wrapup-section">
+              <h3>👥 Presences ({{ wrapUpDraft.attendances.length }})</h3>
+              <div class="wt-wrapup-attendances">
+                <button *ngFor="let a of wrapUpDraft.attendances; let i = index"
+                        class="wt-wrapup-attendance" [attr.data-resp]="a.response"
+                        (click)="toggleWrapUpAttendance(i)"
+                        [title]="'Click pour cycler : ACCEPTED → TENTATIVE → DECLINED → PENDING'">
+                  <span class="wt-wrapup-att-name">{{ a.name }}</span>
+                  <span class="wt-wrapup-att-resp">{{ a.response }}</span>
+                </button>
+              </div>
+            </section>
+
+            <!-- Actions finales -->
+            <div class="wt-wrapup-actions">
+              <button class="wt-bulk-btn wt-bulk-btn-ghost" (click)="cancelWrapUp()" [disabled]="wrapUpSaving()">Annuler</button>
+              <button class="wt-btn-major" (click)="submitWrapUp()" [disabled]="wrapUpSaving()"
+                      style="background:linear-gradient(135deg,#70b944,#4696b9)">
+                <span *ngIf="wrapUpSaving()">⟳ Sauvegarde...</span>
+                <span *ngIf="!wrapUpSaving()">✓ Terminer & sauver</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div *ngIf="eventDetailId() !== null && getEventById(eventDetailId()) as ev" class="wt-modal-backdrop" (click)="closeEventDetail()">
           <div class="wt-modal wt-event-detail-modal" (click)="$event.stopPropagation()">
             <button class="wt-modal-close" (click)="closeEventDetail()">✕</button>

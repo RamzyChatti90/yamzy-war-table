@@ -739,23 +739,142 @@ export class WarTableComponent implements OnInit {
       }
     });
   }
+  /** v1.0.104 — Chantier A : ouvre le Wrap-up modal au lieu de terminer directement.
+   *  Permet d'ajouter notes + tickets crees pendant la reunion + follow-up + presences. */
   async endEventNow(ev: any): Promise<void> {
-    this.api.endEvent(ev.id, this.eventLiveNotes).subscribe({
-      next: async () => {
-        this.refreshEvents();
-        this.eventDetailId.set(null);
-        this.eventLiveNotes = '';
-        await this.dialog.alert({
-          title: 'Événement terminé',
-          message: `**${ev.title}** a été marqué comme COMPLETED.`,
-          kind: 'success',
-          details: [
-            { label: 'Durée prévue', value: this.formatDuration(ev.scheduledStart, ev.scheduledEnd) },
-            { label: 'Durée réelle', value: this.formatDuration(ev.actualStart || ev.scheduledStart, new Date().toISOString()) },
-          ]
-        });
-      }
+    this.openWrapUp(ev);
+  }
+
+  // ═══ v1.0.104 — WRAP-UP MODAL (Chantier A) ═══
+  /** Event en cours de wrap-up (null = modal fermee). */
+  wrapUpEvent = signal<any | null>(null);
+  /** Brouillon des donnees a sauver a la fermeture. */
+  wrapUpDraft: {
+    notes: string;
+    newTickets: Array<{ title: string; type: string; priority: string; sprint: string; estimationHours: number | null; description: string }>;
+    followUp: { kind: 'none' | 'meeting' | 'quick-daily'; type: string; datetime: string; durationMin: number; title: string };
+    attendances: Array<{ name: string; response: 'ACCEPTED' | 'DECLINED' | 'TENTATIVE' | 'PENDING' }>;
+  } = {
+    notes: '',
+    newTickets: [],
+    followUp: { kind: 'none', type: 'MEETING', datetime: '', durationMin: 30, title: '' },
+    attendances: []
+  };
+  wrapUpSaving = signal(false);
+
+  openWrapUp(ev: any): void {
+    // Pre-remplit notes depuis le textarea live
+    this.wrapUpDraft = {
+      notes: this.eventLiveNotes || (ev.notes || ''),
+      newTickets: [],
+      followUp: {
+        kind: 'none',
+        type: ev.type === 'DAILY' ? 'DAILY' : 'MEETING',
+        datetime: this.toDatetimeLocal(new Date(Date.now() + 86400_000)), // demain meme heure
+        durationMin: ev.type === 'DAILY' ? 15 : 30,
+        title: ''
+      },
+      attendances: (ev.attendees || []).map((a: any) => ({
+        name: a.name,
+        response: a.response || 'PENDING'
+      }))
+    };
+    this.wrapUpEvent.set(ev);
+    // Ferme le modal detail si ouvert pour eviter le double-modal
+    this.eventDetailId.set(null);
+  }
+  cancelWrapUp(): void {
+    if (this.wrapUpSaving()) return;
+    this.wrapUpEvent.set(null);
+  }
+  addWrapUpTicket(): void {
+    this.wrapUpDraft.newTickets.push({
+      title: '',
+      type: 'Task',
+      priority: 'Medium',
+      sprint: this.wrapUpEvent()?.sprintName || this.activeSprint()?.name || '',
+      estimationHours: null,
+      description: ''
     });
+  }
+  removeWrapUpTicket(idx: number): void {
+    this.wrapUpDraft.newTickets.splice(idx, 1);
+  }
+  toggleWrapUpAttendance(idx: number): void {
+    const a = this.wrapUpDraft.attendances[idx];
+    const next: Record<string, 'ACCEPTED' | 'DECLINED' | 'TENTATIVE' | 'PENDING'> = {
+      ACCEPTED: 'TENTATIVE', TENTATIVE: 'DECLINED', DECLINED: 'PENDING', PENDING: 'ACCEPTED'
+    };
+    a.response = next[a.response];
+  }
+
+  /** Orchestre toutes les API calls : endEvent → createTicket × N → createEvent (followup) → respondEvent × N. */
+  async submitWrapUp(): Promise<void> {
+    const ev = this.wrapUpEvent();
+    if (!ev || this.wrapUpSaving()) return;
+    const pid = this.api.selectedProjectId();
+    if (!pid) { this.cancelWrapUp(); return; }
+    this.wrapUpSaving.set(true);
+
+    try {
+      // 1. endEvent avec les notes finales
+      await this.api.endEvent(ev.id, this.wrapUpDraft.notes).toPromise();
+
+      // 2. Cree les tickets discutes pendant la reunion (sourceEventId = ev.id)
+      const ticketsToCreate = this.wrapUpDraft.newTickets.filter(t => t.title.trim());
+      for (const t of ticketsToCreate) {
+        await this.api.createTicket(pid, {
+          title: t.title.trim(),
+          type: t.type,
+          priority: t.priority,
+          sprint: t.sprint,
+          estimationHours: t.estimationHours ?? undefined,
+          description: t.description || undefined,
+          status: 'À faire',
+          state: 'TODO',
+          sourceEventId: ev.id
+        } as any).toPromise();
+      }
+
+      // 3. Planifie le follow-up event si demande
+      if (this.wrapUpDraft.followUp.kind !== 'none') {
+        const fu = this.wrapUpDraft.followUp;
+        const start = new Date(fu.datetime);
+        const end = new Date(start.getTime() + fu.durationMin * 60_000);
+        await this.api.createEvent(pid, {
+          type: fu.type,
+          title: fu.title.trim() || (fu.kind === 'quick-daily' ? 'Daily de suivi' : `Suivi de ${ev.title}`),
+          scheduledStart: start.toISOString(),
+          scheduledEnd: end.toISOString(),
+          description: `Follow-up de l'event #${ev.id} (${ev.title})`,
+          attendees: ev.attendees || null
+        } as any).toPromise();
+      }
+
+      // 4. Met a jour les presences modifiees
+      const originalResp: Record<string, string> = {};
+      (ev.attendees || []).forEach((a: any) => { originalResp[a.name] = a.response || 'PENDING'; });
+      for (const a of this.wrapUpDraft.attendances) {
+        if (originalResp[a.name] !== a.response) {
+          await this.api.respondEvent(ev.id, a.name, a.response).toPromise();
+        }
+      }
+
+      // 5. Refresh + Excel auto-toast + close (l'Excel toast existant suffit)
+      this.refreshEvents();
+      this.notifyExcelChanged(pid);
+      this.eventLiveNotes = '';
+      this.wrapUpEvent.set(null);
+    } catch (e: any) {
+      console.error('[Wrap-up] echec:', e);
+      await this.dialog.alert({
+        title: 'Erreur Wrap-up',
+        message: `La sauvegarde a echoue : ${e?.message || e}`,
+        kind: 'error'
+      });
+    } finally {
+      this.wrapUpSaving.set(false);
+    }
   }
   respondToEvent(ev: any, response: 'ACCEPTED'|'DECLINED'|'TENTATIVE'): void {
     const name = this.user()?.githubLogin || 'Guest';
