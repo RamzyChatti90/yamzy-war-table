@@ -2007,6 +2007,33 @@ export class WarTableComponent implements OnInit {
     return p?.card || null;
   });
 
+  /** v1.0.85 — Mini cartes flottantes (autres pages de la super-cat).
+   *  Position pseudo-aléatoire stable basée sur l'index dans la super-cat.
+   *  Chaque mini reçoit top/left (px relatifs à la grande carte) + rotation
+   *  + animation-delay pour un effet "constellation flottante". */
+  superCatFloatingMinis = computed(() => {
+    const cards = this.superCatPagesCards().filter(c => !c.isActive);
+    // 11 positions distinctes autour de la grande carte (à gauche).
+    // Coordonnées en px relatives au coin TOP-LEFT du wrap (.wt-ps-cards-wrap).
+    const positions = [
+      { top: -10, left: -120, rot: -12, delay: 0   },
+      { top:  40, left: -190, rot:   7, delay: 0.35 },
+      { top: 130, left: -135, rot:  -7, delay: 0.7 },
+      { top: 215, left: -200, rot:  11, delay: 1.05 },
+      { top: 270, left: -90,  rot:  -5, delay: 1.4 },
+      { top: -60, left: -210, rot:   8, delay: 1.75 },
+      { top:  90, left: -50,  rot:  -4, delay: 2.1 },
+      { top: 175, left: -60,  rot:   5, delay: 2.45 },
+      { top: 310, left: -160, rot:  -9, delay: 2.8 },
+      { top: -75, left: -100, rot:   4, delay: 3.15 },
+      { top: 335, left: -65,  rot:  -7, delay: 3.5 },
+    ];
+    return cards.map((c, i) => {
+      const p = positions[i % positions.length];
+      return { ...c, top: p.top, left: p.left, rotate: p.rot, delay: p.delay };
+    });
+  });
+
   /** v1.0.73 — Helpers pour le breadcrumb footer (HOME > Super-cat > Page). */
   superCatLabel(sc: SuperCat): string {
     return this.superCats.find(s => s.id === sc)?.label || sc;
