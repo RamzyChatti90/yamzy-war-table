@@ -1907,7 +1907,27 @@
             <div class="wt-event-detail-actions">
               <button *ngIf="ev.status === 'SCHEDULED'" class="wt-btn-major" (click)="startEventNow(ev)">▶ Démarrer maintenant</button>
               <button *ngIf="ev.status === 'IN_PROGRESS'" class="wt-btn-major" style="background:linear-gradient(135deg,#70b944,#4696b9)" (click)="endEventNow(ev)">⏹ Terminer (sauvegarder notes)</button>
+              <!-- v1.0.114 — Replanifier (date/heure) -->
+              <button *ngIf="ev.status === 'SCHEDULED' || ev.status === 'MISSED'"
+                      class="wt-bulk-btn" (click)="openReschedule(ev)">⏰ Replanifier</button>
               <button class="wt-bulk-btn wt-bulk-btn-danger" (click)="deleteEventById(ev); closeEventDetail()">🗑 Supprimer</button>
+            </div>
+            <!-- v1.0.114 — Inline reschedule form -->
+            <div *ngIf="rescheduleOpen()" class="wt-reschedule-form">
+              <h4 class="wt-sub">⏰ Replanifier l'événement</h4>
+              <div class="wt-reschedule-fields">
+                <label>Début :
+                  <input type="datetime-local" [(ngModel)]="rescheduleStart" class="wt-input"/>
+                </label>
+                <label>Fin :
+                  <input type="datetime-local" [(ngModel)]="rescheduleEnd" class="wt-input"/>
+                </label>
+              </div>
+              <div class="wt-reschedule-actions">
+                <button class="wt-bulk-btn wt-bulk-btn-ghost" (click)="cancelReschedule()">Annuler</button>
+                <button class="wt-btn-major" style="background:linear-gradient(135deg,#d99a51,#c25d8d)"
+                        (click)="submitReschedule()" [disabled]="!rescheduleStart">✓ Replanifier</button>
+              </div>
             </div>
           </div>
         </div>

@@ -961,6 +961,37 @@ export class WarTableComponent implements OnInit {
     return this.linkedTicketsByEvent()[eventId] || [];
   }
 
+  // ═══ v1.0.114 — Reschedule event (déplacer un daily / autre) ═══
+  rescheduleOpen = signal(false);
+  rescheduleStart = '';
+  rescheduleEnd = '';
+  openReschedule(ev: any): void {
+    if (!ev) return;
+    this.rescheduleStart = ev.scheduledStart ? this.toDatetimeLocal(new Date(ev.scheduledStart)) : '';
+    this.rescheduleEnd = ev.scheduledEnd ? this.toDatetimeLocal(new Date(ev.scheduledEnd)) : '';
+    this.rescheduleOpen.set(true);
+  }
+  cancelReschedule(): void { this.rescheduleOpen.set(false); }
+  submitReschedule(): void {
+    const ev = this.getEventById(this.eventDetailId());
+    if (!ev || !this.rescheduleStart) { this.cancelReschedule(); return; }
+    const body: any = {
+      scheduledStart: new Date(this.rescheduleStart).toISOString(),
+      scheduledEnd: this.rescheduleEnd ? new Date(this.rescheduleEnd).toISOString() : null
+    };
+    this.api.updateEvent(ev.id, body).subscribe({
+      next: () => {
+        this.refreshEvents();
+        this.cancelReschedule();
+        const pid = this.api.selectedProjectId();
+        if (pid) this.notifyExcelChanged(pid);
+      },
+      error: (e) => {
+        this.dialog.alert({ title: 'Erreur', message: `Replanification échouée : ${e?.message || e}`, kind: 'error' });
+      }
+    });
+  }
+
   openEventDetail(id: number): void {
     this.eventDetailId.set(id);
     this.eventLiveNotes = (this.events().find(e => e.id === id) || {}).notes || '';

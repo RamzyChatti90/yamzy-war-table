@@ -2920,6 +2920,49 @@ body { background: #0a0820 !important; }
   .wt-pro-hero-title { font-size: 22px; }
 }
 
+/* ═══ v1.0.114 — Event reschedule form ═══ */
+.wt-reschedule-form {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: rgba(217, 154, 81, 0.10);
+  border-left: 3px solid #d99a51;
+  border-radius: 0 8px 8px 0;
+}
+.wt-reschedule-form .wt-sub {
+  margin: 0 0 10px;
+  color: #ffe5b8;
+  font-size: 12px;
+}
+.wt-reschedule-fields {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.wt-reschedule-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: rgba(200, 188, 230, 0.85);
+  flex: 1;
+  min-width: 200px;
+}
+.wt-reschedule-fields .wt-input {
+  background: rgba(15, 11, 32, 0.55);
+  border: 1px solid rgba(139, 127, 214, 0.30);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #f4ecff;
+  font-size: 12.5px;
+  font-family: inherit;
+}
+.wt-reschedule-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 /* ═══ v1.0.113 — Ticket comments ═══ */
 .wt-btn-comments {
   display: inline-flex;
