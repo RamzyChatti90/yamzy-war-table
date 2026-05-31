@@ -3234,49 +3234,50 @@ body { background: #0a0820 !important; }
   gap: 10px;
   pointer-events: auto;
 }
+/* v1.0.129 — Sans cadre : juste la PNG avec drop-shadow + glow active.
+   Pas de border, pas de box-shadow encadre. PNG flotte librement. */
 .wt-pcards-card {
   position: relative;
   width: 78px;
   height: 110px;
   padding: 0;
   background: transparent;
-  border: 2px solid transparent;
-  border-radius: 12px;
+  border: none;
+  border-radius: 0;
   cursor: pointer;
   color: #f4ecff;
   font-family: inherit;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   gap: 4px;
-  padding: 6px;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .55)) brightness(.78);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .50)) brightness(.72) saturate(.85);
   transition:
-    filter .25s ease,
-    border-color .25s ease,
-    transform .25s cubic-bezier(.32, 1.4, .55, 1.05),
-    box-shadow .25s ease;
+    filter .35s ease,
+    transform .35s cubic-bezier(.32, 1.4, .55, 1.05);
 }
 .wt-pcards-card:hover {
-  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .65)) brightness(1);
+  filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--sc-color, #d99a51) 50%, rgba(0,0,0,.5))) brightness(.92) saturate(1);
   transform: translateX(4px) scale(1.04);
-  border-color: var(--sc-color, #d99a51);
 }
 .wt-pcards-card.is-active {
-  filter: drop-shadow(0 12px 28px var(--sc-color, #d99a51)) brightness(1.05);
-  transform: translateX(10px) scale(1.10);
-  border-color: var(--sc-color, #d99a51);
-  box-shadow: 0 0 0 2px rgba(15, 11, 32, .65), 0 0 24px color-mix(in srgb, var(--sc-color, #d99a51) 60%, transparent);
+  /* Triple drop-shadow pour effet halo couleur super-cat sans cadre */
+  filter:
+    drop-shadow(0 0 12px var(--sc-color, #d99a51))
+    drop-shadow(0 0 22px color-mix(in srgb, var(--sc-color, #d99a51) 60%, transparent))
+    drop-shadow(0 6px 16px rgba(0, 0, 0, .55))
+    brightness(1.08)
+    saturate(1.15);
+  transform: translateX(8px) scale(1.10);
   z-index: 2;
 }
 .wt-pcards-img {
   width: 100%;
-  height: 70px;
-  object-fit: cover;
-  object-position: center top;
-  border-radius: 8px;
+  height: 80px;
+  object-fit: contain;
+  object-position: center center;
   display: block;
   pointer-events: none;
 }

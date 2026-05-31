@@ -1,4 +1,5 @@
-// WAR TABLE ⚔ — Splash "Planification Temporelle".
+// Conclave de VESPER 🪶 — Splash "Studio du Magicien Stratège".
+// v1.0.129 : VESPER GLB + nom studio + PNG carte + animations halo magique
 // Pattern : background-image via [style] + probe fetch HEAD silencieux.
 // Image attendue : /assets/splash/war-table.png (sinon gradient cosmique fallback).
 
@@ -7,13 +8,14 @@ import {
   Input, Output, EventEmitter, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { YamzyAvatar3dComponent } from './yamzy-avatar-3d.component';
 
 interface SplashStage { pct: number; label: string; }
 
 @Component({
   selector: 'app-war-table-splash',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, YamzyAvatar3dComponent],
   templateUrl: './war-table-splash.component.html',
   styleUrls: ['./war-table-splash.component.css'],
 })
@@ -29,14 +31,14 @@ export class WarTableSplashComponent implements OnInit, OnDestroy, OnChanges {
   private resolvedPath: string | null = null;
 
   readonly stages: SplashStage[] = [
-    { pct: 0,   label: 'OUVERTURE DU STUDIO' },
-    { pct: 14,  label: 'CONNEXION À LA TABLE' },
-    { pct: 28,  label: 'INVOCATION DES PLANNINGS' },
-    { pct: 45,  label: 'MAPPING DES VALEURS' },
-    { pct: 62,  label: 'ÉVALUATION DES RISQUES' },
+    { pct: 0,   label: 'OUVERTURE DU CONCLAVE' },
+    { pct: 14,  label: 'VESPER S\'ÉVEILLE' },
+    { pct: 28,  label: 'INVOCATION DES CARTES' },
+    { pct: 45,  label: 'MÉLANGE DU TAROT' },
+    { pct: 62,  label: 'LECTURE DES PRÉSAGES' },
     { pct: 78,  label: 'CALIBRAGE DE LA SPHÈRE TEMPORELLE' },
-    { pct: 92,  label: 'PRÉPARATION DES CYCLES' },
-    { pct: 100, label: 'PRÊT — Bienvenue, Stratège' },
+    { pct: 92,  label: 'PRÉPARATION DES RITUELS' },
+    { pct: 100, label: 'PRÊT — Bienvenue, Magicien' },
   ];
 
   readonly particles = Array.from({ length: 24 }, () => ({

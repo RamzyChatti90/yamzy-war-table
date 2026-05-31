@@ -1,3 +1,4 @@
+<!-- v1.0.129 — Splash Conclave de VESPER avec GLB + nom + PNG carte + halo magique -->
 <div class="splash-host"
      [style.background-image]="bgUrl()"
      [class.splash-leaving]="leaving()">
@@ -12,34 +13,52 @@
         [style.animation-delay.s]="p.d"
         [style.animation-duration.s]="p.u">✦</span>
 
-  <!-- Top : brand -->
+  <!-- Top : brand Conclave de VESPER -->
   <div class="splash-top">
     <div class="splash-logo">
-      <span class="splash-logo-emoji">⚔</span>
-      <span class="splash-logo-name">WAR TABLE</span>
+      <span class="splash-logo-emoji">🪶</span>
+      <span class="splash-logo-name">CONCLAVE DE VESPER</span>
     </div>
     <div class="splash-top-meta">
-      <span class="splash-meta-tag">⏳ PLANNING STUDIO</span>
-      <span class="splash-meta-version">v1.0</span>
+      <span class="splash-meta-tag">🎴 STUDIO DU MAGICIEN STRATÈGE</span>
+      <span class="splash-meta-version">v1.0.129</span>
     </div>
+  </div>
+
+  <!-- VESPER 3D avatar centré + halo + carte PNG flottante -->
+  <div class="splash-vesper-stage">
+    <!-- Anneaux magiques animés -->
+    <div class="splash-ring splash-ring-1"></div>
+    <div class="splash-ring splash-ring-2"></div>
+    <div class="splash-ring splash-ring-3"></div>
+
+    <!-- Carte PNG du Magicien en arrière-plan -->
+    <img class="splash-vesper-card-bg"
+         src="assets/cards/30_Wizard.png"
+         alt="Carte du Magicien"
+         loading="eager"/>
+
+    <!-- VESPER GLB 3D au centre -->
+    <div class="splash-vesper-3d">
+      <app-yamzy-avatar-3d
+        glbUrl="/assets/agents/vesper.glb"
+        [rotate]="true"
+        [bob]="true"></app-yamzy-avatar-3d>
+    </div>
+
+    <!-- Nom VESPER en énorme -->
+    <div class="splash-vesper-name">VESPER</div>
+    <div class="splash-vesper-sub">l'ange du purgatoire chante la cadence des rituels</div>
   </div>
 
   <!-- Greeting card -->
   <div class="splash-card">
-    <div class="splash-card-emoji">⚔</div>
+    <div class="splash-card-emoji">🪶</div>
     <div class="splash-card-text">
       <div class="splash-greeting">Bonjour <strong>{{ playerName() }}</strong></div>
-      <div class="splash-sub">La table t'attend, Stratège</div>
+      <div class="splash-sub">Le Conclave t'accueille, Magicien</div>
     </div>
   </div>
-
-  <!-- Title -->
-  <div class="splash-title-wrap">
-    <div class="splash-title-deco-left">━━━</div>
-    <h1 class="splash-title">PLANIFICATION TEMPORELLE</h1>
-    <div class="splash-title-deco-right">━━━</div>
-  </div>
-  <div class="splash-tagline">Sphère armillaire · Cycles · Sablier des Sprints</div>
 
   <!-- Bottom : loading bar -->
   <div class="splash-bottom">
@@ -54,5 +73,5 @@
     <div class="splash-hint">{{ hint() }} · {{ progress() }}%</div>
   </div>
 
-  <div class="splash-disclaimer">Ouverture du studio · ARCHITECT prépare ta table de planification</div>
+  <div class="splash-disclaimer">VESPER prépare ton conclave · Mélange les cartes du tarot stratégique</div>
 </div>

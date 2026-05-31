@@ -199,3 +199,171 @@
   font-size: 9.5px; color: rgba(255,255,255,.35); letter-spacing: 1px;
   max-width: 80vw; text-align: center;
 }
+
+/* ═══════════════════════════════════════════════════════
+   v1.0.129 — Stage VESPER centrale : GLB + halo + carte + nom
+   ═══════════════════════════════════════════════════════ */
+.splash-vesper-stage {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(560px, 80vw);
+  height: min(560px, 80vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Anneaux magiques rotatifs */
+.splash-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  pointer-events: none;
+}
+.splash-ring-1 {
+  width: 380px; height: 380px;
+  transform: translate(-50%, -50%);
+  border-top-color: rgba(217, 154, 81, .55);
+  border-right-color: rgba(217, 154, 81, .25);
+  animation: ring-rotate-cw 12s linear infinite;
+  box-shadow: 0 0 30px rgba(217, 154, 81, .18), inset 0 0 30px rgba(217, 154, 81, .08);
+}
+.splash-ring-2 {
+  width: 320px; height: 320px;
+  transform: translate(-50%, -50%);
+  border-bottom-color: rgba(139, 127, 214, .55);
+  border-left-color: rgba(139, 127, 214, .25);
+  animation: ring-rotate-ccw 9s linear infinite;
+  box-shadow: 0 0 22px rgba(139, 127, 214, .18);
+}
+.splash-ring-3 {
+  width: 460px; height: 460px;
+  transform: translate(-50%, -50%);
+  border-top-color: rgba(232, 197, 71, .35);
+  border-left-color: rgba(232, 197, 71, .15);
+  animation: ring-rotate-cw 18s linear infinite;
+  box-shadow: 0 0 40px rgba(232, 197, 71, .10);
+}
+@keyframes ring-rotate-cw {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes ring-rotate-ccw {
+  from { transform: translate(-50%, -50%) rotate(360deg); }
+  to   { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+/* Carte du Magicien en arrière-plan */
+.splash-vesper-card-bg {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 230px;
+  height: auto;
+  transform: translate(-50%, -52%) rotate(-3deg);
+  opacity: .35;
+  filter:
+    drop-shadow(0 0 24px rgba(217, 154, 81, .55))
+    drop-shadow(0 0 50px rgba(139, 127, 214, .35));
+  animation: card-float 5s ease-in-out infinite;
+  z-index: 1;
+}
+@keyframes card-float {
+  0%,100% { transform: translate(-50%, -52%) rotate(-3deg); }
+  50%     { transform: translate(-50%, -56%) rotate(-2deg); }
+}
+
+/* VESPER 3D au centre */
+.splash-vesper-3d {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  z-index: 3;
+  filter:
+    drop-shadow(0 8px 32px rgba(217, 154, 81, .55))
+    drop-shadow(0 0 40px rgba(139, 127, 214, .35));
+  animation: vesper-entry 1.4s cubic-bezier(.32, 1.4, .55, 1.05) both;
+}
+@keyframes vesper-entry {
+  0%   { opacity: 0; transform: scale(.4) translateY(60px); }
+  60%  { opacity: 1; transform: scale(1.08) translateY(-12px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.splash-vesper-3d ::ng-deep canvas {
+  filter: drop-shadow(0 0 16px rgba(255, 240, 200, .35));
+}
+
+/* Nom VESPER énorme */
+.splash-vesper-name {
+  position: relative;
+  margin-top: 22px;
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg,
+    #ffd982 0%,
+    #d99a51 35%,
+    #f5e3ad 55%,
+    #8b7fd6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow:
+    0 0 30px rgba(217, 154, 81, .60),
+    0 0 60px rgba(139, 127, 214, .35);
+  animation: name-shine 4s ease-in-out infinite, vesper-entry 1.4s cubic-bezier(.32, 1.4, .55, 1.05) both;
+  z-index: 4;
+}
+@keyframes name-shine {
+  0%,100% { filter: brightness(1); }
+  50%     { filter: brightness(1.25); }
+}
+
+.splash-vesper-sub {
+  margin-top: 8px;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(245, 227, 173, .75);
+  text-align: center;
+  max-width: 480px;
+  font-style: italic;
+  text-shadow: 0 0 10px rgba(217, 154, 81, .35);
+  animation: sub-fade-in 2s ease-out 1s both;
+  z-index: 4;
+}
+@keyframes sub-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Repositionner les éléments existants pour laisser place au stage */
+.splash-top {
+  z-index: 5;
+}
+.splash-card {
+  z-index: 5;
+  top: 78% !important;
+}
+.splash-bottom {
+  z-index: 5;
+}
+.splash-disclaimer {
+  z-index: 5;
+}
+
+/* Mobile : réduire le stage */
+@media (max-width: 720px) {
+  .splash-vesper-stage { width: 90vw; height: 90vw; }
+  .splash-vesper-3d { width: 180px; height: 180px; }
+  .splash-vesper-name { font-size: 38px; letter-spacing: 5px; }
+  .splash-ring-1 { width: 240px; height: 240px; }
+  .splash-ring-2 { width: 200px; height: 200px; }
+  .splash-ring-3 { width: 290px; height: 290px; }
+  .splash-vesper-card-bg { width: 150px; }
+}

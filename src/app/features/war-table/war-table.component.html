@@ -202,20 +202,7 @@
         </button>
       </nav>
 
-      <div class="wt-pcards-dots">
-        <button *ngFor="let i of [0,1,2,3,4]; let idx = index"
-                type="button"
-                class="wt-pcards-dot"
-                [class.is-active]="navActive() === idx && !morePanelOpen()"
-                [style.--dot-color]="navSuperCatColor(idx)"
-                (click)="onNavClick(idx)"
-                [title]="navLabels()[idx]"></button>
-        <button type="button"
-                class="wt-pcards-dot wt-pcards-dot-more"
-                [class.is-active]="morePanelOpen()"
-                (click)="morePanelOpen.set(!morePanelOpen())"
-                [title]="'nav.all_pages_short' | t"></button>
-      </div>
+      <!-- v1.0.129 — Dots retires : on garde juste les cartes a glow -->
     </aside>
 
     <!-- ═══ DRAWER : accordéon 42 pages (skin style) ═══ -->
@@ -350,6 +337,7 @@
                     [class.is-today]="isDashboardSkin() && launchableInfo()?.isToday"
                     [class.is-overdue]="isDashboardSkin() && launchableInfo()?.isOverdue"
                     [class.is-clickable]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
+                    [class.is-fullwidth-encours]="!isDashboardSkin()"
                     [class.has-card-color]="activeCardGradient()"
                     [style.--card-c1]="activeCardGradient()?.c1"
                     [style.--card-c2]="activeCardGradient()?.c2"
@@ -498,8 +486,8 @@
               </div>
 
               <!-- v1.0.67 — Mes Plannings IMBRIQUÉ DANS le header (nested) — v1.0.87 : LEFT half 50% -->
-              <!-- v1.0.121 — Revert v1.0.116 : Mes Plannings + Timeline visibles partout (user request "partout"). -->
-              <div class="wt-sk-top wt-sk-top-nested">
+              <!-- v1.0.129 — Affiché UNIQUEMENT sur dashboard. Sur autres pages, En-cours occupe toute la largeur. -->
+              <div class="wt-sk-top wt-sk-top-nested" *ngIf="isDashboardSkin()">
                 <div class="wt-sk-top-head">
                   <div class="wt-sk-top-title">{{ 'dash.my_plannings' | t }}</div>
                   <div class="wt-sk-live-pill">
@@ -3006,11 +2994,5 @@
       <span class="wt-yc-bc-item is-active wt-yc-bc-page">{{ activePageLabel() }}</span>
     </ng-container>
   </div>
-  <!-- Dots indicateur -->
-  <div class="wt-yc-dots">
-    <div *ngFor="let card of yamzyCarouselCards(); let i = index"
-         class="wt-yc-dot"
-         [class.active]="i === yamzyCarouselIndex()"
-         (click)="setYamzyCarouselIndex(i)"></div>
-  </div>
+  <!-- v1.0.129 — Dots retires du footer : on garde seulement le breadcrumb Home > Element -->
 </div>
