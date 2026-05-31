@@ -1326,6 +1326,90 @@
           <ng-container *ngTemplateOutlet="pager; context: { list: velocity() }"></ng-container>
         </section>
 
+        <!-- ── v1.0.106 — COMPTES-RENDUS DE REUNIONS (chantier B) ── -->
+        <section *ngIf="activePage() === 'meeting-reports'" class="wt-generic wt-meeting-reports">
+          <div class="wt-meeting-filters">
+            <input class="wt-input wt-input-grow"
+                   [ngModel]="meetingReportsFilter().search"
+                   (ngModelChange)="setMeetingReportsFilter({ search: $event })"
+                   placeholder="🔍 Recherche dans titres et notes..."/>
+            <select class="wt-input wt-input-small"
+                    [ngModel]="meetingReportsFilter().type"
+                    (ngModelChange)="setMeetingReportsFilter({ type: $event })">
+              <option value="">Tous types</option>
+              <option value="DAILY">Daily</option>
+              <option value="PLANNING">Planning</option>
+              <option value="REVIEW">Review</option>
+              <option value="RETRO">Retro</option>
+              <option value="MEETING">Meeting</option>
+              <option value="CALL">Call</option>
+              <option value="OTHER">Autre</option>
+            </select>
+            <select class="wt-input wt-input-small"
+                    [ngModel]="meetingReportsFilter().sprint"
+                    (ngModelChange)="setMeetingReportsFilter({ sprint: $event })">
+              <option value="">Tous sprints</option>
+              <option *ngFor="let s of meetingReportsSprints()" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+
+          <div *ngIf="!meetingReports().length" class="wt-empty wt-meeting-empty">
+            <h3>📋 Aucun compte-rendu</h3>
+            <p>Termine une reunion via le bouton "⏹ Terminer" pour generer un compte-rendu ici.</p>
+          </div>
+
+          <div class="wt-meeting-grid">
+            <article *ngFor="let r of meetingReports()" class="wt-meeting-card"
+                     [class.is-missed]="r.status === 'MISSED'"
+                     (click)="openMeetingReport(r)">
+              <div class="wt-meeting-card-head" [style.borderLeftColor]="eventTypeColor(r.type)">
+                <div class="wt-meeting-card-type">
+                  {{ eventTypeLabel(r.type) }}
+                  <span *ngIf="r.status === 'MISSED'" class="wt-meeting-badge wt-meeting-badge-missed">⚠ MANQUE</span>
+                  <span *ngIf="r.status === 'COMPLETED'" class="wt-meeting-badge wt-meeting-badge-done">✓ TERMINE</span>
+                </div>
+                <h4 class="wt-meeting-card-title">{{ r.title }}</h4>
+                <div class="wt-meeting-card-when">{{ formatDateTime(r.scheduledStart) }} · {{ formatDuration(r.scheduledStart, r.scheduledEnd) }}</div>
+                <div *ngIf="r.sprintName" class="wt-meeting-card-sprint">📦 {{ r.sprintName }}</div>
+              </div>
+              <div *ngIf="r.notes" class="wt-meeting-card-notes">{{ r.notes }}</div>
+              <div *ngIf="!r.notes" class="wt-meeting-card-empty">Aucune note enregistree</div>
+              <div *ngIf="r.attendees?.length" class="wt-meeting-card-attendees">
+                👥 {{ r.attendees.length }} participant(s)
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ── v1.0.106 — Modal preview compte-rendu (readonly) ── -->
+        <div *ngIf="meetingReportsPreview() as mr" class="wt-modal-backdrop" (click)="closeMeetingReport()">
+          <div class="wt-modal wt-event-detail-modal" (click)="$event.stopPropagation()">
+            <button class="wt-modal-close" (click)="closeMeetingReport()">✕</button>
+            <div class="wt-event-detail-head" [style.borderLeftColor]="eventTypeColor(mr.type)">
+              <div class="wt-event-detail-type">
+                {{ eventTypeLabel(mr.type) }}
+                <span *ngIf="mr.status === 'MISSED'" class="wt-meeting-badge wt-meeting-badge-missed">⚠ MANQUE</span>
+                <span *ngIf="mr.status === 'COMPLETED'" class="wt-meeting-badge wt-meeting-badge-done">✓ TERMINE</span>
+              </div>
+              <h2 class="wt-event-detail-title">{{ mr.title }}</h2>
+              <div class="wt-event-detail-when">{{ formatDateTime(mr.scheduledStart) }} → {{ formatTime(mr.scheduledEnd) }} ({{ formatDuration(mr.scheduledStart, mr.scheduledEnd) }})</div>
+              <div *ngIf="mr.sprintName" class="wt-muted" style="margin-top:6px">📦 Sprint {{ mr.sprintName }}</div>
+            </div>
+            <div *ngIf="mr.description" class="wt-event-detail-desc">{{ mr.description }}</div>
+            <div class="wt-event-detail-notes">
+              <label>📝 Notes / compte-rendu</label>
+              <div class="wt-meeting-notes-readonly">{{ mr.notes || '(Aucune note enregistree)' }}</div>
+            </div>
+            <div *ngIf="mr.attendees?.length" class="wt-event-attendees">
+              <h4 class="wt-sub">👥 Participants ({{ mr.attendees.length }})</h4>
+              <div *ngFor="let a of mr.attendees" class="wt-event-attendee">
+                <span class="wt-event-attendee-name">{{ a.name }}</span>
+                <span class="wt-event-attendee-response" [attr.data-resp]="a.response">{{ a.response || 'PENDING' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- ── DÉPENDANCES ── -->
         <section *ngIf="activePage() === 'dependances'" class="wt-generic">
           <div class="wt-table-wrap"><table class="wt-table">

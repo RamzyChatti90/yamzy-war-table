@@ -65,10 +65,11 @@ export const WAR_TABLE_PAGES: PageDef[] = [
   // Personnel (1)
   { superCat: 'Planning',  cat: 'Personnel',     id: 'overtime',          label: 'Heures Sup',             icon: '⏰', card: '11_Polinization' },
 
-  // ═══ 📊 REPORTING (11) — cartes sagesse / observation ═══
-  // Métriques (2)
+  // ═══ 📊 REPORTING (12) — cartes sagesse / observation ═══
+  // Métriques (3) — v1.0.106 ajoute Comptes-rendus
   { superCat: 'Reporting', cat: 'Métriques',     id: 'burndown',          label: 'Burndown',               icon: '📉', card: '18_WaterDragon' },
   { superCat: 'Reporting', cat: 'Métriques',     id: 'cfd-velocity',      label: 'CFD & Velocity',         icon: '📊', card: '8_LightningWizard' },
+  { superCat: 'Reporting', cat: 'Métriques',     id: 'meeting-reports',   label: 'Comptes-rendus',         icon: '📋', card: '27_Book' },
   // Pilotage (4)
   { superCat: 'Reporting', cat: 'Pilotage',      id: 'roadmap',           label: 'Roadmap',                icon: '🗺', card: '19_OceanTreasure' },
   { superCat: 'Reporting', cat: 'Pilotage',      id: 'dependances',       label: 'Dépendances',            icon: '🔗', card: '12_Mimic' },

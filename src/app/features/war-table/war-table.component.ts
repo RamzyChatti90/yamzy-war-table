@@ -1044,6 +1044,41 @@ export class WarTableComponent implements OnInit {
     const tz = d.getTimezoneOffset() * 60000;
     return new Date(d.getTime() - tz).toISOString().slice(0, 16);
   }
+  // ═══ v1.0.106 — Chantier B : Meeting Reports (comptes-rendus reunions terminees) ═══
+  meetingReportsFilter = signal<{ sprint: string; type: string; search: string }>({ sprint: '', type: '', search: '' });
+  meetingReportsPreview = signal<any | null>(null);
+  /** Liste des events COMPLETED ou MISSED avec notes pour la page Comptes-rendus. */
+  meetingReports = computed(() => {
+    const f = this.meetingReportsFilter();
+    const search = f.search.toLowerCase().trim();
+    return this.events()
+      .filter((e: any) => e.status === 'COMPLETED' || e.status === 'MISSED')
+      .filter((e: any) => !f.type || e.type === f.type)
+      .filter((e: any) => !f.sprint || e.sprintName === f.sprint || String(e.sprintId) === f.sprint)
+      .filter((e: any) => {
+        if (!search) return true;
+        return (
+          (e.title || '').toLowerCase().includes(search) ||
+          (e.notes || '').toLowerCase().includes(search) ||
+          (e.description || '').toLowerCase().includes(search)
+        );
+      })
+      .sort((a: any, b: any) => new Date(b.scheduledStart).getTime() - new Date(a.scheduledStart).getTime());
+  });
+  /** Sprints disponibles pour le filtre. */
+  meetingReportsSprints = computed(() => {
+    const seen = new Set<string>();
+    for (const e of this.events()) {
+      if (e.sprintName) seen.add(e.sprintName);
+    }
+    return Array.from(seen).sort();
+  });
+  setMeetingReportsFilter(patch: Partial<{ sprint: string; type: string; search: string }>): void {
+    this.meetingReportsFilter.update(f => ({ ...f, ...patch }));
+  }
+  openMeetingReport(ev: any): void { this.meetingReportsPreview.set(ev); }
+  closeMeetingReport(): void { this.meetingReportsPreview.set(null); }
+
   eventsGroupedByDay = computed(() => {
     const list = this.events().slice().sort((a, b) => new Date(a.scheduledStart).getTime() - new Date(b.scheduledStart).getTime());
     const groups: Record<string, any[]> = {};
