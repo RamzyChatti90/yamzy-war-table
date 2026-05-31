@@ -4455,18 +4455,18 @@ body { background: #0a0820 !important; }
   border-color: rgba(217, 154, 81, 0.32) !important;
 }
 
-/* v1.0.90 — Wrapper cards en BAS du en-cours, flex row : grande + minis étalées
-   horizontalement comme une main de cartes ouverte. Plus de cluster cramé. */
+/* v1.0.93 — Wrapper cards : valeurs par défaut tunees par utilisateur
+   (override-able via les bindings [style.*.px] depuis les signals). */
 .wt-ps-cards-wrap {
   position: absolute;
-  bottom: 8px;
-  left: 0;
-  right: 0;
+  bottom: 68px;
+  left: 300px;
+  right: 300px;
   height: 160px;
   display: flex;
   flex-direction: row;
   align-items: flex-end;
-  gap: 8px;
+  gap: 40px;
   padding: 0 8px;
   z-index: 3;
   pointer-events: none;
@@ -4490,11 +4490,11 @@ body { background: #0a0820 !important; }
   pointer-events: none;
 }
 
-/* v1.0.90 — Mini cartes : flex children, taille fixe, hover scale up */
+/* v1.0.93 — Mini cartes : taille par défaut tunée user (130x182) */
 .wt-ps-mini-card.wt-ps-mini-float {
   position: relative;
-  width: 78px;
-  height: 110px;
+  width: 130px;
+  height: 182px;
   flex-shrink: 0;
   border-radius: 8px;
   overflow: hidden;
@@ -4554,11 +4554,11 @@ body { background: #0a0820 !important; }
   background: rgba(217, 154, 81, .15);
 }
 
-/* v1.0.90 — Grande carte : devient flex item à droite, taille réduite (header bottom row) */
+/* v1.0.93 — Grande carte : taille par défaut tunée user (162x392) */
 .wt-ps-card-display {
   position: relative;
-  width: 110px;
-  height: 154px;
+  width: 162px;
+  height: 392px;
   flex-shrink: 0;
   margin-left: auto;                     /* la pousse à droite */
   filter: drop-shadow(0 12px 28px rgba(0, 0, 0, .65));

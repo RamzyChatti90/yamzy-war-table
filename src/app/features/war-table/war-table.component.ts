@@ -332,16 +332,16 @@ export class WarTableComponent implements OnInit {
     document.removeEventListener('mouseup', this.onDragEnd);
   };
 
-  // v1.0.91 — Cards-wrap position/size signals (mini cards row + big card)
-  cardsBottom = signal(8);   // px from bottom of en-cours
-  cardsLeft = signal(0);     // px from left
-  cardsRight = signal(0);    // px from right
-  cardsHeight = signal(160); // px height of the row
-  cardsMiniW = signal(78);   // px width of each mini card
-  cardsMiniH = signal(110);  // px height of each mini card
-  cardsBigW = signal(110);   // px width of big card
-  cardsBigH = signal(154);   // px height of big card
-  cardsGap = signal(8);      // px gap between cards
+  // v1.0.93 — Cards-wrap defaults updated from user-tuned values
+  cardsBottom = signal(68);   // px from bottom of en-cours
+  cardsLeft = signal(300);    // px from left
+  cardsRight = signal(300);   // px from right
+  cardsHeight = signal(160);  // px height of the row
+  cardsMiniW = signal(130);   // px width of each mini card
+  cardsMiniH = signal(182);   // px height of each mini card
+  cardsBigW = signal(162);    // px width of big card
+  cardsBigH = signal(392);    // px height of big card
+  cardsGap = signal(40);      // px gap between cards
 
   async copyYamzyPositions(): Promise<void> {
     // v1.0.92 — Copie UNIQUEMENT les coords des cartes (YAMZY/Carousel retires).
@@ -381,16 +381,16 @@ export class WarTableComponent implements OnInit {
     this.ycLeft.set(380);
     this.ycBottom.set(50);
     this.ycWidth.set(360);
-    // v1.0.91 — reset cards
-    this.cardsBottom.set(8);
-    this.cardsLeft.set(0);
-    this.cardsRight.set(0);
+    // v1.0.93 — reset cards (defaults user-tuned)
+    this.cardsBottom.set(68);
+    this.cardsLeft.set(300);
+    this.cardsRight.set(300);
     this.cardsHeight.set(160);
-    this.cardsMiniW.set(78);
-    this.cardsMiniH.set(110);
-    this.cardsBigW.set(110);
-    this.cardsBigH.set(154);
-    this.cardsGap.set(8);
+    this.cardsMiniW.set(130);
+    this.cardsMiniH.set(182);
+    this.cardsBigW.set(162);
+    this.cardsBigH.set(392);
+    this.cardsGap.set(40);
   }
 
   // ═══ YAMZY CAROUSEL v1.0.23 — Carrousel 3D vertical à côté de l'avatar ═══
