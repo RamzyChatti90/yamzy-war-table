@@ -7520,10 +7520,12 @@ body { background: #0a0820 !important; }
    + carte principale dans la cassolette consultation
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Bouton GO flottant en haut a droite du dashboard header (.wt-sk-dash) */
+/* v1.0.139 — Bouton GO en BOTTOM-RIGHT INSIDE le dashboard header (visible
+   tant que le user n'a pas clique GO et qu'un projet est selectionne). Reste
+   visible meme avec scroll car le header reste sticky. */
 .wt-dash-go-btn {
   position: absolute;
-  top: 14px;
+  bottom: 14px;
   right: 14px;
   z-index: 30;
   display: flex;
@@ -7625,32 +7627,323 @@ body { background: #0a0820 !important; }
   min-height: 0;
 }
 
-/* Animation enter/exit de la consultation : dashboard header collapses */
-.wt-main.is-consultation > .wt-sk-dash {
-  animation: dash-collapse .55s cubic-bezier(.4, 0, .2, 1) forwards;
-  transform-origin: top center;
+/* v1.0.139 — Plus de dash-collapse. Le dashboard header RESTE visible
+   en permanence. En mode consultation, son CONTENU INTERNE swap via
+   .wt-visit-overlay qui apparait DANS le header. */
+
+/* Header dashboard sticky : reste visible meme avec scroll de menu/cartes */
+.wt-main > .wt-sk-dash {
+  position: relative;
+  flex: 1;
+  min-height: 0;
 }
-@keyframes dash-collapse {
-  0%   { opacity: 1; transform: translateY(0) scale(1); max-height: 1500px; margin-bottom: 16px; }
-  100% { opacity: 0; transform: translateY(-30px) scale(.96); max-height: 0; margin: 0; padding: 0; overflow: hidden; pointer-events: none; }
+.wt-main > .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap {
+  position: relative;
 }
 
-/* En mode non-consultation, sur non-dashboard : on cache les sections page
-   pour que seul le dashboard header soit visible. C'est le mode "browse" :
-   user voit son planning, ses cards, ses infos. Le calendrier/backlog/etc.
-   n'apparaitra qu'apres click GO. */
-.wt-main.is-non-dashboard:not(.is-consultation) > section:not(.wt-sk-dash):not(.wt-pro-hero) {
+/* Cacher les sections page (calendar, backlog, etc.) tant qu'on n'a pas
+   GO + tab DATA. Elles vont s'overlay dans le header en mode visite tab data. */
+.wt-main > section:not(.wt-sk-dash):not(.wt-pro-hero) {
   display: none !important;
+}
+.wt-main.is-cons-data > section:not(.wt-sk-dash):not(.wt-pro-hero) {
+  display: flex !important;
+  flex-direction: column;
+  /* Position absolute pour overlay sur la zone "content" du visit-overlay
+     dans le dashboard header. Inset calcule pour eviter de chevaucher le
+     visit-cassolette (en haut) et le bouton GO. */
+  position: absolute;
+  top: 180px; /* sous visit-back + visit-cassolette */
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 12;
+  overflow: hidden;
+  background: rgba(15, 11, 32, .45);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--cas-bg, #d99a51) 30%, rgba(217, 154, 81, .18));
+  animation: visit-content-in .35s cubic-bezier(.25, .8, .25, 1) both;
+}
+@keyframes visit-content-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 720px) {
   .wt-dash-go-btn {
-    top: 8px;
+    bottom: 8px;
     right: 8px;
     padding: 10px 14px 8px;
   }
   .wt-dash-go-icon { font-size: 20px; }
   .wt-dash-go-label { font-size: 13px; }
   .wt-dash-go-sub { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   v1.0.139 — VISIT OVERLAY : la cassolette EN PLACE dans le dashboard header
+   Apparait DANS .wt-ps-header quand consultationMode() = true.
+   Cache le default content (en cours / planning / mini cards / big card).
+   Contient : RETOUR btn + cassolette (carte + tag + title + tabs) + content pane.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* En mode consultation : cacher tout le default content INSIDE le header */
+.wt-main.is-consultation .wt-ps-en-cours,
+.wt-main.is-consultation .wt-sk-top.wt-sk-top-nested,
+.wt-main.is-consultation .wt-ps-quad-bl,
+.wt-main.is-consultation .wt-ps-quad-br,
+.wt-main.is-consultation .wt-ps-color-tools,
+.wt-main.is-consultation .wt-ps-color-toast {
+  display: none !important;
+}
+
+/* Visit overlay : absolute, fills the header */
+.wt-visit-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 18px;
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--cas-bg, #d99a51) 14%, rgba(29, 23, 46, .88)) 0%,
+      rgba(29, 23, 46, .88) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  animation: visit-overlay-in .42s cubic-bezier(.25, .8, .25, 1) both;
+}
+@keyframes visit-overlay-in {
+  from { opacity: 0; transform: scale(.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Bouton RETOUR en haut à gauche */
+.wt-visit-back {
+  align-self: flex-start;
+  background: linear-gradient(135deg, rgba(15, 11, 32, .85), rgba(43, 37, 73, .85));
+  border: 1px solid color-mix(in srgb, var(--cas-bg, #d99a51) 35%, rgba(217, 154, 81, .35));
+  color: #f5e3ad;
+  padding: 8px 16px;
+  border-radius: 99px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.wt-visit-back:hover {
+  background: linear-gradient(135deg, var(--cas-bg, #d99a51), rgba(15, 11, 32, .85));
+  color: #fff;
+  transform: translateX(-3px);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--cas-bg, #d99a51) 45%, transparent);
+}
+
+/* Cassolette mini : carte + tag + title + tabs (ligne horizontale) */
+.wt-visit-cassolette {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  background: rgba(15, 11, 32, .50);
+  border: 1px solid color-mix(in srgb, var(--cas-bg, #d99a51) 28%, rgba(217, 154, 81, .15));
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+/* Carte principale (gauche) */
+.wt-visit-maincard {
+  width: 64px;
+  height: 90px;
+  flex-shrink: 0;
+  filter:
+    drop-shadow(0 0 12px var(--card-glow, #d99a51))
+    drop-shadow(0 4px 8px rgba(0, 0, 0, .50));
+  animation: visit-card-pop .42s cubic-bezier(.32, 1.4, .55, 1.05) both;
+}
+@keyframes visit-card-pop {
+  from { opacity: 0; transform: scale(.5) rotate(-8deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0); }
+}
+.wt-visit-maincard img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  clip-path: inset(10% 6% 12% 6% round 5px);
+  transform: scale(1.28);
+  transform-origin: center 45%;
+}
+
+/* Title block (center) */
+.wt-visit-title-block {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wt-visit-tag {
+  display: inline-block;
+  width: fit-content;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);
+}
+.wt-visit-title {
+  margin: 0;
+  font-family: 'Pirata One', serif;
+  font-size: 22px;
+  color: #ffe5b8;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wt-visit-sub {
+  font-size: 11px;
+  color: rgba(245, 227, 173, .65);
+  font-style: italic;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tabs DATA / GUIDE (droite) */
+.wt-visit-tabs {
+  position: relative;
+  display: flex;
+  background: rgba(15, 11, 32, .55);
+  border-radius: 10px;
+  padding: 4px;
+  flex-shrink: 0;
+}
+.wt-visit-tab {
+  background: transparent;
+  border: none;
+  color: rgba(245, 227, 173, .55);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 11.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color .22s ease;
+  position: relative;
+  z-index: 2;
+}
+.wt-visit-tab:hover { color: rgba(255, 229, 184, .85); }
+.wt-visit-tab.is-active { color: #ffe5b8; }
+.wt-visit-tab-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: calc(50% - 4px);
+  background: linear-gradient(135deg, var(--cas-bg, #d99a51), color-mix(in srgb, var(--cas-bg, #d99a51) 60%, #fde047));
+  border-radius: 7px;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--cas-bg, #d99a51) 60%, transparent);
+  transition: transform .3s cubic-bezier(.32, 1.4, .55, 1.05);
+  z-index: 1;
+}
+.wt-visit-tab-indicator.tab-data  { transform: translateX(4px); left: 0; }
+.wt-visit-tab-indicator.tab-guide { transform: translateX(calc(100% + 0px)); left: 0; }
+
+/* Content pane (sous cassolette mini) */
+.wt-visit-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Guide pane : description, IO, tips */
+.wt-visit-guide-pane {
+  height: 100%;
+  overflow-y: auto;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: #ece6ff;
+  animation: visit-guide-in .35s ease-out both;
+}
+@keyframes visit-guide-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.wt-visit-guide-pane h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--cas-bg, rgba(217, 154, 81, .85));
+  font-weight: 800;
+}
+.wt-visit-guide-pane h4 {
+  margin: 0 0 6px;
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: rgba(232, 197, 71, .75);
+}
+.wt-visit-guide-pane p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(236, 230, 255, .88);
+}
+.wt-visit-guide-pane ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: rgba(236, 230, 255, .85);
+}
+.wt-visit-guide-pane li { margin-bottom: 3px; }
+.wt-visit-guide-io {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.wt-visit-guide-cadence {
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--cas-bg, #d99a51) 8%, rgba(232, 197, 71, .10));
+  border: 1px solid color-mix(in srgb, var(--cas-bg, #d99a51) 30%, rgba(232, 197, 71, .25));
+  border-radius: 10px;
+  font-size: 13px;
+  color: #ffe5b8;
+}
+.wt-visit-data-anchor {
+  /* Just an anchor element — la vraie section page apparait via CSS positioning */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: rgba(245, 227, 173, .35);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-style: italic;
+}
+
+@media (max-width: 720px) {
+  .wt-visit-cassolette { flex-direction: column; align-items: stretch; gap: 10px; }
+  .wt-visit-maincard { width: 50px; height: 72px; align-self: center; }
+  .wt-visit-title { font-size: 18px; }
+  .wt-visit-sub { display: none; }
+  .wt-visit-tabs { align-self: center; }
+  .wt-visit-guide-io { grid-template-columns: 1fr; }
 }
 

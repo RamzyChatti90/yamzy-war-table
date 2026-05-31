@@ -274,14 +274,12 @@
           [class.is-cons-guide]="consultationMode() && consultationTab() === 'guide'"
           [class.is-cons-data]="consultationMode() && consultationTab() === 'data'">
 
-      <!-- ═══ v1.0.135 — CASSOLETTE pattern (pages non-dashboard) ═══
-           Petite barre compacte EN HAUT de la page contenant le tag + titre +
-           bouton Guide. Le contenu de la page (calendrier, backlog, etc.)
-           s'affiche directement plein viewport en dessous. Le bouton Guide
-           ouvre le drawer flottant a droite avec la description / tips /
-           inputs-outputs. -->
-      <!-- v1.0.138 — Cassolette visible UNIQUEMENT en mode consultation (apres click GO).
-           Tant qu'on n'a pas clique GO, le gros dashboard header est visible. -->
+      <!-- ═══ v1.0.139 — Cassolette + pane separes RETIRES.
+           Toute la logique cassolette/visit mode est maintenant INSIDE le dashboard
+           header (.wt-ps-header) via .wt-visit-overlay (cf. ligne ~760).
+           Le gros header reste TOUJOURS visible, son contenu interne swap
+           default <-> visit mode via consultationMode(). ═══ -->
+      <ng-container *ngIf="false">
       <div *ngIf="consultationMode() && !isDashboardSkin() && activePageMeta() as pm"
            class="wt-cassolette"
            [class.is-consultation]="consultationMode()"
@@ -380,6 +378,8 @@
           <ul><li *ngFor="let t of pm.tipsScrum">{{ t }}</li></ul>
         </div>
       </div>
+      </ng-container>
+      <!-- ↑ fin du *ngIf="false" qui desactive l'ancienne cassolette/pane externes (v1.0.139) -->
 
       <!-- ═══ v1.0.135 — GUIDE DRAWER (slide-in depuis la droite) ═══
            Contient l'ancien contenu de .wt-pro-hero (tag, title, golden card,
@@ -558,18 +558,7 @@
                 <button class="wt-ps-color-toast-btn" (click)="dismissColorToast()" title="Fermer">✕</button>
               </div>
 
-              <!-- ═══ v1.0.138 — Bouton GO flottant top-right du dashboard header.
-                   Click GO : entre en mode consultation (collapse du big header +
-                   apparition de la cassolette avec carte principale + tabs).
-                   Visible uniquement si projet sélectionné ET pas déjà en consultation. -->
-              <button *ngIf="api.selectedProjectId() && !consultationMode()"
-                      class="wt-dash-go-btn"
-                      (click)="goConsultation()"
-                      title="Entrer en mode consultation — focus sur la page sélectionnée">
-                <span class="wt-dash-go-icon">🚀</span>
-                <span class="wt-dash-go-label">GO</span>
-                <span class="wt-dash-go-sub">{{ activePageLabel() }}</span>
-              </button>
+              <!-- v1.0.138 GO btn deplace dans le header lui-meme (bottom-right INSIDE) -->
 
               <!-- v1.0.87 — Wrapper EN COURS (RIGHT half, 50%) qui contient tag/title/desc/action + cards. -->
               <div class="wt-ps-en-cours">
@@ -753,6 +742,101 @@
                       {{ 'empty.no_planning_in_cat' | t }}
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <!-- ═══ v1.0.139 — GO BUTTON bottom-right INSIDE header (default mode) ═══
+                   Toujours accessible meme avec scroll car position absolute
+                   dans le header qui reste lui-meme sticky. -->
+              <button *ngIf="api.selectedProjectId() && !consultationMode()"
+                      class="wt-dash-go-btn"
+                      (click)="goConsultation()"
+                      title="Mode visite : Guide + Data en cassolette dans le meme header">
+                <span class="wt-dash-go-icon">🚀</span>
+                <span class="wt-dash-go-label">GO</span>
+                <span class="wt-dash-go-sub">{{ activePageLabel() }}</span>
+              </button>
+
+              <!-- ═══ v1.0.139 — VISIT OVERLAY (cassolette IN-PLACE, mode visite) ═══
+                   Apparait DANS le header quand consultationMode() = true.
+                   Contient : bouton retour + cassolette mini (carte + tabs) + content.
+                   Default mode (en cours / planning / mini cards / big card) est
+                   cache par CSS via classe .is-visit-mode sur .wt-ps-header. -->
+              <div *ngIf="consultationMode() && activePageMeta() as pm" class="wt-visit-overlay"
+                   [style.--cas-bg]="pageHeaderInfo().tagColor">
+                <!-- Bouton RETOUR en haut a gauche -->
+                <button class="wt-visit-back"
+                        (click)="toggleConsultation()"
+                        title="Quitter le mode visite (Echap)">
+                  ← RETOUR
+                </button>
+
+                <!-- Cassolette mini : carte + tag + title + tabs -->
+                <div class="wt-visit-cassolette">
+                  <!-- Carte PRINCIPALE conservee -->
+                  <div *ngIf="activePageCard()" class="wt-visit-maincard"
+                       [style.--card-glow]="pageHeaderInfo().tagColor">
+                    <img [src]="'assets/cards/' + activePageCard() + '.png'"
+                         [alt]="activePageLabel()"/>
+                  </div>
+                  <div class="wt-visit-title-block">
+                    <div class="wt-visit-tag" [style.background]="pageHeaderInfo().tagColor">
+                      {{ pageHeaderInfo().tag }}
+                    </div>
+                    <h2 class="wt-visit-title">{{ activePageLabel() }}</h2>
+                    <span class="wt-visit-sub">{{ pm.summary }}</span>
+                  </div>
+                  <!-- Tabs horizontal swipe -->
+                  <div class="wt-visit-tabs">
+                    <button class="wt-visit-tab"
+                            [class.is-active]="consultationTab() === 'data'"
+                            (click)="setConsultationTab('data')">
+                      📊 DATA
+                    </button>
+                    <button class="wt-visit-tab"
+                            [class.is-active]="consultationTab() === 'guide'"
+                            (click)="setConsultationTab('guide')">
+                      📖 GUIDE
+                    </button>
+                    <div class="wt-visit-tab-indicator"
+                         [class.tab-data]="consultationTab() === 'data'"
+                         [class.tab-guide]="consultationTab() === 'guide'"></div>
+                  </div>
+                </div>
+
+                <!-- Content pane : Guide (description / IO / tips) OU placeholder Data
+                     (la vraie page section calendar/backlog/etc. est positionnee
+                     en absolute via CSS pour overlay sur cette zone en tab=data) -->
+                <div class="wt-visit-content"
+                     (touchstart)="onConsTouchStart($event)"
+                     (touchend)="onConsTouchEnd($event)">
+                  <!-- GUIDE pane -->
+                  <div *ngIf="consultationTab() === 'guide'" class="wt-visit-guide-pane">
+                    <div *ngIf="pm.description">
+                      <h3>📜 Description</h3>
+                      <p>{{ pm.description }}</p>
+                    </div>
+                    <div *ngIf="pm.inputs?.length || pm.outputs?.length" class="wt-visit-guide-io">
+                      <div *ngIf="pm.inputs?.length">
+                        <h4>↘ INPUTS</h4>
+                        <ul><li *ngFor="let i of pm.inputs">{{ i }}</li></ul>
+                      </div>
+                      <div *ngIf="pm.outputs?.length">
+                        <h4>↗ OUTPUTS</h4>
+                        <ul><li *ngFor="let o of pm.outputs">{{ o }}</li></ul>
+                      </div>
+                    </div>
+                    <div *ngIf="pm.tipsScrum?.length">
+                      <h3>💡 Pro-tips Scrum.org</h3>
+                      <ul><li *ngFor="let t of pm.tipsScrum">{{ t }}</li></ul>
+                    </div>
+                    <div *ngIf="pm.cadence" class="wt-visit-guide-cadence">
+                      ⏱ <strong>Cadence :</strong> {{ pm.cadence }}
+                    </div>
+                  </div>
+                  <!-- DATA placeholder : la vraie section page (calendar/backlog/...)
+                       est positionnee en absolute via CSS pour overlay ici -->
+                  <div *ngIf="consultationTab() === 'data'" class="wt-visit-data-anchor"></div>
                 </div>
               </div>
             </header>
