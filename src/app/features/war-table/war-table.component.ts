@@ -724,9 +724,17 @@ export class WarTableComponent implements OnInit {
     });
     if (action === 'start') this.startEventNow(ev);
     else if (action === 'snooze') {
+      // v1.0.105 — chantier C : snooze permet la re-pop apres 5 min SI event toujours SCHEDULED.
       const shown = new Set(this.eventNotifShown());
       shown.delete(ev.id);
       this.eventNotifShown.set(shown);
+      setTimeout(() => {
+        // Verifie que l'event est toujours SCHEDULED (sinon il a ete demarre/MISSED/etc.)
+        const fresh = this.events().find(e => e.id === ev.id);
+        if (fresh && fresh.status === 'SCHEDULED') {
+          this.showEventNotification(fresh);
+        }
+      }, 5 * 60 * 1000);
     } else if (action === 'open') this.openEventDetail(ev.id);
   }
 
