@@ -6739,30 +6739,64 @@ body { background: #0a0820 !important; }
    3. Calendar grid auto-fit rows avec minmax(0, 1fr) (plus de min-height:92px)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* 1) Sur non-dashboard avec contenu page ouvert (is-hero-action/is-hero-guide) :
-      le dash header devient COMPACT (max 240px) au lieu de prendre 50% du viewport */
-.wt-main.is-hero-action > .wt-sk-dash,
-.wt-main.is-hero-guide > .wt-sk-dash {
-  flex: 0 0 240px !important;
-  max-height: 240px !important;
-  height: 240px !important;
-  margin-bottom: 12px;
+/* 1) Sur TOUTE page non-dashboard (peu importe preview/content-open) :
+      le dash header devient COMPACT pour laisser la place au calendrier/contenu.
+      v1.0.134 : utilise .is-non-dashboard (toujours vrai hors dashboard, sans
+      dependre de pageContentOpen) car v1.0.133 a retire l'auto-openContent. */
+.wt-main.is-non-dashboard > .wt-sk-dash {
+  flex: 0 0 180px !important;
+  max-height: 180px !important;
+  height: 180px !important;
+  margin-bottom: 10px;
 }
-.wt-main.is-hero-action > .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap,
-.wt-main.is-hero-guide > .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap {
-  padding: 12px 16px !important;
-  max-height: 240px;
+.wt-main.is-non-dashboard > .wt-sk-dash > .wt-ps-header.wt-sk-video-wrap {
+  padding: 10px 14px !important;
+  max-height: 180px;
+  /* Reduire le 3D bg video pour qu'il ne mange pas tout le visuel */
+  background-size: cover;
+  background-position: center top;
 }
 /* Le big card Q4 devient plus petit pour ne pas envahir l'header reduit */
-.wt-main.is-hero-action .wt-sk-dash .wt-ps-quad-br,
-.wt-main.is-hero-guide .wt-sk-dash .wt-ps-quad-br {
-  max-height: 200px;
+.wt-main.is-non-dashboard .wt-sk-dash .wt-ps-quad-br {
+  max-height: 150px;
 }
-/* Cockpit colonne droite : meme reduction */
-.wt-main.is-hero-action .wt-sk-news.wt-sk-news-fullheight,
-.wt-main.is-hero-guide .wt-sk-news.wt-sk-news-fullheight {
-  max-height: 240px;
-  height: 240px;
+.wt-main.is-non-dashboard .wt-sk-dash .wt-ps-quad-br .wt-ps-bigcard {
+  max-height: 150px;
+  width: auto;
+}
+/* Mini cards row dans Q3 : reduire la taille */
+.wt-main.is-non-dashboard .wt-sk-dash .wt-ps-quad-bl {
+  max-height: 150px;
+}
+/* Cockpit colonne droite : compact */
+.wt-main.is-non-dashboard .wt-sk-news.wt-sk-news-fullheight {
+  max-height: 180px;
+  height: 180px;
+  padding: 8px 10px;
+}
+/* En-cours titre plus petit pour s'integrer */
+.wt-main.is-non-dashboard .wt-ps-en-cours .wt-ps-title,
+.wt-main.is-non-dashboard .wt-ps-header.is-fullwidth-encours .wt-ps-en-cours .wt-ps-title {
+  font-size: 22px !important;
+}
+.wt-main.is-non-dashboard .wt-ps-en-cours .wt-page-ps-desc {
+  font-size: 11px !important;
+}
+.wt-main.is-non-dashboard .wt-ps-en-cours .wt-page-ps-tip {
+  display: none; /* Tip cache dans header reduit, deja dans Guide tab */
+}
+
+/* 1bis) Cacher l'arriere-plan 3D table (.wt-sk-video) qui prend trop de
+   place visuelle sur les pages non-dashboard. Le user n'a pas besoin de
+   voir le decor 3D dessus du calendrier. */
+.wt-main.is-non-dashboard .wt-sk-video,
+.wt-main.is-non-dashboard .wt-sk-video-iframe,
+.wt-main.is-non-dashboard .wt-sk-video-wrap > video {
+  display: none !important;
+}
+.wt-main.is-non-dashboard .wt-sk-video-wrap::before,
+.wt-main.is-non-dashboard .wt-sk-video-wrap::after {
+  display: none !important;
 }
 
 /* 2) Toutes les sections de page (calendrier inclus) flex: 1 pour
@@ -6880,8 +6914,10 @@ body { background: #0a0820 !important; }
 }
 
 /* Page content sections (calendar, backlog, etc) : fade + slide quand
-   pageContentOpen passe a true */
-.wt-main.is-hero-action > section {
+   pageContentOpen passe a true. v1.0.134 : aussi sur non-dashboard sans
+   content-open pour qu'on voit l'entree au click menu. */
+.wt-main.is-hero-action > section,
+.wt-main.is-non-dashboard > section:not(.wt-sk-dash) {
   animation: page-entry-content .50s cubic-bezier(.25, .8, .25, 1) both;
 }
 @keyframes page-entry-content {
@@ -6889,32 +6925,7 @@ body { background: #0a0820 !important; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Indicateur "entrer pour ouvrir" subtil quand on est sur preview */
-.wt-main:not(.is-hero-action):not(.is-hero-guide) .wt-pro-hero {
-  position: relative;
-}
-.wt-main:not(.is-hero-action):not(.is-hero-guide) .wt-pro-hero::after {
-  content: "▼ Clique l'hero ou Entrée pour ouvrir";
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: rgba(217, 154, 81, .65);
-  padding: 4px 12px;
-  border: 1px solid rgba(217, 154, 81, .25);
-  border-radius: 99px;
-  background: rgba(15, 11, 32, .55);
-  backdrop-filter: blur(4px);
-  pointer-events: none;
-  animation: hint-pulse 2s ease-in-out infinite;
-  z-index: 5;
-}
-@keyframes hint-pulse {
-  0%, 100% { opacity: .55; }
-  50%      { opacity: 1; }
-}
+/* v1.0.134 — Hint retire : depuis v1.0.134 click/scroll auto-ouvrent
+   le contenu donc plus besoin de prompter l'utilisateur. */
 
 

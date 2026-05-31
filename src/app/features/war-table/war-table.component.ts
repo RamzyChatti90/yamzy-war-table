@@ -550,7 +550,9 @@ export class WarTableComponent implements OnInit {
   }
 
   /** v1.0.38 — Auto-fire l'action de la card center (pas besoin de cliquer).
-   *  Pour les enter-section : navigate à la page sans reset l'index. */
+   *  Pour les enter-section : navigate à la page sans reset l'index.
+   *  v1.0.134 — Auto-openPageContent comme onNavClick pour coherence : scroll
+   *  et click menu donnent le meme resultat avec entry animation. */
   private applyCenterAction(): void {
     if (this.centerActionTimer) {
       clearTimeout(this.centerActionTimer);
@@ -563,6 +565,7 @@ export class WarTableComponent implements OnInit {
     if (card.action.type === 'enter-section') {
       this.studioLevel.set('section');
       this.setPage(card.action.pageId);
+      if (card.action.pageId !== 'dashboard') this.openPageContent();
     }
   }
 
@@ -2207,12 +2210,14 @@ export class WarTableComponent implements OnInit {
     const targetPage = this.superCatDefaults[sc];
     this.setPage(targetPage);
     this.studioLevel.set('section');
-    // v1.0.133 — Coherence avec scroll : NE PAS auto-ouvrir le contenu.
-    // Comme le scroll molette, on laisse le user sur le preview header (hero
-    // + golden card + tabs). Pour ouvrir le contenu, il clique sur le hero
-    // ou appuie Enter. Sur dashboard, pageContentOpen reste a false (le
-    // dashboard EST son propre contenu).
-    this.pageContentOpen.set(false);
+    // v1.0.134 — Sur dashboard, on reste en preview (pas de section
+    // page-specifique a ouvrir). Sinon openPageContent pour que le contenu
+    // de la page soit visible immediatement avec animation d'entree (les
+    // animations CSS .wt-pro-hero / .wt-ps-header / sections gerent la
+    // transition fluide). Coherent avec le scroll molette (cf
+    // applyCenterAction qui openPageContent aussi).
+    if (targetPage === 'dashboard') this.pageContentOpen.set(false);
+    else this.openPageContent();
   }
 
   /** Bouclier de navigation : la page DASHBOARD affiche le layout skin. */

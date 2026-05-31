@@ -266,7 +266,9 @@
           [class.is-preview]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
           [class.is-content-open]="studioLevel() === 'section' && pageContentOpen() && api.selectedProjectId()"
           [class.is-hero-guide]="!isDashboardSkin() && pageContentOpen() && heroTab() === 'guide'"
-          [class.is-hero-action]="!isDashboardSkin() && pageContentOpen() && heroTab() === 'action'">
+          [class.is-hero-action]="!isDashboardSkin() && pageContentOpen() && heroTab() === 'action'"
+          [class.is-non-dashboard]="!isDashboardSkin() && studioLevel() === 'section'"
+          [class.is-dashboard-skin]="isDashboardSkin()">
       <!-- v1.0.48 — Le header universel (PS hero + cockpit + Mes Plannings) est désormais
            fourni par la section .wt-sk-dash plus bas (toujours visible sur toutes les pages).
            Les anciens duplicatas wt-page-ps-header (v1.0.42) et wt-page-cockpit-aside (v1.0.45)
@@ -2664,7 +2666,11 @@
 <app-arcane-scroll [posProjectId]="api.selectedProjectId()"
                   (navigateRequest)="onArcaneNavigate($event)"></app-arcane-scroll>
 
-<!-- ═══ v1.0.92 — YAMZY companion : drag retire (edit mode ne concerne plus l'avatar) ═══ -->
+<!-- ═══ v1.0.92 — YAMZY companion : drag retire (edit mode ne concerne plus l'avatar) ═══
+     v1.0.134 — Visible UNIQUEMENT sur dashboard (page d'accueil du studio). Sur
+     les pages non-dashboard (calendrier, backlog, etc), la sidebar gauche
+     remplit deja le role de nav, et l'avatar + son carousel intercepteraient
+     le scroll prevu pour la navigation entre sous-pages. -->
 <div class="wt-yamzy-fab"
      [class.is-clickable]="true"
      [class.is-open]="yamzyCarouselOpen()"
@@ -2674,7 +2680,7 @@
      [style.height.px]="fabSize()"
      (click)="toggleCarousel()"
      [title]="yamzyCarouselOpen() ? 'Click pour fermer' : 'Click pour ouvrir le menu'"
-     *ngIf="!splashVisible()">
+     *ngIf="!splashVisible() && isDashboardSkin()">
   <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb"
                        [rotate]="false"
                        [bob]="true"
@@ -2935,7 +2941,7 @@
 </div>
 
 <!-- ═══ v1.0.32 — Carrousel : visible SEULEMENT quand yamzyCarouselOpen() ═══ -->
-<div class="wt-yc" *ngIf="!splashVisible() && yamzyCarouselOpen() && yamzyCarouselCards().length"
+<div class="wt-yc" *ngIf="!splashVisible() && yamzyCarouselOpen() && yamzyCarouselCards().length && isDashboardSkin()"
      [class.is-edit]="positionMode()"
      [style.left.px]="ycLeft()"
      [style.bottom.px]="ycBottom()"
@@ -2976,7 +2982,11 @@
 </div>
 
 <!-- ═══ v1.0.37 — Footer carrousel : breadcrumb HOME > Section + dots au centre-bas ═══ -->
-<div class="wt-yc-footer" *ngIf="!splashVisible() && yamzyCarouselOpen() && yamzyCarouselCards().length">
+<!-- v1.0.134 — Footer carousel breadcrumb : visible aussi hors dashboard car
+     contient le HOME > Section > Page que l'utilisateur veut garder. Mais
+     plus de dependance a yamzyCarouselOpen — toujours visible quand on est
+     dans une section, plus discret. -->
+<div class="wt-yc-footer" *ngIf="!splashVisible() && studioLevel() === 'section'">
   <!-- v1.0.73 — Breadcrumb HOME > Super-cat > Page selectionnee -->
   <div class="wt-yc-breadcrumb">
     <button class="wt-yc-bc-item"
