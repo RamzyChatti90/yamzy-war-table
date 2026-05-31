@@ -262,6 +262,13 @@
            cards de Mes Plannings. -->
       <ng-container *ngTemplateOutlet="dashHeaderTpl"></ng-container>
 
+      <!-- v1.0.112 — PAGE HERO PRO Gaming sur TOUTES les pages NON-dashboard
+           lorsque le contenu est ouvert. Apparait au-dessus du contenu specifique
+           de la page (backlog, sprints, calendrier, risks, etc.) avec carte
+           principale + cards reference + sections Scrum.org + quick actions. -->
+      <ng-container *ngIf="!isDashboardSkin() && pageContentOpen() && api.selectedProjectId()"
+                    [ngTemplateOutlet]="pageHeroPro"></ng-container>
+
       <!-- No project yet : empty state visible UNIQUEMENT si zéro projet existe -->
       <div *ngIf="!api.selectedProjectId() && api.projects().length === 0" class="wt-empty">
         <div class="wt-empty-3d">
