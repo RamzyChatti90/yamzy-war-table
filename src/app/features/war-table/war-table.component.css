@@ -2518,6 +2518,76 @@ body { background: #0a0820 !important; }
 }
 .wt-event-btn-start:hover { transform: scale(1.10); }
 
+/* ═══ v1.0.109 — Audit fixes : ticketsForEvent UI cluster ═══ */
+/* Badge "📅" sur ticket Backlog cree pendant une reunion */
+.wt-ticket-source-badge {
+  display: inline-block;
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: rgba(105, 100, 232, 0.30);
+  border: 1px solid rgba(139, 127, 214, 0.45);
+  transition: all .15s;
+  user-select: none;
+}
+.wt-ticket-source-badge:hover {
+  background: rgba(105, 100, 232, 0.55);
+  transform: scale(1.15);
+}
+/* Highlight temporaire du ticket focus (Arcane my-todo click) */
+.wt-row-focused {
+  outline: 2px solid #d99a51;
+  outline-offset: -2px;
+  background: rgba(217, 154, 81, 0.12) !important;
+  animation: wt-focus-pulse 1.2s ease-out 3;
+}
+@keyframes wt-focus-pulse {
+  0%, 100% { box-shadow: inset 0 0 0 0 rgba(217, 154, 81, 0); }
+  50%      { box-shadow: inset 0 0 28px 0 rgba(217, 154, 81, 0.45); }
+}
+/* Section "Tickets discutes pendant cette reunion" dans le detail event modal */
+.wt-event-linked-tickets {
+  margin: 14px 0;
+  padding: 12px;
+  background: rgba(105, 100, 232, 0.10);
+  border-left: 3px solid #6964e8;
+  border-radius: 0 8px 8px 0;
+}
+.wt-event-linked-tickets .wt-sub {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #ffe5b8;
+}
+.wt-event-linked-ticket {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 10px;
+  background: rgba(15, 11, 32, 0.55);
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #f4ecff;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+.wt-event-linked-ticket:hover {
+  background: rgba(105, 100, 232, 0.30);
+  transform: translateX(2px);
+}
+.wt-event-linked-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wt-event-linked-status {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(217, 154, 81, 0.30);
+  color: #ffe5b8;
+}
+
 /* ═══ v1.0.106 — Meeting Reports page (chantier B) ═══ */
 .wt-meeting-reports { padding-bottom: 40px; }
 .wt-meeting-filters {

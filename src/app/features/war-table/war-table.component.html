@@ -808,11 +808,19 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let t of paged(filteredTickets())" [class]="rowClass(t)" [class.wt-row-selected]="isTicketSelected(t)">
+                <tr *ngFor="let t of paged(filteredTickets())" [class]="rowClass(t)"
+                    [class.wt-row-selected]="isTicketSelected(t)"
+                    [class.wt-row-focused]="focusedTicketKey() === t.ticketId">
                   <td class="wt-td-check">
                     <input type="checkbox" [checked]="isTicketSelected(t)" (change)="toggleTicketSelection(t)" (click)="$event.stopPropagation()"/>
                   </td>
-                  <td class="wt-mono" [title]="t.acceptanceCriteria || 'Pas de critères d\'acceptation définis'">{{ t.ticketId }}</td>
+                  <td class="wt-mono" [title]="t.acceptanceCriteria || 'Pas de critères d\'acceptation définis'">
+                    {{ t.ticketId }}
+                    <!-- v1.0.109 — Badge "Discute lors de" si le ticket vient d'une reunion -->
+                    <span *ngIf="t.sourceEventId" class="wt-ticket-source-badge"
+                          [title]="'Cree pendant la reunion event #' + t.sourceEventId + '. Click pour voir.'"
+                          (click)="$event.stopPropagation(); openEventDetail(t.sourceEventId)">📅</span>
+                  </td>
                   <td><input class="wt-cell-input wt-cell-title" [value]="t.title" (change)="saveField(t, 'title', $any($event.target).value)" [title]="t.description || ''"/></td>
                   <td>
                     <select class="wt-cell-sel" (change)="saveField(t, 'type', $any($event.target).value)">
@@ -1407,6 +1415,17 @@
                 <span class="wt-event-attendee-response" [attr.data-resp]="a.response">{{ a.response || 'PENDING' }}</span>
               </div>
             </div>
+            <!-- v1.0.109 — Tickets nes de cette reunion (cluster ticketsForEvent) -->
+            <div *ngIf="linkedTickets(mr.id).length" class="wt-event-linked-tickets">
+              <h4 class="wt-sub">🎫 Tickets discutes pendant cette reunion ({{ linkedTickets(mr.id).length }})</h4>
+              <a *ngFor="let lt of linkedTickets(mr.id)"
+                 class="wt-event-linked-ticket"
+                 (click)="closeMeetingReport(); setPage('backlog'); openPageContent(); ticketFilter = lt.ticketId; focusedTicketKey.set(lt.ticketId)">
+                <span class="wt-mono">{{ lt.ticketId }}</span>
+                <span class="wt-event-linked-title">{{ lt.title }}</span>
+                <span class="wt-event-linked-status">{{ lt.status || lt.state }}</span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -1705,6 +1724,17 @@
               <button class="wt-bulk-btn" (click)="respondToEvent(ev, 'ACCEPTED')">✓ J'accepte</button>
               <button class="wt-bulk-btn wt-bulk-btn-ghost" (click)="respondToEvent(ev, 'TENTATIVE')">? Peut-être</button>
               <button class="wt-bulk-btn wt-bulk-btn-danger" (click)="respondToEvent(ev, 'DECLINED')">✕ Je refuse</button>
+            </div>
+            <!-- v1.0.109 — Tickets nes de cette reunion (cluster ticketsForEvent) -->
+            <div *ngIf="linkedTickets(ev.id).length" class="wt-event-linked-tickets">
+              <h4 class="wt-sub">🎫 Tickets discutes pendant cette reunion ({{ linkedTickets(ev.id).length }})</h4>
+              <a *ngFor="let lt of linkedTickets(ev.id)"
+                 class="wt-event-linked-ticket"
+                 (click)="closeEventDetail(); setPage('backlog'); openPageContent(); ticketFilter = lt.ticketId; focusedTicketKey.set(lt.ticketId)">
+                <span class="wt-mono">{{ lt.ticketId }}</span>
+                <span class="wt-event-linked-title">{{ lt.title }}</span>
+                <span class="wt-event-linked-status">{{ lt.status || lt.state }}</span>
+              </a>
             </div>
             <div class="wt-event-detail-actions">
               <button *ngIf="ev.status === 'SCHEDULED'" class="wt-btn-major" (click)="startEventNow(ev)">▶ Démarrer maintenant</button>

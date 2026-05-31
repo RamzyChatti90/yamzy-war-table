@@ -893,9 +893,32 @@ export class WarTableComponent implements OnInit {
     setTimeout(() => this.refreshEvents(), 400);
   }
 
+  // v1.0.109 — Tickets nes d'un event (cluster ticketsForEvent UI).
+  // Charge a la demande quand l'user ouvre le detail event ou la preview meeting-report.
+  linkedTicketsByEvent = signal<Record<number, any[]>>({});
+  /** Charge les tickets lies a un event et les met en cache. */
+  private fetchLinkedTickets(eventId: number): void {
+    if (!eventId) return;
+    if (this.linkedTicketsByEvent()[eventId]) return; // deja charge
+    this.api.ticketsForEvent(eventId).subscribe({
+      next: (list: any[]) => {
+        this.linkedTicketsByEvent.update(m => ({ ...m, [eventId]: list || [] }));
+      },
+      error: () => {
+        this.linkedTicketsByEvent.update(m => ({ ...m, [eventId]: [] }));
+      }
+    });
+  }
+  /** Helper template : tickets lies a un event id (vide si pas encore charges). */
+  linkedTickets(eventId: number | null | undefined): any[] {
+    if (!eventId) return [];
+    return this.linkedTicketsByEvent()[eventId] || [];
+  }
+
   openEventDetail(id: number): void {
     this.eventDetailId.set(id);
     this.eventLiveNotes = (this.events().find(e => e.id === id) || {}).notes || '';
+    this.fetchLinkedTickets(id); // v1.0.109 — charge les tickets lies
   }
   closeEventDetail(): void { this.eventDetailId.set(null); this.eventLiveNotes = ''; }
   getEventById(id: number | null): any { return id == null ? null : this.events().find(e => e.id === id); }
@@ -1076,7 +1099,10 @@ export class WarTableComponent implements OnInit {
   setMeetingReportsFilter(patch: Partial<{ sprint: string; type: string; search: string }>): void {
     this.meetingReportsFilter.update(f => ({ ...f, ...patch }));
   }
-  openMeetingReport(ev: any): void { this.meetingReportsPreview.set(ev); }
+  openMeetingReport(ev: any): void {
+    this.meetingReportsPreview.set(ev);
+    if (ev?.id) this.fetchLinkedTickets(ev.id); // v1.0.109 — charge les tickets lies
+  }
   closeMeetingReport(): void { this.meetingReportsPreview.set(null); }
 
   /** v1.0.108 — Click sur un scroll auto dans Arcane → navigation vers la source. */
@@ -1093,9 +1119,19 @@ export class WarTableComponent implements OnInit {
     else if (req.page === 'agenda' && req.id) {
       this.openEventDetail(req.id);
     }
-    // Si Backlog + ticketKey : utilise le sprint filter pour mettre en avant.
-    // Note : pas de focus inline implem pour l'instant (TODO future).
+    // v1.0.109 — Si Backlog + ticketKey : pre-filtre le search du Backlog
+    // pour mettre en avant le ticket cible (highlight visuel).
+    else if (req.page === 'backlog' && req.ticketKey) {
+      this.ticketFilter = req.ticketKey;
+      this.focusedTicketKey.set(req.ticketKey); // pour highlight visuel temporaire
+      // Auto-clear le highlight apres 4s
+      setTimeout(() => {
+        if (this.focusedTicketKey() === req.ticketKey) this.focusedTicketKey.set(null);
+      }, 4000);
+    }
   }
+  /** v1.0.109 — Ticket key actuellement focus (highlight temporaire dans Backlog). */
+  focusedTicketKey = signal<string | null>(null);
 
   eventsGroupedByDay = computed(() => {
     const list = this.events().slice().sort((a, b) => new Date(a.scheduledStart).getTime() - new Date(b.scheduledStart).getTime());
