@@ -4459,17 +4459,19 @@ body { background: #0a0820 !important; }
 
 /* v1.0.94 — Quadrant BOTTOM-LEFT (Q3) : rangée des mini cartes */
 .wt-ps-mini-row.wt-ps-quad-bl {
-  grid-column: 1;
+  /* v1.0.97 — Span sur les 2 colonnes du grid pour minis sur toute la largeur bottom,
+     puis padding-right reserve la place pour la grande carte (172px ~ Big W + 10). */
+  grid-column: 1 / -1;
   grid-row: 2;
   display: flex;
   flex-direction: row;
   align-items: flex-end;
-  justify-content: flex-end;     /* v1.0.96 : minis collees a DROITE (vers Q4) */
+  justify-content: flex-end;
   gap: 8px;
   min-width: 0;
   min-height: 0;
   overflow: visible;
-  padding: 0;
+  padding: 0 172px 0 0;          /* reserve 172px a droite pour la grande carte */
   position: relative;
 }
 .wt-ps-mini-row.is-edit {
@@ -4489,13 +4491,16 @@ body { background: #0a0820 !important; }
 
 /* v1.0.94 — Quadrant BOTTOM-RIGHT (Q4) : la GRANDE carte centrée */
 .wt-ps-card-display.wt-ps-quad-br {
-  grid-column: 2;
+  /* v1.0.97 — Big card AU MEME GRID-AREA que minis row (Q3/Q4 fusionnés)
+     mais z-index plus haut pour passer DEVANT, et justify-self:end pour bot-right.
+     Les minis sont juste a sa GAUCHE (grace au padding-right de mini-row). */
+  grid-column: 1 / -1;
   grid-row: 2;
   position: relative;
-  margin: 0;                       /* v1.0.96 : plus de margin auto, vraiment colle */
-  align-self: end;                 /* colle en bas du quadrant */
-  justify-self: end;               /* colle a droite */
-  z-index: 5;
+  margin: 0;
+  align-self: end;
+  justify-self: end;
+  z-index: 10;
 }
 .wt-ps-card-display.is-edit {
   outline: 2px dashed rgba(217, 154, 81, .6);
