@@ -305,10 +305,10 @@
                  v1.0.64 — Header CLIQUABLE : ouvre le contenu de la page
                  (remplace l'ancien hint clavier "Entrée / Click dot"). -->
             <header class="wt-ps-header wt-sk-video-wrap"
-                    [class.is-launchable]="launchableInfo()?.state === 'LAUNCHABLE'"
-                    [class.is-active]="launchableInfo()?.state === 'ACTIVE'"
-                    [class.is-today]="launchableInfo()?.isToday"
-                    [class.is-overdue]="launchableInfo()?.isOverdue"
+                    [class.is-launchable]="isDashboardSkin() && launchableInfo()?.state === 'LAUNCHABLE'"
+                    [class.is-active]="isDashboardSkin() && launchableInfo()?.state === 'ACTIVE'"
+                    [class.is-today]="isDashboardSkin() && launchableInfo()?.isToday"
+                    [class.is-overdue]="isDashboardSkin() && launchableInfo()?.isOverdue"
                     [class.is-clickable]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
                     [class.has-card-color]="activeCardGradient()"
                     [style.--card-c1]="activeCardGradient()?.c1"

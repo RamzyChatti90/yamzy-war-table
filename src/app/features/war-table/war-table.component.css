@@ -2058,19 +2058,10 @@ body { background: #0a0820 !important; }
   pointer-events: none;
 }
 
-/* v1.0.101 — Override ABSOLU des variantes d'etat quand une couleur custom
-   est mappee sur la carte active. Sans !important, les .is-active/.is-today/
-   etc. (definies plus bas) gagnent en specificite et le bleu/jaune/rouge
-   ecrase le gradient custom. */
-.wt-ps-header.has-card-color::before,
-.wt-ps-header.has-card-color::after {
-  background-image: linear-gradient(
-    var(--rotate),
-    var(--card-c1) 0%,
-    var(--card-c2) 43%,
-    var(--card-c3) 100%
-  ) !important;
-}
+/* v1.0.102 — Les classes d'etat (.is-active/.is-launchable/.is-today/.is-overdue)
+   sont desormais appliquees UNIQUEMENT sur le dashboard (cf template :
+   [class.is-active]="isDashboardSkin() && ..."). Sur les autres pages,
+   var(--card-c1/c2/c3) s'applique naturellement sans hack !important. */
 
 @keyframes wt-ps-glow-spin {
   0%   { --rotate: 0deg; }
