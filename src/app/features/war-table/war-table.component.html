@@ -377,10 +377,11 @@
                   </button>
                 </div>
               </ng-template>
+              </div>
+              <!-- ↑ fin de .wt-ps-en-cours (Q2 top-right) -->
 
-              <!-- v1.0.94 — Header divisé en 2x2 quadrants :
-                   TOP-LEFT  = Planning · TOP-RIGHT = En-cours (tag/title/action)
-                   BOT-LEFT  = Mini cards row · BOT-RIGHT = Grande carte -->
+              <!-- v1.0.95 — Q3 et Q4 SORTIS du wrapper .wt-ps-en-cours pour devenir
+                   direct children du grid header (sinon grid-area ne s'applique pas). -->
               <!-- QUADRANT 4 (bottom-right) : GRANDE CARTE -->
               <div *ngIf="activePageCard()" class="wt-ps-card-display wt-ps-quad-br"
                    [class.is-edit]="positionMode()"
@@ -410,9 +411,6 @@
                   <span *ngIf="!item.page.card" class="wt-ps-mini-emoji">{{ item.page.icon }}</span>
                 </div>
               </div>
-
-              </div>
-              <!-- ↑ fin de .wt-ps-en-cours (RIGHT half) -->
 
               <!-- v1.0.67 — Mes Plannings IMBRIQUÉ DANS le header (nested) — v1.0.87 : LEFT half 50% -->
               <div class="wt-sk-top wt-sk-top-nested">
