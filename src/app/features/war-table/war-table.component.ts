@@ -594,12 +594,62 @@ export class WarTableComponent implements OnInit {
     { id: 'tickets',  label: 'Tickets',     icon: '⚡' },
     { id: 'alerts',   label: 'Alertes',     icon: '⚠'  },
   ] as const;
+  // ═══ v1.0.118 — Today timeline (dashboard widget) ═══
+  /** Tick toutes les 60s pour rafraîchir l'heure courante du timeline. */
+  private nowTick = signal(Date.now());
+  todayDateLabel = computed<string>(() => {
+    const _ = this.nowTick();
+    return new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  });
+  /** Heure decimale courante (ex: 14.5 = 14h30) pour positionner le curseur. */
+  todayHourDecimal = computed<number>(() => {
+    const _ = this.nowTick();
+    const now = new Date();
+    return now.getHours() + now.getMinutes() / 60;
+  });
+  /** Events du jour triés par heure, avec hour decimal pre-calcule. */
+  todayTimelineEvents = computed<any[]>(() => {
+    return this.todayEvents()
+      .filter(e => !!e.scheduledStart)
+      .sort((a, b) => new Date(a.scheduledStart).getTime() - new Date(b.scheduledStart).getTime())
+      .map(e => {
+        const d = new Date(e.scheduledStart);
+        return { ...e, _hour: d.getHours() + d.getMinutes() / 60 };
+      });
+  });
+  /** Etape courante : IN_PROGRESS d'abord, sinon prochain SCHEDULED apres maintenant. */
+  currentTimelineStep = computed<any | null>(() => {
+    const list = this.todayTimelineEvents();
+    if (!list.length) return null;
+    const active = list.find(e => e.status === 'IN_PROGRESS');
+    if (active) return active;
+    const now = this.todayHourDecimal();
+    return list.find(e => e._hour >= now - 0.25) || null; // tolerance 15 min
+  });
+
+  /** v1.0.115 — Filtre les events dont scheduledStart === today (jour courant). */
+  todayEvents = computed<any[]>(() => {
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    return (this.events() || []).filter(e => (e.scheduledStart || '').slice(0, 10) === today);
+  });
+  /** v1.0.115 — Prochains events strictement aujourd'hui (futur ou en cours). */
+  todayUpcoming = computed<any[]>(() => {
+    const now = Date.now();
+    return this.todayEvents()
+      .filter(e => {
+        const t = new Date(e.scheduledStart).getTime();
+        return e.status === 'SCHEDULED' && t >= now - 15 * 60 * 1000; // 15 min de tolerance pour les events "en cours"
+      })
+      .sort((a, b) => new Date(a.scheduledStart).getTime() - new Date(b.scheduledStart).getTime());
+  });
+
   cockpitContent = computed<any>(() => {
     const tab = this.cockpitTab();
     if (tab === 'action') {
-      const all = this.events() || [];
-      const active = all.find(e => e.status === 'IN_PROGRESS') || null;
-      const next = (this.upcomingEventsList() || [])[0] || null;
+      // v1.0.115 — Cockpit n'affiche QUE les events du jour
+      const todayList = this.todayEvents();
+      const active = todayList.find(e => e.status === 'IN_PROGRESS') || null;
+      const next = this.todayUpcoming()[0] || null;
       if (active) {
         const startedMs = active.actualStart ? new Date(active.actualStart).getTime() : Date.now();
         const elapsedMin = Math.max(0, Math.round((Date.now() - startedMs) / 60000));
@@ -614,7 +664,8 @@ export class WarTableComponent implements OnInit {
       return { kind: 'idle' };
     }
     if (tab === 'upcoming') {
-      return { kind: 'list', items: (this.upcomingEventsList() || []).slice(0, 4) };
+      // v1.0.115 — Liste reunions = uniquement celles du jour
+      return { kind: 'list', items: this.todayUpcoming().slice(0, 4) };
     }
     if (tab === 'tickets') {
       const d: any = this.dash() || {};
@@ -629,8 +680,8 @@ export class WarTableComponent implements OnInit {
   cockpitMeta = computed<any>(() => {
     const sprint = this.activeSprint();
     const sprintName = sprint?.name || '—';
-    const total = this.events()?.length || 0;
-    const upcoming = this.upcomingEventsList()?.length || 0;
+    const total = this.todayEvents().length; // v1.0.115 — total = events du jour
+    const upcoming = this.todayUpcoming().length; // v1.0.115 — upcoming = today scheduled futurs
     return { sprintName, total, upcoming };
   });
   setCockpitTab(id: 'action' | 'upcoming' | 'tickets' | 'alerts'): void { this.cockpitTab.set(id); }
@@ -2317,6 +2368,12 @@ export class WarTableComponent implements OnInit {
     return p ? p.superCat : null;
   });
 
+  // ═══ v1.0.117 — Tabs Page Hero : Guide (Scrum.org info) vs Action (contenu page) ═══
+  heroTab = signal<'guide' | 'action'>('guide');
+  setHeroTab(t: 'guide' | 'action'): void { this.heroTab.set(t); }
+  /** Quand on switch de page, on revient sur le tab Guide par defaut. */
+  resetHeroTab(): void { this.heroTab.set('guide'); }
+
   // ═══ v1.0.111 — PAGE HERO GAMING ═══
   /** Metadata enrichies de la page active. */
   activePageMeta = computed<PageMeta>(() => getPageMeta(this.activePage()));
@@ -2760,6 +2817,8 @@ export class WarTableComponent implements OnInit {
     setTimeout(() => this.applyCenterAction(), 800);
     // v1.0.47 — Setup keyboard handlers : Escape = back, Enter = open page content
     this.setupKeyboardHandlers();
+    // v1.0.118 — Tick toutes les 60s pour rafraîchir le timeline du jour (current step + cursor)
+    setInterval(() => this.nowTick.set(Date.now()), 60_000);
 
     // Réagit aux navigations venant de /war-table-skin
     // ?section=backlog → navigue ; ?import=1 → ouvre le modal d'import
@@ -2818,6 +2877,8 @@ export class WarTableComponent implements OnInit {
     // le menu carousel (sinon le scroll suivant repartirait d'un mauvais index).
     const idx = this.homeMenuCards.findIndex(c => c.pageId === id);
     if (idx >= 0) this.yamzyCarouselIndex.set(idx);
+    // v1.0.117 — Sur changement de page, retour au tab Guide (info Scrum.org)
+    this.heroTab.set('guide');
     this.loadPageData(id);
   }
 

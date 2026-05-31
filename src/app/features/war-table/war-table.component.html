@@ -246,7 +246,9 @@
     <!-- ═══ MAIN AREA ═══ -->
     <main class="wt-main"
           [class.is-preview]="studioLevel() === 'section' && !pageContentOpen() && api.selectedProjectId()"
-          [class.is-content-open]="studioLevel() === 'section' && pageContentOpen() && api.selectedProjectId()">
+          [class.is-content-open]="studioLevel() === 'section' && pageContentOpen() && api.selectedProjectId()"
+          [class.is-hero-guide]="!isDashboardSkin() && pageContentOpen() && heroTab() === 'guide'"
+          [class.is-hero-action]="!isDashboardSkin() && pageContentOpen() && heroTab() === 'action'">
       <!-- v1.0.48 — Le header universel (PS hero + cockpit + Mes Plannings) est désormais
            fourni par la section .wt-sk-dash plus bas (toujours visible sur toutes les pages).
            Les anciens duplicatas wt-page-ps-header (v1.0.42) et wt-page-cockpit-aside (v1.0.45)
@@ -465,7 +467,8 @@
               </div>
 
               <!-- v1.0.67 — Mes Plannings IMBRIQUÉ DANS le header (nested) — v1.0.87 : LEFT half 50% -->
-              <div class="wt-sk-top wt-sk-top-nested">
+              <!-- v1.0.116 — Affiché UNIQUEMENT sur Dashboard. Sur autres pages : remplacé par le hero pro. -->
+              <div *ngIf="isDashboardSkin()" class="wt-sk-top wt-sk-top-nested">
                 <div class="wt-sk-top-head">
                   <div class="wt-sk-top-title">{{ 'dash.my_plannings' | t }}</div>
                   <div class="wt-sk-live-pill">
@@ -473,6 +476,46 @@
                     <div class="wt-sk-live-lbl">{{ 'common.live' | t }}</div>
                   </div>
                 </div>
+                <!-- v1.0.118 — Today timeline widget (dashboard uniquement) -->
+                <div class="wt-today-timeline">
+                  <div class="wt-today-head">
+                    <span class="wt-today-date">📅 {{ todayDateLabel() }}</span>
+                    <span class="wt-today-now" *ngIf="todayTimelineEvents().length">
+                      {{ todayTimelineEvents().length }} évts · {{ Math.floor(todayHourDecimal()) }}h{{ Math.round((todayHourDecimal() % 1) * 60) | number:'2.0-0' }}
+                    </span>
+                  </div>
+                  <div *ngIf="!todayTimelineEvents().length" class="wt-today-empty">
+                    Aucun événement aujourd'hui. Profite ou planifie 🎯
+                  </div>
+                  <div *ngIf="todayTimelineEvents().length" class="wt-today-bar"
+                       [style.--now]="(todayHourDecimal() / 24 * 100) + '%'">
+                    <!-- Repères horaires -->
+                    <div class="wt-today-hour" *ngFor="let h of [6,9,12,15,18,21]" [style.left.%]="h / 24 * 100">
+                      <span>{{ h }}h</span>
+                    </div>
+                    <!-- Events tickmarks -->
+                    <button *ngFor="let e of todayTimelineEvents()"
+                            class="wt-today-event"
+                            [class.is-current]="currentTimelineStep()?.id === e.id"
+                            [class.is-done]="e.status === 'COMPLETED'"
+                            [class.is-missed]="e.status === 'MISSED'"
+                            [style.left.%]="e._hour / 24 * 100"
+                            [style.background]="eventTypeColor(e.type)"
+                            (click)="$event.stopPropagation(); openEventDetail(e.id)"
+                            [title]="formatTime(e.scheduledStart) + ' — ' + e.title">
+                      <span class="wt-today-event-time">{{ formatTime(e.scheduledStart) }}</span>
+                      <span class="wt-today-event-title">{{ e.title }}</span>
+                    </button>
+                    <!-- Curseur "now" -->
+                    <div class="wt-today-cursor" title="Maintenant"></div>
+                  </div>
+                  <div *ngIf="currentTimelineStep() as cs" class="wt-today-step">
+                    <span class="wt-today-step-lbl">▶ ÉTAPE EN COURS</span>
+                    <span class="wt-today-step-val">{{ cs.title }}</span>
+                    <span class="wt-today-step-time">à {{ formatTime(cs.scheduledStart) }}</span>
+                  </div>
+                </div>
+
                 <div class="wt-sk-top-body">
                   <div class="wt-sk-cats">
                     <div *ngFor="let c of catsSkin(); let i = index"
@@ -803,7 +846,7 @@
               </div>
             </aside>
 
-            <!-- RIGHT COLUMN : header + infos + quick actions + tips -->
+            <!-- RIGHT COLUMN : header + tabs + content (guide ou action) -->
             <div class="wt-pro-hero-right">
               <!-- Header bar : bouton retour + titre + cadence -->
               <div class="wt-pro-hero-head">
@@ -823,8 +866,22 @@
                 </div>
               </div>
 
+              <!-- v1.0.117 — Tabs : Guide (Scrum.org info) vs Action (page content) -->
+              <nav class="wt-pro-tabs">
+                <button class="wt-pro-tab" [class.is-active]="heroTab() === 'guide'"
+                        (click)="setHeroTab('guide')" title="Infos Scrum.org sur cette page">
+                  📖 <span>Guide</span>
+                </button>
+                <button class="wt-pro-tab" [class.is-active]="heroTab() === 'action'"
+                        (click)="setHeroTab('action')" title="Contenu opérationnel de la page">
+                  🎮 <span>Action</span>
+                </button>
+                <span class="wt-pro-tab-spacer"></span>
+                <span class="wt-pro-tab-hint">{{ heroTab() === 'guide' ? 'Comprendre' : 'Agir' }}</span>
+              </nav>
+
               <!-- Description Scrum.org -->
-              <div *ngIf="pm.description" class="wt-pro-hero-section wt-pro-description">
+              <div *ngIf="heroTab() === 'guide' && pm.description" class="wt-pro-hero-section wt-pro-description">
                 <h3>📖 À quoi ça sert</h3>
                 <p>{{ pm.description }}</p>
                 <div *ngIf="pm.scrumRefs?.length" class="wt-pro-refs">
@@ -834,7 +891,7 @@
               </div>
 
               <!-- Pour qui (rôles Scrum) -->
-              <div *ngIf="pm.forRoles?.length" class="wt-pro-hero-section wt-pro-roles">
+              <div *ngIf="heroTab() === 'guide' && pm.forRoles?.length" class="wt-pro-hero-section wt-pro-roles">
                 <h3>👥 Pour quel rôle Scrum</h3>
                 <div class="wt-pro-roles-grid">
                   <div *ngFor="let role of pm.forRoles" class="wt-pro-role-chip"
@@ -848,7 +905,7 @@
               </div>
 
               <!-- Quick actions grid -->
-              <div *ngIf="activeQuickActions().length" class="wt-pro-hero-section wt-pro-actions">
+              <div *ngIf="heroTab() === 'guide' && activeQuickActions().length" class="wt-pro-hero-section wt-pro-actions">
                 <h3>⚡ Actions rapides</h3>
                 <div class="wt-pro-actions-grid">
                   <button *ngFor="let a of activeQuickActions()"
@@ -864,7 +921,7 @@
               </div>
 
               <!-- Inputs / Outputs -->
-              <div *ngIf="pm.inputs?.length || pm.outputs?.length"
+              <div *ngIf="heroTab() === 'guide' && (pm.inputs?.length || pm.outputs?.length)"
                    class="wt-pro-hero-section wt-pro-io">
                 <div class="wt-pro-io-col">
                   <h4>↘ INPUTS</h4>
@@ -878,11 +935,16 @@
               </div>
 
               <!-- Tips Scrum.org -->
-              <div *ngIf="pm.tipsScrum?.length" class="wt-pro-hero-section wt-pro-tips">
+              <div *ngIf="heroTab() === 'guide' && pm.tipsScrum?.length" class="wt-pro-hero-section wt-pro-tips">
                 <h3>💡 Pro-tips Scrum.org</h3>
                 <ul>
                   <li *ngFor="let t of pm.tipsScrum">{{ t }}</li>
                 </ul>
+              </div>
+              <!-- v1.0.117 — Action tab : placeholder pour le contenu de la page (rendu via CSS sibling positioning) -->
+              <div *ngIf="heroTab() === 'action'" class="wt-pro-action-placeholder">
+                <!-- Le contenu de la page sera visuellement "remonté" ici via CSS .wt-main.is-hero-action -->
+                <span class="wt-muted" style="font-size:11px">▼ Contenu opérationnel ▼</span>
               </div>
             </div>
           </section>
