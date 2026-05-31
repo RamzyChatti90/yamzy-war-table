@@ -974,6 +974,8 @@
                   <td class="wt-save-cell">
                     <span *ngIf="savingId() === t.id" class="wt-saving">⟳</span>
                     <span *ngIf="savedId() === t.id" class="wt-saved">✓</span>
+                    <!-- v1.0.113 — Bouton commentaires ticket -->
+                    <button class="wt-btn-comments" (click)="$event.stopPropagation(); openTicketComments(t)" title="Voir / ajouter des commentaires">💬</button>
                     <button *ngIf="editMode()" class="wt-btn-del-row" (click)="delTicket(t)" title="Supprimer">🗑</button>
                   </td>
                 </tr>
@@ -1703,6 +1705,51 @@
         </section>
 
         <!-- Modal détail événement -->
+        <!-- ═══ v1.0.113 — Ticket comments modal ═══ -->
+        <div *ngIf="commentsTicket() as ct" class="wt-modal-backdrop" (click)="closeTicketComments()">
+          <div class="wt-modal wt-comments-modal" (click)="$event.stopPropagation()">
+            <button class="wt-modal-close" (click)="closeTicketComments()">✕</button>
+            <div class="wt-comments-head">
+              <div class="wt-comments-tag">💬 COMMENTAIRES</div>
+              <h2>{{ ct.ticketId }} — {{ ct.title }}</h2>
+              <div class="wt-comments-meta">
+                {{ ct.type }} · {{ ct.status }} · {{ ct.assignee || 'Non assigné' }}
+              </div>
+            </div>
+            <div *ngIf="ct.description" class="wt-comments-desc">{{ ct.description }}</div>
+
+            <div *ngIf="commentsLoading()" class="wt-muted" style="text-align:center; padding:20px">⟳ Chargement...</div>
+
+            <div *ngIf="!commentsLoading()" class="wt-comments-thread">
+              <div *ngIf="!commentsList().length" class="wt-comments-empty">
+                Aucun commentaire. Sois le premier !
+              </div>
+              <div *ngFor="let c of commentsList()" class="wt-comment">
+                <div class="wt-comment-head">
+                  <span class="wt-comment-author">{{ c.author }}</span>
+                  <span class="wt-comment-date">{{ formatDateTime(c.createdAt) }}<span *ngIf="c.editedAt"> · édité</span></span>
+                  <button class="wt-comment-del" (click)="deleteComment(c)" title="Supprimer">🗑</button>
+                </div>
+                <div class="wt-comment-body">{{ c.body }}</div>
+              </div>
+            </div>
+
+            <div class="wt-comment-new">
+              <textarea class="wt-event-notes-area" rows="3"
+                        [(ngModel)]="commentDraft"
+                        (keydown.control.enter)="submitComment()"
+                        placeholder="Ton commentaire... (Ctrl+Enter pour envoyer)"></textarea>
+              <div class="wt-comment-actions">
+                <span class="wt-muted" style="font-size:11px">Ctrl+Enter pour envoyer</span>
+                <button class="wt-btn-major" (click)="submitComment()" [disabled]="!commentDraft.trim()"
+                        style="background:linear-gradient(135deg,#6647bf,#4696b9)">
+                  💬 Publier
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- ═══ v1.0.104 — Wrap-up modal (chantier A) ═══
              Remplace le simple alert apres endEventNow. Permet d'ajouter notes
              + creer tickets discutes pendant la reunion + planifier follow-up

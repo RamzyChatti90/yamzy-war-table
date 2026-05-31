@@ -54,6 +54,16 @@ export interface PosTicket {
   sourceEventId?: number;
 }
 
+// v1.0.113 — Commentaire sur ticket
+export interface PosTicketComment {
+  id?: number;
+  ticketId: number;
+  author: string;
+  body: string;
+  createdAt?: string;
+  editedAt?: string;
+}
+
 export interface PosSprint {
   id: number; number: number; name?: string; goal?: string;
   startDate?: string; endDate?: string; capacityHours?: number;
@@ -289,6 +299,20 @@ export class WarTableApi {
   /** v1.0.103 — Chantier E : tickets crees pendant cet event Scrum. */
   ticketsForEvent(eventId: number): Observable<PosTicket[]> {
     return this.http.get<PosTicket[]>(`${this.base}/calendar-events/${eventId}/tickets`);
+  }
+
+  // ═══ v1.0.113 — Ticket comments ═══
+  ticketComments(ticketId: number): Observable<PosTicketComment[]> {
+    return this.http.get<PosTicketComment[]>(`${this.base}/tickets/${ticketId}/comments`);
+  }
+  addTicketComment(ticketId: number, body: { author: string; body: string }): Observable<PosTicketComment> {
+    return this.http.post<PosTicketComment>(`${this.base}/tickets/${ticketId}/comments`, body);
+  }
+  updateTicketComment(commentId: number, body: { body: string }): Observable<PosTicketComment> {
+    return this.http.put<PosTicketComment>(`${this.base}/comments/${commentId}`, body);
+  }
+  deleteTicketComment(commentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/comments/${commentId}`);
   }
   respondEvent(eventId: number, name: string, response: 'ACCEPTED'|'DECLINED'|'TENTATIVE'|'PENDING'): Observable<any> {
     return this.http.post<any>(`${this.base}/events/${eventId}/respond`, { name, response });

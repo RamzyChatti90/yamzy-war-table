@@ -894,6 +894,51 @@ export class WarTableComponent implements OnInit {
     setTimeout(() => this.refreshEvents(), 400);
   }
 
+  // ═══ v1.0.113 — Ticket comments (fil de discussion) ═══
+  /** Ticket dont on affiche les commentaires (null = panel fermé). */
+  commentsTicket = signal<any | null>(null);
+  commentsList = signal<any[]>([]);
+  commentsLoading = signal(false);
+  commentDraft = '';
+  openTicketComments(t: any): void {
+    this.commentsTicket.set(t);
+    this.refreshComments(t.id);
+  }
+  closeTicketComments(): void {
+    this.commentsTicket.set(null);
+    this.commentsList.set([]);
+    this.commentDraft = '';
+  }
+  private refreshComments(ticketId: number): void {
+    this.commentsLoading.set(true);
+    this.api.ticketComments(ticketId).subscribe({
+      next: list => { this.commentsList.set(list || []); this.commentsLoading.set(false); },
+      error: () => { this.commentsList.set([]); this.commentsLoading.set(false); }
+    });
+  }
+  submitComment(): void {
+    const t = this.commentsTicket();
+    const body = this.commentDraft.trim();
+    if (!t || !body) return;
+    const author = this.user()?.githubLogin || 'Anonymous';
+    this.api.addTicketComment(t.id, { author, body }).subscribe({
+      next: () => {
+        this.commentDraft = '';
+        this.refreshComments(t.id);
+      }
+    });
+  }
+  deleteComment(c: any): void {
+    if (!c?.id) return;
+    if (!confirm('Supprimer ce commentaire ?')) return;
+    this.api.deleteTicketComment(c.id).subscribe({
+      next: () => {
+        const t = this.commentsTicket();
+        if (t) this.refreshComments(t.id);
+      }
+    });
+  }
+
   // v1.0.109 — Tickets nes d'un event (cluster ticketsForEvent UI).
   // Charge a la demande quand l'user ouvre le detail event ou la preview meeting-report.
   linkedTicketsByEvent = signal<Record<number, any[]>>({});
