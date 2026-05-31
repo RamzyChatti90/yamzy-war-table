@@ -378,24 +378,21 @@
                 </div>
               </ng-template>
 
-              <!-- v1.0.85/91 — Cartes Yamzy flottantes (positions + tailles editables en edit mode) -->
-              <div *ngIf="superCatPagesCards().length" class="wt-ps-cards-wrap"
+              <!-- v1.0.94 — Header divisé en 2x2 quadrants :
+                   TOP-LEFT  = Planning · TOP-RIGHT = En-cours (tag/title/action)
+                   BOT-LEFT  = Mini cards row · BOT-RIGHT = Grande carte -->
+              <!-- QUADRANT 4 (bottom-right) : GRANDE CARTE -->
+              <div *ngIf="activePageCard()" class="wt-ps-card-display wt-ps-quad-br"
                    [class.is-edit]="positionMode()"
-                   [style.bottom.px]="cardsBottom()"
-                   [style.left.px]="cardsLeft()"
-                   [style.right.px]="cardsRight()"
-                   [style.height.px]="cardsHeight()"
+                   [style.width.px]="cardsBigW()" [style.height.px]="cardsBigH()">
+                <img [src]="'assets/cards/' + activePageCard() + '.png'"
+                     [alt]="activePageLabel()"
+                     class="wt-ps-card-img"/>
+              </div>
+              <!-- QUADRANT 3 (bottom-left) : MINI CARTES row -->
+              <div *ngIf="superCatFloatingMinis().length" class="wt-ps-mini-row wt-ps-quad-bl"
+                   [class.is-edit]="positionMode()"
                    [style.gap.px]="cardsGap()">
-                <!-- Carte ACTIVE grande (anchor) -->
-                <div *ngIf="activePageCard()" class="wt-ps-card-display"
-                     [style.width.px]="cardsBigW()" [style.height.px]="cardsBigH()">
-                  <img [src]="'assets/cards/' + activePageCard() + '.png'"
-                       [alt]="activePageLabel()"
-                       class="wt-ps-card-img"/>
-                </div>
-                <!-- v1.0.90 — Minis étalées en ligne au BAS via flex row.
-                     Chaque carte a sa rotation + slight Y offset (effet main).
-                     Click = preview seulement, click header pour ouvrir. -->
                 <div *ngFor="let item of superCatFloatingMinis()"
                      class="wt-ps-mini-card wt-ps-mini-float"
                      [style.--ev]="item.color"
