@@ -2369,10 +2369,12 @@ export class WarTableComponent implements OnInit {
   });
 
   // ═══ v1.0.117 — Tabs Page Hero : Guide (Scrum.org info) vs Action (contenu page) ═══
-  heroTab = signal<'guide' | 'action'>('guide');
+  // v1.0.120 — Default 'action' pour que l'user voie le contenu de suite (table, calendrier…).
+  // Le tab 'guide' est disponible mais explicite (decouverte Scrum.org).
+  heroTab = signal<'guide' | 'action'>('action');
   setHeroTab(t: 'guide' | 'action'): void { this.heroTab.set(t); }
-  /** Quand on switch de page, on revient sur le tab Guide par defaut. */
-  resetHeroTab(): void { this.heroTab.set('guide'); }
+  /** Quand on switch de page, on revient au tab par defaut (Action). */
+  resetHeroTab(): void { this.heroTab.set('action'); }
 
   // ═══ v1.0.111 — PAGE HERO GAMING ═══
   /** Metadata enrichies de la page active. */
@@ -2877,8 +2879,8 @@ export class WarTableComponent implements OnInit {
     // le menu carousel (sinon le scroll suivant repartirait d'un mauvais index).
     const idx = this.homeMenuCards.findIndex(c => c.pageId === id);
     if (idx >= 0) this.yamzyCarouselIndex.set(idx);
-    // v1.0.117 — Sur changement de page, retour au tab Guide (info Scrum.org)
-    this.heroTab.set('guide');
+    // v1.0.117/120 — Sur changement de page, retour au tab Action (contenu de la page)
+    this.heroTab.set('action');
     this.loadPageData(id);
   }
 

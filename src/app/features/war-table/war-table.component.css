@@ -3168,10 +3168,12 @@ body { background: #0a0820 !important; }
   border-bottom: 1px dashed rgba(217, 154, 81, .30);
   margin-bottom: 8px;
 }
-/* v1.0.117 — Quand heroTab='guide' : on cache toutes les <section> de page
-   (backlog, sprints, calendrier, etc.) qui sont sibling du hero. Sur dashboard
-   pas d'effet car .is-hero-* est false (isDashboardSkin guard). */
-.wt-main.is-hero-guide > section:not(.wt-sk-dash) {
+/* v1.0.117/120 — Quand heroTab='guide' : on cache TOUS les <section> de page
+   (wt-backlog, wt-sprints, wt-generic, etc.) qui sont siblings de .wt-pro-hero.
+   v1.0.120 HOTFIX : exclure aussi .wt-pro-hero ET .wt-sk-dash (header), sinon
+   le hero pro lui-meme se cachait => pages vides. Sur dashboard pas d'effet
+   car .is-hero-* est false (isDashboardSkin guard). */
+.wt-main.is-hero-guide > section:not(.wt-sk-dash):not(.wt-pro-hero) {
   display: none;
 }
 /* Quand heroTab='action' : on cache les sections guide du hero pour faire de
