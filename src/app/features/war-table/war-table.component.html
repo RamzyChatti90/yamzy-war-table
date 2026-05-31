@@ -376,11 +376,32 @@
               </ng-template>
 
               <!-- v1.0.67 — Avatar Yamzy 3D retiré du header sur demande utilisateur -->
-              <!-- v1.0.81 — Carte Yamzy de la page active affichée à droite (remplace l'avatar) -->
-              <div *ngIf="activePageCard()" class="wt-ps-card-display">
-                <img [src]="'assets/cards/' + activePageCard() + '.png'"
-                     [alt]="activePageLabel()"
-                     class="wt-ps-card-img"/>
+              <!-- v1.0.84 — Stack des cartes Yamzy : carte ACTIVE grande à droite
+                   + mini cartes des AUTRES pages de la super-cat juste à côté.
+                   Click sur mini = ouvre cette page (devient la grande). -->
+              <div *ngIf="superCatPagesCards().length" class="wt-ps-cards-wrap">
+                <!-- Mini cartes des autres pages de la super-cat -->
+                <div class="wt-ps-cards-stack">
+                  <ng-container *ngFor="let item of superCatPagesCards()">
+                    <div *ngIf="!item.isActive"
+                         class="wt-ps-mini-card"
+                         [style.--ev]="item.color"
+                         (click)="setPage(item.page.id); openPageContent()"
+                         [title]="item.page.label + ' — cliquer pour ouvrir'">
+                      <img *ngIf="item.page.card"
+                           [src]="'assets/cards/' + item.page.card + '.png'"
+                           [alt]="item.page.label"
+                           class="wt-ps-mini-img"/>
+                      <span *ngIf="!item.page.card" class="wt-ps-mini-emoji">{{ item.page.icon }}</span>
+                    </div>
+                  </ng-container>
+                </div>
+                <!-- Carte ACTIVE grande -->
+                <div *ngIf="activePageCard()" class="wt-ps-card-display">
+                  <img [src]="'assets/cards/' + activePageCard() + '.png'"
+                       [alt]="activePageLabel()"
+                       class="wt-ps-card-img"/>
+                </div>
               </div>
 
               <!-- v1.0.67 — Mes Plannings IMBRIQUÉ DANS le header (nested) -->
