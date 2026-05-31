@@ -2936,6 +2936,283 @@ body { background: #0a0820 !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   v1.0.125 — Swap En-cours / Mes Plannings : En-cours first (Q1), Plannings (Q2)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.wt-ps-header .wt-ps-en-cours {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+}
+.wt-ps-header .wt-sk-top-nested {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+}
+/* En fullwidth mode (non-dashboard) : en-cours s'etale 1/-1, planning hidden */
+.wt-ps-header.is-fullwidth-encours .wt-ps-en-cours {
+  grid-column: 1 / -1 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   v1.0.125 — Profile + Settings PAGE-STYLE modals (fullscreen overlay)
+   Design propre, organise, sections en grid, accessible depuis avatar/gear.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.wt-profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+  z-index: 99800;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+  overflow-y: auto;
+  animation: wt-profile-fade .25s ease-out;
+}
+@keyframes wt-profile-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.wt-profile-page {
+  position: relative;
+  width: 100%;
+  max-width: 980px;
+  background: linear-gradient(135deg, rgba(15, 11, 32, 0.97), rgba(43, 37, 73, 0.95));
+  border: 1.5px solid rgba(217, 154, 81, 0.45);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(217, 154, 81, 0.10);
+  color: #f4ecff;
+  animation: wt-profile-pop .35s cubic-bezier(.32, 1.4, .55, 1.05);
+}
+@keyframes wt-profile-pop {
+  from { opacity: 0; transform: scale(.94) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.wt-profile-close {
+  position: absolute;
+  top: 18px; right: 18px;
+  width: 36px; height: 36px;
+  border: none;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all .18s;
+}
+.wt-profile-close:hover {
+  background: rgba(222, 79, 95, 0.65);
+  transform: scale(1.08) rotate(90deg);
+}
+
+/* Hero header */
+.wt-profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(139, 127, 214, 0.25);
+}
+.wt-profile-avatar {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #d99a51, #c25d8d);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 36px;
+  font-weight: 900;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(217, 154, 81, 0.45), 0 0 0 4px rgba(15, 11, 32, 0.85), 0 0 0 5px rgba(217, 154, 81, 0.40);
+}
+.wt-profile-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wt-profile-hero-info { flex: 1; min-width: 0; }
+.wt-profile-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, #d99a51, #c25d8d);
+  color: #fff;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.wt-profile-hero-info h1 {
+  font-size: 30px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  color: #fff;
+}
+.wt-profile-handle {
+  font-size: 13px;
+  font-family: 'Courier New', monospace;
+  color: rgba(200, 188, 230, 0.80);
+}
+.wt-profile-fantasy {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  padding: 3px 10px;
+  background: rgba(139, 127, 214, 0.25);
+  border: 1px solid rgba(139, 127, 214, 0.50);
+  border-radius: 999px;
+  margin-top: 6px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* Grid cards */
+.wt-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.wt-profile-card {
+  background: rgba(15, 11, 32, 0.55);
+  border: 1px solid rgba(139, 127, 214, 0.30);
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: border-color .2s ease, transform .2s ease;
+}
+.wt-profile-card:hover {
+  border-color: rgba(217, 154, 81, 0.55);
+  transform: translateY(-2px);
+}
+.wt-profile-card h3 {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0 0 14px;
+  color: #ffe5b8;
+  letter-spacing: 0.04em;
+}
+.wt-profile-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed rgba(139, 127, 214, 0.18);
+  font-size: 12px;
+}
+.wt-profile-row:last-child { border-bottom: none; }
+.wt-profile-row-lbl {
+  color: rgba(200, 188, 230, 0.75);
+  font-weight: 700;
+}
+.wt-profile-row code {
+  background: rgba(0, 0, 0, 0.40);
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-family: 'Courier New', monospace;
+  color: #ffe5b8;
+  font-size: 11px;
+}
+.wt-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.wt-profile-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 8px;
+  background: rgba(43, 37, 73, 0.55);
+  border-radius: 10px;
+  border: 1px solid rgba(139, 127, 214, 0.20);
+}
+.wt-profile-stat-v {
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffe5b8;
+  line-height: 1;
+}
+.wt-profile-stat-l {
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(200, 188, 230, 0.75);
+  margin-top: 4px;
+  font-weight: 700;
+}
+.wt-profile-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  background: rgba(43, 37, 73, 0.45);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f4ecff;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .15s ease;
+  border: 1px solid transparent;
+}
+.wt-profile-action span { font-size: 16px; flex-shrink: 0; }
+.wt-profile-action:hover {
+  background: rgba(217, 154, 81, 0.25);
+  border-color: rgba(217, 154, 81, 0.50);
+  transform: translateX(3px);
+}
+.wt-profile-action-danger:hover {
+  background: rgba(222, 79, 95, 0.30);
+  border-color: rgba(222, 79, 95, 0.65);
+  color: #fca5a5;
+}
+.wt-profile-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(43, 37, 73, 0.45);
+  border: 1.5px solid rgba(139, 127, 214, 0.30);
+  border-radius: 999px;
+  cursor: pointer;
+  color: #f4ecff;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  transition: all .18s ease;
+}
+.wt-profile-pill:hover {
+  background: rgba(217, 154, 81, 0.30);
+  border-color: rgba(217, 154, 81, 0.65);
+}
+.wt-profile-pill.is-active {
+  background: linear-gradient(135deg, #d99a51, #c25d8d);
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(217, 154, 81, 0.40);
+}
+
+/* Settings gear button in rsidebar */
+.wt-skin-settings-btn {
+  width: 28px;
+  height: 28px;
+  background: rgba(15, 11, 32, 0.55);
+  border: 1px solid rgba(139, 127, 214, 0.30);
+  color: #d4cbe9;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 6px auto 10px;
+  transition: all .15s ease;
+}
+.wt-skin-settings-btn:hover {
+  background: rgba(157, 138, 214, 0.40);
+  transform: rotate(90deg);
+  border-color: rgba(157, 138, 214, 0.85);
+}
+.wt-skin-avatar-wrap.is-clickable { cursor: pointer; }
+.wt-skin-avatar-wrap.is-clickable:hover { transform: scale(1.05); transition: transform .18s; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
    v1.0.124 — VESPER's CONCLAVE 3D NAV
    Replace ancient .wt-sk-nav par cartes 3D verticales avec dots latéraux.
    Style : simple, élégant, perspective + slide UX.

@@ -2369,6 +2369,16 @@ export class WarTableComponent implements OnInit {
     return p ? p.superCat : null;
   });
 
+  // ═══ v1.0.125 — Profile + Settings pages (modals page-style) ═══
+  profilePageOpen = signal(false);
+  settingsPageOpen = signal(false);
+  /** Logout : clear JWT + redirect /login. */
+  logoutUser(): void {
+    if (!confirm('Se déconnecter du studio ?')) return;
+    this.auth.clearSession();
+    this.router.navigate(['/login']);
+  }
+
   // ═══ v1.0.117 — Tabs Page Hero : Guide (Scrum.org info) vs Action (contenu page) ═══
   // v1.0.120 — Default 'action' pour que l'user voie le contenu de suite (table, calendrier…).
   // Le tab 'guide' est disponible mais explicite (decouverte Scrum.org).

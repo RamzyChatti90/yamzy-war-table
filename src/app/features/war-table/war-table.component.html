@@ -56,8 +56,15 @@
     <div class="wt-topbar-right">
       <!-- Language switcher FR / EN -->
       <app-lang-switcher></app-lang-switcher>
-      <!-- v1.0.123 — User menu (avatar dropdown profile/settings/logout) -->
-      <app-user-menu></app-user-menu>
+      <!-- v1.0.123 — Removed : User menu duplicate. Avatar profile/settings/logout
+           sont desormais accessibles via la sidebar droite (.wt-skin-rsidebar). -->
+      <!-- <app-user-menu></app-user-menu> -->
+      <!-- v1.0.125 — Bouton logout direct + lien profil via rsidebar -->
+      <button class="wt-skin-icon-btn" (click)="logoutUser()" title="Se déconnecter">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+          <path fill-rule="evenodd" d="M3 4a2 2 0 012-2h6a2 2 0 012 2v3a1 1 0 11-2 0V4H5v12h6v-3a1 1 0 112 0v3a2 2 0 01-2 2H5a2 2 0 01-2-2V4zm12.293 4.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 13H7a1 1 0 110-2h9.586l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+        </svg>
+      </button>
       <!-- Bell : rappels & alertes (v1.0.10 — étendue depuis simple risks) -->
       <button class="wt-skin-icon-btn wt-reminders-bell"
               *ngIf="api.selectedProjectId()"
@@ -2488,16 +2495,24 @@
   </div><!-- /wt-shell-main : colonne topbar+body -->
 
   <!-- ═══ SIDEBAR RIGHT (SKIN) — avatar + KPIs + équipe — TRAVERSE TOUT (full height) ═══ -->
+  <!-- v1.0.125 — Avatar clickable -> ouvre profil ; bouton ⚙ -> ouvre settings -->
   <aside class="wt-skin-rsidebar">
-    <!-- Avatar utilisateur avec anneau conique -->
-    <div class="wt-skin-avatar-wrap" [title]="userTooltip()">
+    <!-- Avatar utilisateur avec anneau conique (click ouvre profile) -->
+    <div class="wt-skin-avatar-wrap is-clickable" [title]="userTooltip() + ' — Click pour ton profil'"
+         (click)="profilePageOpen.set(true)">
       <div class="wt-skin-avatar-ring"></div>
       <div class="wt-skin-avatar-inner">
         <img *ngIf="user()?.avatarUrl as src; else fallbackAv" [src]="src" alt="me" class="wt-skin-avatar-img" />
         <ng-template #fallbackAv><div class="wt-skin-avatar-fb"></div></ng-template>
       </div>
     </div>
-    <div class="wt-skin-username">{{ user()?.githubLogin || ('common.guest' | t) }}</div>
+    <div class="wt-skin-username" (click)="profilePageOpen.set(true)" style="cursor:pointer">{{ user()?.githubLogin || ('common.guest' | t) }}</div>
+    <!-- v1.0.125 — Settings gear button -->
+    <button class="wt-skin-settings-btn" (click)="settingsPageOpen.set(true)" title="Paramètres">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+      </svg>
+    </button>
 
     <!-- KPI tiles V / T / C / L -->
     <button *ngFor="let s of kpiTiles(); let i = index"
@@ -2675,6 +2690,204 @@
                        [rotate]="false"
                        [bob]="true"
                        [playGlbAnim]="true"></app-yamzy-avatar-3d>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     v1.0.125 — PROFILE PAGE (modal fullscreen-style)
+     Click avatar dans rsidebar -> profilePageOpen.set(true)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div *ngIf="profilePageOpen()" class="wt-profile-overlay" (click)="profilePageOpen.set(false)">
+  <div class="wt-profile-page" (click)="$event.stopPropagation()">
+    <button class="wt-profile-close" (click)="profilePageOpen.set(false)">✕</button>
+
+    <!-- Hero header avec avatar + nom -->
+    <header class="wt-profile-hero">
+      <div class="wt-profile-avatar">
+        <img *ngIf="user()?.avatarUrl as src" [src]="src" alt="me"/>
+        <span *ngIf="!user()?.avatarUrl">{{ (user()?.githubLogin || '?').substring(0,2).toUpperCase() }}</span>
+      </div>
+      <div class="wt-profile-hero-info">
+        <div class="wt-profile-tag">PROFIL · ARCHITECT</div>
+        <h1>{{ user()?.name || user()?.githubLogin || 'Anonymous' }}</h1>
+        <div class="wt-profile-handle">{{ '@' + (user()?.githubLogin || 'guest') }}</div>
+        <div *ngIf="user()?.fantasyTitle" class="wt-profile-fantasy">{{ user()?.fantasyTitle }}</div>
+      </div>
+    </header>
+
+    <!-- Sections en grid -->
+    <section class="wt-profile-grid">
+      <!-- Card : Identité -->
+      <div class="wt-profile-card">
+        <h3>👤 Identité</h3>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">GitHub Login</span>
+          <code>{{ user()?.githubLogin }}</code>
+        </div>
+        <div class="wt-profile-row" *ngIf="user()?.email">
+          <span class="wt-profile-row-lbl">Email</span>
+          <code>{{ user()?.email }}</code>
+        </div>
+        <div class="wt-profile-row" *ngIf="user()?.id">
+          <span class="wt-profile-row-lbl">User ID</span>
+          <code>{{ user()?.id }}</code>
+        </div>
+        <div class="wt-profile-row" *ngIf="user()?.currentRole">
+          <span class="wt-profile-row-lbl">Rôle Scrum</span>
+          <code>{{ user()?.currentRole }}</code>
+        </div>
+      </div>
+
+      <!-- Card : Statistiques projet -->
+      <div class="wt-profile-card">
+        <h3>📊 Mes Stats Projet</h3>
+        <div class="wt-profile-stats">
+          <div class="wt-profile-stat">
+            <span class="wt-profile-stat-v">{{ api.projects().length }}</span>
+            <span class="wt-profile-stat-l">Projets</span>
+          </div>
+          <div class="wt-profile-stat">
+            <span class="wt-profile-stat-v">{{ dash()?.totalTickets || 0 }}</span>
+            <span class="wt-profile-stat-l">Tickets</span>
+          </div>
+          <div class="wt-profile-stat">
+            <span class="wt-profile-stat-v">{{ dash()?.progressPercent || 0 }}%</span>
+            <span class="wt-profile-stat-l">Complétion</span>
+          </div>
+          <div class="wt-profile-stat">
+            <span class="wt-profile-stat-v">{{ todayTimelineEvents().length }}</span>
+            <span class="wt-profile-stat-l">Événements</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card : Actions rapides -->
+      <div class="wt-profile-card">
+        <h3>⚡ Actions rapides</h3>
+        <a class="wt-profile-action" href="https://github.com/{{ user()?.githubLogin }}" target="_blank" rel="noopener">
+          <span>🔗</span> Voir sur GitHub
+        </a>
+        <a class="wt-profile-action" (click)="profilePageOpen.set(false); settingsPageOpen.set(true)">
+          <span>⚙</span> Paramètres du studio
+        </a>
+        <a class="wt-profile-action" href="https://github.com/RamzyChatti90/yamzy-war-table" target="_blank" rel="noopener">
+          <span>📜</span> Documentation
+        </a>
+        <a class="wt-profile-action wt-profile-action-danger" (click)="profilePageOpen.set(false); logoutUser()">
+          <span>🚪</span> Se déconnecter
+        </a>
+      </div>
+
+      <!-- Card : Bienvenue Yamzy -->
+      <div class="wt-profile-card">
+        <h3>🪶 Vesper t'accueille</h3>
+        <p style="font-size:13px;color:rgba(244,236,255,.85);line-height:1.6;margin:0">
+          Bienvenue dans la <strong style="color:#ffe5b8">Conclave</strong> de VESPER,
+          l'ange du purgatoire qui chante la cadence de tes sprints.
+          Tes plannings se déposent sur sa table comme des partitions.
+        </p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     v1.0.125 — SETTINGS PAGE (modal fullscreen-style)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div *ngIf="settingsPageOpen()" class="wt-profile-overlay" (click)="settingsPageOpen.set(false)">
+  <div class="wt-profile-page" (click)="$event.stopPropagation()">
+    <button class="wt-profile-close" (click)="settingsPageOpen.set(false)">✕</button>
+
+    <header class="wt-profile-hero">
+      <div class="wt-profile-avatar" style="background:linear-gradient(135deg,#9d8ad6,#6647bf)">
+        <span style="font-size:32px">⚙</span>
+      </div>
+      <div class="wt-profile-hero-info">
+        <div class="wt-profile-tag" style="background:linear-gradient(135deg,#9d8ad6,#6647bf)">PARAMÈTRES</div>
+        <h1>Paramètres du studio</h1>
+        <div class="wt-profile-handle">Préférences · Personnalisation · Raccourcis</div>
+      </div>
+    </header>
+
+    <section class="wt-profile-grid">
+      <!-- Card : Langue -->
+      <div class="wt-profile-card">
+        <h3>🌐 Langue de l'interface</h3>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button class="wt-profile-pill" [class.is-active]="i18n.lang() === 'fr'" (click)="i18n.setLang('fr')">🇫🇷 Français</button>
+          <button class="wt-profile-pill" [class.is-active]="i18n.lang() === 'en'" (click)="i18n.setLang('en')">🇬🇧 English</button>
+        </div>
+      </div>
+
+      <!-- Card : Mode édition -->
+      <div class="wt-profile-card">
+        <h3>🔓 Mode édition</h3>
+        <p style="font-size:12px;color:rgba(244,236,255,.75);margin:0 0 8px">
+          Affiche les boutons CRUD (ajouter / éditer / supprimer) partout dans le studio.
+        </p>
+        <button class="wt-profile-pill" [class.is-active]="editMode()" (click)="toggleEditMode()">
+          {{ editMode() ? '🔓 Mode édition activé' : '🔒 Mode édition désactivé' }}
+        </button>
+      </div>
+
+      <!-- Card : Raccourcis clavier -->
+      <div class="wt-profile-card">
+        <h3>⌨ Raccourcis clavier</h3>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">Wheel Menu</span>
+          <code>Ctrl + Win</code>
+        </div>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">Arcane Scrolls</span>
+          <code>Ctrl + Space</code>
+        </div>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">Échap</span>
+          <code>Ferme modal / retour preview</code>
+        </div>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">Entrée</span>
+          <code>Ouvre contenu page</code>
+        </div>
+      </div>
+
+      <!-- Card : Persistance -->
+      <div class="wt-profile-card">
+        <h3>💾 Persistance & Export</h3>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">JWT</span>
+          <code>localStorage.yamzy_jwt</code>
+        </div>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">Excel auto-export</span>
+          <code>~/.yamzy/exports/ · 1.5s debounce</code>
+        </div>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">Card colors</span>
+          <code>localStorage.wt_card_colors</code>
+        </div>
+      </div>
+
+      <!-- Card : Version & Info -->
+      <div class="wt-profile-card">
+        <h3>📦 Version du studio</h3>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">Version actuelle</span>
+          <code>v1.0.125</code>
+        </div>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">Avatar mascotte</span>
+          <code>VESPER (Vesper's Conclave)</code>
+        </div>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">Backend</span>
+          <code>localhost:8090</code>
+        </div>
+        <a class="wt-profile-action" href="https://github.com/RamzyChatti90/yamzy-war-table" target="_blank" rel="noopener" style="margin-top:10px">
+          <span>📜</span> CHANGELOG & Docs
+        </a>
+      </div>
+    </section>
+  </div>
 </div>
 
 <!-- v1.0.25 : Bouton toggle mode position (toujours visible bottom-right) -->
