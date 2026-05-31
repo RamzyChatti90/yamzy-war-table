@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="ya3d-wrap">
       <canvas #canvas></canvas>
-      <div *ngIf="loadFailed" class="ya3d-fallback">⚔</div>
+      <div *ngIf="loadFailed" class="ya3d-fallback">🪶</div>
     </div>
   `,
   styles: [`
@@ -34,9 +34,14 @@ import { CommonModule } from '@angular/common';
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 72px;
-      color: #b6e08a;
-      filter: drop-shadow(0 4px 16px rgba(112, 185, 68, .65));
+      font-size: 96px;
+      color: #f5e3ad;
+      filter: drop-shadow(0 4px 16px rgba(217, 154, 81, .65));
+      animation: ya3d-fallback-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes ya3d-fallback-pulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.08); }
     }
   `]
 })

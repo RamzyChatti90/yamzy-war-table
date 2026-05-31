@@ -258,30 +258,15 @@
   to   { transform: translate(-50%, -50%) rotate(0deg); }
 }
 
-/* Carte du Magicien en arrière-plan */
-.splash-vesper-card-bg {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 230px;
-  height: auto;
-  transform: translate(-50%, -52%) rotate(-3deg);
-  opacity: .35;
-  filter:
-    drop-shadow(0 0 24px rgba(217, 154, 81, .55))
-    drop-shadow(0 0 50px rgba(139, 127, 214, .35));
-  animation: card-float 5s ease-in-out infinite;
-  z-index: 1;
-}
-@keyframes card-float {
-  0%,100% { transform: translate(-50%, -52%) rotate(-3deg); }
-  50%     { transform: translate(-50%, -56%) rotate(-2deg); }
-}
+/* v1.0.136 — Carte BG retiree (etait visible derriere canvas transparent quand
+   GLB ne se chargeait pas, donnait l'illusion qu'on voyait une carte plutot
+   que l'avatar). */
 
-/* VESPER 3D au centre */
+/* VESPER 3D au centre — agrandi a 350px pour bien voir l'avatar */
 .splash-vesper-3d {
   position: relative;
-  width: 280px;
-  height: 280px;
+  width: 350px;
+  height: 350px;
   z-index: 3;
   filter:
     drop-shadow(0 8px 32px rgba(217, 154, 81, .55))

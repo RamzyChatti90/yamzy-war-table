@@ -25,20 +25,17 @@
     </div>
   </div>
 
-  <!-- VESPER 3D avatar centré + halo + carte PNG flottante -->
+  <!-- VESPER 3D avatar centré + anneaux magiques + nom
+       v1.0.136 — Retire la carte PNG qui s'affichait derriere un canvas
+       transparent quand le GLB ne se chargait pas. Maintenant juste l'avatar
+       3D nu, avec fallback emoji 🪶 si le GLB echoue. -->
   <div class="splash-vesper-stage">
     <!-- Anneaux magiques animés -->
     <div class="splash-ring splash-ring-1"></div>
     <div class="splash-ring splash-ring-2"></div>
     <div class="splash-ring splash-ring-3"></div>
 
-    <!-- Carte PNG du Magicien en arrière-plan -->
-    <img class="splash-vesper-card-bg"
-         src="assets/cards/30_Wizard.png"
-         alt="Carte du Magicien"
-         loading="eager"/>
-
-    <!-- VESPER GLB 3D au centre -->
+    <!-- VESPER GLB 3D au centre (350px) -->
     <div class="splash-vesper-3d">
       <app-yamzy-avatar-3d
         glbUrl="/assets/agents/vesper.glb"
