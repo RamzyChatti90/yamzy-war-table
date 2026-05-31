@@ -50,6 +50,8 @@ export interface PosTicket {
   reviewVerdict?: string;
   reviewerComment?: string;
   prLink?: string;
+  // v1.0.103 — Chantier E : id de l'event Scrum d'origine (null = creation manuelle).
+  sourceEventId?: number;
 }
 
 export interface PosSprint {
@@ -283,6 +285,10 @@ export class WarTableApi {
   }
   endEvent(eventId: number, notes?: string): Observable<any> {
     return this.http.post<any>(`${this.base}/events/${eventId}/end`, { notes: notes || '' });
+  }
+  /** v1.0.103 — Chantier E : tickets crees pendant cet event Scrum. */
+  ticketsForEvent(eventId: number): Observable<PosTicket[]> {
+    return this.http.get<PosTicket[]>(`${this.base}/calendar-events/${eventId}/tickets`);
   }
   respondEvent(eventId: number, name: string, response: 'ACCEPTED'|'DECLINED'|'TENTATIVE'|'PENDING'): Observable<any> {
     return this.http.post<any>(`${this.base}/events/${eventId}/respond`, { name, response });
