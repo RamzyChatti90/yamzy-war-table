@@ -318,23 +318,46 @@
                     (wheel)="onPsHeroWheel($event)"
                     (touchstart)="onPsHeroTouchStart($event)"
                     (touchend)="onPsHeroTouchEnd($event)">
-              <!-- v1.0.99 — Pipette EyeDropper pour extraire couleur de la carte active. -->
-              <div *ngIf="activePageCard() && studioLevel() === 'section'" class="wt-ps-color-tools">
+              <!-- v1.0.99/100 — Color tools : pipette EyeDropper + roue chromatique LIVE preview. -->
+              <div *ngIf="activePageCard() && studioLevel() === 'section'" class="wt-ps-color-tools" (click)="$event.stopPropagation()">
+                <!-- Pipette (EyeDropper API : Chrome/Edge) -->
                 <button class="wt-ps-color-btn"
                         (click)="pickHeaderColor($event)"
-                        [title]="'Pipette : extraire une couleur de la carte ' + activePageCard() + ' et la mapper'">
+                        [title]="'Pipette : extraire une couleur de la page (Chrome/Edge)'">
                   <span>🎨</span>
                 </button>
+                <!-- v1.0.100 — Input color natif = preview LIVE pendant le drag, cross-browser -->
+                <label class="wt-ps-color-btn wt-ps-color-wheel-btn"
+                       [title]="'Roue chromatique (preview LIVE en glissant)'">
+                  <span>🌈</span>
+                  <input type="color" class="wt-ps-color-input"
+                         [value]="activeCardColor() || '#d99a51'"
+                         (input)="onColorInputChange($event)"
+                         (change)="onColorInputCommit($event)"
+                         (click)="$event.stopPropagation()"/>
+                </label>
+                <!-- Reset -->
                 <button *ngIf="activeCardColor()"
                         class="wt-ps-color-btn wt-ps-color-reset"
                         (click)="resetHeaderColor($event)"
                         [title]="'Reset (revenir au gradient par defaut)'">
                   <span>↺</span>
                 </button>
+                <!-- Chip de la couleur active -->
                 <span *ngIf="activeCardColor()"
                       class="wt-ps-color-chip"
                       [style.background]="activeCardColor()!"
                       [title]="activeCardColor()!"></span>
+              </div>
+              <!-- v1.0.100 — Toast inline NON-BLOQUANT (header reste visible) -->
+              <div *ngIf="colorToast() as t" class="wt-ps-color-toast" (click)="$event.stopPropagation()">
+                <span class="wt-ps-color-toast-chip" [style.background]="t.color"></span>
+                <div class="wt-ps-color-toast-body">
+                  <strong>{{ t.card }}</strong> → <code>{{ t.color }}</code>
+                  <div class="wt-ps-color-toast-hint">Mapping copie au presse-papier. Colle dans le chat pour le rendre permanent.</div>
+                </div>
+                <button class="wt-ps-color-toast-btn" (click)="copyColorMapping()" title="Recopier le mapping">📋</button>
+                <button class="wt-ps-color-toast-btn" (click)="dismissColorToast()" title="Fermer">✕</button>
               </div>
 
               <!-- v1.0.87 — Wrapper EN COURS (RIGHT half, 50%) qui contient tag/title/desc/action + cards. -->

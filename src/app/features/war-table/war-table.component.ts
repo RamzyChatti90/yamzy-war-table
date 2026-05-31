@@ -2113,7 +2113,59 @@ export class WarTableComponent implements OnInit {
     return { c1, c2, c3 };
   }
 
-  /** Ouvre la pipette EyeDropper (Chrome/Edge 95+) pour extraire une couleur. */
+  /** v1.0.100 — Toast inline non-bloquant pour confirmer la couleur (header reste visible). */
+  colorToast = signal<{ card: string; color: string } | null>(null);
+  private colorToastTimer: any = null;
+  private showColorToast(card: string, color: string): void {
+    if (this.colorToastTimer) clearTimeout(this.colorToastTimer);
+    this.colorToast.set({ card, color });
+    this.colorToastTimer = setTimeout(() => {
+      this.colorToast.set(null);
+      this.colorToastTimer = null;
+    }, 4500);
+  }
+  dismissColorToast(): void {
+    if (this.colorToastTimer) { clearTimeout(this.colorToastTimer); this.colorToastTimer = null; }
+    this.colorToast.set(null);
+  }
+  /** Copie le mapping de la carte active dans le presse-papier (depuis le toast). */
+  async copyColorMapping(): Promise<void> {
+    const t = this.colorToast();
+    if (!t) return;
+    try {
+      await navigator.clipboard.writeText(`'${t.card}': '${t.color}',`);
+    } catch {}
+  }
+
+  /** v1.0.100 — Applique une couleur a la carte active (live, sans modal). */
+  private applyCardColor(color: string, opts: { showToast: boolean; copyClipboard: boolean }): void {
+    const card = this.activePageCard();
+    if (!card) return;
+    const map = { ...this.cardColors(), [card]: color };
+    this.cardColors.set(map);
+    this.saveCardColors(map);
+    if (opts.copyClipboard) {
+      try { navigator.clipboard.writeText(`'${card}': '${color}',`); } catch {}
+    }
+    if (opts.showToast) this.showColorToast(card, color);
+  }
+
+  /** v1.0.100 — Handler du <input type="color"> : preview LIVE pendant que l'user
+   *  glisse dans la roue chromatique. Sauvegarde a chaque event 'input'. */
+  onColorInputChange(ev: Event): void {
+    ev.stopPropagation();
+    const color = (ev.target as HTMLInputElement).value;
+    this.applyCardColor(color, { showToast: false, copyClipboard: false });
+  }
+  /** Quand l'user FERME la color box, on copy + toast (action finale). */
+  onColorInputCommit(ev: Event): void {
+    ev.stopPropagation();
+    const color = (ev.target as HTMLInputElement).value;
+    this.applyCardColor(color, { showToast: true, copyClipboard: true });
+  }
+
+  /** Ouvre la pipette EyeDropper (Chrome/Edge 95+) pour extraire une couleur.
+   *  v1.0.100 — Plus de modal bloquant. Toast inline non-bloquant + copy auto. */
   async pickHeaderColor(ev: Event): Promise<void> {
     ev.stopPropagation();
     ev.preventDefault();
@@ -2121,36 +2173,17 @@ export class WarTableComponent implements OnInit {
     if (!card) return;
     const Eye = (window as any).EyeDropper;
     if (!Eye) {
-      await this.dialog.alert({
-        title: 'EyeDropper indisponible',
-        message: 'La pipette necessite Chrome ou Edge 95+. Firefox/Safari ne supportent pas encore cette API.',
-        kind: 'warning'
-      });
+      // Fallback : trigger le <input type="color"> a la place
+      const input = document.querySelector('.wt-ps-color-input') as HTMLInputElement;
+      if (input) input.click();
       return;
     }
     try {
       const eyeDropper = new Eye();
       const result = await eyeDropper.open();
       const color = result.sRGBHex as string;
-      // Sauvegarde
-      const map = { ...this.cardColors(), [card]: color };
-      this.cardColors.set(map);
-      this.saveCardColors(map);
-      // Copie auto dans le presse-papier pour que l'user me l'envoie
-      try { await navigator.clipboard.writeText(`'${card}': '${color}',`); } catch {}
-      // Toast confirmation
-      await this.dialog.alert({
-        title: '🎨 Couleur extraite',
-        message: `**${card}** → \`${color}\`\n\nCopie automatique du mapping dans ton presse-papier. Colle-le dans le chat pour que je le rende permanent.`,
-        kind: 'success',
-        details: [
-          { label: 'Carte', value: card },
-          { label: 'Couleur', value: color },
-          { label: 'Format envoye', value: `'${card}': '${color}',` },
-        ]
-      });
+      this.applyCardColor(color, { showToast: true, copyClipboard: true });
     } catch (e: any) {
-      // User annule (Escape) → silencieux
       if (e?.name === 'AbortError') return;
       console.warn('[EyeDropper]', e);
     }
@@ -2165,6 +2198,7 @@ export class WarTableComponent implements OnInit {
     delete map[card];
     this.cardColors.set(map);
     this.saveCardColors(map);
+    this.dismissColorToast();
   }
 
   /** v1.0.98 — Mini cartes dispersées en TRIANGLE diagonal (top-right → bot-left).
