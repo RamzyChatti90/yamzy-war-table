@@ -2122,24 +2122,21 @@
 <app-wheel-menu></app-wheel-menu>
 <app-arcane-scroll></app-arcane-scroll>
 
-<!-- ═══ v1.0.32 — YAMZY companion : click = toggle carousel + drag en mode position ═══ -->
+<!-- ═══ v1.0.92 — YAMZY companion : drag retire (edit mode ne concerne plus l'avatar) ═══ -->
 <div class="wt-yamzy-fab"
-     [class.is-edit]="positionMode()"
-     [class.is-clickable]="!positionMode()"
+     [class.is-clickable]="true"
      [class.is-open]="yamzyCarouselOpen()"
      [style.left.px]="fabLeft()"
      [style.bottom.px]="fabBottom()"
      [style.width.px]="fabSize()"
      [style.height.px]="fabSize()"
      (click)="toggleCarousel()"
-     (mousedown)="startDrag('fab', $event)"
-     [title]="positionMode() ? 'Drag pour déplacer' : (yamzyCarouselOpen() ? 'Click pour fermer' : 'Click pour ouvrir le menu')"
+     [title]="yamzyCarouselOpen() ? 'Click pour fermer' : 'Click pour ouvrir le menu'"
      *ngIf="!splashVisible()">
   <app-yamzy-avatar-3d glbUrl="/assets/agents/YAMZY.glb"
                        [rotate]="false"
                        [bob]="true"
                        [playGlbAnim]="true"></app-yamzy-avatar-3d>
-  <div *ngIf="positionMode()" class="wt-pos-label">YAMZY · ({{ fabLeft() }}, {{ fabBottom() }})</div>
 </div>
 
 <!-- v1.0.25 : Bouton toggle mode position (toujours visible bottom-right) -->
@@ -2153,21 +2150,8 @@
 
 <!-- v1.0.25 : Panel de contrôle position -->
 <div class="wt-pos-panel" *ngIf="positionMode() && !splashVisible()">
-  <div class="wt-pos-panel-head">📐 Mode position</div>
-  <div class="wt-pos-panel-row">
-    <span class="wt-pos-lbl">YAMZY</span>
-    <span class="wt-pos-val">L {{ fabLeft() }} · B {{ fabBottom() }} · S {{ fabSize() }}</span>
-  </div>
-  <div class="wt-pos-panel-row">
-    <span class="wt-pos-lbl">Carousel</span>
-    <span class="wt-pos-val">L {{ ycLeft() }} · B {{ ycBottom() }} · W {{ ycWidth() }}</span>
-  </div>
-  <div class="wt-pos-sliders">
-    <label>YAMZY size : <input type="range" min="120" max="500" step="10" [value]="fabSize()" (input)="fabSize.set(+$any($event.target).value)"/> <span>{{ fabSize() }}px</span></label>
-    <label>Carousel W : <input type="range" min="220" max="500" step="10" [value]="ycWidth()" (input)="ycWidth.set(+$any($event.target).value)"/> <span>{{ ycWidth() }}px</span></label>
-  </div>
-  <!-- v1.0.91 — Cards wrap editable (position + size) -->
-  <div class="wt-pos-panel-head" style="margin-top:14px">🃏 Cards row</div>
+  <!-- v1.0.92 — Mode position UNIQUEMENT pour Cards row (YAMZY/Carousel retires). -->
+  <div class="wt-pos-panel-head">🃏 Mode position — Cards row</div>
   <div class="wt-pos-panel-row">
     <span class="wt-pos-lbl">Wrap</span>
     <span class="wt-pos-val">B {{ cardsBottom() }} · L {{ cardsLeft() }} · R {{ cardsRight() }} · H {{ cardsHeight() }}</span>
@@ -2199,7 +2183,7 @@
     <button class="wt-pos-btn-major" (click)="copyYamzyPositions()">📋 Copier coords</button>
     <button class="wt-pos-btn" (click)="resetYamzyPositions()">↺ Reset</button>
   </div>
-  <div class="wt-pos-hint">💡 Ajuste sliders puis <strong>Copier coords</strong> et colle dans le chat (YAMZY + Carousel + Cards row + Mini + Grande).</div>
+  <div class="wt-pos-hint">💡 Ajuste sliders puis <strong>Copier coords</strong> et colle dans le chat (Cards row + Mini + Grande).</div>
 </div>
 
 <!-- ═══ v1.0.32 — Carrousel : visible SEULEMENT quand yamzyCarouselOpen() ═══ -->

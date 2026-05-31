@@ -344,9 +344,8 @@ export class WarTableComponent implements OnInit {
   cardsGap = signal(8);      // px gap between cards
 
   async copyYamzyPositions(): Promise<void> {
+    // v1.0.92 — Copie UNIQUEMENT les coords des cartes (YAMZY/Carousel retires).
     const css =
-      `.wt-yamzy-fab { left: ${this.fabLeft()}px; bottom: ${this.fabBottom()}px; width: ${this.fabSize()}px; height: ${this.fabSize()}px; }\n` +
-      `.wt-yc { left: ${this.ycLeft()}px; bottom: ${this.ycBottom()}px; width: ${this.ycWidth()}px; }\n` +
       `.wt-ps-cards-wrap { bottom: ${this.cardsBottom()}px; left: ${this.cardsLeft()}px; right: ${this.cardsRight()}px; height: ${this.cardsHeight()}px; gap: ${this.cardsGap()}px; }\n` +
       `.wt-ps-mini-card.wt-ps-mini-float { width: ${this.cardsMiniW()}px; height: ${this.cardsMiniH()}px; }\n` +
       `.wt-ps-card-display { width: ${this.cardsBigW()}px; height: ${this.cardsBigH()}px; }`;
