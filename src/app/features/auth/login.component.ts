@@ -39,16 +39,17 @@ import { YamzyAvatar3dComponent } from '../war-table/yamzy-avatar-3d.component';
               [bob]="true">
             </app-yamzy-avatar-3d>
           </div>
-          <div class="lg-brand-name">WAR TABLE</div>
-          <div class="lg-brand-tag">Vesper's Conclave · Planning Organisator Studio</div>
+          <div class="lg-brand-name">Conclave de VESPER</div>
+          <div class="lg-brand-tag">Le studio du magicien stratège · ses cartes, ses sprints, son Realm</div>
         </div>
 
         <!-- Hero -->
-        <h1 class="lg-title">Bienvenue, Architect</h1>
+        <h1 class="lg-title">Bienvenue, Magicien</h1>
         <p class="lg-subtitle">
-          <strong style="color:#ffe5b8">VESPER</strong>, gardienne des cadences,
-          t'attend dans son atelier du purgatoire.<br/>
-          Connecte-toi avec GitHub pour ouvrir la Conclave.
+          <strong style="color:#ffe5b8">VESPER</strong>, l'ange du purgatoire chantant la cadence des rituels,
+          t'accueille dans sa Conclave.<br/>
+          Joue tes <em style="color:#d99a51">cartes</em> — sprints, rituels, plannings —
+          comme un maître stratège.
         </p>
 
         <!-- Error -->

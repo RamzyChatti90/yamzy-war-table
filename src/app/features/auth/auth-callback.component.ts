@@ -48,9 +48,9 @@ export class AuthCallbackComponent implements OnInit {
         return;
       }
       localStorage.setItem('yamzy_jwt', token);
-      console.log('[WAR TABLE] ✓ JWT reçu via OAuth backend');
+      console.log('[VESPER] ✓ JWT reçu via OAuth backend — la Conclave s\'ouvre');
       // Redirige vers le studio (sans le token dans l'URL)
-      setTimeout(() => this.router.navigate(['/war-table']), 300);
+      setTimeout(() => this.router.navigate(['/conclave']), 300);
     });
   }
 }

@@ -24,9 +24,9 @@
   <!-- ═══ TOP BAR (SKIN) ═══ -->
   <header class="wt-topbar wt-skin-topbar">
     <div class="wt-brand">
-      <div class="wt-brand-logo"><div class="wt-stub-logo">⚔</div></div>
+      <div class="wt-brand-logo"><div class="wt-stub-logo">🪶</div></div>
       <div class="wt-brand-text">
-        <div class="wt-brand-title-skin">{{ 'brand.title_war' | t }}<span class="wt-brand-accent">{{ 'brand.title_table' | t }}</span> <span class="wt-brand-cross">⚔</span></div>
+        <div class="wt-brand-title-skin">{{ 'brand.title_war' | t }}<span class="wt-brand-accent">{{ 'brand.title_table' | t }}</span> <span class="wt-brand-cross">🪶</span></div>
         <div class="wt-brand-sub-skin">{{ 'brand.subtitle' | t }}</div>
       </div>
     </div>
@@ -65,16 +65,7 @@
           <path fill-rule="evenodd" d="M3 4a2 2 0 012-2h6a2 2 0 012 2v3a1 1 0 11-2 0V4H5v12h6v-3a1 1 0 112 0v3a2 2 0 01-2 2H5a2 2 0 01-2-2V4zm12.293 4.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 13H7a1 1 0 110-2h9.586l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
         </svg>
       </button>
-      <!-- Bell : rappels & alertes (v1.0.10 — étendue depuis simple risks) -->
-      <button class="wt-skin-icon-btn wt-reminders-bell"
-              *ngIf="api.selectedProjectId()"
-              (click)="toggleRemindersPanel()"
-              [class.has-high]="visibleHigh() > 0"
-              wtTooltip="topbar-reminders" wtTooltipPos="bottom">
-        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-        <span *ngIf="visibleTotal() > 0" class="wt-skin-badge">{{ visibleTotal() }}</span>
-      </button>
-
+      <!-- v1.0.128 — Bell deplace en fin de topbar (a la place du Mode edition) -->
       <!-- Reminders dropdown panel -->
       <div *ngIf="remindersOpen() && api.selectedProjectId()" class="wt-reminders-panel" (click)="$event.stopPropagation()">
         <div class="wt-reminders-head">
@@ -136,11 +127,20 @@
       <button class="wt-skin-icon-btn" *ngIf="api.selectedProjectId()" (click)="resetAndArchive()"
               [title]="'Reset complet : rebrand sprints + export Excel propre + suppression projet (pour ré-import)'"
               style="background:linear-gradient(135deg,#de4f5f,#d99a51);color:#fff">🔄</button>
-      <!-- 🔒/🔓 v1.0.4 : Mode édition (active inline edit + boutons CRUD partout) -->
+      <!-- v1.0.128 — Mode edition decale juste avant la bell (qui prend sa place) -->
       <button class="wt-skin-icon-btn" (click)="toggleEditMode()"
               [class.wt-edit-on]="editMode()"
               wtTooltip="topbar-edit-mode" wtTooltipPos="bottom">
         {{ editMode() ? '🔓' : '🔒' }}
+      </button>
+      <!-- v1.0.128 — Bell (notifications) deplace ici (a la place de l'ancien Mode edition) -->
+      <button class="wt-skin-icon-btn wt-reminders-bell"
+              *ngIf="api.selectedProjectId()"
+              (click)="toggleRemindersPanel()"
+              [class.has-high]="visibleHigh() > 0"
+              wtTooltip="topbar-reminders" wtTooltipPos="bottom">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        <span *ngIf="visibleTotal() > 0" class="wt-skin-badge">{{ visibleTotal() }}</span>
       </button>
     </div>
   </header>
@@ -2780,11 +2780,14 @@
 
       <!-- Card : Bienvenue Yamzy -->
       <div class="wt-profile-card">
-        <h3>🪶 Vesper t'accueille</h3>
-        <p style="font-size:13px;color:rgba(244,236,255,.85);line-height:1.6;margin:0">
-          Bienvenue dans la <strong style="color:#ffe5b8">Conclave</strong> de VESPER,
-          l'ange du purgatoire qui chante la cadence de tes sprints.
-          Tes plannings se déposent sur sa table comme des partitions.
+        <h3>🪶 Bienvenue dans la Conclave</h3>
+        <p style="font-size:13px;color:rgba(244,236,255,.88);line-height:1.6;margin:0">
+          Ici, tu es le <strong style="color:#ffe5b8">magicien stratège</strong>
+          qui manipule ses cartes. Chaque sprint, chaque rituel, chaque ticket
+          est une <em style="color:#d99a51">carte</em> que tu poses sur la table de
+          <strong style="color:#ffe5b8">VESPER</strong>, l'ange du purgatoire chantant
+          la cadence des rituels. Joue-les avec sagesse — la victoire appartient à ceux qui
+          orchestrent leur deck.
         </p>
       </div>
     </section>
@@ -2873,11 +2876,15 @@
         <h3>📦 Version du studio</h3>
         <div class="wt-profile-row">
           <span class="wt-profile-row-lbl">Version actuelle</span>
-          <code>v1.0.125</code>
+          <code>v1.0.128</code>
+        </div>
+        <div class="wt-profile-row">
+          <span class="wt-profile-row-lbl">Studio</span>
+          <code>Conclave de VESPER</code>
         </div>
         <div class="wt-profile-row">
           <span class="wt-profile-row-lbl">Avatar mascotte</span>
-          <code>VESPER (Vesper's Conclave)</code>
+          <code>🪶 VESPER (ange du purgatoire)</code>
         </div>
         <div class="wt-profile-row">
           <span class="wt-profile-row-lbl">Backend</span>
