@@ -35,6 +35,13 @@ export const WAR_TABLE_PAGES: PageDef[] = [
   { superCat: 'Dashboard', cat: 'Dashboards',    id: 'dashboard',         label: 'Dashboard Global',       icon: '📊', card: '6_King' },
   { superCat: 'Dashboard', cat: 'Dashboards',    id: 'dashboard-param',   label: 'Dashboard Paramétré',    icon: '🎛', card: '30_Wizard' },
   { superCat: 'Dashboard', cat: 'Dashboards',    id: 'dashboard-legacy',  label: 'Dashboard',              icon: '📈', card: '27_Book' },
+  // v1.0.177bo — Vue Kanban : tickets en colonnes par état, drag&drop pour changer, sync Excel auto
+  { superCat: 'Dashboard', cat: 'Dashboards',    id: 'kanban',            label: 'Kanban Board',           icon: '🗂', card: '16_Belltowers' },
+  // v0.1 conclave — Time Traveler : vision spatiotemporelle complète du projet (cosmos plein + équipe + risques + bookmarks)
+  // Card = 1_Fireball (le fireball.glb EST le soleil central du cosmos)
+  { superCat: 'Dashboard', cat: 'Dashboards',    id: 'time-traveler',     label: 'Time Traveler',          icon: '⏱', card: '1_Fireball' },
+  // v1.0.177bx — La page 'ticket-detail' a été RETIREE : le détail est maintenant rendu INLINE
+  // dans le header de la page courante (cf ticketInlineTpl + ticketModalOpen signal).
 
   // ═══ 🏃 SPRINT (10) — cartes action ═══
   // Backlogs (2)
@@ -95,7 +102,9 @@ export const WAR_TABLE_PAGES: PageDef[] = [
   // Guides Scrum (3)
   { superCat: 'Setup',     cat: 'Guides Scrum',  id: 'dod',               label: 'DoD',                    icon: '📋', card: '6_King' },
   { superCat: 'Setup',     cat: 'Guides Scrum',  id: 'dor',               label: 'DoR',                    icon: '📥', card: '28_RollDice' },
-  { superCat: 'Setup',     cat: 'Guides Scrum',  id: 'templates',         label: 'Templates Tickets',      icon: '📑', card: '0_Card_Front' },
-  // Config (1)
+  { superCat: 'Setup',     cat: 'Guides Scrum',  id: 'templates',         label: 'Templates Tickets',      icon: '📑', card: '29_Block' },
+  // Config (2)
   { superCat: 'Setup',     cat: 'Config',        id: 'parametres',        label: 'Paramètres',             icon: '⚙', card: '30_Wizard' },
+  // v1.0.169 — Page utilitaire pour mapper 3 couleurs par carte
+  { superCat: 'Setup',     cat: 'Config',        id: 'cards-mapping',     label: 'Mapping Couleurs Cards', icon: '🎨', card: '8_LightningWizard' },
 ];

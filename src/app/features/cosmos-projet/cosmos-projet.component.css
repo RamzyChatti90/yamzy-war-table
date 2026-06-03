@@ -1,0 +1,1062 @@
+/* Cosmos Projet — styles cinématiques.
+   Scopé via Angular ViewEncapsulation native (pas besoin de préfixer les classes). */
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  /* v0.1 conclave — Background transparent : fusionne avec le hero du dashboard */
+  background: transparent;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+}
+
+.cosmos-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  isolation: isolate;
+  /* ═══ Perspective 3D pour caméra cinéma qui suit les astres ═══ */
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  overflow: hidden;   /* la scene débordera quand zoom > 1 */
+}
+
+/* ═══ Cosmos 3D scene Three.js — full panel ═══ */
+.cosmos-3d-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: block;
+  pointer-events: none;
+}
+/* ═══ Bouton toggle Simple ↔ Orrery ═══ */
+.cosmos-mode-toggle {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 60;
+  padding: 4px 10px;
+  background: rgba(15, 14, 35, 0.75);
+  border: 1px solid rgba(230, 184, 90, 0.4);
+  border-radius: 3px;
+  color: #e6b85a;
+  font-family: 'Poppins', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  pointer-events: auto;
+}
+.cosmos-mode-toggle:hover {
+  background: rgba(230, 184, 90, 0.18);
+  color: #fff;
+  border-color: #e6b85a;
+  transform: translateY(-1px);
+}
+
+/* 🪐 PANEL ASTRE — ouvert au click sur une planète orrery */
+.cosmos-astre-panel {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(15, 14, 35, 0.94) 0%, rgba(28, 22, 50, 0.92) 100%);
+  border: 1px solid rgba(230, 184, 90, 0.45);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 12px rgba(230, 184, 90, 0.25);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+  font-size: 11px;
+  color: #e8e0d0;
+  max-height: 60%;
+  overflow-y: auto;
+  animation: cosmos-astre-panel-in 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes cosmos-astre-panel-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+.cosmos-astre-panel-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(230, 184, 90, 0.4);
+  border-radius: 50%;
+  color: #e6b85a;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cosmos-astre-panel-close:hover {
+  background: rgba(230, 184, 90, 0.18);
+  color: #fff;
+}
+.cosmos-astre-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 26px;
+}
+.cosmos-astre-panel-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+  flex-shrink: 0;
+}
+.cosmos-astre-panel-title {
+  font-weight: 600;
+  color: #ffd778;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.cosmos-astre-panel-status {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(230, 184, 90, 0.18);
+  color: #e6b85a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.cosmos-astre-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cosmos-astre-panel-row {
+  display: flex;
+  gap: 6px;
+  font-size: 10px;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.06);
+  padding-bottom: 3px;
+}
+.cosmos-astre-panel-row > span {
+  color: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+  min-width: 60px;
+}
+.cosmos-astre-panel-row > strong {
+  color: #fff;
+  font-weight: 500;
+}
+.cosmos-astre-panel-desc {
+  font-weight: 400;
+  white-space: normal;
+  line-height: 1.4;
+}
+/* L'ancienne scene CSS est masquée (orbites/planètes/soleil maintenant en 3D) */
+.cosmos-scene-hidden {
+  display: none !important;
+}
+
+/* ═══════════════ 🌈 AURORE BOREALE — DÉSACTIVÉE (v0.1 conclave : pas de bg du panel) ═══════════════ */
+.cosmos-aurora { display: none !important; }
+@keyframes cosmos-aurora-flow {
+  0%   { transform: translate(0, 0) scale(1);    opacity: 0.5; }
+  50%  { transform: translate(20px, -10px) scale(1.05); opacity: 0.65; }
+  100% { transform: translate(-15px, 15px) scale(0.98); opacity: 0.55; }
+}
+
+/* ═══════════════ ✨ ÉTOILES en fond — DÉSACTIVÉES (v0.1 conclave : pas de bg) ═══════════════ */
+.cosmos-stars { display: none !important; }
+@keyframes cosmos-twinkle {
+  0%   { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* ═══════════════ ⚫ TROU NOIR (top-left) — engloutit les cancelled ═══════════════ */
+.cosmos-blackhole {
+  position: absolute;
+  top: 36px;
+  left: 36px;
+  width: 64px;
+  height: 64px;
+  z-index: 30;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+.cosmos-blackhole:hover { transform: scale(1.12); }
+.cosmos-blackhole-vortex {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 0deg, transparent 0%, #4a1f7a 25%, transparent 50%, #6432c5 75%, transparent 100%);
+  animation: cosmos-blackhole-spin 4s linear infinite;
+  filter: blur(2px);
+}
+.cosmos-blackhole-event-horizon {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #000 50%, #1a0a1a 80%, transparent 100%);
+  box-shadow:
+    inset 0 0 20px rgba(155, 108, 255, 0.6),
+    0 0 32px rgba(155, 108, 255, 0.4);
+}
+.cosmos-blackhole-count {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #c4a5ff;
+  z-index: 3;
+}
+@keyframes cosmos-blackhole-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════ 🌌 SCENE COSMIQUE ═══════════════ */
+.cosmos-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  margin-bottom: 60px; /* place pour la barre de contrôle */
+}
+
+/* Les ORBITES */
+.cosmos-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(102, 166, 229, 0.18);
+  pointer-events: none;
+  z-index: 2;
+}
+.cosmos-orbit.is-belt {
+  border-color: rgba(217, 154, 81, 0.35);
+  border-style: dashed;
+}
+/* Label discret de l'orbite en survol */
+.cosmos-orbit::before {
+  content: attr(data-orbit);
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.18);
+  white-space: nowrap;
+}
+
+/* ☀️ SOLEIL = PROJET */
+.cosmos-sun {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  z-index: 20;
+  animation: cosmos-sun-pulse 2.5s ease-in-out infinite alternate;
+}
+.cosmos-sun-core {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffd000 1%, #f9b700 39%, #e06317 100%);
+  box-shadow:
+    0 0 30px rgba(255, 107, 0, 0.5),
+    0 0 56px rgba(255, 203, 0, 0.3);
+}
+.cosmos-sun-corona {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 50%, rgba(255, 180, 60, 0.2) 70%, transparent 100%);
+  filter: blur(8px);
+  animation: cosmos-sun-corona-spin 18s linear infinite;
+}
+.cosmos-sun-label {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.cosmos-sun-code {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #d99a51;
+  text-shadow: 0 0 12px rgba(217, 154, 81, 0.6);
+}
+.cosmos-sun-name {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 2px;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@keyframes cosmos-sun-pulse {
+  0%   { transform: translate(-50%, -50%) scale(1);   filter: brightness(1); }
+  100% { transform: translate(-50%, -50%) scale(1.06); filter: brightness(1.15); }
+}
+@keyframes cosmos-sun-corona-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════ 🪐 PLANÈTES (tickets) ═══════════════
+   Position en orbite via 2 transforms imbriqués :
+   - container (rotation orbitale autour du soleil)
+   - body (taille de la planète, halo, glow) */
+.cosmos-planet {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--orbit-size, 100px);
+  height: var(--orbit-size, 100px);
+  transform: translate(-50%, -50%) rotate(calc(var(--start-angle, 0deg)));
+  animation: cosmos-orbital var(--rotation-speed, 30s) linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+.cosmos-planet-body {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--planet-size, 8px);
+  height: var(--planet-size, 8px);
+  border-radius: 50%;
+  background: var(--planet-color, #fff);
+  box-shadow:
+    inset 0 calc(var(--planet-size, 8px) * 0.3) 0 calc(var(--planet-size, 8px) * -0.2) rgba(0, 0, 0, 0.4),
+    0 0 calc(var(--planet-size, 8px) * 1.4) calc(var(--planet-size, 8px) * 0.1) var(--planet-color, #fff);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s, box-shadow 0.15s;
+  animation: cosmos-planet-self-spin calc(var(--rotation-speed, 30s) * 0.5) linear infinite;
+}
+.cosmos-planet-body:hover {
+  transform: translate(-50%, -50%) scale(1.5);
+  box-shadow:
+    inset 0 calc(var(--planet-size, 8px) * 0.3) 0 calc(var(--planet-size, 8px) * -0.2) rgba(0, 0, 0, 0.4),
+    0 0 calc(var(--planet-size, 8px) * 3) calc(var(--planet-size, 8px) * 0.4) var(--planet-color, #fff);
+  z-index: 100;
+}
+.cosmos-planet-glow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--glow-size, 20px);
+  height: var(--glow-size, 20px);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--planet-color, #fff) 0%, transparent 70%);
+  opacity: var(--halo, 0.4);
+  filter: blur(6px);
+  pointer-events: none;
+  animation: cosmos-planet-glow-pulse 2.5s ease-in-out infinite alternate;
+}
+/* Tickets BLOCKED : palpitent en rouge */
+.cosmos-planet.is-blocked .cosmos-planet-body {
+  animation: cosmos-orbital var(--rotation-speed, 30s) linear infinite,
+             cosmos-blocked-pulse 1.2s ease-in-out infinite;
+}
+@keyframes cosmos-blocked-pulse {
+  0%, 100% { box-shadow: 0 0 8px 1px var(--planet-color, #fff); }
+  50% { box-shadow: 0 0 24px 4px var(--planet-color, #fff); }
+}
+/* Tickets DONE : glow vert subtil */
+.cosmos-planet.is-done .cosmos-planet-glow {
+  opacity: 0.7;
+}
+/* Tickets IN_PROGRESS : halo plus animé */
+.cosmos-planet.is-active .cosmos-planet-glow {
+  animation-duration: 1.2s;
+}
+/* Anneau (style Saturn pour les tickets avec subtasks) */
+.cosmos-planet-ring {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateX(75deg);
+  width: calc(var(--planet-size, 8px) * 2.4);
+  height: calc(var(--planet-size, 8px) * 2.4);
+  border-radius: 50%;
+  border: 1.5px solid rgba(231, 193, 148, 0.6);
+  pointer-events: none;
+}
+@keyframes cosmos-orbital {
+  from { transform: translate(-50%, -50%) rotate(calc(var(--start-angle, 0deg) - 360deg)); }
+  to   { transform: translate(-50%, -50%) rotate(var(--start-angle, 0deg)); }
+}
+@keyframes cosmos-planet-self-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+@keyframes cosmos-planet-glow-pulse {
+  0%   { opacity: calc(var(--halo, 0.4) * 0.6); transform: translate(-50%, -50%) scale(0.95); }
+  100% { opacity: var(--halo, 0.4); transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* ═══════════════ 🎯 AIGUILLE NOW ═══════════════ */
+.cosmos-now-hand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 280px;
+  pointer-events: none;
+  transform-origin: bottom center;
+  z-index: 25;
+  transition: transform 0.5s ease-out;
+}
+.cosmos-now-line {
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to top, transparent 0%, rgba(217, 154, 81, 0.5) 50%, #d99a51 100%);
+  box-shadow: 0 0 12px rgba(217, 154, 81, 0.6);
+}
+.cosmos-now-label {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%) rotate(0deg);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #d99a51;
+  background: rgba(15, 14, 35, 0.85);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(217, 154, 81, 0.4);
+  white-space: nowrap;
+}
+
+/* ═══════════════ 🪐 ANNEAUX SATURN (milestones) ═══════════════ */
+.cosmos-saturn-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 480px;
+  height: 2px;
+  pointer-events: none;
+  transform-origin: 0 50%;
+  z-index: 8;
+}
+.cosmos-saturn-ring-dot {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e7c194;
+  box-shadow: 0 0 12px #e7c194, 0 0 24px rgba(231, 193, 148, 0.4);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.cosmos-saturn-ring.is-release .cosmos-saturn-ring-dot {
+  background: #b6e08a;
+  box-shadow: 0 0 16px #b6e08a, 0 0 32px rgba(182, 224, 138, 0.5);
+}
+.cosmos-saturn-ring.is-review .cosmos-saturn-ring-dot {
+  background: #9b6cff;
+  box-shadow: 0 0 16px #9b6cff;
+}
+
+/* ═══════════════ 💫 COMÈTES (kickoff / closure) ═══════════════ */
+.cosmos-comet {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 280px;
+  height: 2px;
+  pointer-events: none;
+  transform-origin: 0 50%;
+  z-index: 9;
+}
+.cosmos-comet-trail {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, transparent 0%, rgba(155, 108, 255, 0.4) 80%, #9b6cff 100%);
+  filter: blur(1px);
+}
+.cosmos-comet-head {
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #9b6cff 60%, transparent 100%);
+  box-shadow: 0 0 16px #9b6cff;
+}
+.cosmos-comet.is-kickoff .cosmos-comet-head {
+  background: radial-gradient(circle, #fff 0%, #b6e08a 60%, transparent 100%);
+  box-shadow: 0 0 16px #b6e08a;
+}
+.cosmos-comet.is-closure .cosmos-comet-head {
+  background: radial-gradient(circle, #fff 0%, #e84538 60%, transparent 100%);
+  box-shadow: 0 0 16px #e84538;
+}
+
+/* ═══════════════ 💎 TOOLTIP ═══════════════ */
+.cosmos-tooltip {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 200;
+  background: rgba(15, 14, 35, 0.96);
+  border: 1px solid rgba(217, 154, 81, 0.4);
+  border-radius: 10px;
+  padding: 14px 18px;
+  min-width: 220px;
+  max-width: 320px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  animation: cosmos-tooltip-in 0.18s ease-out;
+}
+@keyframes cosmos-tooltip-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cosmos-tooltip-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.cosmos-tooltip-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.cosmos-tooltip-tag {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  color: #fff;
+}
+.cosmos-tooltip-prio, .cosmos-tooltip-sp {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #d9d0f0;
+}
+.cosmos-tooltip-row {
+  font-size: 11px;
+  color: #a99fd6;
+  margin: 3px 0;
+}
+.cosmos-tooltip-row strong { color: #fff; margin-left: 4px; }
+.cosmos-tooltip-orbit {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #d99a51;
+}
+
+/* ═══════════════ 🧭 LABELS DES MOIS sur le cadran ═══════════════ */
+.cosmos-month-labels {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 6;
+}
+.cosmos-month {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 50%;
+  transform-origin: bottom center;
+}
+.cosmos-month-text {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+}
+
+/* ═══════════════ 🎮 CONTRÔLES (TOP bar — simple & chic, sans cadre) ═══════════════
+   v0.1 conclave — déplacé en HAUT (top:0). Plus de background, plus de borders.
+   Couleur de sélection = var(--card-c1) → rouge sélectionné par l'utilisateur dans la carte. */
+.cosmos-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 14px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  z-index: 50;
+}
+.cosmos-controls-left, .cosmos-controls-right {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.cosmos-controls-slider {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/* Slider — couleur dérivée de la carte */
+.cosmos-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right,
+    var(--card-c1, #e94560) 0%,
+    var(--card-c1, #e94560) calc(var(--val, 50%) * 1%),
+    rgba(255, 255, 255, 0.12) calc(var(--val, 50%) * 1%),
+    rgba(255, 255, 255, 0.12) 100%);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.cosmos-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--card-c1, #e94560);
+  box-shadow: 0 0 10px var(--card-c1, rgba(233, 69, 96, 0.6));
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+.cosmos-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--card-c1, #e94560);
+  box-shadow: 0 0 10px var(--card-c1, rgba(233, 69, 96, 0.6));
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+.cosmos-slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+.cosmos-slider-date { color: var(--card-c1, #e94560); font-weight: 700; }
+
+/* Boutons Play/Pause/NOW — pas de cadre, juste icône colorée */
+.cosmos-ctrl-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, transform 0.15s;
+}
+.cosmos-ctrl-btn:hover {
+  color: var(--card-c1, #e94560);
+  background: transparent;
+  border: none;
+  transform: scale(1.15);
+}
+.cosmos-ctrl-now {
+  width: auto;
+  border-radius: 0;
+  padding: 0 8px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  background: transparent;
+  border: none;
+  color: var(--card-c1, #e94560);
+}
+.cosmos-ctrl-now:hover {
+  background: transparent;
+  color: #fff;
+}
+
+/* ═══ Filter buttons — forme BOUCLIER (shield gaming) ═══
+   clip-path heptagonal : top chanfreiné + point bas. filter:drop-shadow
+   au lieu de box-shadow (qui serait clippé par clip-path). */
+.cosmos-filter-btn {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 12px 13px;
+  min-width: 72px;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  border-radius: 0;
+  color: rgba(255, 255, 255, 0.62);
+  cursor: pointer;
+  clip-path: polygon(
+    10% 0%,
+    90% 0%,
+    100% 14%,
+    100% 55%,
+    50% 100%,
+    0% 55%,
+    0% 14%
+  );
+  transition: background 0.18s, color 0.18s, filter 0.18s, transform 0.18s;
+  text-align: center;
+  line-height: 1;
+}
+.cosmos-filter-btn:hover {
+  background: color-mix(in srgb, var(--card-c1, #e94560) 22%, rgba(255,255,255,0.06));
+  color: #fff;
+  transform: translateY(-1px);
+}
+.cosmos-filter-btn.is-active {
+  background: linear-gradient(160deg,
+    color-mix(in srgb, var(--card-c1, #e94560) 100%, transparent) 0%,
+    color-mix(in srgb, var(--card-c1, #e94560) 75%, #000) 100%);
+  color: #fff;
+  /* drop-shadow suit la forme du shield (box-shadow serait clippé) */
+  filter:
+    drop-shadow(0 3px 6px color-mix(in srgb, var(--card-c1, #e94560) 55%, transparent))
+    drop-shadow(0 0 1px rgba(255, 255, 255, 0.35));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOP 5 WINS — Styles pour les 5 nouvelles couches
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ═══ P1 — SOLEIL VIVANT (santé + budget + sprint actif) ═══ */
+/* Override couleur du noyau via CSS var --sun-health-color */
+.cosmos-sun {
+  /* Taille adapte selon budget (CSS var --sun-size-pct 40-100) */
+  width: calc(50px * (var(--sun-size-pct, 100) / 100));
+  height: calc(50px * (var(--sun-size-pct, 100) / 100));
+  min-width: 38px;
+  min-height: 38px;
+}
+/* ═══ Sphère CSS revert — overrides du GLB retirés ═══
+   On laisse les styles d'origine (cosmos-sun-core / corona / pulse) intacts. */
+.cosmos-sun-corona {
+  background: radial-gradient(circle,
+    var(--sun-corona-color, rgba(255, 200, 80, 0.45)) 0%,
+    transparent 70%) !important;
+}
+/* Sprint actif = anneau pulsant juste autour du soleil */
+.cosmos-sun-sprint-ring {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    conic-gradient(
+      from -90deg,
+      #5fb3d6 0%,
+      #5fb3d6 calc(var(--sprint-progress, 0) * 1%),
+      rgba(255, 255, 255, 0.08) calc(var(--sprint-progress, 0) * 1%),
+      rgba(255, 255, 255, 0.08) 100%
+    );
+  -webkit-mask: radial-gradient(transparent calc(50% - 3px), #000 calc(50% - 3px), #000 50%, transparent 50%);
+          mask: radial-gradient(transparent calc(50% - 3px), #000 calc(50% - 3px), #000 50%, transparent 50%);
+  animation: cosmos-sun-sprint-pulse 3s ease-in-out infinite;
+}
+@keyframes cosmos-sun-sprint-pulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.04); }
+}
+
+/* ═══ P2 — BURNDOWN SVG (idéal + réel) ═══ */
+.cosmos-burndown-svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  z-index: 1;       /* derrière les orbites mais devant l'aurore */
+  pointer-events: none;
+  opacity: 0.85;
+  mix-blend-mode: screen;
+}
+
+/* ═══ P3 — LUNES D'ÉQUIPE (orbite proche du soleil) ═══ */
+.cosmos-moon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+  transform: translate(-50%, -50%) rotate(var(--moon-angle, 0deg)) translateX(var(--moon-orbit, 52px));
+  z-index: 8;       /* devant le soleil mais derrière les planètes */
+  animation: cosmos-moon-orbit 25s linear infinite;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.cosmos-moon-body {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--moon-size, 10px);
+  height: var(--moon-size, 10px);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 35% 35%,
+    var(--moon-color, #9bb) 0%,
+    color-mix(in srgb, var(--moon-color, #678) 60%, #000) 100%);
+  opacity: var(--moon-brightness, 0.7);
+  box-shadow: 0 0 8px var(--moon-color, rgba(120, 200, 255, 0.5));
+}
+.cosmos-moon.is-online .cosmos-moon-body {
+  box-shadow:
+    0 0 6px var(--moon-color, #7adfd0),
+    0 0 12px var(--moon-color, rgba(122, 223, 208, 0.6));
+}
+@keyframes cosmos-moon-orbit {
+  to { transform: translate(-50%, -50%) rotate(calc(var(--moon-angle, 0deg) + 360deg)) translateX(var(--moon-orbit, 52px)); }
+}
+
+/* ═══ P4 — ASTÉROÏDES (risques) ═══ */
+.cosmos-asteroid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+  transform: translate(-50%, -50%) rotate(var(--ast-angle, 0deg)) translateX(var(--ast-orbit, 100px));
+  z-index: 4;
+  pointer-events: auto;
+  cursor: help;
+  animation: cosmos-asteroid-drift 80s linear infinite;
+}
+.cosmos-asteroid-rock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--ast-size, 7px);
+  height: var(--ast-size, 7px);
+  background: radial-gradient(circle at 40% 30%, #5a4a3a 0%, #2a1f15 100%);
+  border-radius: 30% 60% 50% 40% / 50% 30% 60% 40%; /* forme irrégulière */
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  animation: cosmos-asteroid-tumble 12s linear infinite;
+}
+.cosmos-asteroid.is-urgent .cosmos-asteroid-rock {
+  background: radial-gradient(circle at 40% 30%,
+    #8a3a2a 0%,
+    color-mix(in srgb, #e84538 70%, #000) 100%);
+  box-shadow: 0 0 8px rgba(232, 69, 56, 0.7);
+  animation-duration: 3s;
+}
+@keyframes cosmos-asteroid-drift {
+  to { transform: translate(-50%, -50%) rotate(calc(var(--ast-angle, 0deg) + 360deg)) translateX(var(--ast-orbit, 100px)); }
+}
+@keyframes cosmos-asteroid-tumble {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ═══ P4 — ARCS DE DÉPENDANCE entre planètes ═══ */
+.cosmos-dep-svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+.cosmos-dep-line {
+  stroke: rgba(155, 108, 255, 0.45);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+  animation: cosmos-dep-flow 4s linear infinite;
+}
+.cosmos-dep-line.is-blocks {
+  stroke: rgba(232, 69, 56, 0.7);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+}
+.cosmos-dep-line.is-related {
+  stroke: rgba(94, 182, 218, 0.4);
+  stroke-dasharray: 2 6;
+}
+@keyframes cosmos-dep-flow {
+  to { stroke-dashoffset: -16; }
+}
+
+/* ═══ P5 — COMÈTES CÉRÉMONIES (daily/planning/review/retro/wrap-up) ═══ */
+.cosmos-ceremony {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 2px;
+  transform-origin: 0% 50%;
+  pointer-events: none;
+  z-index: 7;
+}
+.cosmos-ceremony-trail {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 60px;
+  height: 1.5px;
+  background: linear-gradient(to left, var(--ceremony-color, #fff), transparent);
+  transform: translateY(-50%);
+  filter: blur(0.5px);
+  opacity: 0.85;
+}
+.cosmos-ceremony-head {
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  background: var(--ceremony-color, #fff);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 0 8px var(--ceremony-color, #fff);
+}
+/* Daily = vert, petit, rapide */
+.cosmos-ceremony.is-daily      { --ceremony-color: #3ec77d; animation: cosmos-ceremony-fast 6s linear infinite; }
+.cosmos-ceremony.is-daily .cosmos-ceremony-trail { width: 35px; }
+.cosmos-ceremony.is-daily .cosmos-ceremony-head  { width: 4px; height: 4px; }
+/* Planning = bleu, gros, lent */
+.cosmos-ceremony.is-planning   { --ceremony-color: #4696b9; animation: cosmos-ceremony-slow 14s ease-in-out infinite; }
+.cosmos-ceremony.is-planning .cosmos-ceremony-trail { width: 75px; height: 2.5px; }
+.cosmos-ceremony.is-planning .cosmos-ceremony-head  { width: 8px; height: 8px; }
+/* Review = jaune doré */
+.cosmos-ceremony.is-review     { --ceremony-color: #f9b700; animation: cosmos-ceremony-mid 10s ease-in-out infinite; }
+.cosmos-ceremony.is-review .cosmos-ceremony-trail { width: 65px; height: 2px; }
+.cosmos-ceremony.is-review .cosmos-ceremony-head  { width: 7px; height: 7px; }
+/* Retro = orange, comète qui s'éloigne */
+.cosmos-ceremony.is-retro      { --ceremony-color: #e6803a; animation: cosmos-ceremony-mid 12s ease-out infinite; }
+.cosmos-ceremony.is-retro .cosmos-ceremony-trail { width: 70px; }
+/* Wrap-up = violet brillant + sparkle */
+.cosmos-ceremony.is-wrapup     { --ceremony-color: #9b6cff; animation: cosmos-ceremony-fast 8s ease-in-out infinite; }
+.cosmos-ceremony.is-wrapup .cosmos-ceremony-head {
+  box-shadow: 0 0 10px #9b6cff, 0 0 20px rgba(155, 108, 255, 0.5);
+}
+@keyframes cosmos-ceremony-fast {
+  0%, 100% { opacity: 0.6; transform: translateX(-30px); }
+  50%      { opacity: 1;   transform: translateX(0); }
+}
+@keyframes cosmos-ceremony-mid {
+  0%, 100% { opacity: 0.5; transform: translateX(-50px); }
+  50%      { opacity: 1;   transform: translateX(0); }
+}
+@keyframes cosmos-ceremony-slow {
+  0%, 100% { opacity: 0.55; transform: translateX(-80px); }
+  50%      { opacity: 1;    transform: translateX(0); }
+}
+
+/* ═══════════════ HUD (top-right stats) — DÉPLACÉ DANS LE PANEL EN COURS (Q1) ═══════════════ */
+.cosmos-hud { display: none !important; }
+.cosmos-hud {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  gap: 12px;
+  z-index: 40;
+}
+.cosmos-hud-stat {
+  background: rgba(15, 14, 35, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 6px;
+  padding: 8px 12px;
+  min-width: 64px;
+  text-align: center;
+}
+.cosmos-hud-stat-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+.cosmos-hud-stat-label {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 3px;
+}

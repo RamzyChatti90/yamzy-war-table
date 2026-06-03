@@ -26,5 +26,18 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/war-table/war-table.component').then(m => m.WarTableComponent),
   },
+  // Sanctuaire 3D : chambre + crystal du spell-caster (publique, sans auth)
+  {
+    path: 'conclave-room',
+    loadComponent: () =>
+      import('./features/conclave-room/conclave-room.component').then(m => m.ConclaveRoomComponent),
+  },
+  // Orrery Viewer — page indépendante fullscreen avec scène GLB + cristal + particules
+  // (publique, demo / capture / partage — pas besoin d'auth ni de projet chargé)
+  {
+    path: 'orrery-viewer',
+    loadComponent: () =>
+      import('./features/orrery-viewer/orrery-viewer.component').then(m => m.OrreryViewerComponent),
+  },
   { path: '**', redirectTo: 'conclave' },
 ];

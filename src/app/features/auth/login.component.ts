@@ -329,12 +329,14 @@ export class LoginComponent implements OnInit {
   loginGithub(): void {
     this.loading.set(true);
     this.error.set('');
-    // Backend OAuth2SuccessHandler accepte redirect_uri (whitelist
-    // app.oauth2.allowed-redirect-uris inclut deja localhost:4201/auth/callback).
+    // ⚠ FIX : passer par /api/auth/sso-start qui stocke le redirect_uri en SESSION HTTP
+    // avant de rediriger vers /oauth2/authorization/github. C'est cette session que
+    // l'OAuth2SuccessHandler lit pour savoir où renvoyer le token. Aller direct sur
+    // /oauth2/authorization/github?redirect_uri=… → session vide → fallback sur :4200.
     const callbackUri = `${window.location.origin}/auth/callback`;
     const apiBase = environment.apiUrl.replace(/\/api$/, '');
-    const oauthUrl = `${apiBase}/oauth2/authorization/github?redirect_uri=${encodeURIComponent(callbackUri)}`;
-    window.location.href = oauthUrl;
+    const ssoUrl = `${apiBase}/api/auth/sso-start?redirect_uri=${encodeURIComponent(callbackUri)}`;
+    window.location.href = ssoUrl;
   }
 
   useYamzy(): void {

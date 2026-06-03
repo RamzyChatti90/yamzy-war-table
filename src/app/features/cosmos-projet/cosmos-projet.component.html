@@ -1,0 +1,301 @@
+<!-- Cosmos Projet — Carte cosmique vivante du projet. -->
+
+<div class="cosmos-host">
+  <!-- 🌈 AURORE BOREALE en fond (sentiment global) -->
+  <div class="cosmos-aurora"
+       [style.--aurora-from]="auroraColor().from"
+       [style.--aurora-to]="auroraColor().to"></div>
+
+  <!-- ✨ Étoiles fixes (constellations) -->
+  <div class="cosmos-stars"></div>
+
+  <!-- ⚫ TROU NOIR (top-left) — engloutit les tickets CANCELLED -->
+  <div class="cosmos-blackhole" *ngIf="cancelledTickets().length > 0"
+       [attr.title]="cancelledTickets().length + ' tickets cancelled engloutis'">
+    <div class="cosmos-blackhole-vortex"></div>
+    <div class="cosmos-blackhole-event-horizon"></div>
+    <span class="cosmos-blackhole-count">{{ cancelledTickets().length }}</span>
+  </div>
+
+  <!-- 🌌 SCENE COSMIQUE 3D — 2 modes au choix via cosmos3dMode signal -->
+  <!-- Mode SIMPLE : Three.js procédural (soleil + orbites + planètes spheres) -->
+  <cosmos-3d-scene *ngIf="cosmos3dMode() === 'simple'"
+                   class="cosmos-3d-overlay"
+                   [planets]="planets3d()"
+                   [orbitsSize]="orbitsSize"
+                   [projectHealth]="projectHealth"
+                   [sunColor]="sunHealthColor()">
+  </cosmos-3d-scene>
+  <!-- Mode ORRERY : GLB animé natif (test) -->
+  <cosmos-orrery *ngIf="cosmos3dMode() === 'orrery'"
+                 class="cosmos-3d-overlay"
+                 glbUrl="/assets/agents/orrery.glb"
+                 [animSpeed]="1"
+                 [projectVelocity]="velocityNow"
+                 [projectHealth]="projectHealth"
+                 [sunColor]="sunHealthColor()"
+                 [tickets]="orreryTickets()"
+                 (planetClick)="onOrreryPlanetClick($event)">
+  </cosmos-orrery>
+
+  <!-- 🪐 PANEL HEADER ouvert au click sur une planète orrery -->
+  <div *ngIf="selectedOrreryTicket() as t" class="cosmos-astre-panel">
+    <button class="cosmos-astre-panel-close" (click)="closeOrreryPanel()" title="Fermer">×</button>
+    <div class="cosmos-astre-panel-head">
+      <span class="cosmos-astre-panel-color" [style.background]="t.color || '#a3b8d0'"></span>
+      <div class="cosmos-astre-panel-title">{{ t.title || ('#' + t.id) }}</div>
+      <span class="cosmos-astre-panel-status" *ngIf="t.status">{{ t.status }}</span>
+    </div>
+    <div class="cosmos-astre-panel-body">
+      <div class="cosmos-astre-panel-row" *ngIf="t.sprintName"><span>Sprint</span><strong>{{ t.sprintName }}</strong></div>
+      <div class="cosmos-astre-panel-row" *ngIf="t.assignee"><span>Assignee</span><strong>{{ t.assignee }}</strong></div>
+      <div class="cosmos-astre-panel-row" *ngIf="t.dueDate"><span>Due</span><strong>{{ fmtDate(t.dueDate) }}</strong></div>
+      <div class="cosmos-astre-panel-row" *ngIf="t.priority"><span>Priority</span><strong>{{ t.priority }}</strong></div>
+      <div class="cosmos-astre-panel-row" *ngIf="t.storyPoints"><span>Story Points</span><strong>{{ t.storyPoints }}</strong></div>
+      <div class="cosmos-astre-panel-row" *ngIf="t.description"><span>Description</span><strong class="cosmos-astre-panel-desc">{{ t.description }}</strong></div>
+    </div>
+  </div>
+  <!-- Bouton toggle (top-right au-dessus des controls) -->
+  <button class="cosmos-mode-toggle"
+          (click)="toggleCosmos3dMode()"
+          [title]="cosmos3dMode() === 'simple' ? 'Passer au mode Orrery (GLB animé)' : 'Passer au mode Simple (procédural)'">
+    {{ cosmos3dMode() === 'simple' ? '🔭 Orrery' : '⚙ Simple' }}
+  </button>
+  <!-- L'ancienne .cosmos-scene CSS est cachée (les éléments dedans restent en CSS pour
+       milestones/comets/now-hand/labels mais les orbites/planètes/soleil sont en 3D) -->
+  <div class="cosmos-scene cosmos-scene-hidden">
+    <!-- 9 orbites concentriques -->
+    <div *ngFor="let size of orbitsSize; let i = index"
+         class="cosmos-orbit"
+         [class.is-belt]="i === 5"
+         [style.width.px]="size"
+         [style.height.px]="size"
+         [attr.data-orbit]="orbitsName[i]">
+    </div>
+
+    <!-- ═══ P2 — Burndown SVG (idéal pointillé + réel plein) ═══ -->
+    <svg class="cosmos-burndown-svg" viewBox="-300 -300 600 600"
+         preserveAspectRatio="xMidYMid meet">
+      <!-- Burndown idéal (où on devrait être) -->
+      <path [attr.d]="burndownIdealPath()"
+            fill="none"
+            stroke="rgba(217, 154, 81, 0.45)"
+            stroke-width="1.2"
+            stroke-dasharray="4 4"
+            stroke-linecap="round" />
+      <!-- Burndown réel (où on EST) — trace lumineuse -->
+      <path [attr.d]="burndownRealPath()"
+            fill="none"
+            stroke="url(#cosmos-burn-grad)"
+            stroke-width="2"
+            stroke-linecap="round" />
+      <!-- Dégradé pour la trace réelle -->
+      <defs>
+        <linearGradient id="cosmos-burn-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"  stop-color="rgba(94, 182, 218, 0.0)" />
+          <stop offset="50%" stop-color="rgba(94, 182, 218, 0.55)" />
+          <stop offset="100%" stop-color="rgba(255, 220, 100, 0.9)" />
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <!-- ═══ P4 — Dependency arcs SVG (lignes entre planètes liées) ═══ -->
+    <svg class="cosmos-dep-svg" viewBox="-300 -300 600 600"
+         preserveAspectRatio="xMidYMid meet">
+      <line *ngFor="let arc of depArcs(); let i = index"
+            [attr.x1]="arc.x1" [attr.y1]="arc.y1"
+            [attr.x2]="arc.x2" [attr.y2]="arc.y2"
+            [class.is-blocks]="arc.type === 'blocks'"
+            [class.is-related]="arc.type === 'related'"
+            class="cosmos-dep-line"
+            stroke-linecap="round" />
+    </svg>
+
+    <!-- ═══ P4 — Astéroïdes (risques) ═══ -->
+    <div *ngFor="let a of placedAsteroids(); let i = index"
+         class="cosmos-asteroid"
+         [class.is-urgent]="a.urgency > 0.5"
+         [style.--ast-orbit.px]="a.orbitRadius"
+         [style.--ast-angle.deg]="a.angleDeg"
+         [style.--ast-size.px]="a.size"
+         [style.--ast-urgency]="a.urgency"
+         [title]="a.risk.label + ' (risque: ' + (a.risk.score || '?') + ')'">
+      <div class="cosmos-asteroid-rock"></div>
+    </div>
+
+    <!-- 🪐 Anneau Saturn (matérialise les milestones) -->
+    <div *ngFor="let m of placedMilestones(); trackBy: trackByMilestoneId"
+         class="cosmos-saturn-ring"
+         [class.is-release]="m.type === 'release'"
+         [class.is-review]="m.type === 'review'"
+         [style.transform]="'translate(-50%, -50%) rotate(' + m.angleDeg + 'deg)'"
+         [title]="m.milestone.label + ' · ' + fmtDate(m.milestone.date)"
+         (click)="onMilestoneClick(m.milestone)">
+      <div class="cosmos-saturn-ring-dot"></div>
+    </div>
+
+    <!-- 💫 COMÈTES traversantes (jalons importants : kickoff/closure) -->
+    <div *ngFor="let m of placedMilestones(); trackBy: trackByMilestoneId">
+      <div *ngIf="m.type === 'kickoff' || m.type === 'closure'"
+           class="cosmos-comet"
+           [class.is-kickoff]="m.type === 'kickoff'"
+           [class.is-closure]="m.type === 'closure'"
+           [style.transform]="'translate(-50%, -50%) rotate(' + m.angleDeg + 'deg)'">
+        <div class="cosmos-comet-trail"></div>
+        <div class="cosmos-comet-head"></div>
+      </div>
+    </div>
+
+    <!-- ═══ P5 — CÉRÉMONIES (daily/planning/review/retro/wrap-up) ═══
+         Chaque type a sa signature visuelle (couleur + animation distincte) -->
+    <div *ngFor="let c of placedCeremonies(); let i = index"
+         class="cosmos-ceremony"
+         [class.is-daily]="c.ceremony.type === 'daily'"
+         [class.is-planning]="c.ceremony.type === 'planning'"
+         [class.is-review]="c.ceremony.type === 'review'"
+         [class.is-retro]="c.ceremony.type === 'retro'"
+         [class.is-wrapup]="c.ceremony.type === 'wrap-up'"
+         [style.transform]="'translate(-50%, -50%) rotate(' + c.angleDeg + 'deg)'"
+         [title]="c.ceremony.label || c.ceremony.type">
+      <div class="cosmos-ceremony-trail"></div>
+      <div class="cosmos-ceremony-head"></div>
+    </div>
+
+    <!-- 🎯 AIGUILLE NOW (indique le moment présent) -->
+    <div class="cosmos-now-hand"
+         [style.transform]="'translate(-50%, -100%) rotate(' + nowAngleDeg() + 'deg)'">
+      <div class="cosmos-now-line"></div>
+      <span class="cosmos-now-label">NOW · {{ fmtDate(currentDate()) }}</span>
+    </div>
+
+    <!-- ═══ P3 — LUNES D'ÉQUIPE en orbite proche du soleil ═══ -->
+    <div *ngFor="let mo of placedMoons(); let i = index"
+         class="cosmos-moon"
+         [class.is-online]="mo.member.isOnline"
+         [style.--moon-orbit.px]="mo.orbitRadius"
+         [style.--moon-angle.deg]="mo.angleDeg"
+         [style.--moon-size.px]="mo.size"
+         [style.--moon-color]="mo.color"
+         [style.--moon-brightness]="mo.brightness"
+         [title]="mo.member.name + ' (' + (mo.member.capacityPct || 0) + '% capacity)'">
+      <div class="cosmos-moon-body"></div>
+    </div>
+
+    <!-- ☀️ SOLEIL = LE PROJET (fireball.glb 3D + santé/budget/sprint actif overlay) -->
+    <div class="cosmos-sun"
+         [style.animation-duration.s]="sunPulseSpeed()"
+         [style.--sun-health-color]="sunHealthColor()"
+         [style.--sun-corona-color]="sunCoronaColor()"
+         [style.--sun-size-pct]="sunSizePct()">
+      <!-- P1 — Anneau du sprint actif (couronne intérieure) -->
+      <div *ngIf="hasSprintActive()" class="cosmos-sun-sprint-ring"
+           [style.--sprint-progress]="sprintProgressPct()"
+           [title]="sprintActive?.name + ' (' + sprintProgressPct() + '%)'"></div>
+      <!-- Sphère CSS classique (sun-core + corona) — revert du GLB -->
+      <div class="cosmos-sun-core"></div>
+      <div class="cosmos-sun-corona"></div>
+      <div class="cosmos-sun-label">
+        <div class="cosmos-sun-code">{{ projectCode || 'PROJET' }}</div>
+        <div class="cosmos-sun-name">{{ projectName || '—' }}</div>
+      </div>
+    </div>
+
+    <!-- 🪐 PLANÈTES (tickets) -->
+    <div *ngFor="let p of placedPlanets(); trackBy: trackByTicketId"
+         class="cosmos-planet"
+         [style.--orbit-size.px]="orbitsSize[p.orbitIndex]"
+         [style.--start-angle.deg]="p.angleDeg"
+         [style.--planet-size.px]="p.size"
+         [style.--planet-color]="p.color"
+         [style.--glow-size.px]="p.glowSize"
+         [style.--halo]="p.haloIntensity"
+         [style.--rotation-speed.s]="p.rotationSpeedSec"
+         [class.is-blocked]="p.ticket.status === 'BLOCKED'"
+         [class.is-done]="p.ticket.status === 'DONE'"
+         [class.is-active]="p.ticket.status === 'IN_PROGRESS'"
+         (mouseenter)="onPlanetHover(p.ticket.id)"
+         (mouseleave)="onPlanetHover(null)"
+         (click)="onPlanetClick(p.ticket)">
+      <div class="cosmos-planet-glow"></div>
+      <div class="cosmos-planet-body"></div>
+      <!-- Anneaux si hasComments / hasSubtasks -->
+      <div *ngIf="p.ticket.hasSubtasks" class="cosmos-planet-ring"></div>
+    </div>
+  </div>
+
+  <!-- 💎 TOOLTIP au hover -->
+  <div *ngIf="hoveredPlanet() as h" class="cosmos-tooltip">
+    <div class="cosmos-tooltip-title">{{ h.ticket.title }}</div>
+    <div class="cosmos-tooltip-meta">
+      <span class="cosmos-tooltip-tag" [style.background]="h.color">{{ h.ticket.status || 'TODO' }}</span>
+      <span *ngIf="h.ticket.priority" class="cosmos-tooltip-prio">{{ h.ticket.priority }}</span>
+      <span *ngIf="h.ticket.storyPoints" class="cosmos-tooltip-sp">{{ h.ticket.storyPoints }} SP</span>
+    </div>
+    <div class="cosmos-tooltip-row" *ngIf="h.ticket.sprintName">
+      <span>Sprint :</span> <strong>{{ h.ticket.sprintName }}</strong>
+    </div>
+    <div class="cosmos-tooltip-row" *ngIf="h.ticket.assignee">
+      <span>Assignee :</span> <strong>{{ h.ticket.assignee }}</strong>
+    </div>
+    <div class="cosmos-tooltip-row" *ngIf="h.ticket.dueDate">
+      <span>Due :</span> <strong>{{ fmtDate(h.ticket.dueDate) }}</strong>
+    </div>
+    <div class="cosmos-tooltip-orbit">Orbite : {{ orbitsName[h.orbitIndex] }}</div>
+  </div>
+
+  <!-- 🧭 LÉGENDE — labels des mois autour du cadran -->
+  <div class="cosmos-month-labels">
+    <span *ngFor="let _ of [].constructor(12); let i = index"
+          class="cosmos-month"
+          [style.transform]="'translate(-50%, -50%) rotate(' + (i * 30) + 'deg)'">
+      <span class="cosmos-month-text" [style.transform]="'rotate(' + (-(i * 30)) + 'deg)'">{{ monthLabel(i) }}</span>
+    </span>
+  </div>
+
+  <!-- 🎮 BARRE DE CONTRÔLE (bottom) -->
+  <div class="cosmos-controls">
+    <div class="cosmos-controls-left">
+      <button type="button" class="cosmos-ctrl-btn" (click)="togglePlay()" [title]="isPlaying() ? 'Pause' : 'Play'">
+        <span *ngIf="isPlaying()">⏸</span>
+        <span *ngIf="!isPlaying()">▶</span>
+      </button>
+      <button type="button" class="cosmos-ctrl-btn cosmos-ctrl-now" (click)="goToNow()" title="Revenir au présent">
+        ⊙ NOW
+      </button>
+    </div>
+
+    <div class="cosmos-controls-slider">
+      <input type="range" min="0" max="100" step="0.1"
+             [value]="yearFraction() * 100"
+             (input)="onSliderInput($event)"
+             class="cosmos-slider"/>
+      <div class="cosmos-slider-label">
+        <span>{{ currentYear() }}</span>
+        <span class="cosmos-slider-date">{{ fmtDate(currentDate()) }}</span>
+      </div>
+    </div>
+
+    <div class="cosmos-controls-right">
+      <button type="button" class="cosmos-filter-btn" [class.is-active]="filterMode() === 'all'" (click)="setFilterMode('all')">Tout</button>
+      <button type="button" class="cosmos-filter-btn" [class.is-active]="filterMode() === 'mine'" (click)="setFilterMode('mine')">Mes tickets</button>
+      <button type="button" class="cosmos-filter-btn" [class.is-active]="filterMode() === 'blocked'" (click)="setFilterMode('blocked')">Bloqués</button>
+      <button type="button" class="cosmos-filter-btn" [class.is-active]="filterMode() === 'this-week'" (click)="setFilterMode('this-week')">Cette semaine</button>
+    </div>
+  </div>
+
+  <!-- HUD top-left : stats projet -->
+  <div class="cosmos-hud">
+    <div class="cosmos-hud-stat">
+      <div class="cosmos-hud-stat-value">{{ placedPlanets().length }}</div>
+      <div class="cosmos-hud-stat-label">tickets actifs</div>
+    </div>
+    <div class="cosmos-hud-stat">
+      <div class="cosmos-hud-stat-value">{{ velocityNow }}</div>
+      <div class="cosmos-hud-stat-label">velocity (SP)</div>
+    </div>
+    <div class="cosmos-hud-stat">
+      <div class="cosmos-hud-stat-value">{{ projectHealth }}%</div>
+      <div class="cosmos-hud-stat-label">santé</div>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { tap, shareReplay } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface CarnivalUser {
@@ -58,6 +59,12 @@ export class AuthService {
     if (reload) location.reload();
   }
 
+  /** v1.0.177cq — Stocke JWT + hydrate currentUser SANS reload (utilisé par AuthCallback). */
+  setTokenAndHydrate(token: string) {
+    localStorage.setItem(this.TOKEN_KEY, token);
+    return this.loadCurrentUser();
+  }
+
   /** v1.0.122 — Logout : clear JWT + user, redirige sera fait par le caller. */
   clearSession(): void {
     localStorage.removeItem(this.TOKEN_KEY);
@@ -65,11 +72,11 @@ export class AuthService {
     this.currentUser.set(null);
   }
 
-  /** v1.0.122 — Charge le profil utilisateur courant depuis /api/users/me. */
+  /** v1.0.122 / v1.0.177cr — Charge le profil depuis /api/users/me. Un seul call HTTP,
+   *  hydratation via tap() dans le pipeline (multiple subscribers OK grâce à shareReplay). */
   loadCurrentUser() {
-    const obs = this.http.get<any>(`${environment.apiUrl}/users/me`);
-    obs.subscribe({
-      next: (u) => {
+    return this.http.get<any>(`${environment.apiUrl}/users/me`).pipe(
+      tap((u) => {
         const mapped: CarnivalUser = {
           id: u.id,
           githubLogin: u.githubLogin || u.login || 'guest',
@@ -81,10 +88,10 @@ export class AuthService {
         };
         this.currentUser.set(mapped);
         localStorage.setItem(this.USER_KEY, JSON.stringify(mapped));
-      },
-      error: () => { /* 401 handled by interceptor */ }
-    });
-    return obs;
+        console.log('[Auth] currentUser hydraté :', mapped.githubLogin, '· avatar=', mapped.avatarUrl);
+      }),
+      shareReplay(1),
+    );
   }
 
   /** Lit ?token=… dans l'URL et le persiste, puis clean l'URL. */

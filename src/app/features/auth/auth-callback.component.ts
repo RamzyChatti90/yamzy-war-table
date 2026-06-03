@@ -1,9 +1,10 @@
 // Capture le ?token=… renvoyé par le backend Yamzy après OAuth GitHub réussi.
 // Route : /auth/callback?token=eyJhbGc...
-// Stocke le JWT, nettoie l'URL, redirige vers /war-table.
+// Stocke le JWT, hydrate currentUser depuis /api/users/me, redirige vers /war-table.
 
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-auth-callback',
@@ -38,19 +39,36 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class AuthCallbackComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private auth = inject(AuthService);
   error = '';
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(qp => {
       const token = qp['token'];
-      if (!token || String(token).length < 20) {
-        this.error = 'Token manquant ou invalide dans le callback.';
+      // v1.0.177ct — Cas 1 : token présent dans l'URL → stocke + hydrate + navigue
+      if (token && String(token).length >= 20) {
+        localStorage.setItem('yamzy_jwt', token);
+        console.log('[WAR TABLE] ✓ JWT reçu via OAuth backend');
+        this.auth.loadCurrentUser().subscribe({
+          next: (u: any) => console.log('[WAR TABLE] ✓ User hydraté :', u?.githubLogin || '?', '· name=', u?.name || u?.displayName, '· avatar=', !!u?.avatarUrl),
+          error: (err) => console.warn('[WAR TABLE] ⚠ Hydratation user failed :', err?.status, err?.message),
+        });
+        // Navigation immédiate — le user component se mettra à jour quand currentUser sera hydraté
+        this.router.navigate(['/war-table']);
         return;
       }
-      localStorage.setItem('yamzy_jwt', token);
-      console.log('[VESPER] ✓ JWT reçu via OAuth backend — la Conclave s\'ouvre');
-      // Redirige vers le studio (sans le token dans l'URL)
-      setTimeout(() => this.router.navigate(['/conclave']), 300);
+      // v1.0.177ct — Cas 2 : pas de token dans l'URL (refresh sur /auth/callback OU OAuth a échoué)
+      //   Si on a déjà un JWT en localStorage → on est probablement déjà connecté, on navigue vers studio
+      const existingJwt = localStorage.getItem('yamzy_jwt');
+      if (existingJwt && existingJwt.length >= 20) {
+        console.log('[WAR TABLE] JWT déjà présent en localStorage → navigation directe vers /war-table');
+        this.router.navigate(['/war-table']);
+        return;
+      }
+      // v1.0.177ct — Cas 3 : pas de token, pas de JWT → vraie erreur, retour vers /login
+      console.warn('[WAR TABLE] Token manquant et aucun JWT en cache → retour /login');
+      this.error = 'Aucun token reçu. Retour à la page de connexion…';
+      setTimeout(() => this.router.navigate(['/login']), 1500);
     });
   }
 }

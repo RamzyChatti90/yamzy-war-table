@@ -430,6 +430,9 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   logout(): void {
     if (!confirm('Se déconnecter ?')) return;
+    // v1.0.177cs — Sauve la session timer en cours AVANT logout sinon elle est perdue.
+    //   Dispatch d'un événement custom écouté par WarTableComponent.endTicketWork().
+    try { window.dispatchEvent(new CustomEvent('yamzy:before-logout')); } catch {}
     this.auth.clearSession();
     this.router.navigate(['/login']);
   }

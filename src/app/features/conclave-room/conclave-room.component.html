@@ -1,0 +1,70 @@
+<!-- Conclave de VESPER — Room 3D + overlay screens.
+     Canvas Three.js plein écran, écrans Title/Instructions/Enter en overlay HTML/CSS. -->
+
+<div class="conclave-host">
+  <canvas #canvas class="conclave-canvas"></canvas>
+
+  <!-- Sound toggle (toujours visible) -->
+  <button class="conclave-sound-btn" type="button"
+          (click)="toggleSounds()"
+          [title]="soundsEnabled() ? 'Mute' : 'Unmute'">
+    <span *ngIf="soundsEnabled()">🔊</span>
+    <span *ngIf="!soundsEnabled()">🔇</span>
+  </button>
+
+  <!-- LOADING SCREEN -->
+  <div *ngIf="screen() === 'LOADING'" class="conclave-screen conclave-loading">
+    <div class="conclave-content">
+      <div class="conclave-orb">⚔</div>
+      <h1>Conclave de VESPER</h1>
+      <p class="conclave-loading-text">Chargement du sanctuaire…</p>
+      <div class="conclave-loading-bar"></div>
+    </div>
+  </div>
+
+  <!-- TITLE SCREEN -->
+  <div *ngIf="screen() === 'TITLE'" class="conclave-screen conclave-title">
+    <div class="conclave-content">
+      <h1 class="conclave-title-text">
+        Conclave<br/>
+        de VESPER
+      </h1>
+      <p class="conclave-subtitle">Le sanctuaire des plannings éclos</p>
+      <button class="conclave-btn conclave-btn--major" type="button" (click)="onStartClick()">
+        Commencer
+      </button>
+      <ul class="conclave-actions">
+        <li><button class="conclave-btn conclave-btn--ghost" type="button" (click)="onSkipInstructions()">Entrer directement</button></li>
+        <li><button class="conclave-btn conclave-btn--ghost" type="button" (click)="onEnterStudio()">Studio</button></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- INSTRUCTIONS SCREEN -->
+  <div *ngIf="screen() === 'INSTRUCTIONS'" class="conclave-screen conclave-instructions">
+    <div class="conclave-content">
+      <h3>Bienvenue, Gardien</h3>
+      <p>Au cœur du Conclave repose le <strong>Crystal de VESPER</strong>, l'âme qui scelle tes plannings.</p>
+      <p>Veille sur ses pulsations : il rythmera tes sprints, tes daily, tes rétrospectives.</p>
+      <button class="conclave-btn conclave-btn--major" type="button" (click)="onInstructionsNext()">
+        Pénétrer le sanctuaire
+      </button>
+      <button class="conclave-btn conclave-btn--ghost" type="button" (click)="onBackToTitle()">
+        Retour
+      </button>
+    </div>
+  </div>
+
+  <!-- ROOM (gameplay-less, contemplation) -->
+  <div *ngIf="screen() === 'ROOM'" class="conclave-screen conclave-room conclave-screen--hud">
+    <div class="conclave-hud-top">
+      <button class="conclave-hud-btn" type="button" (click)="onBackToTitle()" title="Retour au titre">
+        ← Sortir
+      </button>
+      <span class="conclave-hud-label">Sanctuaire du Crystal</span>
+      <button class="conclave-hud-btn conclave-hud-btn--major" type="button" (click)="onEnterStudio()">
+        Entrer au studio →
+      </button>
+    </div>
+  </div>
+</div>

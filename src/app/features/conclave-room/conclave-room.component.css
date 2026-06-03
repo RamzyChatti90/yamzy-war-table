@@ -1,0 +1,296 @@
+/* Conclave de VESPER — Room 3D component styles.
+   Inspiré du spell-caster index.scss : police "Spectral SC", colorimétrie gothic + warm.
+   Adapté Angular standalone. */
+
+:host {
+  display: block;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #0a0820;
+  font-family: 'Spectral SC', 'Cormorant SC', Georgia, serif;
+  color: #fff;
+}
+
+.conclave-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.conclave-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+}
+
+/* ───────── Sound toggle (top-right, toujours visible) ───────── */
+.conclave-sound-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 1000;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(15, 14, 35, 0.7);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background .15s, transform .15s, border-color .15s;
+}
+.conclave-sound-btn:hover {
+  background: rgba(217, 154, 81, 0.5);
+  border-color: #d99a51;
+  transform: scale(1.08);
+}
+
+/* ───────── Screens overlay (centered) ───────── */
+.conclave-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  background:
+    radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.85) 80%);
+  animation: conclave-fade-in 0.6s ease-out;
+}
+@keyframes conclave-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.conclave-screen--hud {
+  background: none;
+  pointer-events: none;
+}
+.conclave-screen--hud > * { pointer-events: auto; }
+
+.conclave-content {
+  max-width: 560px;
+  padding: 40px 60px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ───────── Title screen ───────── */
+.conclave-title-text {
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow:
+    0 0 30px rgba(217, 154, 81, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.8);
+  margin: 0 0 8px 0;
+  animation: conclave-title-glow 3s ease-in-out infinite alternate;
+}
+@keyframes conclave-title-glow {
+  from { text-shadow: 0 0 20px rgba(217, 154, 81, 0.3), 0 4px 12px rgba(0, 0, 0, 0.8); }
+  to   { text-shadow: 0 0 40px rgba(217, 154, 81, 0.7), 0 0 60px rgba(155, 108, 255, 0.4); }
+}
+
+.conclave-subtitle {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #a99fd6;
+  margin: 0 0 24px 0;
+}
+
+/* ───────── Loading screen ───────── */
+.conclave-loading h1 {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 20px 0 8px 0;
+  text-shadow: 0 0 20px rgba(217, 154, 81, 0.5);
+}
+.conclave-orb {
+  font-size: 64px;
+  color: #d99a51;
+  filter: drop-shadow(0 0 24px rgba(217, 154, 81, 0.6));
+  animation: conclave-orb-spin 2s ease-in-out infinite;
+}
+@keyframes conclave-orb-spin {
+  0%, 100% { transform: rotate(-8deg) scale(1); }
+  50% { transform: rotate(8deg) scale(1.08); }
+}
+.conclave-loading-text {
+  color: #a99fd6;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.conclave-loading-bar {
+  margin-top: 16px;
+  width: 200px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+.conclave-loading-bar::after {
+  content: '';
+  position: absolute;
+  left: -40%;
+  top: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #d99a51, transparent);
+  animation: conclave-loading-slide 1.4s linear infinite;
+}
+@keyframes conclave-loading-slide {
+  from { left: -40%; }
+  to   { left: 100%; }
+}
+
+/* ───────── Instructions screen ───────── */
+.conclave-instructions h3 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0 0 12px 0;
+  text-shadow: 0 0 16px rgba(155, 108, 255, 0.5);
+}
+.conclave-instructions p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #d9d0f0;
+  margin: 4px 0;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.conclave-instructions strong {
+  color: #d99a51;
+  font-weight: 700;
+}
+
+/* ───────── Buttons ───────── */
+.conclave-btn {
+  font-family: 'Spectral SC', 'Cormorant SC', serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+}
+.conclave-btn--major {
+  background: linear-gradient(135deg, #d99a51 0%, #b87a3a 100%);
+  border: 1px solid #d99a51;
+  color: #fff;
+  box-shadow: 0 6px 24px rgba(217, 154, 81, 0.35);
+  margin-top: 6px;
+}
+.conclave-btn--major:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(217, 154, 81, 0.55);
+}
+.conclave-btn--ghost {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #a99fd6;
+}
+.conclave-btn--ghost:hover {
+  border-color: #d99a51;
+  color: #fff;
+  background: rgba(217, 154, 81, 0.1);
+}
+
+.conclave-actions {
+  margin-top: 20px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  list-style: none;
+}
+.conclave-actions li { padding: 0; margin: 0; }
+.conclave-actions .conclave-btn {
+  font-size: 11px;
+  padding: 8px 18px;
+}
+
+/* ───────── HUD (in-room overlay) ───────── */
+.conclave-hud-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 20;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent);
+}
+.conclave-hud-btn {
+  font-family: 'Spectral SC', 'Cormorant SC', serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 10px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(15, 14, 35, 0.55);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  transition: all 0.15s;
+}
+.conclave-hud-btn:hover {
+  border-color: #d99a51;
+  background: rgba(217, 154, 81, 0.2);
+}
+.conclave-hud-btn--major {
+  border-color: #d99a51;
+  background: rgba(217, 154, 81, 0.6);
+}
+.conclave-hud-btn--major:hover {
+  background: rgba(217, 154, 81, 0.85);
+  box-shadow: 0 6px 20px rgba(217, 154, 81, 0.4);
+}
+.conclave-hud-label {
+  font-family: 'Spectral SC', 'Cormorant SC', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #d99a51;
+  text-shadow: 0 0 12px rgba(217, 154, 81, 0.4);
+}
+
+/* ───────── Responsive ───────── */
+@media (max-width: 768px) {
+  .conclave-title-text { font-size: 44px; }
+  .conclave-content { padding: 30px 24px; }
+  .conclave-hud-label { display: none; }
+}
