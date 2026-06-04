@@ -1,0 +1,451 @@
+{
+  "$comment": "v2 — dual narrator Yamzy↔Scrum/PM + cinematic playExample 48s. Budget/resource management story arc.",
+  "roomKey": "alchemist-cellar",
+  "meta": {
+    "name": "Alchemist Cellar",
+    "loreName": "La Cave aux Fioles",
+    "icon": "⚗",
+    "color": "#84cc16",
+    "summary": "Une cave voûtée où chaque fiole = un budget vivant. L'Athanor distille la dépense, le Hibou veille l'audit, et le Grimoire capitalise le savoir.",
+    "introLore": "🪶 Bienvenue dans la Cave aux Fioles, jeune Mage. Devant toi, l'Athanor sacré, la Balance d'or et le Hibou Veilleur. Pour le chef de projet, c'est ton tableau de bord vivant Budget & Resource Management : chaque fiole = un pool de ressources, chaque cristal = un insight distillé, chaque éclat du Hibou = une alerte d'audit. Maîtrise l'Alchimie, et tes coûts ne te surprendront jamais."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "fiole",
+      "name": "La Fiole de Budget",
+      "scrumName": "Budget pool / Resource line",
+      "desc": "Fiole en verre dont le niveau de liquide = consommation budgétaire courante.",
+      "yamzyExplain": "Chaque Fiole renferme une essence singulière — un service, une ressource, une enveloppe. Plus son niveau est haut, plus elle bouillonne. Quand elle déborde, le Hibou hulule. Le Mage la consulte au moindre frémissement.",
+      "scrumExplain": "Each flask = a budget line item (cloud service, contractor pool, license bucket). Liquid level reflects MTD spend vs cap. Color encodes service kind (compute/storage/network/AI/DB). Click to inspect baseline vs current spend.",
+      "interactions": ["clic fiole = détail budget", "bulles = anomalie / fermentation en cours"]
+    },
+    {
+      "tutorialId": "shelf",
+      "name": "Les Étagères des Providers",
+      "scrumName": "Resource pools / Cost centers",
+      "desc": "Trois étagères murales — une par fournisseur (AWS / GCP / Azure) — regroupant les fioles par origine.",
+      "yamzyExplain": "Chaque étagère est dédiée à un Grand Maître (AWS, GCP, Azure). Le Mage range ses fioles par origine pour qu'aucune ne se mélange. C'est sa manière sacrée de garder l'ordre des essences.",
+      "scrumExplain": "Wall shelves group flasks by provider / cost center. Useful for billing aggregation, chargeback to teams, and FinOps governance. Each shelf has 2 levels × 3 slots = 6 services per provider."
+    },
+    {
+      "tutorialId": "athanor",
+      "name": "L'Athanor Sacré",
+      "scrumName": "Cost engine / Billing reconciliation",
+      "desc": "Fourneau central qui consume les coûts bruts et les transmute en données réconciliées.",
+      "yamzyExplain": "L'Athanor brûle sans cesse. Il avale les coûts bruts venus des Royaumes lointains, les purifie de leurs erreurs, et rend l'or de la vérité. Quand sa flamme rugit, un grand calcul est en cours.",
+      "scrumExplain": "Central cost reconciliation engine. Ingests raw billing exports, normalizes currencies, tags, and exposes the unified cost picture. Glow intensifies during nightly reconciliation runs.",
+      "interactions": ["click athanor = détail pipeline FinOps", "intensify = reconciliation running"]
+    },
+    {
+      "tutorialId": "crystal",
+      "name": "Les Cristaux d'Insight",
+      "scrumName": "Distilled savings / Optimization win",
+      "desc": "Cristaux verts au pied de l'athanor — chaque cristal est une économie réalisée et certifiée.",
+      "yamzyExplain": "Les Cristaux sont les enseignements sacrés que l'Athanor distille à partir du chaos des dépenses. Verts pour la victoire, dorés pour les grandes économies. Ils sont la fierté du Mage frugal.",
+      "scrumExplain": "Each crystal = a confirmed cost optimization (rightsizing, RI, S3 lifecycle). Spawned by `crystallize()` after a recommendation is applied and savings tracked over 2 billing cycles."
+    },
+    {
+      "tutorialId": "balance",
+      "name": "La Balance d'Or",
+      "scrumName": "Budget arbitrage / Cost-benefit scale",
+      "desc": "Balance romaine — penche d'un côté quand un budget dépasse, de l'autre quand on optimise.",
+      "yamzyExplain": "La Balance d'Or ne ment pas. D'un côté, ce que tu dépenses ; de l'autre, ce que tu en tires. Quand elle penche trop vers l'un, le Mage doit choisir : couper ou justifier.",
+      "scrumExplain": "Visual arbiter between budget envelope and realized value. Tilts left = over-spend / negative ROI. Tilts right = underutilized capacity. Used in steering committees to drive prioritization."
+    },
+    {
+      "tutorialId": "owl",
+      "name": "Le Hibou Veilleur",
+      "scrumName": "Audit alert / Anomaly watcher",
+      "desc": "Hibou perché sur la cheminée — ses yeux s'embrasent quand une alerte d'audit se déclenche.",
+      "yamzyExplain": "Le Hibou ne dort jamais. Quand ses yeux virent au rouge et qu'il ouvre ses ailes, c'est qu'une dépense suspecte a franchi le seuil sacré. Le Mage doit l'écouter immédiatement.",
+      "scrumExplain": "Anomaly detector for cost spikes (>30% vs baseline) and budget thresholds (80%/95%/100%). Eyes glow red + wings open = active alert. Triggers an audit ticket and pages FinOps SME."
+    },
+    {
+      "tutorialId": "grimoire",
+      "name": "Le Grimoire des Savants",
+      "scrumName": "Lessons learned / Knowledge base",
+      "desc": "Grimoire ouvert sur table latérale — capitalise les recommandations validées et les retours d'expérience.",
+      "yamzyExplain": "Dans le Grimoire dorment les enseignements des Anciens. Chaque recommandation appliquée y est inscrite à l'or fin. Quand il s'ouvre et flotte, c'est qu'un nouveau savoir vient d'être capitalisé.",
+      "scrumExplain": "Knowledge base of confirmed cost-optimization patterns + post-mortems. Each entry: trigger, action taken, savings, applicable contexts. Floats open with glowing pages when `grimoireOpen()` fires."
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue dans la Cave aux Fioles, jeune Mage. Chaque flacon respire — chaque flamme te parle.",
+      "scrumText": "📋 Welcome to your living Budget & Resource dashboard. Every flask = a budget line, every glow = a signal you can act on.",
+      "morphPairs": [
+        { "yamzy": "Cave aux Fioles", "scrum": "Budget dashboard" },
+        { "yamzy": "Flacon", "scrum": "Budget pool" }
+      ],
+      "camera": { "position": [0, 5, 16], "lookAt": [0, 2.5, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "🧪 Les Fioles — chacune renferme une essence : un budget en vie. Plus le liquide monte, plus tu consommes ton enveloppe.",
+      "scrumText": "📋 Each flask = a budget pool (a cloud service, a team contractor envelope, a license bucket). Liquid level = MTD spend vs cap.",
+      "morphPairs": [
+        { "yamzy": "Fiole", "scrum": "Budget pool" },
+        { "yamzy": "Niveau du liquide", "scrum": "MTD spend ratio" },
+        { "yamzy": "Essence", "scrum": "Resource line" }
+      ],
+      "camera": { "position": [6, 3, 6], "lookAt": [0, 2, -8], "duration": 2 },
+      "highlight": "fiole",
+      "wait": 10
+    },
+    {
+      "step": 3,
+      "yamzyText": "🗄 Trois Étagères — une par Grand Maître. Chaque essence y trouve sa place et nul ne se mélange.",
+      "scrumText": "📋 Three shelves — one per provider (AWS / GCP / Azure). Group budget pools by cost center for FinOps governance and chargeback.",
+      "morphPairs": [
+        { "yamzy": "Étagères des Grands Maîtres", "scrum": "Provider cost centers" },
+        { "yamzy": "Aucune ne se mélange", "scrum": "Chargeback clean per BU" }
+      ],
+      "camera": { "position": [-8, 3, 0], "lookAt": [0, 2, 0], "duration": 2 },
+      "highlight": "shelf",
+      "wait": 9
+    },
+    {
+      "step": 4,
+      "yamzyText": "🔥 L'Athanor Sacré — il consume les coûts bruts venus des Royaumes lointains et rend l'or de la vérité.",
+      "scrumText": "📋 The central cost engine. Ingests raw billing exports, normalizes tags + currencies, exposes the unified spend picture. Glow intensifies during reconciliation.",
+      "morphPairs": [
+        { "yamzy": "Athanor Sacré", "scrum": "Cost reconciliation engine" },
+        { "yamzy": "Royaumes lointains", "scrum": "Multi-cloud providers" },
+        { "yamzy": "Or de la vérité", "scrum": "Normalized cost data" }
+      ],
+      "camera": { "position": [3, 3.5, 5], "lookAt": [0, 2, 0], "duration": 2 },
+      "highlight": "athanor",
+      "invokeMethod": { "name": "athanorFire" },
+      "wait": 10
+    },
+    {
+      "step": 5,
+      "yamzyText": "💎 Les Cristaux d'Insight — au pied de l'Athanor, chaque cristal est une économie sacrée distillée du chaos.",
+      "scrumText": "📋 Each crystal = a confirmed optimization (rightsizing, RIs, S3 lifecycle). Gold ones = >€500 saved. They are your FinOps trophies.",
+      "morphPairs": [
+        { "yamzy": "Cristal d'Insight", "scrum": "Cost optimization win" },
+        { "yamzy": "Distillée du chaos", "scrum": "Confirmed over 2 billing cycles" }
+      ],
+      "camera": { "position": [2, 2, 3], "lookAt": [0, 0.5, 0], "duration": 2 },
+      "highlight": "crystal",
+      "invokeMethod": { "name": "crystallize" },
+      "wait": 10
+    },
+    {
+      "step": 6,
+      "yamzyText": "⚖ La Balance d'Or — elle ne ment pas. D'un côté la dépense, de l'autre la valeur. Quand elle penche, choisis.",
+      "scrumText": "📋 Cost-benefit arbiter. Tilts left = overspend / negative ROI. Tilts right = underutilization. Use in steering committees to drive prioritization.",
+      "morphPairs": [
+        { "yamzy": "Balance d'Or", "scrum": "Budget arbitrage scale" },
+        { "yamzy": "Choisis : couper ou justifier", "scrum": "Cut or justify the line item" }
+      ],
+      "camera": { "position": [-5, 3, 8], "lookAt": [-5, 1.5, 5], "duration": 2 },
+      "highlight": "balance",
+      "invokeMethod": { "name": "balanceTilt", "args": ["over"] },
+      "wait": 10
+    },
+    {
+      "step": 7,
+      "yamzyText": "🦉 Le Hibou Veilleur — il ne dort jamais. Quand ses yeux virent au rouge, une dépense a franchi le seuil sacré.",
+      "scrumText": "📋 Anomaly watcher. Triggers when a budget line exceeds threshold (>30% vs baseline or >80% of envelope). Eyes red + wings open = active audit alert. Pages FinOps SME.",
+      "morphPairs": [
+        { "yamzy": "Hibou Veilleur", "scrum": "Audit alert watcher" },
+        { "yamzy": "Yeux virent au rouge", "scrum": "Threshold breach alert" },
+        { "yamzy": "Seuil sacré", "scrum": "80% budget / 30% anomaly" }
+      ],
+      "camera": { "position": [3, 7, 4], "lookAt": [0.8, 6.5, 0], "duration": 2 },
+      "highlight": "owl",
+      "invokeMethod": { "name": "owlScreech" },
+      "wait": 10
+    },
+    {
+      "step": 8,
+      "yamzyText": "📖 Le Grimoire des Savants — chaque enseignement appliqué s'y inscrit à l'or fin. Le savoir capitalisé.",
+      "scrumText": "📋 The lessons-learned knowledge base. Every applied optimization gets logged with trigger/action/savings/context. Floats open with glowing pages when a new lesson lands.",
+      "morphPairs": [
+        { "yamzy": "Grimoire des Savants", "scrum": "Lessons learned KB" },
+        { "yamzy": "Enseignement appliqué", "scrum": "Applied recommendation" },
+        { "yamzy": "Or fin", "scrum": "Capitalized knowledge" }
+      ],
+      "camera": { "position": [7, 3, 7], "lookAt": [5, 1.5, 5], "duration": 2 },
+      "highlight": "grimoire",
+      "invokeMethod": { "name": "grimoireOpen" },
+      "wait": 10
+    }
+  ],
+
+  "playExample": {
+    "duration": 48,
+    "description": "📜 Un cycle Budget & Resource Management complet en 48s : ouverture cave → fioles fermentent → athanor process → owl alerte → balance warning → crystallize insight → grimoire capitalise. Caméra cinéma + dual narrateur Yamzy/PM.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Aurore frugale — la Cave aux Fioles s'éveille. Les essences respirent doucement dans la pénombre.",
+        "scrumText": "📋 Day 1 of the billing cycle. Budget dashboard refreshes — all flasks at baseline, no alerts. Time to begin the FinOps ritual.",
+        "morphPairs": [
+          { "yamzy": "Aurore frugale", "scrum": "Billing cycle Day 1" },
+          { "yamzy": "Essences respirent", "scrum": "All budget pools at baseline" }
+        ],
+        "camera": { "position": [0, 5, 16], "lookAt": [0, 2.5, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 6,
+        "yamzyText": "🫧 Une Fiole entre en Fermentation — ses bulles montent, l'essence change de couleur. Un budget est en train de se mesurer.",
+        "scrumText": "📋 A budget pool starts ramping — bubbles appear, color shifts. Active spend is being tracked. Watch the level rise over the day.",
+        "morphPairs": [
+          { "yamzy": "Fermentation", "scrum": "Active budget tracking" },
+          { "yamzy": "Bulles montent", "scrum": "Spend ramping up" },
+          { "yamzy": "Essence change de couleur", "scrum": "Status amber: under watch" }
+        ],
+        "camera": { "position": [4, 3, 4], "lookAt": [0, 2, -8], "duration": 2.5 },
+        "highlight": "fiole",
+        "invokeMethod": { "name": "fermentRecipe" }
+      },
+      {
+        "atSeconds": 12,
+        "yamzyText": "🔥 L'Athanor Sacré s'embrase ! Le grand calcul commence — les coûts bruts brûlent et se purifient.",
+        "scrumText": "📋 Nightly reconciliation triggered. Cost engine ingests raw billing, normalizes tags, allocates to cost centers. Watch the athanor flare up.",
+        "morphPairs": [
+          { "yamzy": "Athanor s'embrase", "scrum": "Reconciliation triggered" },
+          { "yamzy": "Coûts bruts brûlent", "scrum": "Raw billing ingested" }
+        ],
+        "camera": { "position": [3, 4, 5], "lookAt": [0, 2, 0], "duration": 2 },
+        "highlight": "athanor",
+        "invokeMethod": { "name": "athanorFire" },
+        "emitCeremony": { "type": "eruption", "label": "🔥 Reconciliation nightly · cost engine fired", "icon": "🔥" }
+      },
+      {
+        "atSeconds": 19,
+        "yamzyText": "🦉 Hululement ! Le Hibou Veilleur ouvre ses ailes — une essence a franchi le seuil sacré. Le Mage doit regarder.",
+        "scrumText": "📋 ANOMALY DETECTED · a budget line jumped +60% vs baseline. Audit alert raised. FinOps SME paged. Investigate before it caps the envelope.",
+        "morphPairs": [
+          { "yamzy": "Hibou ouvre ses ailes", "scrum": "Audit alert raised" },
+          { "yamzy": "Seuil sacré franchi", "scrum": "Anomaly threshold breached" },
+          { "yamzy": "Le Mage doit regarder", "scrum": "FinOps SME paged" }
+        ],
+        "camera": { "position": [3, 7, 4], "lookAt": [0.8, 6.4, 0], "duration": 2 },
+        "highlight": "owl",
+        "invokeMethod": { "name": "owlScreech" },
+        "emitCeremony": { "type": "owl", "label": "🦉 Audit alert · cost spike detected", "icon": "🦉" }
+      },
+      {
+        "atSeconds": 26,
+        "yamzyText": "⚖ La Balance d'Or s'incline — la dépense l'emporte sur la valeur. Le Mage doit trancher : couper ou justifier.",
+        "scrumText": "📋 Cost-benefit scale tilts left · overrun confirmed. Steering committee decision required : cut the resource, justify it, or renegotiate the envelope.",
+        "morphPairs": [
+          { "yamzy": "Balance s'incline", "scrum": "Cost overrun confirmed" },
+          { "yamzy": "Trancher", "scrum": "Steering committee decision" },
+          { "yamzy": "Couper ou justifier", "scrum": "Cut / justify / renegotiate" }
+        ],
+        "camera": { "position": [-5, 4, 8], "lookAt": [-5, 1.5, 5], "duration": 2 },
+        "highlight": "balance",
+        "invokeMethod": { "name": "balanceTilt", "args": ["over"] },
+        "emitCeremony": { "type": "balance", "label": "⚖ Budget overrun · arbitrage required", "icon": "⚖" }
+      },
+      {
+        "atSeconds": 33,
+        "yamzyText": "🫗 Distillation savants — un flux d'or s'élève de la fiole jusqu'au Grimoire. Une recommandation prend forme.",
+        "scrumText": "📋 Optimization recommendation generated · a savings pattern flows from the budget line to the knowledge base. Pending validation before applying.",
+        "morphPairs": [
+          { "yamzy": "Distillation savants", "scrum": "Recommendation engine" },
+          { "yamzy": "Flux d'or", "scrum": "Savings opportunity" }
+        ],
+        "camera": { "position": [5, 4, 8], "lookAt": [2, 1.5, 3], "duration": 2 },
+        "highlight": "fiole",
+        "invokeMethod": { "name": "distillRecommendationFlow" }
+      },
+      {
+        "atSeconds": 40,
+        "yamzyText": "💎 Cristallisation ! Un Cristal d'Insight naît au pied de l'Athanor — la recommandation est devenue économie certifiée.",
+        "scrumText": "📋 Optimization applied & confirmed · €480 saved this cycle. A crystal joins the trophy cluster. Cost reduction validated by FinOps over 2 billing cycles.",
+        "morphPairs": [
+          { "yamzy": "Cristallisation", "scrum": "Savings confirmed" },
+          { "yamzy": "Économie certifiée", "scrum": "Validated optimization" }
+        ],
+        "camera": { "position": [2, 2.5, 4], "lookAt": [0, 0.5, 0], "duration": 2 },
+        "highlight": "crystal",
+        "invokeMethod": { "name": "crystallize" },
+        "emitCeremony": { "type": "crystal", "label": "💎 Insight crystallized · €480 saved", "icon": "💎" }
+      },
+      {
+        "atSeconds": 45,
+        "yamzyText": "📖 Le Grimoire s'ouvre et flotte — les pages tournent toutes seules. Un nouvel enseignement vient d'être inscrit à l'or fin.",
+        "scrumText": "📋 Lesson learned captured · pattern + trigger + savings logged in the FinOps knowledge base. Reusable across teams and future budget cycles.",
+        "morphPairs": [
+          { "yamzy": "Grimoire s'ouvre", "scrum": "Lesson learned logged" },
+          { "yamzy": "Or fin", "scrum": "Capitalized knowledge" },
+          { "yamzy": "Pages tournent", "scrum": "KB indexed across teams" }
+        ],
+        "camera": { "position": [7, 3.5, 7], "lookAt": [5, 1.5, 5], "duration": 2 },
+        "highlight": "grimoire",
+        "invokeMethod": { "name": "grimoireOpen" },
+        "emitCeremony": { "type": "crystal", "label": "📖 Lessons learned capitalized", "icon": "📖" }
+      }
+    ]
+  },
+
+  "additionalDemos": [
+    {
+      "name": "🚨 Crisis · Audit Burn",
+      "icon": "🚨",
+      "duration": 24,
+      "description": "🚨 Catastrophe budgétaire — une essence déborde, le Hibou hurle, la Balance s'écroule. L'audit débarque, l'Athanor s'embrase en urgence. 24s de chaos FinOps.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🌪 Tempête dans la cave — une Fiole gonfle anormalement, l'essence vire au pourpre. Quelque chose ne tourne pas rond.",
+          "scrumText": "📋 Cost spike detected · a budget line jumped +180% in 6h. Anomaly engine flags it. Severity: HIGH.",
+          "morphPairs": [
+            { "yamzy": "Essence vire au pourpre", "scrum": "Anomaly severity HIGH" },
+            { "yamzy": "Fiole gonfle", "scrum": "Spend spiking +180%" }
+          ],
+          "camera": { "position": [4, 3, 4], "lookAt": [0, 2, -8], "duration": 2 },
+          "highlight": "fiole",
+          "invokeMethod": { "name": "triggerAnomaly" }
+        },
+        {
+          "atSeconds": 5,
+          "yamzyText": "🦉 HULULEMENT FURIEUX ! Le Hibou Veilleur déploie ses ailes, ses yeux flamboient rouge sang — l'audit est officiel.",
+          "scrumText": "📋 AUDIT ALERT RAISED · threshold breached at 95% envelope. FinOps SME paged immediately. Incident ticket auto-created.",
+          "morphPairs": [
+            { "yamzy": "Hululement furieux", "scrum": "Critical audit alert" },
+            { "yamzy": "Yeux flamboient rouge", "scrum": "95% envelope breach" }
+          ],
+          "camera": { "position": [3, 7, 4], "lookAt": [0.8, 6.4, 0], "duration": 2 },
+          "highlight": "owl",
+          "invokeMethod": { "name": "owlScreech" },
+          "emitCeremony": { "type": "owl", "label": "🚨 CRITICAL · 95% envelope breach", "icon": "🚨" }
+        },
+        {
+          "atSeconds": 11,
+          "yamzyText": "⚖ La Balance d'Or s'effondre vers la dépense — l'écart est massif, la valeur ne suit plus du tout.",
+          "scrumText": "📋 Cost-benefit scale crashes left · ROI deeply negative (-42%). Burn rate exceeds revenue ingest. Escalation to CFO required.",
+          "morphPairs": [
+            { "yamzy": "Balance s'effondre", "scrum": "ROI -42% catastrophic" },
+            { "yamzy": "Écart massif", "scrum": "Burn > revenue ingest" }
+          ],
+          "camera": { "position": [-5, 4, 8], "lookAt": [-5, 1.5, 5], "duration": 2 },
+          "highlight": "balance",
+          "invokeMethod": { "name": "balanceTilt", "args": ["over"] },
+          "emitCeremony": { "type": "balance", "label": "⚖ ROI -42% · CFO escalation", "icon": "⚖" }
+        },
+        {
+          "atSeconds": 17,
+          "yamzyText": "🔥 L'Athanor s'embrase en mode d'urgence ! Le grand calcul forcé démarre — il faut purifier les comptes avant minuit.",
+          "scrumText": "📋 Emergency reconciliation triggered ad-hoc. Cost engine forced-run. Goal : identify the rogue line and contain the bleed before EOD.",
+          "morphPairs": [
+            { "yamzy": "Athanor mode d'urgence", "scrum": "Emergency reconciliation" },
+            { "yamzy": "Purifier avant minuit", "scrum": "Contain bleed before EOD" }
+          ],
+          "camera": { "position": [3, 4, 5], "lookAt": [0, 2, 0], "duration": 2 },
+          "highlight": "athanor",
+          "invokeMethod": { "name": "athanorFire" },
+          "emitCeremony": { "type": "eruption", "label": "🔥 Emergency reconciliation · ad-hoc", "icon": "🔥" }
+        },
+        {
+          "atSeconds": 22,
+          "yamzyText": "📖 Le Grimoire s'ouvre gravement — l'incident est inscrit en lettres noires. Le savoir naît parfois de la catastrophe.",
+          "scrumText": "📋 Post-mortem logged. Root cause + remediation captured in the FinOps KB. Lesson: tighter alerting thresholds for this service class.",
+          "morphPairs": [
+            { "yamzy": "Lettres noires", "scrum": "Post-mortem entry" },
+            { "yamzy": "Savoir naît de la catastrophe", "scrum": "Lessons from incident" }
+          ],
+          "camera": { "position": [7, 3.5, 7], "lookAt": [5, 1.5, 5], "duration": 2 },
+          "highlight": "grimoire",
+          "invokeMethod": { "name": "grimoireOpen" },
+          "emitCeremony": { "type": "crystal", "label": "📖 Post-mortem capitalized", "icon": "📖" }
+        }
+      ]
+    },
+    {
+      "name": "✨ Victory · Frugal Triumph",
+      "icon": "✨",
+      "duration": 24,
+      "description": "✨ Triomphe FinOps — recette optimale appliquée, Balance équilibrée, distillation magistrale, trois Cristaux d'or jaillissent. €1500 économisés ce cycle.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🌅 Aurore dorée sur la cave — les essences chantent doucement, la lumière baigne les fioles. Tout est en harmonie.",
+          "scrumText": "📋 Healthy cycle start. All budget pools well within envelope. Baseline FinOps posture: green across the board.",
+          "morphPairs": [
+            { "yamzy": "Essences chantent", "scrum": "Pools at healthy levels" },
+            { "yamzy": "Aurore dorée", "scrum": "Green FinOps posture" }
+          ],
+          "camera": { "position": [0, 5, 16], "lookAt": [0, 2.5, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 5,
+          "yamzyText": "🫗 Distillation savante — un flux d'or s'élève de la Fiole, traverse l'air et danse vers le Grimoire. La recommandation prend forme.",
+          "scrumText": "📋 Optimization engine surfaces a high-confidence recommendation (rightsizing 12 EC2 instances). Savings projection: €1500/cycle.",
+          "morphPairs": [
+            { "yamzy": "Flux d'or", "scrum": "Optimization recommendation" },
+            { "yamzy": "Distillation savante", "scrum": "Recommendation engine output" }
+          ],
+          "camera": { "position": [5, 4, 8], "lookAt": [2, 1.5, 3], "duration": 2 },
+          "highlight": "fiole",
+          "invokeMethod": { "name": "distillRecommendationFlow" }
+        },
+        {
+          "atSeconds": 10,
+          "yamzyText": "⚖ La Balance d'Or s'incline doucement vers la valeur — l'arbitrage est gagnant, le ROI sourit au Mage frugal.",
+          "scrumText": "📋 Cost-benefit scale tilts right · ROI confirmed positive (+28%). Recommendation approved by steering. Action authorized.",
+          "morphPairs": [
+            { "yamzy": "Balance vers la valeur", "scrum": "ROI +28% confirmed" },
+            { "yamzy": "Arbitrage gagnant", "scrum": "Steering approved" }
+          ],
+          "camera": { "position": [-5, 4, 8], "lookAt": [-5, 1.5, 5], "duration": 2 },
+          "highlight": "balance",
+          "invokeMethod": { "name": "balanceTilt", "args": ["under"] },
+          "emitCeremony": { "type": "balance", "label": "⚖ ROI +28% · approved", "icon": "⚖" }
+        },
+        {
+          "atSeconds": 15,
+          "yamzyText": "💎 Premier Cristal ! Une économie certifiée naît au pied de l'Athanor — vert éclatant, premier trophée du cycle.",
+          "scrumText": "📋 First savings crystallized · €420 confirmed on EC2 rightsizing. Validated over 2 billing cycles. Trophy logged.",
+          "morphPairs": [
+            { "yamzy": "Cristal vert éclatant", "scrum": "€420 savings confirmed" }
+          ],
+          "camera": { "position": [2, 2.5, 4], "lookAt": [0, 0.5, 0], "duration": 1.5 },
+          "highlight": "crystal",
+          "invokeMethod": { "name": "crystallize" },
+          "emitCeremony": { "type": "crystal", "label": "💎 €420 · EC2 rightsizing", "icon": "💎" }
+        },
+        {
+          "atSeconds": 18,
+          "yamzyText": "💎💎 Deuxième et troisième Cristaux jaillissent ! Dorés cette fois — les grandes économies brillent au pied du Maître.",
+          "scrumText": "📋 Two more savings crystals · S3 lifecycle (€580) + Reserved Instances (€500). Gold tier (>€500 each). Cluster glows bright.",
+          "morphPairs": [
+            { "yamzy": "Cristaux dorés", "scrum": "Gold tier savings >€500" },
+            { "yamzy": "Grandes économies brillent", "scrum": "RI + lifecycle wins stacked" }
+          ],
+          "camera": { "position": [2, 2.5, 4], "lookAt": [0, 0.5, 0], "duration": 1.5 },
+          "highlight": "crystal",
+          "invokeMethod": { "name": "crystallize" },
+          "emitCeremony": { "type": "crystal", "label": "💎 €1080 · S3 + RI gold tier", "icon": "💎" }
+        },
+        {
+          "atSeconds": 22,
+          "yamzyText": "📖 Le Grimoire s'élève en majesté — les trois enseignements s'inscrivent à l'or fin. La Cave chante la victoire frugale.",
+          "scrumText": "📋 Three lessons capitalized in the FinOps KB · €1500 total saved this cycle. Patterns reusable across all teams. Frugal triumph.",
+          "morphPairs": [
+            { "yamzy": "Trois enseignements", "scrum": "Three patterns reusable" },
+            { "yamzy": "Victoire frugale", "scrum": "€1500 total savings" }
+          ],
+          "camera": { "position": [7, 3.5, 7], "lookAt": [5, 1.5, 5], "duration": 2 },
+          "highlight": "grimoire",
+          "invokeMethod": { "name": "grimoireOpen" },
+          "emitCeremony": { "type": "legend", "label": "✨ LÉGENDE · €1500 saved this cycle", "icon": "✨" }
+        }
+      ]
+    }
+  ],
+
+  "closingMessage": "🪶 Cycle frugal accompli. Que tes prochaines Fioles restent maîtrisées, que ton Hibou veille bien, et que ton Grimoire grossisse — Mage de l'Or."
+}

@@ -4169,15 +4169,11 @@
                        [globalActivePart]="globalActivePart()"
                        [globalPlayTrigger]="globalPlayTrigger()"
                        (animationsLoaded)="onAnimationsLoaded($event)"
-                       (animObjectsLoaded)="onAnimObjectsLoaded($event)"
-                       companionGlbUrl="/assets/agents/wizzard.glb"
-                       [useCompanionAnimation]="true"
-                       [companionAutoScale]="false"
-                       [companionOffset]="companionOffsetArr()"
-                       [companionScale]="compScale()"
-                       [companionRotation]="companionRotationArr()"
-                       [boneMapping]="boneMap()"
-                       (bonesReady)="setBoneNames($event.main, $event.companion)"></app-yamzy-avatar-3d>
+                       (animObjectsLoaded)="onAnimObjectsLoaded($event)"></app-yamzy-avatar-3d>
+  <!-- 🔧 v1.0.177bm — FAB principal : companion wizzard.glb retiré.
+       YAMZY.glb contient déjà les bones "wizardArm" (le wizzard) + 5 split anims.
+       Le companion provoquait l'affichage de 2 avatars en parallèle (companion + yamzy retargeté).
+       Companion conservé uniquement en mode édition (lignes ~4643) pour fusion / rig debug. -->
   <!-- v1.0.177am — Resize handle visible uniquement en mode placement
        Drag depuis le coin TR pour agrandir/réduire la div FAB en temps réel -->
   <div class="wt-yamzy-fab-resize" *ngIf="yamzyPlacementMode()"

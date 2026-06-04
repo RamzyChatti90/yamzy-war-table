@@ -1,0 +1,415 @@
+{
+  "$comment": "v2 — dual narrator (Yamzy lore ↔ Scrum/PM) + cinematic playExample 52s",
+  "roomKey": "kanban-island",
+  "meta": {
+    "name": "Kanban Island",
+    "loreName": "L'Archipel des Quêtes",
+    "icon": "🏝",
+    "color": "#7dd3fc",
+    "summary": "Une île 3D où chaque ticket voyage physiquement de la plage au sommet — son statut est sa géographie.",
+    "introLore": "🪶 Bienvenue sur l'Archipel des Quêtes, jeune Mage. Ici, tes tickets ne sont pas des cases dans un tableau — ce sont des voyageurs qui s'échouent sur la plage, gravissent la montagne, et plantent leur drapeau au sommet. Pour le chef de projet, c'est ton Sprint Board vivant en 3D : Backlog → Refined → TODO → In Progress → Done."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "beach",
+      "name": "La Plage de l'Aurore",
+      "scrumName": "Product Backlog",
+      "desc": "Plage sableuse où les nouveaux tickets s'échouent sous forme de bouteilles à la mer.",
+      "yamzyExplain": "C'est l'Aurore de toute quête. Le Mage déballe les bouteilles pour lire les missives et trier les destinées. Plus de bouteilles = plus de ressources brutes à raffiner.",
+      "scrumExplain": "The product backlog. New tickets land here as 'message in bottle' meshes — they wash up with the tide during sprint planning. Story points and priorities are visible before refinement.",
+      "interactions": ["clic bouteille = détail ticket", "tide = sprint planning imminent"]
+    },
+    {
+      "tutorialId": "forest",
+      "name": "La Forêt du Cadrage",
+      "scrumName": "Refined / Ready for Sprint",
+      "desc": "Forêt où les graines (refined) deviennent jeunes arbres (TODO) — le sprint backlog prêt à démarrer.",
+      "yamzyExplain": "Une fois qu'une quête est comprise, le Mage plante sa graine. La graine pousse en arbre — quand l'arbre est mature, la quête peut commencer. Si tu vois trop de graines et pas d'arbres, ton refinement est en retard.",
+      "scrumExplain": "Refined tickets become seeds (Definition of Ready met), then saplings as they enter TODO. Indicates whether your sprint backlog is well-groomed."
+    },
+    {
+      "tutorialId": "mountain",
+      "name": "La Montagne du Build",
+      "scrumName": "In Progress / WIP",
+      "desc": "Pente rocheuse où les mules transportent les arbres-quêtes vers le sommet.",
+      "yamzyExplain": "L'épreuve sacrée. Les Compagnons portent les arbres-quêtes à dos de mule sur la pente. Plus la quête est lourde (story points), plus la mule peine. Trop de mules sur la pente = WIP limit dépassé.",
+      "scrumExplain": "Tickets currently being developed (IN_PROGRESS state). Mule altitude = progress. If too many mules cluster on the slope, your WIP limit is breached — context switching is hurting velocity."
+    },
+    {
+      "tutorialId": "summit",
+      "name": "Le Sommet du Sanctuaire",
+      "scrumName": "Done / Increment delivered",
+      "desc": "Plateau au sommet où les quêtes accomplies sont plantées avec un drapeau.",
+      "yamzyExplain": "Le Sanctuaire des Victoires. Chaque arbre planté ici est une quête accomplie — et chaque drapeau, une bénédiction pour le Royaume. C'est l'increment du sprint, livré et démontré.",
+      "scrumExplain": "DONE tickets become summit trees with planted flags. Counts toward sprint velocity. Each ticket here met the Definition of Done and is shippable."
+    },
+    {
+      "tutorialId": "cliff",
+      "name": "La Falaise du Doute",
+      "scrumName": "Blocked / Impediments",
+      "desc": "Falaise abrupte où les arbres bloqués sont coincés — un vautour tournoie au-dessus.",
+      "yamzyExplain": "L'épreuve maudite. Quand un Compagnon ne peut continuer, son arbre reste suspendu, et le Vautour du Doute tournoie. Le Mage doit intervenir — sinon le Vautour finit par les emporter.",
+      "scrumExplain": "Blocked tickets visible as stuck trees with circling vulture warning. Scrum Master should remove impediments fast — these are the items reported daily in stand-up."
+    },
+    {
+      "tutorialId": "volcano",
+      "name": "Le Volcan de Release",
+      "scrumName": "Release / Production Deploy",
+      "desc": "Volcan central qui gronde quand la release approche — éruption = release day en prod.",
+      "yamzyExplain": "Le Volcan annonce la libération imminente. Plus son grondement est fort, plus la Release est proche. L'éruption est sacrée — elle célèbre la livraison au Royaume entier.",
+      "scrumExplain": "Central volcano whose intensity reflects time-to-release. Eruption = production deployment. Particle burst = celebrating the new version live to users."
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue sur l'Archipel des Quêtes, jeune Mage. Ton kanban n'est plus une grille — c'est une île à explorer.",
+      "scrumText": "📋 Welcome to your living Sprint Board. Each agile column becomes a physical zone on the island — visualize your team's progress in 3D.",
+      "morphPairs": [
+        { "yamzy": "Archipel des Quêtes", "scrum": "Sprint Board" },
+        { "yamzy": "Kanban vivant", "scrum": "Visual workflow" }
+      ],
+      "camera": { "position": [25, 22, 25], "lookAt": [0, 3, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "🌊 La Plage de l'Aurore — chaque bouteille échouée est un voyageur en attente d'être déballé. Au début du Sprint, le cargo arrive.",
+      "scrumText": "📋 The Product Backlog. Each 'bottle' is an unrefined ticket. Sprint Planning = the cargo arrival — fresh stories land here every 2 weeks.",
+      "morphPairs": [
+        { "yamzy": "Plage de l'Aurore", "scrum": "Product Backlog" },
+        { "yamzy": "Bouteille échouée", "scrum": "Unrefined ticket" }
+      ],
+      "camera": { "position": [16, 5, 16], "lookAt": [0, 1, 0], "duration": 2 },
+      "highlight": "beach",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🌳 La Forêt du Cadrage. Les graines (Refined) poussent en jeunes arbres (TODO). Plus l'arbre est mature, plus la quête est prête à démarrer.",
+      "scrumText": "📋 Refinement Zone. Seeds = Refined tickets (Definition of Ready met). Saplings = ready-for-sprint TODO. Backlog grooming happens here, with the PO and team.",
+      "morphPairs": [
+        { "yamzy": "Forêt du Cadrage", "scrum": "Backlog Refinement" },
+        { "yamzy": "Graine plantée", "scrum": "Refined story" },
+        { "yamzy": "Jeune arbre", "scrum": "Ready-for-sprint" }
+      ],
+      "camera": { "position": [12, 6, 6], "lookAt": [0, 2.5, 0], "duration": 2 },
+      "highlight": "forest",
+      "wait": 10
+    },
+    {
+      "step": 4,
+      "yamzyText": "⛰ La Montagne du Build. Tes Compagnons y transportent les arbres-quêtes en cours de réalisation. Plus la pente est raide, plus l'effort est grand.",
+      "scrumText": "📋 In-Progress / WIP zone. Each mule = a developer carrying a ticket up the slope. Story points = the weight on the mule. Watch your WIP limit !",
+      "morphPairs": [
+        { "yamzy": "Montagne du Build", "scrum": "In Progress / WIP" },
+        { "yamzy": "Mule chargée", "scrum": "Developer on ticket" },
+        { "yamzy": "Pente raide", "scrum": "Story points" }
+      ],
+      "camera": { "position": [8, 8, 8], "lookAt": [0, 5, 0], "duration": 2.2 },
+      "highlight": "mountain",
+      "wait": 10
+    },
+    {
+      "step": 5,
+      "yamzyText": "🏔 Le Sommet du Sanctuaire ! C'est là que les arbres accomplis sont plantés avec leur drapeau. Le rêve de chaque Compagnon : voir son arbre au sommet.",
+      "scrumText": "📋 Done column. Each summit tree = a delivered increment, ready to ship. Sprint velocity = count of trees planted per sprint. The flag = your Definition of Done met.",
+      "morphPairs": [
+        { "yamzy": "Sommet du Sanctuaire", "scrum": "Done / DoD met" },
+        { "yamzy": "Drapeau planté", "scrum": "Shippable increment" },
+        { "yamzy": "Arbre mature", "scrum": "Delivered ticket" }
+      ],
+      "camera": { "position": [4, 11, 4], "lookAt": [0, 9.5, 0], "duration": 2 },
+      "highlight": "summit",
+      "wait": 10
+    },
+    {
+      "step": 6,
+      "yamzyText": "🪨 La Falaise du Doute. Le Vautour tournoie au-dessus des quêtes bloquées. Le Mage doit débloquer rapidement — sinon le Vautour finit par les emporter.",
+      "scrumText": "📋 Blocked / Impediments. The vulture circles stuck tickets — a daily reminder for the Scrum Master. Long-blocked items become tech debt. Remove impediments fast.",
+      "morphPairs": [
+        { "yamzy": "Falaise du Doute", "scrum": "Blocked / Impediment" },
+        { "yamzy": "Vautour tournoie", "scrum": "SM Alert" },
+        { "yamzy": "Quête maudite", "scrum": "Long-blocked → tech debt" }
+      ],
+      "camera": { "position": [-12, 7, -12], "lookAt": [-7, 5, -7], "duration": 2.2 },
+      "highlight": "cliff",
+      "invokeMethod": { "name": "vultureDive" },
+      "wait": 11
+    },
+    {
+      "step": 7,
+      "yamzyText": "🌋 Et au centre, le Volcan de Release. Quand il gronde fort, la Release approche. Quand il rugit — c'est le jour de la livraison.",
+      "scrumText": "📋 The release volcano. Eruption = production deploy. Frequency of eruptions = release cadence (weekly, bi-weekly, etc.). The wider the eruption, the more critical the change set.",
+      "morphPairs": [
+        { "yamzy": "Volcan de Release", "scrum": "Production Deploy" },
+        { "yamzy": "Éruption sacrée", "scrum": "Live in prod" }
+      ],
+      "camera": { "position": [6, 12, 6], "lookAt": [0, 9, 0], "duration": 2 },
+      "highlight": "volcano",
+      "invokeMethod": { "name": "toggleVolcano" },
+      "wait": 10
+    },
+    {
+      "step": 8,
+      "yamzyText": "✨ Tu connais l'Archipel. Chaque ticket déplacé est un voyageur que tu aides à atteindre le sommet. Bonne navigation, jeune Mage.",
+      "scrumText": "📋 You've toured the Sprint Board. Drag a ticket to change its zone, click any bottle/mule for details, and let Yamzy guide you through your daily ceremonies.",
+      "camera": { "position": [25, 22, 25], "lookAt": [0, 3, 0], "duration": 2.5 },
+      "wait": 8
+    }
+  ],
+
+  "playExample": {
+    "duration": 52,
+    "description": "📜 Un sprint entier en 52s : Sprint Planning → Refinement → Daily → Build → Blocked → Review → Release. Caméra cinéma + animations 3D + dual narrateur Yamzy/Scrum.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Sprint Magique S1 — l'Aurore se lève sur l'Archipel. La cérémonie commence...",
+        "scrumText": "📋 Sprint S1, Day 0. Sprint kickoff begins. The team is ready to commit to a goal.",
+        "morphPairs": [
+          { "yamzy": "Sprint Magique", "scrum": "Sprint" },
+          { "yamzy": "Aurore", "scrum": "Sprint Day 0" }
+        ],
+        "camera": { "position": [25, 22, 25], "lookAt": [0, 3, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 6,
+        "yamzyText": "🚢 Débarquement sacré — 5 nouvelles bouteilles s'échouent sur la Plage. Chaque bouteille porte une quête à raffiner.",
+        "scrumText": "📋 Sprint Planning. 5 fresh stories land in the backlog. PO + team negotiate scope and estimate. Cargo arrives.",
+        "morphPairs": [
+          { "yamzy": "Débarquement", "scrum": "Sprint Planning" },
+          { "yamzy": "Bouteille échouée", "scrum": "Story added" },
+          { "yamzy": "Quête à raffiner", "scrum": "Refinement needed" }
+        ],
+        "camera": { "position": [18, 7, 18], "lookAt": [10, 1, 10], "duration": 2.5 },
+        "highlight": "beach",
+        "invokeMethod": { "name": "arriveCargo" },
+        "emitCeremony": { "type": "debarquement", "label": "Sprint Planning S1 · 5 stories", "icon": "🚢" }
+      },
+      {
+        "atSeconds": 14,
+        "yamzyText": "🌳 Migration vers la Forêt — 3 voyageurs déballent leurs bouteilles et plantent leurs graines. La Forêt du Cadrage s'épaissit.",
+        "scrumText": "📋 Refinement happens. 3 stories move from Backlog → Refined. DoR is met : sized, clarified, acceptance criteria written.",
+        "morphPairs": [
+          { "yamzy": "Migration vers Forêt", "scrum": "Backlog → Refined" },
+          { "yamzy": "Plantation de graines", "scrum": "DoR met" }
+        ],
+        "camera": { "position": [10, 8, 10], "lookAt": [0, 2, 0], "duration": 2 },
+        "highlight": "forest",
+        "invokeMethod": { "name": "migrateTickets", "args": ["beach", "forest_refined", 3] }
+      },
+      {
+        "atSeconds": 20,
+        "yamzyText": "🌅 Cercle de l'Aube — les Compagnons se réunissent autour du feu. Chaque voix annonce sa quête du jour.",
+        "scrumText": "📋 Daily Stand-up. Each developer answers : Yesterday, Today, Blockers ? 15-min sync, all standing. Foster team awareness.",
+        "morphPairs": [
+          { "yamzy": "Cercle de l'Aube", "scrum": "Daily Stand-up" },
+          { "yamzy": "Compagnons", "scrum": "Dev team" },
+          { "yamzy": "Voix annonce sa quête", "scrum": "Yesterday/Today/Blockers" }
+        ],
+        "camera": { "position": [5, 4, 5], "lookAt": [0, 1.7, 0], "duration": 2 },
+        "invokeMethod": { "name": "dawnRitual" }
+      },
+      {
+        "atSeconds": 27,
+        "yamzyText": "⛰ Les Mules s'engagent sur la pente — 2 quêtes sont prises en charge. Le Build commence à gronder.",
+        "scrumText": "📋 2 tickets move TODO → In Progress. Developers pull stories from the sprint backlog. WIP increases — keep an eye on your limit.",
+        "morphPairs": [
+          { "yamzy": "Mules sur la pente", "scrum": "Tickets in WIP" },
+          { "yamzy": "Build gronde", "scrum": "CI builds running" }
+        ],
+        "camera": { "position": [8, 7, 8], "lookAt": [0, 4, 0], "duration": 2 },
+        "highlight": "mountain",
+        "invokeMethod": { "name": "migrateTickets", "args": ["forest_todo", "mountain_wip", 2] }
+      },
+      {
+        "atSeconds": 34,
+        "yamzyText": "🪨 Calamité ! Une quête trébuche sur la Falaise du Doute — le Vautour la repère. Le Mage doit intervenir.",
+        "scrumText": "📋 A ticket gets blocked — dependency on external team. Vulture circles = Scrum Master needs to escalate and unblock today.",
+        "morphPairs": [
+          { "yamzy": "Trébuche sur la Falaise", "scrum": "Blocked impediment" },
+          { "yamzy": "Vautour repère", "scrum": "SM Alert" },
+          { "yamzy": "Mage intervient", "scrum": "Escalation"}
+        ],
+        "camera": { "position": [-12, 7, -12], "lookAt": [-7, 5, -7], "duration": 2 },
+        "highlight": "cliff",
+        "invokeMethod": { "name": "vultureDive" },
+        "emitCeremony": { "type": "feu", "label": "Blocker · External dep down", "icon": "🪨" }
+      },
+      {
+        "atSeconds": 41,
+        "yamzyText": "🏔 Le Sommet ! Les arbres victorieux y sont plantés. Drapeaux dorés au vent — le Sanctuaire des Accomplis brille.",
+        "scrumText": "📋 Sprint Review. Tickets cross the DoD finish line. Flags planted = increments demoed to stakeholders. Velocity counted.",
+        "morphPairs": [
+          { "yamzy": "Sommet du Sanctuaire", "scrum": "Sprint Review" },
+          { "yamzy": "Drapeau au vent", "scrum": "Demo'd increment" },
+          { "yamzy": "Sanctuaire des Accomplis", "scrum": "Velocity count" }
+        ],
+        "camera": { "position": [4, 12, 4], "lookAt": [0, 9.5, 0], "duration": 2.5 },
+        "highlight": "summit",
+        "invokeMethod": { "name": "plantFlags" },
+        "emitCeremony": { "type": "sommet", "label": "Sprint Review S1 · 8 stories done", "icon": "🏁" }
+      },
+      {
+        "atSeconds": 48,
+        "yamzyText": "🌋 Le Volcan rugit ! Cendres dorées au ciel — la Release rejoint le Royaume entier. C'est la cérémonie ultime.",
+        "scrumText": "📋 Production Deploy. v1.42.0 live for all users. Eruption particles = your release notes burning across the network.",
+        "morphPairs": [
+          { "yamzy": "Volcan rugit", "scrum": "Prod deploy" },
+          { "yamzy": "Cendres dorées", "scrum": "Release notes" },
+          { "yamzy": "Royaume entier", "scrum": "All users live" }
+        ],
+        "camera": { "position": [10, 13, 10], "lookAt": [0, 9, 0], "duration": 2 },
+        "highlight": "volcano",
+        "invokeMethod": { "name": "volcanoErupt" },
+        "emitCeremony": { "type": "sommet", "label": "🚀 v1.42.0 deployed!", "icon": "🌋" }
+      }
+    ]
+  },
+
+  "additionalDemos": [
+    {
+      "name": "🚨 Tempête du Doute",
+      "icon": "🚨",
+      "duration": 24,
+      "description": "📜 Sprint en crise · La tempête frappe, le Vautour pille, les quêtes s'échouent sur la Falaise. Le Mage doit éteindre l'incendie.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Aube trouble. Le ciel de l'Archipel s'assombrit — le vent porte un avertissement.",
+          "scrumText": "📋 Sprint mid-flight. Velocity dropping. Slack notifications piling up. Something is brewing.",
+          "morphPairs": [
+            { "yamzy": "Ciel s'assombrit", "scrum": "Velocity dropping" },
+            { "yamzy": "Avertissement", "scrum": "Risk signals" }
+          ],
+          "camera": { "position": [25, 22, 25], "lookAt": [0, 3, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "⛈ TEMPÊTE ! Les Mules paniquent sur la Montagne — la pente tremble, les arbres-quêtes glissent.",
+          "scrumText": "📋 External API down. CI breaks. 4 stories in WIP suddenly blocked. War-room called.",
+          "morphPairs": [
+            { "yamzy": "Tempête frappe", "scrum": "External API down" },
+            { "yamzy": "Mules paniquent", "scrum": "WIP blocked en masse" }
+          ],
+          "camera": { "position": [8, 9, 8], "lookAt": [0, 5, 0], "duration": 2 },
+          "highlight": "mountain",
+          "invokeMethod": { "name": "toggleStorm" },
+          "emitCeremony": { "type": "feu", "label": "⛈ Storm · prod incident", "icon": "⛈" }
+        },
+        {
+          "atSeconds": 10,
+          "yamzyText": "🪨 Les quêtes s'écrasent sur la Falaise du Doute — 3 voyageurs y sont coincés. Le Vautour les a repérés.",
+          "scrumText": "📋 3 tickets shift In Progress → Blocked. Impediment count spikes. SLA breach imminent.",
+          "morphPairs": [
+            { "yamzy": "Falaise du Doute", "scrum": "Blocked column" },
+            { "yamzy": "Vautour repère", "scrum": "Impediment alert" }
+          ],
+          "camera": { "position": [-12, 7, -12], "lookAt": [-7, 5, -7], "duration": 2 },
+          "highlight": "cliff",
+          "invokeMethod": { "name": "migrateTickets", "args": ["forest_todo", "cliff_blocked", 3] }
+        },
+        {
+          "atSeconds": 15,
+          "yamzyText": "🦅 Le Vautour plonge ! Il tournoie au-dessus des quêtes maudites — son cri résonne dans tout l'Archipel.",
+          "scrumText": "📋 Vulture dive · escalation triggered. Scrum Master pings the dependency owner. Stand-up forced.",
+          "morphPairs": [
+            { "yamzy": "Vautour plonge", "scrum": "Escalation triggered" },
+            { "yamzy": "Cri résonne", "scrum": "All-team alert" }
+          ],
+          "camera": { "position": [-10, 9, -10], "lookAt": [-6, 6, -6], "duration": 2 },
+          "highlight": "cliff",
+          "invokeMethod": { "name": "vultureDive" },
+          "emitCeremony": { "type": "feu", "label": "🦅 Vulture · 3 blockers escalated", "icon": "🦅" }
+        },
+        {
+          "atSeconds": 21,
+          "yamzyText": "🪶 Le Mage stratège invoque le Cercle d'urgence — Compagnons rassemblés, plans réajustés. La tempête se calme.",
+          "scrumText": "📋 Emergency stand-up. Scope cut, blockers triaged, hotfix branch spawned. Storm passes.",
+          "morphPairs": [
+            { "yamzy": "Cercle d'urgence", "scrum": "Emergency stand-up" },
+            { "yamzy": "Plans réajustés", "scrum": "Scope cut" }
+          ],
+          "camera": { "position": [5, 4, 5], "lookAt": [0, 1.7, 0], "duration": 2 },
+          "invokeMethod": { "name": "dawnRitual" }
+        }
+      ]
+    },
+    {
+      "name": "🏆 Cordée du Sommet",
+      "icon": "🏆",
+      "duration": 25,
+      "description": "📜 Sprint exceptionnel · Toutes les quêtes franchissent la Montagne, atteignent le Sommet, et le Volcan rugit pour la Release majeure.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Aube lumineuse. L'Archipel respire en harmonie — les Compagnons sont alignés, le vent souffle vers le Sommet.",
+          "scrumText": "📋 Sprint Day 9. Team flowing. WIP balanced. Burndown ahead of schedule. Energy peak.",
+          "morphPairs": [
+            { "yamzy": "Vent vers le Sommet", "scrum": "Flow state" },
+            { "yamzy": "Aube lumineuse", "scrum": "Sprint Day 9" }
+          ],
+          "camera": { "position": [25, 22, 25], "lookAt": [0, 3, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 5,
+          "yamzyText": "🌳 La Forêt se vide — 5 graines à la fois s'élèvent vers la Montagne. Les Mules avancent en cordée.",
+          "scrumText": "📋 5 tickets pulled Refined → In Progress in one sweep. Pair programming + mob coding. WIP healthy.",
+          "morphPairs": [
+            { "yamzy": "Cordée des Mules", "scrum": "Pair / mob coding" },
+            { "yamzy": "Forêt se vide", "scrum": "Refined → WIP burst" }
+          ],
+          "camera": { "position": [10, 8, 10], "lookAt": [0, 4, 0], "duration": 2 },
+          "highlight": "mountain",
+          "invokeMethod": { "name": "migrateTickets", "args": ["forest_todo", "mountain_wip", 5] }
+        },
+        {
+          "atSeconds": 11,
+          "yamzyText": "🏔 Et au Sommet ! 5 arbres victorieux s'enracinent en un instant. Le Sanctuaire des Accomplis brille comme jamais.",
+          "scrumText": "📋 5 stories swept In Progress → Done in a single afternoon. Sprint velocity exceeds forecast by 30%.",
+          "morphPairs": [
+            { "yamzy": "Sanctuaire brille", "scrum": "Sprint velocity peak" },
+            { "yamzy": "Arbres s'enracinent", "scrum": "Done column fills" }
+          ],
+          "camera": { "position": [4, 12, 4], "lookAt": [0, 9.5, 0], "duration": 2 },
+          "highlight": "summit",
+          "invokeMethod": { "name": "migrateTickets", "args": ["mountain_wip", "summit_done", 5] }
+        },
+        {
+          "atSeconds": 17,
+          "yamzyText": "🚩 Les drapeaux dorés sont plantés — un par quête, un par Compagnon. Le vent les claque comme un chant de victoire.",
+          "scrumText": "📋 Definition of Done met for all 5 stories. Flags raised = increments shippable. Sprint review packed.",
+          "morphPairs": [
+            { "yamzy": "Drapeaux dorés", "scrum": "Increments shippable" },
+            { "yamzy": "Chant de victoire", "scrum": "Sprint review demo" }
+          ],
+          "camera": { "position": [2, 11, 2], "lookAt": [0, 9.5, 0], "duration": 2 },
+          "highlight": "summit",
+          "invokeMethod": { "name": "plantFlags" },
+          "emitCeremony": { "type": "sommet", "label": "🚩 Sprint S2 · 13 stories done", "icon": "🚩" }
+        },
+        {
+          "atSeconds": 22,
+          "yamzyText": "🌋 RUGISSEMENT ! Le Volcan libère sa lave dorée — une Release majeure rejoint le Royaume entier.",
+          "scrumText": "📋 v2.0.0 deployed to prod. Major release shipped on time. Eruption celebrates a flawless sprint.",
+          "morphPairs": [
+            { "yamzy": "Lave dorée", "scrum": "Major release shipped" },
+            { "yamzy": "Royaume entier", "scrum": "All users live" }
+          ],
+          "camera": { "position": [10, 13, 10], "lookAt": [0, 9, 0], "duration": 2 },
+          "highlight": "volcano",
+          "invokeMethod": { "name": "volcanoErupt" },
+          "emitCeremony": { "type": "sommet", "label": "🌋 v2.0.0 shipped · perfect sprint", "icon": "🌋" }
+        }
+      ]
+    }
+  ],
+
+  "closingMessage": "🪶 Sprint S1 accompli. Que tes prochaines quêtes atteignent toutes le sommet, jeune Mage."
+}

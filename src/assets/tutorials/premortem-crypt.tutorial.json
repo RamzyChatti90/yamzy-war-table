@@ -1,0 +1,249 @@
+{
+  "$comment": "v1 — dual narrator (Yamzy lore ↔ Scrum/Gary Klein method) + cinematic playExample 80s. Pre-mortem ceremony arc.",
+  "roomKey": "premortem-crypt",
+  "meta": {
+    "name": "Pre-mortem Crypt",
+    "loreName": "Le Caveau des Pré-Mortems",
+    "icon": "⚰",
+    "color": "#831843",
+    "summary": "Une crypte gothique souterraine où chaque sarcophage est une cause hypothétique d'échec du projet. Bougies = vote impact, runes = contre-mesures signées.",
+    "oneLiner": "Imaginer les scénarios d'échec du projet.",
+    "introLore": "⚰ Bienvenue dans le Caveau des Pré-Mortems, jeune Mage. Avant que ton vaisseau ne quitte le port, descends ici et imagine qu'il a déjà sombré. Pour le chef de projet, c'est la méthode du Pré-Mortem (Gary Klein, 2007) : nous projetons l'échec comme s'il était certain, puis nous remontons les causes. Chaque sarcophage est un scénario de mort, chaque bougie un vote d'impact, chaque rune une contre-mesure scellée."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "sarcophage",
+      "name": "Les Sarcophages des Causes",
+      "scrumName": "Hypothesized failure cause",
+      "desc": "Six sarcophages alignés en deux rangées — chacun est une cause hypothétique d'échec du projet.",
+      "yamzyExplain": "Chaque Sarcophage abrite un scénario : et si l'API change, et si l'équipe brule, et si le scope déborde. Sa pierre est froide tant qu'on ne le visite pas. Le Mage stratège passe devant chacun, l'imagine consommé, et grave sa peur.",
+      "scrumExplain": "Each sarcophagus = one hypothesized cause of project failure, brainstormed during the pre-mortem ceremony. Categories include technical, team, scope, external, and process risks. Click to inspect the risk file.",
+      "interactions": ["clic sarcophage = fiche du risque", "rune visible = contre-mesure définie"]
+    },
+    {
+      "tutorialId": "candle",
+      "name": "Les Bougies d'Impact",
+      "scrumName": "Impact voting candles",
+      "desc": "Bougies posées sur la dalle de chaque sarcophage. Chaque Compagnon en allume une pour voter l'impact perçu.",
+      "yamzyExplain": "Chaque Compagnon apporte sa flamme et la dépose sur la dalle qu'il craint le plus. Plus une dalle s'illumine, plus le péril rongera le Royaume. Le Mage observe — les trois sarcophages les plus brûlants seront ceux qu'il faudra honorer en premier.",
+      "scrumExplain": "Each team member places a candle (dot vote) on the failure cause they fear most. The 3 most-lit sarcophagi = the top failure modes to prevent. Color shifts from gold (1-2 votes) to orange (3-4) to deep red (5).",
+      "interactions": ["vote = bougie allumée", "couleur = niveau d'impact"]
+    },
+    {
+      "tutorialId": "rune",
+      "name": "Les Runes des Contre-Mesures",
+      "scrumName": "Mitigation runes / Countermeasures",
+      "desc": "Runes pourpres gravées sur le flanc d'un sarcophage — visibles uniquement si une contre-mesure a été définie.",
+      "yamzyExplain": "Quand le Mage scelle un pacte de protection contre un péril, il grave sa Rune dans la pierre. La rune pulse, vivante, jusqu'à ce que le danger soit conjuré. Tant qu'aucune rune n'apparait, le sarcophage reste un risque ouvert.",
+      "scrumExplain": "Mitigation runes glow on a sarcophagus when a concrete countermeasure has been documented (action item, owner, due date). A risk without a rune = a risk without ownership. Track rune coverage as a workshop output metric.",
+      "interactions": ["rune visible = contre-mesure définie", "pulse = action en cours"]
+    },
+    {
+      "tutorialId": "seal",
+      "name": "Le Sceau Central",
+      "scrumName": "Workshop facilitator seal",
+      "desc": "Disque doré gravé au centre du sol, entouré de deux anneaux concentriques. Symbole du Mage facilitateur.",
+      "yamzyExplain": "Le Sceau brille au cœur de la Crypte — il est la signature du Mage facilitateur. Tant qu'il pulse, la cérémonie est active. Les Compagnons se tiennent autour de lui, et lui seul peut clore le vote final.",
+      "scrumExplain": "The central facilitator seal anchors the workshop. Its pulse indicates an active session. The facilitator (scrum master, PM, coach) stands here to open the ceremony and to call the final vote.",
+      "interactions": ["pulse = cérémonie en cours"]
+    },
+    {
+      "tutorialId": "torch",
+      "name": "Les Torches Violettes",
+      "scrumName": "Workshop ambient lighting",
+      "desc": "Huit torches violétes accrochées aux murs — elles éclairent la Crypte d'une lueur sacrée.",
+      "yamzyExplain": "Les Torches respirent au rythme du Mage. Leur flamme violéte est celle des esprits qui veillent — ils écoutent les peurs et les gardent en mémoire pour les générations futures.",
+      "scrumExplain": "Ambient violet torchlight sets the tone for the pre-mortem ceremony : reflective, slightly somber, focused. Lighting is intentionally low to encourage candor about risks.",
+      "interactions": ["flicker = ambiance vivante"]
+    },
+    {
+      "tutorialId": "brume",
+      "name": "La Brume du Doute",
+      "scrumName": "Reflective workshop atmosphere",
+      "desc": "Brume cyan-pourpre qui flotte au ras du sol — elle habite la Crypte de doutes encore informés.",
+      "yamzyExplain": "La Brume porte toutes les peurs non encore nommées. Elle se condense au sol et attend qu'un Mage l'invoque pour devenir Sarcophage. C'est elle qui nourrit les nouvelles hypothèses, atelier après atelier.",
+      "scrumExplain": "Ground-level mist symbolizes risks not yet named. As the team brainstorms, mist condenses into new sarcophagi. The brume drift conveys the open, exploratory state of the early workshop phase."
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "⚰ Bienvenue dans le Caveau des Pré-Mortems, jeune Mage. Ici, nous imaginons que ton projet a déjà sombré — et nous remontons les causes.",
+      "scrumText": "📋 Welcome to the Pre-mortem Crypt. The Gary Klein method : project failed, why ? Walk each sarcophagus and document the cause of death.",
+      "morphPairs": [
+        { "yamzy": "Caveau des Pré-Mortems", "scrum": "Pre-mortem workshop" },
+        { "yamzy": "Projet a sombré", "scrum": "Project failed (hypothesis)" }
+      ],
+      "camera": { "position": [6, 5, 10], "lookAt": [0, 1, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "⚰ Devant toi, six Sarcophages alignés en deux rangées. Chacun est une cause hypothétique d'échec — et chacun attend ta lecture.",
+      "scrumText": "📋 Six sarcophagi = six hypothesized failure causes. Each one is a brainstormed risk : API change, burnout, scope creep, external dependency, process drag, onboarding miss.",
+      "morphPairs": [
+        { "yamzy": "Sarcophages alignés", "scrum": "Failure causes board" },
+        { "yamzy": "Cause hypothétique", "scrum": "Risk hypothesis" }
+      ],
+      "camera": { "position": [4, 3.5, 7], "lookAt": [0, 1, 0], "duration": 2 },
+      "highlight": "sarcophage",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🕯 Chaque dalle porte une Bougie. Les Compagnons les allument pour voter l'impact — plus la flamme est rouge, plus le péril rongera.",
+      "scrumText": "📋 Each slab holds an impact candle. Team members vote by lighting candles. Color encodes severity : gold (1-2 votes), orange (3-4), deep red (5).",
+      "morphPairs": [
+        { "yamzy": "Bougies votées", "scrum": "Dot vote on impact" },
+        { "yamzy": "Flamme rouge", "scrum": "High severity" }
+      ],
+      "camera": { "position": [-1.5, 2.5, 1], "lookAt": [0, 1.3, -3], "duration": 2 },
+      "highlight": "candle",
+      "wait": 9
+    },
+    {
+      "step": 4,
+      "yamzyText": "ᚱ Et là, des Runes pourpres pulsent sur le flanc d'un sarcophage. Elles signent qu'une contre-mesure a été gravée — le péril est tenu.",
+      "scrumText": "📋 Glowing violet runes appear when a concrete mitigation is documented for that risk. No rune = no owner, no action. Track rune coverage as a workshop output.",
+      "morphPairs": [
+        { "yamzy": "Rune pulse", "scrum": "Mitigation defined" },
+        { "yamzy": "Contre-mesure gravée", "scrum": "Action item recorded" }
+      ],
+      "camera": { "position": [3, 1.5, 0], "lookAt": [4.5, 0.6, -3], "duration": 2 },
+      "highlight": "rune",
+      "wait": 9
+    },
+    {
+      "step": 5,
+      "yamzyText": "✨ Au centre, le Sceau doré du Mage facilitateur. Tant qu'il pulse, la cérémonie est active — et lui seul peut clore le vote.",
+      "scrumText": "📋 The central golden seal = workshop facilitator anchor. Its pulse signals an active session. The PM/scrum master opens and closes the ceremony from here.",
+      "morphPairs": [
+        { "yamzy": "Sceau doré", "scrum": "Facilitator seal" },
+        { "yamzy": "Cérémonie active", "scrum": "Workshop in progress" }
+      ],
+      "camera": { "position": [0, 4, 4.5], "lookAt": [0, 0.5, 0], "duration": 2 },
+      "highlight": "seal",
+      "wait": 8
+    },
+    {
+      "step": 6,
+      "yamzyText": "🔥 Les Torches violétes respirent contre les murs, témoins silencieuses. Et la Brume au sol porte les peurs encore informées.",
+      "scrumText": "📋 Eight wall torches set the reflective tone. The ground mist symbolizes risks not yet named — the open brainstorm space. Both are atmospheric, not interactive.",
+      "morphPairs": [
+        { "yamzy": "Brume au sol", "scrum": "Unnamed risks pool" },
+        { "yamzy": "Torches violétes", "scrum": "Reflective ambient" }
+      ],
+      "camera": { "position": [-8, 3, 2], "lookAt": [0, 1, 0], "duration": 2 },
+      "highlight": "torch",
+      "wait": 8
+    },
+    {
+      "step": 7,
+      "yamzyText": "✨ La méthode est simple : un, brainstormer les causes — deux, voter l'impact avec les bougies — trois, graver les contre-mesures en runes.",
+      "scrumText": "📋 Method recap : (1) brainstorm failure causes → sarcophagi appear. (2) Dot-vote impact → candles glow. (3) Document countermeasures → runes carve. Export the top 3 as action items.",
+      "camera": { "position": [6, 5, 10], "lookAt": [0, 1, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 8,
+      "yamzyText": "⚰ Tu sais désormais conduire un Pré-Mortem. Que tes Renaissances soient plus sures, jeune Mage.",
+      "scrumText": "📋 You've toured the pre-mortem ceremony. Click ▶ Play example for the animated 80s demo, or load the demo data to explore the sarcophagi.",
+      "camera": { "position": [6, 5, 10], "lookAt": [0, 1, 0], "duration": 2.5 },
+      "wait": 7
+    }
+  ],
+
+  "playExample": {
+    "duration": 80,
+    "description": "📜 Pré-mortem complet en 80s : descente → 3 bougies allumées → vote top 3 → runes gravées → liste finale.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "⚰ Descente dans la Crypte. La brume s'écarte, les torches violétes nous accueillent.",
+        "scrumText": "📋 Entering the pre-mortem workshop. Setup phase : facilitator opens the ceremony, team gathers around the central seal.",
+        "morphPairs": [
+          { "yamzy": "Descente dans la Crypte", "scrum": "Workshop kickoff" },
+          { "yamzy": "Brume s'écarte", "scrum": "Setting the tone" }
+        ],
+        "camera": { "position": [6, 5, 10], "lookAt": [0, 1, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 12,
+        "yamzyText": "🕯 Première Bougie allumée — 'l'API client change sous nos pieds'. Un Compagnon pose sa flamme.",
+        "scrumText": "📋 Vote 1 : 'Client API gets deprecated mid-sprint'. First team member casts impact vote. Candle ignites gold.",
+        "morphPairs": [
+          { "yamzy": "API change sous nos pieds", "scrum": "API deprecation risk" },
+          { "yamzy": "Compagnon pose sa flamme", "scrum": "Impact vote cast" }
+        ],
+        "camera": { "position": [-2, 2.5, 0], "lookAt": [-4.5, 1.2, -3], "duration": 2 },
+        "highlight": "candle",
+        "invokeMethod": { "name": "lightFirstCandle" }
+      },
+      {
+        "atSeconds": 25,
+        "yamzyText": "🕯 Deuxième Bougie — 'l'équipe brule, charge cognitive dépasse'. La flamme orange révèle l'urgence.",
+        "scrumText": "📋 Vote 2 : 'Team burnout, cognitive load too high'. Second candle lights orange (medium-high severity).",
+        "morphPairs": [
+          { "yamzy": "Équipe brule", "scrum": "Team burnout risk" },
+          { "yamzy": "Charge cognitive", "scrum": "Cognitive overload" }
+        ],
+        "camera": { "position": [1, 2.5, 0], "lookAt": [0, 1.2, -3], "duration": 2 },
+        "highlight": "candle",
+        "invokeMethod": { "name": "lightSecondCandle" }
+      },
+      {
+        "atSeconds": 40,
+        "yamzyText": "🕯 Troisième Bougie — 'le scope déborde, les stakeholders ajoutent encore'. Trois flammes éclairent la Crypte.",
+        "scrumText": "📋 Vote 3 : 'Scope creep, stakeholders adding requests'. Third candle lit. Three failure modes now actively scored.",
+        "morphPairs": [
+          { "yamzy": "Scope déborde", "scrum": "Scope creep risk" },
+          { "yamzy": "Stakeholders ajoutent", "scrum": "Uncontrolled requests" }
+        ],
+        "camera": { "position": [5, 2.5, 0], "lookAt": [4.5, 1.2, -3], "duration": 2 },
+        "highlight": "candle",
+        "invokeMethod": { "name": "lightThirdCandle" }
+      },
+      {
+        "atSeconds": 55,
+        "yamzyText": "🌑 Vote des plus probables — le Mage facilitateur clot la cérémonie. Top 3 sarcophages désignés.",
+        "scrumText": "📋 Final vote tally : top 3 most-feared failure causes selected. Eclipse moment — facilitator locks the priority list.",
+        "morphPairs": [
+          { "yamzy": "Vote des plus probables", "scrum": "Final priority vote" },
+          { "yamzy": "Top 3 désignés", "scrum": "Top 3 risks selected" }
+        ],
+        "camera": { "position": [0, 6, 7], "lookAt": [0, 1, 0], "duration": 2 },
+        "highlight": "seal",
+        "invokeMethod": { "name": "voteTopThree" },
+        "emitCeremony": { "type": "eclipse", "label": "🌑 Top 3 risques sélectionnés", "icon": "🌑" }
+      },
+      {
+        "atSeconds": 70,
+        "yamzyText": "ᚱ Les Runes des contre-mesures se gravent dans la pierre — chaque péril top a sa parade scellée.",
+        "scrumText": "📋 Mitigation runes carved on top 3 sarcophagi. Each documented countermeasure becomes an actionable item with owner and due date.",
+        "morphPairs": [
+          { "yamzy": "Runes gravées", "scrum": "Mitigations documented" },
+          { "yamzy": "Parade scellée", "scrum": "Action item locked" }
+        ],
+        "camera": { "position": [4, 2, 2], "lookAt": [4.5, 0.6, -3], "duration": 2 },
+        "highlight": "rune",
+        "invokeMethod": { "name": "carveRunes" }
+      },
+      {
+        "atSeconds": 80,
+        "yamzyText": "📜 La Liste finale est exportable — trois périls, trois contre-mesures, signe et ferme la Crypte.",
+        "scrumText": "📋 Final exportable list : 3 prioritized risks + 3 mitigations + owners. Workshop output ready for sprint backlog injection.",
+        "morphPairs": [
+          { "yamzy": "Liste finale exportable", "scrum": "Workshop output ready" },
+          { "yamzy": "Ferme la Crypte", "scrum": "Close the workshop" }
+        ],
+        "camera": { "position": [6, 5, 10], "lookAt": [0, 1, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "finalizeList" }
+      }
+    ]
+  },
+
+  "closingMessage": "⚰ Que chaque scénario imaginé ici reste enfermé dans sa pierre, jeune Mage. La Crypte t'attendra pour la prochaine Renaissance."
+}

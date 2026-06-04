@@ -1,0 +1,219 @@
+{
+  "$comment": "☕ Lean Coffee tutorial — agenda démocratique en 4 zones. PlayExample 65s.",
+  "roomKey": "lean-coffee",
+  "meta": {
+    "name": "Lean Coffee",
+    "loreName": "La Brûlerie Lean",
+    "icon": "☕",
+    "color": "#6b4423",
+    "summary": "Agenda démocratique : tasses-sujets qui se déplacent To Discuss → Action.",
+    "oneLiner": "Agenda démocratique : tasses-sujets qui se déplacent To Discuss → Action.",
+    "introLore": "☕ Bienvenue à la Brûlerie Lean, jeune Mage. Ici, l'agenda n'est pas imposé — il se construit à la chaleur du café. Chaque tasse est un sujet. Les sucres sont des votes. Le timer veille à la justice du temps. Apprends à orchestrer le cercle des paroles."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "bar",
+      "name": "Le Comptoir Bar",
+      "scrumName": "Discussing zone (active topic)",
+      "desc": "Comptoir central au fond. La tasse posée ici est le sujet en cours de discussion.",
+      "yamzyExplain": "Le Comptoir est le foyer du cercle — une seule tasse à la fois y prend place, et c'est celle dont l'arôme monte le plus haut. Les Compagnons s'y rassemblent, 5 minutes durant, puis le sablier décide.",
+      "scrumExplain": "Active discussion zone. Only one topic at a time. 5-minute timer per topic, then vote : continue or close. Steam intensifies during active discussion.",
+      "interactions": ["watch = active topic vapor"]
+    },
+    {
+      "tutorialId": "table",
+      "name": "Les Tables Discussed",
+      "scrumName": "Discussed zone (closed topics)",
+      "desc": "3 tables rondes au centre. Tasses-sujets qui ont été discutés.",
+      "yamzyExplain": "Une fois la conversation close, la tasse migre vers une Table — pour reposer et porter sa décision : on y reviendra, on a tranché, ou on en fait une action.",
+      "scrumExplain": "Topics that have been discussed. Tagged with decision : 'continue later', 'no action', or 'promoted to action'. Ring around each table = round of discussion.",
+      "interactions": ["clic table = liste sujets clos"]
+    },
+    {
+      "tutorialId": "shelf",
+      "name": "L'Étagère des Actions",
+      "scrumName": "Action items shelf",
+      "desc": "Étagère verticale au mur droit. Tasses-sujets promus en action items.",
+      "yamzyExplain": "L'Étagère porte les décisions sacrées — celles qui doivent se transformer en quêtes. Chaque tasse posée ici a son intendant et son échéance.",
+      "scrumExplain": "Action items shelf. Topics promoted to actionable tasks land here with owner + deadline. Often syncs back to the team's Kanban or daily.",
+      "interactions": ["clic étagère = liste actions"]
+    },
+    {
+      "tutorialId": "cup",
+      "name": "Les Tasses-Sujets",
+      "scrumName": "Topic cards (one per agenda item)",
+      "desc": "Tasses café = sujets. Couleur indique la zone, sucres = votes.",
+      "yamzyExplain": "Chaque Tasse est un sujet vivant — porté à la table par un Compagnon, vu de tous, voté par les sucres. Sa couleur change selon le voyage : brun à l'arrivée, écarlate pendant la discussion, or après le verdict, vert quand elle devient quête.",
+      "scrumExplain": "One cup per topic. Color encodes zone : brown=to-discuss, red=discussing, yellow=discussed, green=action. Sugar cubes on top = dot votes from the team.",
+      "interactions": ["clic tasse = détail sujet", "ajoute sucre = vote"]
+    },
+    {
+      "tutorialId": "chandelier",
+      "name": "Le Lustre Doré",
+      "scrumName": "Time-box ambient signal",
+      "desc": "Lustre central — pulse à la fréquence du timer 5 min.",
+      "yamzyExplain": "Le Lustre est le gardien du temps — il pulse en rythme avec le sablier du cercle. Quand il s'embrase, le moment du vote approche.",
+      "scrumExplain": "Visual time-box indicator. Pulse rate scales with discussion timer. Helps the team feel the 5-minute boundary without staring at a clock.",
+      "interactions": ["watch = pulse ↔ timer"]
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "☕ Bienvenue à la Brûlerie Lean, jeune Mage. Ici, c'est le café qui décide de l'ordre du jour.",
+      "scrumText": "📋 Welcome to the Lean Coffee workshop. Democratic agenda : the team proposes topics, votes, and discusses time-boxed.",
+      "morphPairs": [
+        { "yamzy": "Brûlerie Lean", "scrum": "Lean Coffee workshop" },
+        { "yamzy": "café décide", "scrum": "democratic agenda" }
+      ],
+      "camera": { "position": [8, 6, 12], "lookAt": [0, 2, 0], "duration": 2.5 },
+      "wait": 8
+    },
+    {
+      "step": 2,
+      "yamzyText": "🗒 Le bac \"À Discuter\" recueille les sujets — chacun y dépose sa tasse-question, sans hiérarchie.",
+      "scrumText": "📋 Topics get proposed openly. No moderator filter. Everyone writes a topic-cup and drops it into the 'To Discuss' tray.",
+      "morphPairs": [
+        { "yamzy": "tasse-question", "scrum": "topic card" },
+        { "yamzy": "sans hiérarchie", "scrum": "no moderator filter" }
+      ],
+      "camera": { "position": [-5, 4, -3], "lookAt": [-5, 1.5, -6.5], "duration": 2 },
+      "highlight": "cup",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🍬 Le vote par sucres — chaque Compagnon a 3 sucres à poser sur les tasses qui l'intéressent.",
+      "scrumText": "📋 Dot voting. Each participant has N votes (usually 3). Place dots on topics you want to discuss. Top-voted goes first.",
+      "morphPairs": [
+        { "yamzy": "vote par sucres", "scrum": "dot voting" },
+        { "yamzy": "3 sucres", "scrum": "3 votes per person" }
+      ],
+      "camera": { "position": [-3, 3, -4], "lookAt": [-5, 1.5, -6.5], "duration": 2 },
+      "highlight": "cup",
+      "wait": 9
+    },
+    {
+      "step": 4,
+      "yamzyText": "🔥 La tasse la plus chaude monte au comptoir — Discussing. Le sablier rugit 5 minutes durant.",
+      "scrumText": "📋 The top-voted topic moves to 'Discussing'. A strict 5-minute timer starts. Steam = active conversation intensity.",
+      "morphPairs": [
+        { "yamzy": "tasse la plus chaude", "scrum": "top-voted topic" },
+        { "yamzy": "sablier 5 min", "scrum": "5-min timer" }
+      ],
+      "camera": { "position": [0, 4, -4], "lookAt": [0, 1.5, -7], "duration": 2 },
+      "highlight": "bar",
+      "wait": 9
+    },
+    {
+      "step": 5,
+      "yamzyText": "✅ Le temps écoulé, on vote : continue ou clos. Si clos, la tasse migre vers une Table.",
+      "scrumText": "📋 At 5 min, quick vote : continue (+1 more box) or close. If closed, topic moves to 'Discussed' tables. Decision tag attached.",
+      "morphPairs": [
+        { "yamzy": "continue ou clos", "scrum": "extend or close" },
+        { "yamzy": "Table", "scrum": "Discussed zone" }
+      ],
+      "camera": { "position": [4, 3, 4], "lookAt": [0, 1.1, 0], "duration": 2 },
+      "highlight": "table",
+      "wait": 9
+    },
+    {
+      "step": 6,
+      "yamzyText": "📦 Si la décision est sacrée, la tasse devient verte — elle prend place sur l'Étagère des Actions.",
+      "scrumText": "📋 Topics that yield action items get promoted to the action shelf with owner + deadline. They sync back into the Kanban / daily.",
+      "morphPairs": [
+        { "yamzy": "tasse verte", "scrum": "action item" },
+        { "yamzy": "Étagère des Actions", "scrum": "action items shelf" }
+      ],
+      "camera": { "position": [9, 4, 2], "lookAt": [7, 2, 0], "duration": 2 },
+      "highlight": "shelf",
+      "wait": 9
+    }
+  ],
+
+  "playExample": {
+    "duration": 65,
+    "description": "📜 Lean Coffee complet en 65s : arrivée → 3 sujets → vote sucres → discussion → décision → action.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "☕ La Brûlerie s'éveille — l'arôme du café flotte, les Compagnons s'attablent.",
+        "scrumText": "📋 Lean Coffee session starts. Team gathers. Topics tray is empty, waiting for proposals.",
+        "morphPairs": [
+          { "yamzy": "Brûlerie s'éveille", "scrum": "session starts" }
+        ],
+        "camera": { "position": [8, 6, 12], "lookAt": [0, 2, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 10,
+        "yamzyText": "🗒 3 tasses-sujets atterrissent dans le bac — pair-programming, onboarding, audit a11y.",
+        "scrumText": "📋 3 topics proposed and dropped into 'To Discuss' : pair programming, onboarding, a11y audit.",
+        "morphPairs": [
+          { "yamzy": "tasses-sujets", "scrum": "topic cards" },
+          { "yamzy": "bac", "scrum": "To Discuss tray" }
+        ],
+        "camera": { "position": [-4, 4, -3], "lookAt": [-5, 1.5, -6.5], "duration": 2 },
+        "highlight": "cup",
+        "invokeMethod": { "name": "spawnTopics" },
+        "emitCeremony": { "type": "aube", "label": "🗒 3 nouveaux sujets", "icon": "🗒" }
+      },
+      {
+        "atSeconds": 22,
+        "yamzyText": "🍬 Les sucres volent — chacun pose ses 3 votes sur ce qui le touche. Top sujet émerge.",
+        "scrumText": "📋 Dot voting round. Each member places 3 dots. Pair programming + onboarding lead with 4 and 3 votes.",
+        "morphPairs": [
+          { "yamzy": "sucres", "scrum": "dot votes" },
+          { "yamzy": "top sujet", "scrum": "highest-voted topic" }
+        ],
+        "camera": { "position": [-3, 3, -3], "lookAt": [-5, 1.5, -6.5], "duration": 2 },
+        "highlight": "cup",
+        "invokeMethod": { "name": "dotVoting" },
+        "emitCeremony": { "type": "aube", "label": "🍬 Dot voting · sucres distribués", "icon": "🍬" }
+      },
+      {
+        "atSeconds": 35,
+        "yamzyText": "🔥 La tasse championne monte au comptoir — la vapeur s'élève. Le cercle parle.",
+        "scrumText": "📋 Top topic moves to 'Discussing' zone. 5-min timer starts. Discussion begins. Steam = engagement.",
+        "morphPairs": [
+          { "yamzy": "tasse championne", "scrum": "top-voted topic" },
+          { "yamzy": "cercle parle", "scrum": "active discussion" }
+        ],
+        "camera": { "position": [0, 4, -4], "lookAt": [0, 1.5, -7], "duration": 2.5 },
+        "highlight": "bar",
+        "invokeMethod": { "name": "startDiscussing" },
+        "emitCeremony": { "type": "aube", "label": "🔥 Discussion · timer 5 min", "icon": "🔥" }
+      },
+      {
+        "atSeconds": 50,
+        "yamzyText": "✅ Le sablier expire — le cercle vote : on a tranché. La tasse migre vers une Table.",
+        "scrumText": "📋 5-min timer expires. Vote : 'closed'. Topic moves to Discussed tables with a 'next sprint' tag.",
+        "morphPairs": [
+          { "yamzy": "sablier expire", "scrum": "5-min boundary" },
+          { "yamzy": "Table", "scrum": "Discussed zone" }
+        ],
+        "camera": { "position": [4, 3, 4], "lookAt": [0, 1.1, 0], "duration": 2 },
+        "highlight": "table",
+        "invokeMethod": { "name": "closeDiscussion" },
+        "emitCeremony": { "type": "aube", "label": "✅ Sujet clos", "icon": "✅" }
+      },
+      {
+        "atSeconds": 60,
+        "yamzyText": "📦 La décision est sacrée : la tasse devient verte et trouve sa place sur l'Étagère.",
+        "scrumText": "📋 Action item promoted. Cup turns green, lands on action shelf. Owner + deadline assigned. Syncs to Kanban.",
+        "morphPairs": [
+          { "yamzy": "tasse verte", "scrum": "action item" },
+          { "yamzy": "Étagère", "scrum": "action shelf" }
+        ],
+        "camera": { "position": [9, 4, 2], "lookAt": [7, 2, 0], "duration": 2.5 },
+        "highlight": "shelf",
+        "invokeMethod": { "name": "promoteToAction" },
+        "emitCeremony": { "type": "aube", "label": "📦 Action item · Étagère", "icon": "📦" }
+      }
+    ]
+  },
+
+  "closingMessage": "☕ Que ton agenda soit toujours porté par ta tribu, jeune Mage. La Brûlerie t'attend pour la prochaine session."
+}

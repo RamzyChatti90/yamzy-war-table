@@ -1,0 +1,246 @@
+{
+  "$comment": "v1 — Retrospective Sailboat dual narrator Yamzy/Scrum + cinematic playExample 75s",
+  "roomKey": "retrospective-cove",
+  "meta": {
+    "name": "Retrospective Sailboat",
+    "loreName": "Le Cercle du Rétroviseur",
+    "icon": "⛵",
+    "color": "#67e8f9",
+    "summary": "Sprint retro Sailboat : vent / ancres / récifs / île.",
+    "oneLiner": "Sprint retro Sailboat : vent / ancres / récifs / île.",
+    "introLore": "🪶 Bienvenue dans le Cercle du Rétroviseur, jeune Mage. Devant toi, le Navire de l'Équipe vogue sur l'océan du Sprint. À l'horizon brille l'Île de l'Objectif. Quatre forces gouvernent ta navigation : le Vent qui pousse (ce qu'on aime), les Ancres qui freinent (déceptions), les Récifs qui menacent (frustrations), et les Drapeaux à planter sur l'Île (actions concrètes). C'est la rétrospective vivante."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "sailboat",
+      "name": "Le Navire de l'Équipe",
+      "scrumName": "Team avatar / Sprint vessel",
+      "desc": "Le sailboat 3D au centre représente l'équipe pendant le sprint.",
+      "yamzyExplain": "Chaque Compagnon embarque sur ce Navire — sa coque porte vos rires et vos peines de sprint. Il bobe, tangue, et avance selon votre alignement collectif. Quand le vent gonfle ses voiles, vous filez. Quand les ancres tombent, vous traînez.",
+      "scrumExplain": "Visual avatar of the team during retrospective. The boat's animation reflects 'team score' — bobbing baseline + advance toward the island when the team aligns on actions. Position never lies : if you don't address blockers, the ship stagnates.",
+      "interactions": ["bob = état nominal", "advance = team aligned"]
+    },
+    {
+      "tutorialId": "island",
+      "name": "L'Île de l'Objectif",
+      "scrumName": "Sprint goal / Vision target",
+      "desc": "Île verte à l'horizon (~28 unités au nord). C'est la mission du sprint.",
+      "yamzyExplain": "L'Île ne bouge pas — c'est elle qui t'attend. Sa plage sableuse et sa colline verte symbolisent la mission. Chaque drapeau planté dessus est une action concrète qui vous rapproche d'elle. Quand le Navire l'atteint, la rétro est accomplie.",
+      "scrumExplain": "The sprint goal made physical. Located far north (z=-28). Action items become flags planted on its hill. When the boat reaches the island (sailToIsland cinematic), the retro outcome is celebrated. Pure metaphor — the island is your shared 'why'.",
+      "interactions": ["regard fixe = mission constante", "drapeaux = actions plantées"]
+    },
+    {
+      "tutorialId": "sail",
+      "name": "Les Voiles du Vent",
+      "scrumName": "Glad notes / Team energy",
+      "desc": "Voiles triangulaires gauche + droite qui s'incurvent selon le score équipe.",
+      "yamzyExplain": "Les Voiles écoutent le Vent de la Joie. Plus tu honores ce qui a marché — succès partagés, réussites collectives, moments de fierté — plus elles se gonflent vives. C'est elles qui font filer le Navire vers l'Île.",
+      "scrumExplain": "Glad/Liked retrospective notes. Each 'wind' note inflates the sails (windGladSurge cinematic). Visual : sails curl outward when boost active. Symbolizes that celebrating wins is fuel, not just nicety.",
+      "interactions": ["gonflées = team boost", "molles = stagnation"]
+    },
+    {
+      "tutorialId": "anchor",
+      "name": "Les Ancres qui Freinent",
+      "scrumName": "Sad notes / Disappointments",
+      "desc": "3-4 ancres reliées au navire par des chaînes — tombent quand sad notes spawnent.",
+      "yamzyExplain": "Les Ancres rappellent les déceptions — ce que vous auriez voulu vivre autrement. Quand elles s'enfoncent profond dans l'eau, le Navire ralentit. Les voir ne suffit pas : il faut décider de les remonter, sinon elles vous tirent au fond.",
+      "scrumExplain": "Sad/Lacked retrospective notes. The anchorsDrop cinematic plunges them deeper (drop animation 1.5s). Team score decreases. Naming disappointments doesn't fix them — only converting them into actions (Island flags) does.",
+      "interactions": ["tombent = sprint ralenti", "swing = vie dans l'eau"]
+    },
+    {
+      "tutorialId": "reef",
+      "name": "Les Récifs qui Menacent",
+      "scrumName": "Mad notes / Frustrations",
+      "desc": "2-3 icosaèdres émergés autour du navire, avec foam blanc.",
+      "yamzyExplain": "Les Récifs sont des frustrations cachées sous la surface — ce qui rage en silence, ce qui menace de fracasser la coque. Quand ils émergent (pulse), vous voyez enfin ce qui ronge. C'est le rôle sacré de la rétro : les nommer.",
+      "scrumExplain": "Mad/Frustration retrospective notes. The reefsEmerge cinematic pulses them (5.5s glow + scale boost) and creates foam particles. Hidden frustrations become visible. Surface them now or hit them later — the choice is yours.",
+      "interactions": ["pulse = colère exprimée", "foam = écume de l'eau heurtée"]
+    },
+    {
+      "tutorialId": "label-wind",
+      "name": "Les 4 Bannières Flottantes",
+      "scrumName": "Zone labels (Glad/Sad/Mad/Actions)",
+      "desc": "4 sprites 3D autour du navire indiquant les zones de la rétro Sailboat.",
+      "yamzyExplain": "Quatre bannières flottent au-dessus du Navire — Glad, Sad, Mad, Actions. Elles guident le regard du Mage Animateur. Chaque sticky note posée dans la sidebar atterrit dans sa zone 3D correspondante.",
+      "scrumExplain": "Floating 3D labels (emoji + text sprites) anchored above the boat. Pure visual mapping : sidebar zone → 3D zone. Helps facilitator and participants connect text inputs to the spatial metaphor.",
+      "interactions": ["bob = présence constante", "color = zone identity"]
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue dans le Cercle du Rétroviseur. Devant toi vogue le Navire de l'Équipe sur l'océan du Sprint qui s'achève.",
+      "scrumText": "📋 Welcome to the Sailboat retrospective. The central boat = your team. The retrospective format makes it visual : what propelled you, what slowed you, what threatened you, what you commit to next.",
+      "morphPairs": [
+        { "yamzy": "Cercle du Rétroviseur", "scrum": "Sprint Retrospective" },
+        { "yamzy": "Navire de l'Équipe", "scrum": "Team avatar" }
+      ],
+      "camera": { "position": [10, 8, 14], "lookAt": [0, 2, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "🏝 À l'horizon, l'Île verte — c'est l'Objectif du Sprint, la mission collective. Elle ne bouge jamais, c'est à vous d'y naviguer.",
+      "scrumText": "📋 The island = your sprint goal. Fixed reference point. Action items become flags planted on it. Reaching the island = retrospective converted to concrete commitments.",
+      "morphPairs": [
+        { "yamzy": "Île verte", "scrum": "Sprint goal" },
+        { "yamzy": "Objectif fixe", "scrum": "Anchor metric" }
+      ],
+      "camera": { "position": [0, 6, -8], "lookAt": [0, 2, -28], "duration": 2.2 },
+      "highlight": "island",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🌬 Première zone : le Vent qui pousse — tout ce qui vous a fait sourire. Succès partagés, réussites, fiertés. Ces sticky notes gonflent les voiles.",
+      "scrumText": "📋 First zone : GLAD notes. What worked well, what you'd repeat. These energize the team. Sails fill with wind, boat accelerates toward the island.",
+      "morphPairs": [
+        { "yamzy": "Vent qui pousse", "scrum": "Glad / Liked items" },
+        { "yamzy": "Voiles gonflées", "scrum": "Team energy" }
+      ],
+      "camera": { "position": [4, 5, 6], "lookAt": [0, 4, 0], "duration": 2 },
+      "highlight": "sail",
+      "wait": 9
+    },
+    {
+      "step": 4,
+      "yamzyText": "⚓ Deuxième zone : les Ancres qui freinent — déceptions, occasions manquées. Quand vous les nommez, elles tombent visiblement dans l'eau.",
+      "scrumText": "📋 Second zone : SAD notes. Disappointments, missed opportunities. Acknowledging them is the first step — but stopping there is stopping at diagnosis without prescription.",
+      "morphPairs": [
+        { "yamzy": "Ancres qui freinent", "scrum": "Sad / Lacked items" },
+        { "yamzy": "Plongent dans l'eau", "scrum": "Drag on velocity" }
+      ],
+      "camera": { "position": [3, 2, 4], "lookAt": [0, -1, 0], "duration": 2 },
+      "highlight": "anchor",
+      "wait": 9
+    },
+    {
+      "step": 5,
+      "yamzyText": "🪨 Troisième zone : les Récifs qui menacent — frustrations cachées sous la surface. Quand elles émergent, vous voyez enfin ce qui ronge.",
+      "scrumText": "📋 Third zone : MAD notes. Frustrations, things that anger or worry. The reefsEmerge cinematic surfaces them — hidden problems become visible. Now the team can decide : avoid, address, or accept.",
+      "morphPairs": [
+        { "yamzy": "Récifs cachés", "scrum": "Mad / Hidden frustration" },
+        { "yamzy": "Émergent enfin", "scrum": "Surfaced impediment" }
+      ],
+      "camera": { "position": [-10, 4, -8], "lookAt": [-7, 0, -10], "duration": 2 },
+      "highlight": "reef",
+      "wait": 9
+    },
+    {
+      "step": 6,
+      "yamzyText": "🎯 Dernière zone : les Drapeaux à planter sur l'Île — les actions concrètes. Sans elles, la rétro n'est qu'un rituel vide.",
+      "scrumText": "📋 Fourth zone : ACTIONS. Concrete commitments planted as flags on the island. Without these, retrospective = ceremony without follow-up. Each flag should have owner + due date.",
+      "morphPairs": [
+        { "yamzy": "Drapeaux plantés", "scrum": "Action items" },
+        { "yamzy": "Sans elles · rituel vide", "scrum": "No commitment, no change" }
+      ],
+      "camera": { "position": [0, 8, -16], "lookAt": [0, 3, -28], "duration": 2.4 },
+      "highlight": "island",
+      "wait": 10
+    },
+    {
+      "step": 7,
+      "yamzyText": "⛵ Et quand les actions sont engagées, le Navire avance vers l'Île. C'est le signe que la rétrospective a porté ses fruits.",
+      "scrumText": "📋 When team commits to actions, the boat sails toward the island (sailToIsland cinematic). Symbolic : retrospective insights converted into forward motion. The retro 'lands' the sprint.",
+      "morphPairs": [
+        { "yamzy": "Navire avance vers l'Île", "scrum": "Team aligned, sprint forward" },
+        { "yamzy": "Rétro accomplie", "scrum": "Retrospective closed with commitments" }
+      ],
+      "camera": { "position": [12, 7, 6], "lookAt": [0, 3, -14], "duration": 2.4 },
+      "wait": 10
+    },
+    {
+      "step": 8,
+      "yamzyText": "✨ Tu connais maintenant le Cercle du Rétroviseur. Que tes rétrospectives transforment chaque déception en cap, chaque frustration en action.",
+      "scrumText": "📋 You've toured the Sailboat retrospective. Variants exist : Liked/Learned/Lacked/Longed-for, Mad/Sad/Glad, Start/Stop/Continue. Pick what fits your team. Click ▶ Play example for an animated demo.",
+      "camera": { "position": [10, 8, 14], "lookAt": [0, 2, 0], "duration": 2.5 },
+      "wait": 8
+    }
+  ],
+
+  "playExample": {
+    "duration": 75,
+    "description": "📜 Rétro complète en 75s : intro navire → vent (Glad) → ancres (Sad) → récifs (Mad) → drapeaux (Actions) → navire vers l'île. Caméra cinéma + 4 anims 3D + dual narrateur.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Sprint clos · Voici le Navire de l'Équipe au coucher du jour. La rétro commence.",
+        "scrumText": "📋 Sprint ended. Retrospective begins. The team gathers around the metaphorical boat. Setting : open, safe, generative.",
+        "morphPairs": [
+          { "yamzy": "Sprint clos", "scrum": "Sprint ended" },
+          { "yamzy": "Navire de l'Équipe", "scrum": "Team avatar" }
+        ],
+        "camera": { "position": [10, 8, 14], "lookAt": [0, 2, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 10,
+        "yamzyText": "🌬 Le Vent se lève — les Compagnons partagent ce qui les a portés. Les voiles se gonflent, le Navire s'éveille.",
+        "scrumText": "📋 GLAD round. Each team member shares what worked. Wins, joys, gratitudes. The sails inflate visually — energy made tangible. Don't skip this : recognition fuels next sprint.",
+        "morphPairs": [
+          { "yamzy": "Vent se lève", "scrum": "Glad round opens" },
+          { "yamzy": "Voiles gonflées", "scrum": "Team energy visualized" }
+        ],
+        "camera": { "position": [6, 6, 8], "lookAt": [0, 4, 0], "duration": 2.2 },
+        "highlight": "sail",
+        "invokeMethod": { "name": "windGladSurge" },
+        "emitCeremony": { "type": "vent", "label": "🌬 Glad notes · Vent qui pousse", "icon": "🎉" }
+      },
+      {
+        "atSeconds": 25,
+        "yamzyText": "⚓ Mais les Ancres tombent — déceptions, occasions manquées. Le Navire ralentit. Le silence devient parlant.",
+        "scrumText": "📋 SAD round. Disappointments shared. Anchors plunge — drag becomes visible. Team confronts what didn't go as hoped. Crucial : no blame, just truthful observation.",
+        "morphPairs": [
+          { "yamzy": "Ancres tombent", "scrum": "Sad / Disappointments" },
+          { "yamzy": "Navire ralentit", "scrum": "Velocity drag exposed" }
+        ],
+        "camera": { "position": [4, 3, 5], "lookAt": [0, -0.5, 0], "duration": 2.2 },
+        "highlight": "anchor",
+        "invokeMethod": { "name": "anchorsDrop" },
+        "emitCeremony": { "type": "ancre", "label": "⚓ Sad notes · Ancres dans l'eau", "icon": "😢" }
+      },
+      {
+        "atSeconds": 40,
+        "yamzyText": "🪨 Les Récifs émergent — frustrations cachées que personne n'osait nommer. L'écume blanche autour, comme une révélation.",
+        "scrumText": "📋 MAD round. Surfaced frustrations, hidden anger. The reefs glow and pulse — foam splashes. These are the impediments that erode morale silently. Naming = first step to dismantling.",
+        "morphPairs": [
+          { "yamzy": "Récifs émergent", "scrum": "Mad / Hidden frustration" },
+          { "yamzy": "Écume blanche", "scrum": "Surfaced impediment" }
+        ],
+        "camera": { "position": [-10, 4, -6], "lookAt": [-7, 0, -10], "duration": 2.2 },
+        "highlight": "reef",
+        "invokeMethod": { "name": "reefsEmerge" },
+        "emitCeremony": { "type": "recif", "label": "🪨 Mad notes · Récifs visibles", "icon": "😡" }
+      },
+      {
+        "atSeconds": 55,
+        "yamzyText": "🏁 Et voici les Drapeaux — les actions plantées sur l'Île. Concrètes, avec owner et date. C'est ici que la rétro prend chair.",
+        "scrumText": "📋 ACTION ITEMS round. Concrete commitments planted as flags on the island. Each flag = owner + due date. Without these, retrospective = empty ritual. This is where insight becomes change.",
+        "morphPairs": [
+          { "yamzy": "Drapeaux plantés", "scrum": "Action items committed" },
+          { "yamzy": "Rétro prend chair", "scrum": "Insight → Commitment" }
+        ],
+        "camera": { "position": [4, 9, -14], "lookAt": [0, 3, -28], "duration": 2.4 },
+        "highlight": "island",
+        "invokeMethod": { "name": "plantActionFlags" },
+        "emitCeremony": { "type": "flag", "label": "🏁 Actions plantées · Île prête", "icon": "🎯" }
+      },
+      {
+        "atSeconds": 70,
+        "yamzyText": "⛵ Le Navire vogue vers l'Île — l'équipe est alignée, la rétro accomplie. Bon vent, Compagnons.",
+        "scrumText": "📋 Boat sails toward the island. Team aligned on commitments. Retrospective closes with forward motion — not just diagnostic, but propulsive. See you next sprint.",
+        "morphPairs": [
+          { "yamzy": "Navire vogue", "scrum": "Team forward motion" },
+          { "yamzy": "Rétro accomplie", "scrum": "Retrospective closed with action" }
+        ],
+        "camera": { "position": [12, 9, 4], "lookAt": [0, 3, -18], "duration": 3 },
+        "invokeMethod": { "name": "sailToIsland" },
+        "emitCeremony": { "type": "sommet", "label": "⛵ Rétro accomplie · Cap sur l'Île", "icon": "⛵" }
+      }
+    ]
+  },
+
+  "closingMessage": "🪶 Que chaque rétro convertisse vos déceptions en cap, et vos frustrations en actions. Le Navire t'attend pour le prochain Sprint."
+}

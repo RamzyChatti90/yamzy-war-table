@@ -1,0 +1,409 @@
+{
+  "$comment": "v2 — dual narrator Yamzy↔Scrum + cinematic playExample 48s. Release Train story arc.",
+  "roomKey": "phoenix-forge",
+  "meta": {
+    "name": "Phoenix Forge",
+    "loreName": "L'Atelier des Renaissances",
+    "icon": "🔥",
+    "color": "#ea580c",
+    "summary": "Chaque release est un rituel : un phénix consume l'ancien pour qu'une nouvelle version renaisse.",
+    "introLore": "🪶 Bienvenue dans l'Atelier des Renaissances, jeune Mage. Devant toi, l'Athanor sacré et le Phénix vivant. Pour le chef de projet, c'est ton pipeline CI/CD vivant : commits → build → tests → deploy. Chaque version qui meurt ici renaît plus brillante."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "athanor",
+      "name": "L'Athanor Central",
+      "scrumName": "CI/CD Pipeline",
+      "desc": "La fournaise centrale où les commits sont consumés et transformés en releases.",
+      "yamzyExplain": "L'Athanor brûle sans cesse, transmutant le code brut en versions livrables. Sa flamme change de couleur selon l'étape sacrée : bleu pour le Build, orange pour les Tests, vert pour le Déploiement.",
+      "scrumExplain": "Continuous integration/deployment pipeline. Flame intensity reflects build activity. Each commit triggers a fresh forge cycle : compile → test → package → deploy.",
+      "interactions": ["clic athanor = détail pipeline", "intensify = build running"]
+    },
+    {
+      "tutorialId": "phoenix",
+      "name": "Le Phénix Sacré",
+      "scrumName": "Release avatar / Version manager",
+      "desc": "Le phénix qui veille au-dessus de l'athanor — meurt et renaît à chaque release.",
+      "yamzyExplain": "Le Phénix est l'âme de chaque version. Quand vient la Release, il plonge dans le brasier — fragments dorés forment le nouveau numéro — puis renaît plus brillant. C'est la cérémonie ultime.",
+      "scrumExplain": "Living avatar of the release process. Dies into furnace at deploy time, particles form version number, reborn with enhanced glow. Animation triggered by `triggerReleaseRitual()`.",
+      "interactions": ["clic phoenix = release ritual", "wing flap = rituel imminent"]
+    },
+    {
+      "tutorialId": "egg",
+      "name": "Les Œufs des Versions à Venir",
+      "scrumName": "Planned releases / Roadmap",
+      "desc": "Œufs ellipsoïdes alignés sur la mantelpiece = releases planifiées.",
+      "yamzyExplain": "Chaque Œuf attend son heure. Le Mage choisit quel Œuf sera le prochain à éclore dans l'Athanor — v1.4, v1.5, v2.0... L'Œuf actuel brille en or, les autres dorment.",
+      "scrumExplain": "Planned release versions queued on the mantelpiece. The 'live' egg glows gold during the active release. Click an egg to inspect its scope and ticket count.",
+      "interactions": ["clic œuf = scope release"]
+    },
+    {
+      "tutorialId": "feather",
+      "name": "Les Plumes des Commits",
+      "scrumName": "Commits since last release",
+      "desc": "Plumes au sol = commits depuis la dernière release. Couleur = auteur.",
+      "yamzyExplain": "Chaque Plume porte le nom brodé d'un Compagnon. Quand vient la Release, toutes les Plumes convergent vers l'Athanor — leurs efforts se fondent dans le Phénix.",
+      "scrumExplain": "Commits since last release. Color encodes author. At release time, all feathers converge into the athanor (`feathersConverge()` animation). Sprint contribution visible at a glance.",
+      "interactions": ["clic plume = détail commit", "converge = build agrège"]
+    },
+    {
+      "tutorialId": "crystal",
+      "name": "Les Cristaux des Tests",
+      "scrumName": "Smoke test results / QA gates",
+      "desc": "Stalactites au plafond = résultats des smoke tests post-release.",
+      "yamzyExplain": "Les Cristaux qui pendent du plafond révèlent la santé de la dernière Release. Verts = la vérité tient, rouges = la chair défaille, gris = nul ne sait encore.",
+      "scrumExplain": "Hanging crystal stalactites show smoke test verdicts. Green=pass, red=fail, gray=pending. `crystalAuditPass()` animates them turning green sequentially.",
+      "interactions": ["watch = sequential pass/fail"]
+    },
+    {
+      "tutorialId": "ash",
+      "name": "Les Cendres des Anciennes",
+      "scrumName": "Past releases (rollback-able)",
+      "desc": "Cendres au pied de l'athanor = anciennes versions. Cliquables pour rollback.",
+      "yamzyExplain": "Les Cendres ne sont pas mortes — elles attendent. Si le Mage trouve la Renaissance défaillante, il peut ressusciter une version passée. C'est sacré, mais douloureux.",
+      "scrumExplain": "Past released versions. Click an ash pile to trigger a rollback — restores previous version with ceremony. Embers glow red to show rollback potential.",
+      "interactions": ["clic ash = rollback"]
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue à la Forge des Renaissances. Au cœur de ce sanctuaire de pierre brûle l'Athanor sacré.",
+      "scrumText": "📋 Welcome to the CI/CD pipeline visualizer. The central athanor = your build system, processing every commit into shippable releases.",
+      "morphPairs": [
+        { "yamzy": "Forge des Renaissances", "scrum": "CI/CD Pipeline" },
+        { "yamzy": "Athanor sacré", "scrum": "Build system" }
+      ],
+      "camera": { "position": [0, 5, 16], "lookAt": [0, 3, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "🔥 L'Athanor brûle sans cesse — sa flamme change selon le rituel : bleu pour le Build, orange pour les Tests, vert pour le Déploiement.",
+      "scrumText": "📋 The CI pipeline runs continuously. Flame state encodes job phase : Build (blue) → Test (orange) → Deploy (green). Watch the rim glow vary.",
+      "morphPairs": [
+        { "yamzy": "Flamme rituelle", "scrum": "CI job state" },
+        { "yamzy": "Build → Test → Deploy", "scrum": "compile → unit → release" }
+      ],
+      "camera": { "position": [3, 4, 4], "lookAt": [0, 3, 0], "duration": 2 },
+      "highlight": "athanor",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🐦 Et lui, au-dessus — le Phénix Sacré. Il est l'âme de la prochaine release. Quand viendra l'heure, il plongera dans l'Athanor.",
+      "scrumText": "📋 The phoenix represents the upcoming release. It hovers, watches, then dives at deploy time. Animation = your version manager taking action.",
+      "morphPairs": [
+        { "yamzy": "Phénix Sacré", "scrum": "Release manager" },
+        { "yamzy": "Plonge dans l'Athanor", "scrum": "Deploy triggered" }
+      ],
+      "camera": { "position": [0, 8, 8], "lookAt": [0, 7, 0], "duration": 2 },
+      "highlight": "phoenix",
+      "wait": 9
+    },
+    {
+      "step": 4,
+      "yamzyText": "🥚 Sur la mantelpiece, les Œufs des versions à venir. v1.4, v1.5, v2.0... L'Œuf doré est celui qui va éclore.",
+      "scrumText": "📋 The mantelpiece holds your roadmap : queued releases (v1.4 → v2.0). The golden glowing egg is in `building` status. Others wait their turn.",
+      "morphPairs": [
+        { "yamzy": "Œufs des versions", "scrum": "Roadmap milestones" },
+        { "yamzy": "Œuf doré", "scrum": "Current build" }
+      ],
+      "camera": { "position": [0, 7, -10], "lookAt": [0, 6, -14], "duration": 2.2 },
+      "highlight": "egg",
+      "wait": 9
+    },
+    {
+      "step": 5,
+      "yamzyText": "🪶 Au sol, les Plumes — chacune porte le nom d'un Compagnon. Ce sont les commits depuis la dernière Renaissance.",
+      "scrumText": "📋 Each feather = 1 commit since the last release. Color = author. Count them : that's your changelog length. They will converge into the athanor at deploy.",
+      "morphPairs": [
+        { "yamzy": "Plumes des Compagnons", "scrum": "Commits by author" },
+        { "yamzy": "Renaissance précédente", "scrum": "Last release tag" }
+      ],
+      "camera": { "position": [4, 2, 5], "lookAt": [0, 0.5, 0], "duration": 2 },
+      "highlight": "feather",
+      "wait": 9
+    },
+    {
+      "step": 6,
+      "yamzyText": "💎 Au plafond, les Cristaux des Tests — verts = la chair tient, rouges = elle défaille, gris = nul ne sait encore.",
+      "scrumText": "📋 Crystal stalactites = smoke tests verdicts. Green=passed, red=failed, gray=pending. One failure = release gate blocked.",
+      "morphPairs": [
+        { "yamzy": "Cristaux verts", "scrum": "Tests passed" },
+        { "yamzy": "Cristal rouge", "scrum": "Test failed → release blocked" }
+      ],
+      "camera": { "position": [0, 7, 5], "lookAt": [0, 10, -1.5], "duration": 2 },
+      "highlight": "crystal",
+      "wait": 10
+    },
+    {
+      "step": 7,
+      "yamzyText": "🪨 Et autour, les Cendres des anciennes versions. Ne crois pas qu'elles sont mortes — clique-les pour ressusciter une version passée.",
+      "scrumText": "📋 Ashes around the base = previously deployed versions, rollback-ready. Click an ash to roll back the live deployment to that version. Useful when smoke tests fail post-deploy.",
+      "morphPairs": [
+        { "yamzy": "Cendres anciennes", "scrum": "Past releases" },
+        { "yamzy": "Ressusciter", "scrum": "Rollback deploy" }
+      ],
+      "camera": { "position": [4, 1.5, 4], "lookAt": [0, 0, 0], "duration": 2 },
+      "highlight": "ash",
+      "wait": 9
+    },
+    {
+      "step": 8,
+      "yamzyText": "✨ Tu maîtrises maintenant le rituel. Que chacune de tes Renaissances soit glorieuse, jeune Mage.",
+      "scrumText": "📋 You've toured the pipeline. Click 🐦 Release ritual to see a full deploy cycle, or wait for Yamzy's animated demo.",
+      "camera": { "position": [0, 5, 16], "lookAt": [0, 3, 0], "duration": 2.5 },
+      "wait": 7
+    }
+  ],
+
+  "playExample": {
+    "duration": 48,
+    "description": "📜 Renaissance complète en 48s : commits accumulés → CI build → smoke tests → phoenix dive → version renaît → embers de retro.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Sprint clos · L'Atelier prépare la prochaine Renaissance. La forge respire.",
+        "scrumText": "📋 Sprint ended · Time for release prep. CI is quiet, last commits sit on `main`. Let's deploy.",
+        "morphPairs": [
+          { "yamzy": "Sprint clos", "scrum": "Sprint ended" },
+          { "yamzy": "Renaissance", "scrum": "Release v1.4.0" }
+        ],
+        "camera": { "position": [0, 5, 16], "lookAt": [0, 3, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 6,
+        "yamzyText": "🥚 L'Œuf doré attend — v1.4.0. Sa coquille brille déjà. 12 quêtes l'animent.",
+        "scrumText": "📋 v1.4.0 egg in `building` state. 12 tickets resolved this sprint. Egg glows gold = ready for release flow.",
+        "morphPairs": [
+          { "yamzy": "Œuf doré", "scrum": "Active release egg" },
+          { "yamzy": "12 quêtes", "scrum": "12 closed tickets" }
+        ],
+        "camera": { "position": [0, 7, -8], "lookAt": [0, 6, -14], "duration": 2 },
+        "highlight": "egg"
+      },
+      {
+        "atSeconds": 12,
+        "yamzyText": "🔨 Le Mage allume la Forge — l'Athanor s'embrase. Le Build commence.",
+        "scrumText": "📋 CI build triggered. Pipeline running : compile, lint, unit tests. Watch the athanor glow intensify.",
+        "morphPairs": [
+          { "yamzy": "Le Mage allume", "scrum": "Pipeline triggered" },
+          { "yamzy": "Athanor s'embrase", "scrum": "Build running" }
+        ],
+        "camera": { "position": [3, 5, 5], "lookAt": [0, 3.5, 0], "duration": 2 },
+        "highlight": "athanor",
+        "invokeMethod": { "name": "dawnBuild" }
+      },
+      {
+        "atSeconds": 18,
+        "yamzyText": "🪶 Les Plumes convergent ! Chaque effort des Compagnons rejoint l'Athanor. Le Phénix absorbe leur énergie.",
+        "scrumText": "📋 Build agrège les commits. Sur la timeline : changelog généré à partir de tous les commits depuis le dernier tag. Visualization : feathers fly into the athanor.",
+        "morphPairs": [
+          { "yamzy": "Plumes convergent", "scrum": "Commits aggregated" },
+          { "yamzy": "Phénix absorbe", "scrum": "Changelog generated" }
+        ],
+        "camera": { "position": [5, 3, 7], "lookAt": [0, 3, 0], "duration": 2 },
+        "highlight": "feather",
+        "invokeMethod": { "name": "feathersConverge" }
+      },
+      {
+        "atSeconds": 25,
+        "yamzyText": "💎 Le Verdict des Cristaux — un par un, les tests rendent leur jugement. Verts pour la victoire...",
+        "scrumText": "📋 Smoke test suite running. Each crystal lights green = pass, red = fail. Watch the sequential audit.",
+        "morphPairs": [
+          { "yamzy": "Verdict des Cristaux", "scrum": "Smoke test suite" },
+          { "yamzy": "Verts pour la victoire", "scrum": "Tests passing" }
+        ],
+        "camera": { "position": [0, 8, 5], "lookAt": [0, 10, -1.5], "duration": 2 },
+        "highlight": "crystal",
+        "invokeMethod": { "name": "crystalAuditPass" }
+      },
+      {
+        "atSeconds": 33,
+        "yamzyText": "🐦 RENAISSANCE ! Le Phénix plonge dans le brasier... un instant de noir... puis il s'élève, plus brillant que jamais.",
+        "scrumText": "📋 Production Deploy. Pipeline complete, version v1.4.0 pushed to prod. Phoenix dive = your deploy script firing.",
+        "morphPairs": [
+          { "yamzy": "Phénix plonge", "scrum": "kubectl apply / deploy" },
+          { "yamzy": "S'élève brillant", "scrum": "v1.4.0 live in prod" }
+        ],
+        "camera": { "position": [0, 6, 8], "lookAt": [0, 5, 0], "duration": 2.5 },
+        "highlight": "phoenix",
+        "invokeMethod": { "name": "triggerReleaseRitual" },
+        "emitCeremony": { "type": "renaissance", "label": "🐦 v1.4.0 published · Release tag pushed", "icon": "🐦" }
+      },
+      {
+        "atSeconds": 40,
+        "yamzyText": "🥚 Et l'Œuf suivant déjà s'éveille — v1.5.0 se prépare. Le cycle ne s'arrête jamais.",
+        "scrumText": "📋 Next release egg now `building` : v1.5.0. The release train continues. Sprint planning will pop next features into this scope.",
+        "morphPairs": [
+          { "yamzy": "Œuf s'éveille", "scrum": "Next release planned" },
+          { "yamzy": "Cycle éternel", "scrum": "Release train cadence" }
+        ],
+        "camera": { "position": [-2, 7, -8], "lookAt": [-2, 6, -14], "duration": 2 },
+        "highlight": "egg",
+        "invokeMethod": { "name": "eggCrack" }
+      },
+      {
+        "atSeconds": 45,
+        "yamzyText": "🌫 Cendres tournoient dans la salle — c'est la Retrospective. Les Compagnons honorent les Renaissances passées.",
+        "scrumText": "📋 Sprint Retrospective. Embers symbolize team reflection : what went well, what to improve. Past releases honored, lessons captured.",
+        "morphPairs": [
+          { "yamzy": "Cendres tournoient", "scrum": "Retrospective" },
+          { "yamzy": "Compagnons honorent", "scrum": "Team reflects" }
+        ],
+        "camera": { "position": [4, 4, 4], "lookAt": [0, 2, 0], "duration": 2 },
+        "highlight": "ash",
+        "invokeMethod": { "name": "emberDrift" }
+      }
+    ]
+  },
+
+  "additionalDemos": [
+    {
+      "name": "🚨 Hotfix de Minuit",
+      "icon": "🚨",
+      "duration": 24,
+      "description": "📜 Incident en prod · La Forge s'embrase en urgence, un Cristal défaille, le Mage doit ressusciter une version passée.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Minuit sonne dans l'Atelier. L'Athanor pulse anormalement — une lueur rouge inquiète au cœur du brasier.",
+          "scrumText": "📋 03:00 AM. PagerDuty alert. Production v1.4.0 throwing errors. On-call SRE wakes up.",
+          "morphPairs": [
+            { "yamzy": "Athanor pulse rouge", "scrum": "Prod errors spike" },
+            { "yamzy": "Lueur inquiète", "scrum": "PagerDuty alert" }
+          ],
+          "camera": { "position": [0, 5, 14], "lookAt": [0, 3, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "🔥 HOTFIX ! Le Mage allume l'Athanor d'urgence — la flamme rugit, son orange vire à l'écarlate de la panique.",
+          "scrumText": "📋 Emergency hotfix branch spawned. Pipeline triggered with priority=critical. Build runs at full throttle.",
+          "morphPairs": [
+            { "yamzy": "Athanor d'urgence", "scrum": "Hotfix pipeline" },
+            { "yamzy": "Flamme écarlate", "scrum": "Critical build" }
+          ],
+          "camera": { "position": [3, 5, 5], "lookAt": [0, 3.5, 0], "duration": 2 },
+          "highlight": "athanor",
+          "invokeMethod": { "name": "triggerHotfix" },
+          "emitCeremony": { "type": "feu", "label": "🚨 Hotfix · v1.4.1 spawned", "icon": "🚨" }
+        },
+        {
+          "atSeconds": 10,
+          "yamzyText": "💎 Le Verdict des Cristaux tombe... un Cristal vire au sang ! La chair défaille — un smoke test rejette le patch.",
+          "scrumText": "📋 Smoke tests run. Auth crystal fails red. Hotfix breaks login flow. Release gate slams shut.",
+          "morphPairs": [
+            { "yamzy": "Cristal vire au sang", "scrum": "Smoke test fails" },
+            { "yamzy": "Chair défaille", "scrum": "Release gate blocked" }
+          ],
+          "camera": { "position": [0, 8, 5], "lookAt": [0, 10, -1.5], "duration": 2 },
+          "highlight": "crystal",
+          "invokeMethod": { "name": "crystalAuditPass" },
+          "emitCeremony": { "type": "feu", "label": "💔 Crystal red · auth flow broken", "icon": "💔" }
+        },
+        {
+          "atSeconds": 16,
+          "yamzyText": "🪨 Le Mage choisit la Voie des Cendres — il pose sa main sur l'ancienne version. Renaissance inverse, douloureuse mais salvatrice.",
+          "scrumText": "📋 Rollback decision. Last known good = v1.3.9. Click ash pile → restore previous deploy. Rollback ceremony.",
+          "morphPairs": [
+            { "yamzy": "Voie des Cendres", "scrum": "Rollback path" },
+            { "yamzy": "Renaissance inverse", "scrum": "Restore previous version" }
+          ],
+          "camera": { "position": [4, 1.5, 4], "lookAt": [0, 0, 0], "duration": 2 },
+          "highlight": "ash",
+          "invokeMethod": { "name": "rollbackLast" },
+          "emitCeremony": { "type": "renaissance", "label": "🪨 Rollback to v1.3.9", "icon": "🪨" }
+        },
+        {
+          "atSeconds": 21,
+          "yamzyText": "🌫 Les Cendres tournoient — silence dans l'Atelier. Le Mage prépare déjà la prochaine Renaissance, plus pure cette fois.",
+          "scrumText": "📋 Post-mortem opens. Root cause documented. Next hotfix in prep. Ash drift = team reflection.",
+          "morphPairs": [
+            { "yamzy": "Cendres tournoient", "scrum": "Post-mortem" },
+            { "yamzy": "Plus pure", "scrum": "Lessons captured" }
+          ],
+          "camera": { "position": [4, 4, 4], "lookAt": [0, 2, 0], "duration": 2 },
+          "highlight": "ash",
+          "invokeMethod": { "name": "emberDrift" }
+        }
+      ]
+    },
+    {
+      "name": "🏆 Renaissance Majeure v2.0",
+      "icon": "🏆",
+      "duration": 26,
+      "description": "📜 Release majeure · Œuf doré éclôt, marée de Plumes converge, tous les Cristaux verts, le Phénix renaît supernova.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 L'heure prophétisée approche. L'Atelier vibre — une Renaissance Majeure se prépare. Le Phénix déploie ses ailes.",
+          "scrumText": "📋 v2.0.0 release day. Quarter-end milestone. 87 tickets resolved. Forge ready for the big one.",
+          "morphPairs": [
+            { "yamzy": "Renaissance Majeure", "scrum": "Major release v2.0" },
+            { "yamzy": "Phénix déploie", "scrum": "Release flow priming" }
+          ],
+          "camera": { "position": [0, 5, 16], "lookAt": [0, 3, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 5,
+          "yamzyText": "🥚 L'Œuf doré v2.0 craque ! Sa coquille se fissure d'or — le moment est arrivé.",
+          "scrumText": "📋 v2.0.0 egg cracks open. Release scope locked. Tag prepared. Pipeline armed for major version bump.",
+          "morphPairs": [
+            { "yamzy": "Œuf craque", "scrum": "Release egg activation" },
+            { "yamzy": "Coquille d'or", "scrum": "Major version locked" }
+          ],
+          "camera": { "position": [0, 7, -8], "lookAt": [0, 6, -14], "duration": 2 },
+          "highlight": "egg",
+          "invokeMethod": { "name": "eggCrack" },
+          "emitCeremony": { "type": "renaissance", "label": "🥚 v2.0.0 egg cracking", "icon": "🥚" }
+        },
+        {
+          "atSeconds": 11,
+          "yamzyText": "🪶 Marée de Plumes ! Des centaines convergent vers l'Athanor — chaque Compagnon a contribué, le changelog est massif.",
+          "scrumText": "📋 87 commits across 12 contributors converge into the build. Massive changelog. Feature flags deactivate.",
+          "morphPairs": [
+            { "yamzy": "Marée de Plumes", "scrum": "87 commits aggregated" },
+            { "yamzy": "Compagnons", "scrum": "12 contributors" }
+          ],
+          "camera": { "position": [5, 3, 7], "lookAt": [0, 3, 0], "duration": 2 },
+          "highlight": "feather",
+          "invokeMethod": { "name": "feathersConverge" }
+        },
+        {
+          "atSeconds": 17,
+          "yamzyText": "💎 Le Verdict tombe — tous les Cristaux brillent vert d'un seul coup ! La chair tient, la vérité éclate.",
+          "scrumText": "📋 Full smoke test suite passes : 432/432 green. QA gate fully open. Zero regression.",
+          "morphPairs": [
+            { "yamzy": "Cristaux verts", "scrum": "All tests green" },
+            { "yamzy": "Vérité éclate", "scrum": "Zero regression" }
+          ],
+          "camera": { "position": [0, 8, 5], "lookAt": [0, 10, -1.5], "duration": 2 },
+          "highlight": "crystal",
+          "invokeMethod": { "name": "crystalAuditPass" },
+          "emitCeremony": { "type": "approval", "label": "💎 432/432 tests green", "icon": "💎" }
+        },
+        {
+          "atSeconds": 22,
+          "yamzyText": "🐦 SUPERNOVA ! Le Phénix s'embrase en plein vol — il renaît trois fois plus brillant. v2.0.0 illumine tout le Royaume.",
+          "scrumText": "📋 v2.0.0 deployed to production. Stable rollout to 100% of users. Champagne. Stakeholders cheering.",
+          "morphPairs": [
+            { "yamzy": "Supernova", "scrum": "v2.0 production deploy" },
+            { "yamzy": "Trois fois brillant", "scrum": "100% rollout stable" }
+          ],
+          "camera": { "position": [0, 6, 8], "lookAt": [0, 5, 0], "duration": 2.5 },
+          "highlight": "phoenix",
+          "invokeMethod": { "name": "triggerReleaseRitual" },
+          "emitCeremony": { "type": "renaissance", "label": "🐦 v2.0.0 SHIPPED · supernova", "icon": "🐦" }
+        }
+      ]
+    }
+  ],
+
+  "closingMessage": "🪶 Que chaque Renaissance honore ton Royaume. La Forge t'attend pour la prochaine version."
+}

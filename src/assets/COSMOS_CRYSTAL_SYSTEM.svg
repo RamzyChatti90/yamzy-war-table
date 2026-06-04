@@ -1,0 +1,261 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 880" font-family="Inter, system-ui, sans-serif">
+  <!-- Background -->
+  <rect width="1200" height="880" fill="#0a0820"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1542"/>
+      <stop offset="1" stop-color="#0a0820"/>
+    </linearGradient>
+    <linearGradient id="grow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5eb6da"/>
+      <stop offset="1" stop-color="#9b6cff"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#e6b85a"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="880" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-size="22" font-weight="700" fill="#ffd778">
+    Cosmos × Crystal System — modèle de simulation projet
+  </text>
+  <text x="600" y="62" text-anchor="middle" font-size="11" fill="#a3b8d0">
+    Position(ticket, t) = orbit déterministe   ·   Cérémonies = alignements géométriques   ·   Crystal grow = burndown
+  </text>
+
+  <!-- ═══ PANEL 1 : Orbit time → distance to center ═══ -->
+  <g transform="translate(60,100)">
+    <text x="0" y="-8" font-size="13" font-weight="600" fill="#e6b85a">① Distance au centre par ticket (courbes orbitales)</text>
+    <!-- Axes -->
+    <line x1="0" y1="220" x2="540" y2="220" stroke="#3a4452" stroke-width="1"/>
+    <line x1="0" y1="20" x2="0" y2="220" stroke="#3a4452" stroke-width="1"/>
+    <text x="-10" y="22" text-anchor="end" font-size="10" fill="#a3b8d0">Loin</text>
+    <text x="-10" y="222" text-anchor="end" font-size="10" fill="#a3b8d0">Centre</text>
+    <text x="270" y="245" text-anchor="middle" font-size="10" fill="#a3b8d0">Temps projet (start → end)</text>
+
+    <!-- Phase bands -->
+    <rect x="0"   y="20" width="60"  height="200" fill="#5eb6da" opacity="0.07"/>
+    <rect x="60"  y="20" width="380" height="200" fill="#7fdb6f" opacity="0.04"/>
+    <rect x="440" y="20" width="80"  height="200" fill="#ffd778" opacity="0.08"/>
+    <text x="30"  y="35" text-anchor="middle" font-size="9" fill="#5eb6da">Planning</text>
+    <text x="250" y="35" text-anchor="middle" font-size="9" fill="#7fdb6f">In-progress</text>
+    <text x="480" y="35" text-anchor="middle" font-size="9" fill="#ffd778">Review</text>
+
+    <!-- Ticket A : curve descending sin -->
+    <path d="M 20 60 Q 100 80 180 110 T 380 180 L 460 215" stroke="#ff6cff" stroke-width="2" fill="none"/>
+    <text x="385" y="200" font-size="9" fill="#ff6cff">Ticket A · prio=1</text>
+
+    <!-- Ticket B -->
+    <path d="M 40 90 Q 140 105 240 130 T 440 200 L 500 218" stroke="#5eb6da" stroke-width="2" fill="none"/>
+    <text x="445" y="215" font-size="9" fill="#5eb6da">Ticket B · prio=2</text>
+
+    <!-- Ticket C blocked -->
+    <path d="M 60 110 Q 160 120 260 145 T 470 220" stroke="#ff5e7a" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+    <text x="380" y="155" font-size="9" fill="#ff5e7a">Ticket C · BLOCKED</text>
+
+    <!-- Ticket D long-running -->
+    <path d="M 10 50 Q 100 60 200 90 T 400 160 Q 480 195 520 218" stroke="#7fdb6f" stroke-width="2" fill="none"/>
+    <text x="40" y="62" font-size="9" fill="#7fdb6f">Ticket D · long</text>
+
+    <!-- Now marker -->
+    <line x1="220" y1="20" x2="220" y2="220" stroke="#ffd778" stroke-width="1.5" stroke-dasharray="3 3"/>
+    <circle cx="220" cy="220" r="4" fill="#ffd778"/>
+    <text x="220" y="14" text-anchor="middle" font-size="10" fill="#ffd778" font-weight="600">NOW</text>
+
+    <!-- Fusion points -->
+    <circle cx="460" cy="215" r="5" fill="#ff6cff" stroke="#fff" stroke-width="1"/>
+    <circle cx="500" cy="218" r="5" fill="#5eb6da" stroke="#fff" stroke-width="1"/>
+    <circle cx="520" cy="218" r="5" fill="#7fdb6f" stroke="#fff" stroke-width="1"/>
+    <text x="540" y="218" font-size="9" fill="#ffd778">Fusion=DONE</text>
+  </g>
+
+  <!-- ═══ PANEL 2 : Crystal scale growth ═══ -->
+  <g transform="translate(630,100)">
+    <text x="0" y="-8" font-size="13" font-weight="600" fill="#e6b85a">② Croissance du Ruby central (burndown inversé)</text>
+    <line x1="0" y1="220" x2="500" y2="220" stroke="#3a4452" stroke-width="1"/>
+    <line x1="0" y1="20" x2="0" y2="220" stroke="#3a4452" stroke-width="1"/>
+    <text x="-10" y="22" text-anchor="end" font-size="10" fill="#a3b8d0">100%</text>
+    <text x="-10" y="222" text-anchor="end" font-size="10" fill="#a3b8d0">0%</text>
+    <text x="250" y="245" text-anchor="middle" font-size="10" fill="#a3b8d0">Temps projet</text>
+
+    <!-- Ideal burndown (linear inversed) -->
+    <line x1="0" y1="220" x2="500" y2="20" stroke="#a3b8d0" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="400" y="55" font-size="9" fill="#a3b8d0">Idéal (linéaire)</text>
+
+    <!-- Real curve : step-up at each fusion -->
+    <path d="M 0 220 L 80 220 L 80 195 L 150 195 L 150 165 L 200 165 L 200 145 L 280 145 L 280 110 L 350 110 L 350 80 L 440 80 L 440 35 L 500 35"
+          stroke="url(#grow)" stroke-width="3" fill="none"/>
+
+    <!-- Fusion markers -->
+    <circle cx="80"  cy="195" r="5" fill="#ff6cff"/>
+    <circle cx="150" cy="165" r="5" fill="#5eb6da"/>
+    <circle cx="200" cy="145" r="5" fill="#7fdb6f"/>
+    <circle cx="280" cy="110" r="5" fill="#ffd778"/>
+    <circle cx="350" cy="80"  r="5" fill="#e64a4a"/>
+    <circle cx="440" cy="35"  r="5" fill="#9b6cff"/>
+
+    <text x="80" y="190" text-anchor="middle" font-size="8" fill="#ff6cff">T1</text>
+    <text x="150" y="160" text-anchor="middle" font-size="8" fill="#5eb6da">T2</text>
+    <text x="200" y="140" text-anchor="middle" font-size="8" fill="#7fdb6f">T3</text>
+    <text x="280" y="105" text-anchor="middle" font-size="8" fill="#ffd778">T4</text>
+    <text x="350" y="75"  text-anchor="middle" font-size="8" fill="#e64a4a">T5</text>
+    <text x="440" y="30"  text-anchor="middle" font-size="8" fill="#9b6cff">T6</text>
+
+    <!-- NOW -->
+    <line x1="200" y1="20" x2="200" y2="220" stroke="#ffd778" stroke-width="1.5" stroke-dasharray="3 3"/>
+    <text x="200" y="14" text-anchor="middle" font-size="10" fill="#ffd778" font-weight="600">NOW</text>
+
+    <!-- End -->
+    <circle cx="500" cy="35" r="9" fill="#ffd778" stroke="#fff" stroke-width="2"/>
+    <text x="510" y="40" font-size="11" font-weight="700" fill="#ffd778">100% — Release</text>
+  </g>
+
+  <!-- ═══ PANEL 3 : Ceremonies as alignments (timeline) ═══ -->
+  <g transform="translate(60,400)">
+    <text x="0" y="-8" font-size="13" font-weight="600" fill="#e6b85a">③ Cérémonies = alignements détectés sur le timeline</text>
+    <line x1="0" y1="100" x2="1080" y2="100" stroke="#3a4452" stroke-width="1"/>
+
+    <!-- Sprint bands -->
+    <rect x="0"    y="60"  width="320" height="80" fill="#5eb6da" opacity="0.06"/>
+    <rect x="320"  y="60"  width="380" height="80" fill="#ff6cff" opacity="0.06"/>
+    <rect x="700"  y="60"  width="380" height="80" fill="#7fdb6f" opacity="0.06"/>
+    <text x="160" y="55" text-anchor="middle" font-size="10" fill="#5eb6da">Sprint 1</text>
+    <text x="510" y="55" text-anchor="middle" font-size="10" fill="#ff6cff">Sprint 2</text>
+    <text x="890" y="55" text-anchor="middle" font-size="10" fill="#7fdb6f">Sprint 3</text>
+
+    <!-- Daily standups -->
+    <g fill="#a3b8d0">
+      <circle cx="40"  cy="100" r="2.5"/><circle cx="65"  cy="100" r="2.5"/>
+      <circle cx="90"  cy="100" r="2.5"/><circle cx="115" cy="100" r="2.5"/>
+      <circle cx="140" cy="100" r="2.5"/><circle cx="165" cy="100" r="2.5"/>
+      <circle cx="190" cy="100" r="2.5"/><circle cx="215" cy="100" r="2.5"/>
+      <circle cx="240" cy="100" r="2.5"/><circle cx="265" cy="100" r="2.5"/>
+      <circle cx="290" cy="100" r="2.5"/>
+      <circle cx="350" cy="100" r="2.5"/><circle cx="375" cy="100" r="2.5"/>
+      <circle cx="400" cy="100" r="2.5"/><circle cx="425" cy="100" r="2.5"/>
+      <circle cx="450" cy="100" r="2.5"/><circle cx="475" cy="100" r="2.5"/>
+      <circle cx="500" cy="100" r="2.5"/><circle cx="525" cy="100" r="2.5"/>
+      <circle cx="550" cy="100" r="2.5"/><circle cx="575" cy="100" r="2.5"/>
+      <circle cx="600" cy="100" r="2.5"/><circle cx="625" cy="100" r="2.5"/>
+      <circle cx="730" cy="100" r="2.5"/><circle cx="755" cy="100" r="2.5"/>
+      <circle cx="780" cy="100" r="2.5"/><circle cx="805" cy="100" r="2.5"/>
+      <circle cx="830" cy="100" r="2.5"/><circle cx="855" cy="100" r="2.5"/>
+      <circle cx="880" cy="100" r="2.5"/><circle cx="905" cy="100" r="2.5"/>
+      <circle cx="930" cy="100" r="2.5"/><circle cx="955" cy="100" r="2.5"/>
+      <circle cx="980" cy="100" r="2.5"/>
+    </g>
+    <text x="15" y="120" font-size="9" fill="#a3b8d0">🌞 Dailies = passage au midi orbital</text>
+
+    <!-- Planning markers -->
+    <g>
+      <circle cx="15"   cy="100" r="10" fill="#5eb6da" stroke="#fff" stroke-width="2"/>
+      <text x="15" y="78" text-anchor="middle" font-size="9" fill="#5eb6da">🌅 P</text>
+      <circle cx="335"  cy="100" r="10" fill="#ff6cff" stroke="#fff" stroke-width="2"/>
+      <text x="335" y="78" text-anchor="middle" font-size="9" fill="#ff6cff">🌅 P</text>
+      <circle cx="715"  cy="100" r="10" fill="#7fdb6f" stroke="#fff" stroke-width="2"/>
+      <text x="715" y="78" text-anchor="middle" font-size="9" fill="#7fdb6f">🌅 P</text>
+    </g>
+
+    <!-- Review markers -->
+    <g>
+      <rect x="295" y="92" width="16" height="16" fill="#5eb6da" stroke="#fff" stroke-width="2"/>
+      <text x="303" y="135" text-anchor="middle" font-size="9" fill="#5eb6da">🌖 R+R</text>
+      <rect x="675" y="92" width="16" height="16" fill="#ff6cff" stroke="#fff" stroke-width="2"/>
+      <text x="683" y="135" text-anchor="middle" font-size="9" fill="#ff6cff">🌖 R+R</text>
+      <rect x="1055" y="92" width="16" height="16" fill="#7fdb6f" stroke="#fff" stroke-width="2"/>
+      <text x="1063" y="135" text-anchor="middle" font-size="9" fill="#7fdb6f">🌖 R+R</text>
+    </g>
+
+    <!-- Release -->
+    <polygon points="1080,80 1095,100 1080,120 1065,100" fill="#ffd778" stroke="#fff" stroke-width="2"/>
+    <text x="1080" y="68" text-anchor="middle" font-size="10" font-weight="700" fill="#ffd778">🎉 Release</text>
+
+    <!-- Eclipses (blockers) -->
+    <g>
+      <circle cx="150" cy="170" r="8" fill="#e64a4a" stroke="#fff" stroke-width="1.5"/>
+      <text x="150" y="190" text-anchor="middle" font-size="9" fill="#e64a4a">⊕ Éclipse</text>
+      <text x="150" y="200" text-anchor="middle" font-size="8" fill="#a3b8d0">A↔C dep blocked</text>
+
+      <circle cx="600" cy="170" r="8" fill="#e64a4a" stroke="#fff" stroke-width="1.5"/>
+      <text x="600" y="190" text-anchor="middle" font-size="9" fill="#e64a4a">⊕ Éclipse</text>
+      <text x="600" y="200" text-anchor="middle" font-size="8" fill="#a3b8d0">F1↔F2 dep blocked</text>
+    </g>
+  </g>
+
+  <!-- ═══ PANEL 4 : Trajectory model (mini diagram) ═══ -->
+  <g transform="translate(60,620)">
+    <text x="0" y="-8" font-size="13" font-weight="600" fill="#e6b85a">④ Trajectoire 3D d'un mini-cristal : spirale convergente</text>
+
+    <!-- Concentric guides -->
+    <circle cx="200" cy="100" r="80" stroke="#3a4452" stroke-width="1" fill="none" stroke-dasharray="2 3"/>
+    <circle cx="200" cy="100" r="60" stroke="#3a4452" stroke-width="1" fill="none" stroke-dasharray="2 3"/>
+    <circle cx="200" cy="100" r="40" stroke="#3a4452" stroke-width="1" fill="none" stroke-dasharray="2 3"/>
+    <circle cx="200" cy="100" r="20" stroke="#3a4452" stroke-width="1" fill="none" stroke-dasharray="2 3"/>
+
+    <!-- Spiral trajectory -->
+    <path d="
+      M 280 100
+      Q 280 60 200 30
+      Q 130 30 130 100
+      Q 130 150 195 158
+      Q 240 153 247 110
+      Q 240 75 200 75
+      Q 170 75 168 100
+      Q 175 115 197 113
+      Q 207 110 205 102
+      Q 203 99 200 100
+    " stroke="url(#grow)" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+
+    <!-- Center crystal -->
+    <circle cx="200" cy="100" r="6" fill="#ffd778" stroke="#fff" stroke-width="2"/>
+    <text x="200" y="86" text-anchor="middle" font-size="9" font-weight="700" fill="#ffd778">RUBY</text>
+
+    <!-- Phase labels -->
+    <text x="290" y="100" font-size="9" fill="#a3b8d0">θ₀ : start</text>
+    <text x="200" y="20" text-anchor="middle" font-size="9" fill="#a3b8d0">θ=π/2 : 25%</text>
+    <text x="115" y="100" text-anchor="end" font-size="9" fill="#a3b8d0">θ=π : 50%</text>
+    <text x="200" y="180" text-anchor="middle" font-size="9" fill="#a3b8d0">θ=3π/2 : 75%</text>
+
+    <!-- Formula -->
+    <g transform="translate(420,30)">
+      <rect x="0" y="0" width="380" height="180" fill="rgba(15,11,32,0.6)" stroke="#3a4452" stroke-width="1" rx="6"/>
+      <text x="190" y="25" text-anchor="middle" font-size="11" font-weight="700" fill="#ffd778">Formules orbitales</text>
+      <text x="20" y="55" font-size="11" font-family="Consolas" fill="#7fdb6f">progress(t)</text>
+      <text x="20" y="72" font-size="10" font-family="Consolas" fill="#a3b8d0">= (t − startDate) / (dueDate − startDate)</text>
+      <text x="20" y="98" font-size="11" font-family="Consolas" fill="#7fdb6f">θ(t)</text>
+      <text x="20" y="115" font-size="10" font-family="Consolas" fill="#a3b8d0">= θ₀ + 2π × progress(t)</text>
+      <text x="20" y="141" font-size="11" font-family="Consolas" fill="#7fdb6f">R(t)</text>
+      <text x="20" y="158" font-size="10" font-family="Consolas" fill="#a3b8d0">= R_base × (1 − progress(t))</text>
+    </g>
+
+    <!-- Right side : ceremony detection -->
+    <g transform="translate(820,30)">
+      <rect x="0" y="0" width="320" height="180" fill="rgba(15,11,32,0.6)" stroke="#3a4452" stroke-width="1" rx="6"/>
+      <text x="160" y="25" text-anchor="middle" font-size="11" font-weight="700" fill="#ffd778">Cérémonies = alignements</text>
+
+      <text x="20" y="55" font-size="11" fill="#5eb6da">🌅 Planning</text>
+      <text x="160" y="55" font-size="10" fill="#a3b8d0">∀ minis ∈ sprint : θ ≈ θ₀</text>
+
+      <text x="20" y="78" font-size="11" fill="#ffd778">🌞 Daily</text>
+      <text x="160" y="78" font-size="10" fill="#a3b8d0">∃ ≥2 minis : θ ≈ θ_sun</text>
+
+      <text x="20" y="101" font-size="11" fill="#ff6cff">🌖 Review</text>
+      <text x="160" y="101" font-size="10" fill="#a3b8d0">avg(progress) ≥ 0.9</text>
+
+      <text x="20" y="124" font-size="11" fill="#9b6cff">🌑 Retro</text>
+      <text x="160" y="124" font-size="10" fill="#a3b8d0">arc fusionné ≥ 50%</text>
+
+      <text x="20" y="147" font-size="11" fill="#e64a4a">⊕ Éclipse</text>
+      <text x="160" y="147" font-size="10" fill="#a3b8d0">A blocks B et θ_A ≈ θ_B</text>
+
+      <text x="20" y="170" font-size="11" fill="#7fdb6f">🎉 Release</text>
+      <text x="160" y="170" font-size="10" fill="#a3b8d0">∀ minis : fused = true</text>
+    </g>
+  </g>
+
+  <!-- Footer note -->
+  <text x="600" y="855" text-anchor="middle" font-size="10" fill="#a3b8d0">
+    Schéma déterministe : à chaque instant t (slider), position de chaque mini calculée. Aucune anim aléatoire — tout est traçable et reproductible.
+  </text>
+</svg>

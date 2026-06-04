@@ -1,0 +1,484 @@
+{
+  "$comment": "v2 dual-narrator + cinematic playExample. Sky reflects all project phenomena.",
+  "roomKey": "telescope-island",
+  "meta": {
+    "name": "Telescope Island",
+    "loreName": "L'Observatoire des Phénomènes",
+    "icon": "🔭",
+    "color": "#c4b5fd",
+    "summary": "Une île solitaire avec un observatoire et un grand télescope. Le ciel y reflète tous les événements du Royaume : comètes, éclipses, auroras...",
+    "introLore": "🪶 Bienvenue à l'Observatoire des Phénomènes, jeune Mage. Le grand Télescope pointe vers le ciel — et chaque manifestation que tu y verras correspond à un événement de ton Royaume. Pour le chef de projet, c'est ton heartbeat dashboard live : releases, blockers, incidents, planifications, tous deviennent un phénomène céleste."
+  },
+  "glossary": [
+    {
+      "tutorialId": "telescope",
+      "name": "Le Grand Télescope",
+      "scrumName": "Live event radar",
+      "desc": "Télescope sur trépied qui pivote automatiquement vers le phénomène actuel.",
+      "yamzyExplain": "Le Télescope est l'œil sacré du Mage. Il connaît seul les secrets célestes. Quand un phénomène apparaît, il s'incline vers lui — ainsi le Mage sait où regarder sans détourner son attention.",
+      "scrumExplain": "Auto-aiming sensor. Pivots toward the active phenomenon. Symbolizes your attention focus : the room directs you to what just happened in the project.",
+      "interactions": ["observe sa rotation pendant les phénomènes"]
+    },
+    {
+      "tutorialId": "observatory",
+      "name": "L'Observatoire",
+      "scrumName": "Event hub / Dashboard",
+      "desc": "Bâtiment hexagonal à dôme lavande au centre de l'île — abritant le télescope.",
+      "yamzyExplain": "L'Observatoire est le sanctuaire des veilleurs. Sa base hexagonale rappelle les six grandes catégories d'événements. Son dôme s'ouvre pour révéler le ciel aux yeux du Télescope.",
+      "scrumExplain": "Central event aggregator. Hexagonal base = 6 event categories (release, deploy, block, plan, incident, win). The dome filters / focuses observation."
+    },
+    {
+      "tutorialId": "island",
+      "name": "L'Île Solitaire",
+      "scrumName": "Project observatory ground",
+      "desc": "Petite île ronde et herbeuse au milieu de l'océan calme — le sol sacré du Mage.",
+      "yamzyExplain": "L'Île est le refuge du Mage Veilleur. Loin du tumulte du Royaume, il peut contempler tous les événements sans être happé par leur urgence.",
+      "scrumExplain": "Isolation context : detached observer view. You see all project events from outside the fray, prioritized as celestial signals."
+    },
+    {
+      "tutorialId": "sky-dome",
+      "name": "Le Dôme Céleste",
+      "scrumName": "Live events stream",
+      "desc": "Voûte étoilée immense — toile de fond où tous les phénomènes apparaissent.",
+      "yamzyExplain": "Le Dôme Céleste est la scène cosmique où le Royaume écrit ses signes. Chaque étoile veille, chaque trajectoire raconte une vérité.",
+      "scrumExplain": "The full sky = your project's live activity feed. Stars baseline = normal day. Phenomena = significant events worth your attention."
+    },
+    {
+      "tutorialId": "star",
+      "name": "Les Étoiles Veilleuses",
+      "scrumName": "Background activity / Heartbeat",
+      "desc": "Champ de 600 étoiles scintillantes — le calme tranquille du Royaume.",
+      "yamzyExplain": "Chaque Étoile est un Compagnon endormi mais présent. Leur scintillement collectif révèle que le Royaume respire.",
+      "scrumExplain": "Ambient project activity. Heartbeat indicator : presence of background work happening. More twinkle = more team motion."
+    }
+  ],
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue à l'Observatoire des Phénomènes, jeune Mage. Sur cette île, le ciel parle.",
+      "scrumText": "📋 Welcome to your live event dashboard, in 3D. Each celestial phenomenon = a project event. The telescope auto-aims at what's significant.",
+      "morphPairs": [
+        { "yamzy": "Observatoire des Phénomènes", "scrum": "Live event dashboard" },
+        { "yamzy": "Ciel parle", "scrum": "Events stream visible" }
+      ],
+      "camera": { "position": [16, 10, 16], "lookAt": [0, 4, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "🏝 Cette petite île est ton refuge — un lieu détaché du tumulte du Royaume pour contempler les signes.",
+      "scrumText": "📋 The island = your observer context. Detached from daily noise, you see the project as celestial signals, prioritized by visibility.",
+      "morphPairs": [
+        { "yamzy": "Refuge détaché", "scrum": "Observer context" },
+        { "yamzy": "Contempler les signes", "scrum": "Spot the signals" }
+      ],
+      "camera": { "position": [10, 5, 10], "lookAt": [0, 1, 0], "duration": 2 },
+      "highlight": "island",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🏛 L'Observatoire t'abrite — sa base hexagonale rappelle les six grandes catégories d'événements à surveiller.",
+      "scrumText": "📋 The hex observatory base symbolizes 6 event types : release, deploy, block, planning, incident, milestone. The dome focuses observation.",
+      "morphPairs": [
+        { "yamzy": "Six catégories", "scrum": "6 event types" },
+        { "yamzy": "Dôme s'ouvre", "scrum": "Focus filter" }
+      ],
+      "camera": { "position": [6, 4, 6], "lookAt": [0, 2, 0], "duration": 2 },
+      "highlight": "observatory",
+      "wait": 9
+    },
+    {
+      "step": 4,
+      "yamzyText": "🔭 Le Grand Télescope — l'œil sacré du Mage. Il pivote seul vers chaque phénomène. Suis sa direction.",
+      "scrumText": "📋 The telescope auto-aims at the active phenomenon. Track its orientation = know where to look without thinking. It's your attention guide.",
+      "morphPairs": [
+        { "yamzy": "Œil sacré", "scrum": "Attention guide" },
+        { "yamzy": "Pivote seul", "scrum": "Auto-aim" }
+      ],
+      "camera": { "position": [3, 3, 5], "lookAt": [0, 2.5, 0], "duration": 2 },
+      "highlight": "telescope",
+      "wait": 9
+    },
+    {
+      "step": 5,
+      "yamzyText": "🌌 Le Dôme Céleste s'étend au-dessus — voûte étoilée où s'écrivent tous les signes du Royaume.",
+      "scrumText": "📋 The sky dome = your full live event stream. Stars = ambient activity. Phenomena = significant events. Read top-down for live status.",
+      "morphPairs": [
+        { "yamzy": "Voûte étoilée", "scrum": "Live event stream" },
+        { "yamzy": "Signes du Royaume", "scrum": "Significant events" }
+      ],
+      "camera": { "position": [0, 8, 14], "lookAt": [0, 12, 0], "duration": 2 },
+      "highlight": "sky-dome",
+      "wait": 9
+    },
+    {
+      "step": 6,
+      "yamzyText": "⭐ Les Étoiles Veilleuses scintillent en fond — leur calme rythme dit que le Royaume respire normalement.",
+      "scrumText": "📋 Background stars = healthy project pulse. Their twinkle frequency reflects team motion. Sudden absence = something wrong.",
+      "morphPairs": [
+        { "yamzy": "Étoiles Veilleuses", "scrum": "Project heartbeat" },
+        { "yamzy": "Royaume respire", "scrum": "Team active" }
+      ],
+      "camera": { "position": [0, 8, 14], "lookAt": [0, 18, 0], "duration": 2 },
+      "highlight": "star",
+      "wait": 9
+    },
+    {
+      "step": 7,
+      "yamzyText": "☄ Voilà la Comète ! Sa traînée bleue traverse le ciel — un grand événement vient d'avoir lieu. Une release majeure peut-être ?",
+      "scrumText": "📋 Comet = major release deployed. Long bright tail = the changelog ripples through prod. Watch its trajectory for affected areas.",
+      "morphPairs": [
+        { "yamzy": "Comète", "scrum": "Major release" },
+        { "yamzy": "Traînée bleue", "scrum": "Changelog ripple" }
+      ],
+      "camera": { "position": [0, 8, 14], "lookAt": [0, 16, 0], "duration": 2 },
+      "invokeMethod": { "name": "triggerComet" },
+      "wait": 10
+    },
+    {
+      "step": 8,
+      "yamzyText": "✨ Tu connais désormais le langage du ciel. Reviens souvent — il ne ment jamais. Bonne veille, jeune Mage.",
+      "scrumText": "📋 You now read the celestial event stream. Comet, eclipse, aurora, supernova... each tells a project truth. Watch and learn.",
+      "camera": { "position": [16, 10, 16], "lookAt": [0, 4, 0], "duration": 2.5 },
+      "wait": 8
+    }
+  ],
+  "playExample": {
+    "duration": 100,
+    "description": "📜 Une année condensée + bus universel : 8 phénomènes locaux puis 3 cérémonies remote depuis Phoenix/Kanban/OKR pour prouver que le ciel est un RADAR global.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Le Mage veille sur l'île. Le ciel est calme — les Étoiles scintillent paisiblement.",
+        "scrumText": "📋 Day 0 · Project quiet. Background heartbeat only. Stars twinkle. No active events.",
+        "morphPairs": [
+          { "yamzy": "Mage veille", "scrum": "Observer ready" },
+          { "yamzy": "Ciel calme", "scrum": "Quiet day baseline" }
+        ],
+        "camera": { "position": [16, 10, 16], "lookAt": [0, 4, 0], "duration": 2.5 }
+      },
+      {
+        "atSeconds": 6,
+        "yamzyText": "🌫 Une Nébula s'épanouit au loin — le Sprint Planning commence. De nouvelles quêtes se forment.",
+        "scrumText": "📋 Nebula appears · Sprint Planning starts. New stories crystallize. Color cloud = scope being defined.",
+        "morphPairs": [
+          { "yamzy": "Nébula s'épanouit", "scrum": "Sprint Planning" },
+          { "yamzy": "Quêtes se forment", "scrum": "Stories defined" }
+        ],
+        "camera": { "position": [10, 8, 14], "lookAt": [0, 14, -6], "duration": 2.5 },
+        "invokeMethod": { "name": "triggerNebula" },
+        "emitCeremony": { "type": "nebula", "label": "🌫 Sprint Planning · scope defined", "icon": "🌫" }
+      },
+      {
+        "atSeconds": 14,
+        "yamzyText": "⭐ Pluie de Météores ! Les Compagnons forgent — chaque éclat est un commit déposé sur le Royaume.",
+        "scrumText": "📋 Meteor shower · Commit burst. Each streak = 1 commit. High density = team velocity peak. Watch the trail count.",
+        "morphPairs": [
+          { "yamzy": "Pluie de Météores", "scrum": "Commit burst" },
+          { "yamzy": "Compagnons forgent", "scrum": "Team velocity" }
+        ],
+        "camera": { "position": [4, 8, 12], "lookAt": [0, 16, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "triggerMeteorShower" },
+        "emitCeremony": { "type": "meteor", "label": "⭐ Commit burst · 12 commits", "icon": "⭐" }
+      },
+      {
+        "atSeconds": 22,
+        "yamzyText": "🌑 ÉCLIPSE — le ciel s'assombrit. Un Blocage majeur vient de toucher la cordée. Le Mage doit intervenir.",
+        "scrumText": "📋 Eclipse · Critical blocker hits. Production-affecting impediment. SM must drop everything to unblock. Ring of fire = duration metric.",
+        "morphPairs": [
+          { "yamzy": "Éclipse · ciel s'assombrit", "scrum": "Critical blocker active" },
+          { "yamzy": "Mage intervient", "scrum": "SM escalation" }
+        ],
+        "camera": { "position": [0, 8, 14], "lookAt": [0, 18, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "triggerEclipse" },
+        "emitCeremony": { "type": "eclipse", "label": "🌑 Critical blocker · escalation", "icon": "🌑" }
+      },
+      {
+        "atSeconds": 31,
+        "yamzyText": "⚡ Tempête Solaire ! Un incident touche la prod — le Royaume vacille un instant. Le Mage rallie ses Compagnons.",
+        "scrumText": "📋 Solar storm · Production incident. Red aurora pulses = active incident in flight. War-room mode. Customer impact assessment.",
+        "morphPairs": [
+          { "yamzy": "Tempête Solaire", "scrum": "Production incident" },
+          { "yamzy": "Mage rallie", "scrum": "War-room mode" }
+        ],
+        "camera": { "position": [-8, 8, 10], "lookAt": [-4, 12, -6], "duration": 2.2 },
+        "invokeMethod": { "name": "triggerSolarStorm" },
+        "emitCeremony": { "type": "solar-storm", "label": "⚡ Prod incident · war-room", "icon": "⚡" }
+      },
+      {
+        "atSeconds": 39,
+        "yamzyText": "🌌 Aurora Boréale ! Le sprint vient de se clôturer avec succès. La cordée brille de fierté.",
+        "scrumText": "📋 Aurora · Sprint successful close. Green/purple bands = team's collective sense of achievement. Sprint Review went well.",
+        "morphPairs": [
+          { "yamzy": "Aurora Boréale", "scrum": "Sprint success" },
+          { "yamzy": "Cordée brille", "scrum": "Team morale up" }
+        ],
+        "camera": { "position": [6, 6, 12], "lookAt": [0, 8, -6], "duration": 2.5 },
+        "invokeMethod": { "name": "triggerAurora" },
+        "emitCeremony": { "type": "aurora", "label": "🌌 Sprint Review · success", "icon": "🌌" }
+      },
+      {
+        "atSeconds": 47,
+        "yamzyText": "☄ La Comète arrive ! v1.5.0 vient d'être déployée — sa traînée doré-bleue annonce un changelog conséquent.",
+        "scrumText": "📋 Comet · Major release v1.5.0 deployed. Long tail = lots of changes (commits, fixes, features). Customer-facing impact.",
+        "morphPairs": [
+          { "yamzy": "Comète arrive", "scrum": "Release deployed" },
+          { "yamzy": "v1.5.0 traînée", "scrum": "Changelog ripple" }
+        ],
+        "camera": { "position": [0, 8, 16], "lookAt": [0, 14, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "triggerComet" },
+        "emitCeremony": { "type": "comet", "label": "☄ v1.5.0 deployed", "icon": "☄" }
+      },
+      {
+        "atSeconds": 55,
+        "yamzyText": "💥 SUPERNOVA ! v2.0.0 est née. Toute la voûte céleste s'illumine — le Royaume a franchi un cap.",
+        "scrumText": "📋 Supernova · v2.0.0 major-major release. Bright pulse with rays = breaking changes / new product era. Whole company aware.",
+        "morphPairs": [
+          { "yamzy": "Supernova", "scrum": "Major-major release" },
+          { "yamzy": "Voûte s'illumine", "scrum": "Org-wide event" }
+        ],
+        "camera": { "position": [0, 8, 14], "lookAt": [0, 18, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "triggerSupernova" },
+        "emitCeremony": { "type": "supernova", "label": "💥 v2.0.0 released · major-major", "icon": "💥" }
+      },
+      {
+        "atSeconds": 62,
+        "yamzyText": "📡 Voici l'essentiel — le ciel n'est pas un décor. Il EST le radar du Royaume. Quand une autre Room émet une cérémonie, on la voit ICI.",
+        "scrumText": "📋 Key insight — this sky is your global event radar. Watch : I'll simulate a ceremony coming from OTHER rooms and the sky reacts live.",
+        "morphPairs": [
+          { "yamzy": "Radar du Royaume", "scrum": "Global event radar" },
+          { "yamzy": "Autre Room émet", "scrum": "Cross-room ceremony" }
+        ],
+        "camera": { "position": [10, 10, 16], "lookAt": [0, 10, 0], "duration": 2.5 }
+      },
+      {
+        "atSeconds": 70,
+        "yamzyText": "🔥 Phoenix Forge annonce une Renaissance ! Une comète traverse le ciel sans qu'on ait rien fait ici — l'événement est venu d'AILLEURS.",
+        "scrumText": "📋 Incoming from phoenix-forge : v1.5.0 deployed. Sky reacts with a comet. No local trigger — the ceremony was published on the global bus.",
+        "morphPairs": [
+          { "yamzy": "Phoenix Forge", "scrum": "phoenix-forge room" },
+          { "yamzy": "Renaissance lointaine", "scrum": "Remote release event" }
+        ],
+        "camera": { "position": [4, 9, 14], "lookAt": [0, 14, 0], "duration": 2.5 },
+        "invokeMethod": {
+          "name": "simulateRemoteCeremony",
+          "args": [{ "type": "renaissance", "sourceRoom": "phoenix-forge", "label": "v1.5.0 published", "icon": "🐦" }]
+        }
+      },
+      {
+        "atSeconds": 78,
+        "yamzyText": "🏝 Kanban Island clôture son sprint — Aurora ! Le succès collectif d'une AUTRE Room illumine notre ciel.",
+        "scrumText": "📋 Incoming from kanban-island : sprint review success. Aurora unrolls. Different room, same sky — the radar is universal.",
+        "morphPairs": [
+          { "yamzy": "Sprint clôturé ailleurs", "scrum": "Remote sprint review" },
+          { "yamzy": "Aurore commune", "scrum": "Shared success indicator" }
+        ],
+        "camera": { "position": [6, 6, 12], "lookAt": [0, 8, -6], "duration": 2.5 },
+        "invokeMethod": {
+          "name": "simulateRemoteCeremony",
+          "args": [{ "type": "sommet", "sourceRoom": "kanban-island", "label": "Sprint S1 review · 8/10 DONE", "icon": "🏁" }]
+        }
+      },
+      {
+        "atSeconds": 86,
+        "yamzyText": "⛰ OKR Mountain — un drapeau planté au sommet ! Une étoile filante traverse en hommage. Tout converge ICI.",
+        "scrumText": "📋 Incoming from okr-mountain : KR achieved. Shooting star. Whether the event happens in OKR, Phoenix, Kanban — your telescope sees ALL.",
+        "morphPairs": [
+          { "yamzy": "Drapeau planté ailleurs", "scrum": "Remote KR completion" },
+          { "yamzy": "Étoile filante hommage", "scrum": "Quick visual tribute" }
+        ],
+        "camera": { "position": [-6, 8, 12], "lookAt": [0, 14, 0], "duration": 2.5 },
+        "invokeMethod": {
+          "name": "simulateRemoteCeremony",
+          "args": [{ "type": "flag", "sourceRoom": "okr-mountain", "label": "KR2 (MRR) hit target", "icon": "🏴" }]
+        }
+      },
+      {
+        "atSeconds": 94,
+        "yamzyText": "🪶 Ainsi va le ciel du Royaume — radar universel, témoin de TOUS les Compagnons. Reviens souvent, jeune Mage Veilleur.",
+        "scrumText": "📋 You've seen the universal event sky. Each room publishes locally, every telescope shows globally. Watch this daily.",
+        "morphPairs": [
+          { "yamzy": "Radar universel", "scrum": "Universal event bus" }
+        ],
+        "camera": { "position": [16, 10, 16], "lookAt": [0, 4, 0], "duration": 2 }
+      }
+    ]
+  },
+  "additionalDemos": [
+    {
+      "name": "🚨 Nuit Cataclysmique",
+      "icon": "🚨",
+      "duration": 26,
+      "description": "📜 Tempête solaire + éclipse + cascade d'incidents de TOUTES les Rooms — le radar hurle, le Royaume tremble.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Le Mage veille tard. Le ciel est étrangement immobile — un calme qui sent la catastrophe.",
+          "scrumText": "📋 Late-night observability shift. Background activity unusually low. SRE intuition tingling. False calm.",
+          "morphPairs": [
+            { "yamzy": "Calme catastrophique", "scrum": "False calm" },
+            { "yamzy": "Mage veille tard", "scrum": "Late-night ops" }
+          ],
+          "camera": { "position": [14, 9, 14], "lookAt": [0, 6, 0], "duration": 2 },
+          "highlight": "telescope"
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "⚡ TEMPÊTE SOLAIRE ! La prod brûle — un incident majeur frappe au cœur du Royaume.",
+          "scrumText": "📋 Solar storm · P1 incident. Production fire. PagerDuty cascade. War-room opens. All hands on deck.",
+          "morphPairs": [
+            { "yamzy": "Prod brûle", "scrum": "P1 incident" },
+            { "yamzy": "Tempête Solaire", "scrum": "PagerDuty cascade" }
+          ],
+          "camera": { "position": [-8, 8, 10], "lookAt": [-4, 12, -6], "duration": 2.2 },
+          "invokeMethod": { "name": "triggerSolarStorm" },
+          "emitCeremony": { "type": "solar-storm", "label": "⚡ P1 incident · war-room", "icon": "⚡" }
+        },
+        {
+          "atSeconds": 9,
+          "yamzyText": "🌑 ÉCLIPSE ! Un blocker critique se dresse sur le Sentier — un autre Compagnon est paralysé ailleurs.",
+          "scrumText": "📋 Eclipse · Critical blocker arrives in parallel. Different team stuck. Resource conflict with the incident response.",
+          "morphPairs": [
+            { "yamzy": "Blocker critique", "scrum": "Critical blocker" },
+            { "yamzy": "Compagnon paralysé", "scrum": "Team stuck" }
+          ],
+          "camera": { "position": [0, 8, 14], "lookAt": [0, 18, 0], "duration": 2 },
+          "invokeMethod": { "name": "triggerEclipse" },
+          "emitCeremony": { "type": "eclipse", "label": "🌑 Critical blocker · ressources tendues", "icon": "🌑" }
+        },
+        {
+          "atSeconds": 13,
+          "yamzyText": "💥 SUPERNOVA NÉGATIVE — Phoenix Forge annonce un rollback en urgence ! v2.0 s'effondre sous le poids des bugs.",
+          "scrumText": "📋 Incoming from phoenix-forge : emergency rollback. v2.0 reverted. Customer data integrity at stake. Postmortem inevitable.",
+          "morphPairs": [
+            { "yamzy": "Phoenix · effondrement", "scrum": "phoenix-forge rollback" },
+            { "yamzy": "v2.0 cède", "scrum": "Emergency revert" }
+          ],
+          "camera": { "position": [6, 10, 14], "lookAt": [0, 16, 0], "duration": 2.2 },
+          "invokeMethod": {
+            "name": "simulateRemoteCeremony",
+            "args": [{ "type": "supernova", "sourceRoom": "phoenix-forge", "label": "v2.0 rollback emergency", "icon": "💥" }]
+          }
+        },
+        {
+          "atSeconds": 18,
+          "yamzyText": "🕳 Star Map hurle — un Trou Noir vient de se forger ! Un risque catastrophique s'est réalisé dans le silence.",
+          "scrumText": "📋 Incoming from star-map-risks : black hole forged. Catastrophic risk realized. CISO + CEO escalation. Comms team activated.",
+          "morphPairs": [
+            { "yamzy": "Star Map hurle", "scrum": "star-map alert" },
+            { "yamzy": "Trou Noir forgé", "scrum": "Catastrophic risk realized" }
+          ],
+          "camera": { "position": [-6, 10, 12], "lookAt": [0, 16, 0], "duration": 2.2 },
+          "invokeMethod": {
+            "name": "simulateRemoteCeremony",
+            "args": [{ "type": "blackhole", "sourceRoom": "star-map-risks", "label": "Catastrophic risk realized", "icon": "🕳" }]
+          }
+        },
+        {
+          "atSeconds": 22,
+          "yamzyText": "⛰ Et la Montagne s'écroule — OKR Mountain annonce que deux KRs viennent de basculer dans le rouge.",
+          "scrumText": "📋 Incoming from okr-mountain : storm event. Two KRs dropped below threshold mid-Q. Stakeholder confidence shaken.",
+          "morphPairs": [
+            { "yamzy": "Montagne s'écroule", "scrum": "okr-mountain storm" },
+            { "yamzy": "Deux KRs basculent", "scrum": "Multi-KR red breach" }
+          ],
+          "camera": { "position": [4, 12, 12], "lookAt": [0, 14, 0], "duration": 2.2 },
+          "invokeMethod": {
+            "name": "simulateRemoteCeremony",
+            "args": [{ "type": "storm", "sourceRoom": "okr-mountain", "label": "2 KRs dropped red", "icon": "⚡" }]
+          },
+          "emitCeremony": { "type": "storm", "label": "⚡ Cascade cross-room · Royaume tremble", "icon": "⚡" }
+        }
+      ]
+    },
+    {
+      "name": "🏆 Aurore du Royaume",
+      "icon": "🏆",
+      "duration": 26,
+      "description": "📜 Toutes les Rooms triomphent en chaîne : aurora, supernova v2.0, conjunction, célébrations remote en cascade.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🌅 L'aube se lève sur l'île. Les Étoiles scintillent vivement — le Royaume vibre d'une énergie heureuse.",
+          "scrumText": "📋 Dawn shift. Background heartbeat strong. Multiple positive signals queued. Big-release-day energy.",
+          "morphPairs": [
+            { "yamzy": "Aube heureuse", "scrum": "Release-day energy" },
+            { "yamzy": "Étoiles scintillent", "scrum": "Strong heartbeat" }
+          ],
+          "camera": { "position": [14, 8, 14], "lookAt": [0, 6, 0], "duration": 2.2 },
+          "highlight": "star"
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "🌌 AURORA ! Le sprint vient de clôturer en triomphe — bandes vert-violet caressent la voûte.",
+          "scrumText": "📋 Aurora · Sprint successfully closed. Demo wow'd stakeholders. NPS up. Team morale peak.",
+          "morphPairs": [
+            { "yamzy": "Aurora triomphale", "scrum": "Sprint success" },
+            { "yamzy": "Voûte caressée", "scrum": "Stakeholders impressed" }
+          ],
+          "camera": { "position": [6, 6, 12], "lookAt": [0, 8, -6], "duration": 2.2 },
+          "invokeMethod": { "name": "triggerAurora" },
+          "emitCeremony": { "type": "aurora", "label": "🌌 Sprint Review · standing ovation", "icon": "🌌" }
+        },
+        {
+          "atSeconds": 9,
+          "yamzyText": "💥 SUPERNOVA ! v2.0 est née — sa lueur traverse la voûte céleste. Le Royaume franchit un cap historique.",
+          "scrumText": "📋 Supernova · v2.0 major-major release shipped. All-hands celebration. Press release out. Market reception strong.",
+          "morphPairs": [
+            { "yamzy": "v2.0 née", "scrum": "Major-major shipped" },
+            { "yamzy": "Cap historique", "scrum": "Market milestone" }
+          ],
+          "camera": { "position": [0, 8, 14], "lookAt": [0, 18, 0], "duration": 2.2 },
+          "invokeMethod": { "name": "triggerSupernova" },
+          "emitCeremony": { "type": "supernova", "label": "💥 v2.0 shipped · all-hands celebration", "icon": "💥" }
+        },
+        {
+          "atSeconds": 14,
+          "yamzyText": "✨ CONJONCTION ! Deux astres s'alignent — la roadmap converge avec l'attente du marché. Magie pure.",
+          "scrumText": "📋 Conjunction · Roadmap perfectly aligned with customer demand. Two strategic streams converge. Product-market fit moment.",
+          "morphPairs": [
+            { "yamzy": "Astres alignés", "scrum": "Streams converge" },
+            { "yamzy": "Magie pure", "scrum": "Product-market fit" }
+          ],
+          "camera": { "position": [4, 8, 14], "lookAt": [0, 14, 0], "duration": 2.2 },
+          "invokeMethod": { "name": "triggerConjunction" },
+          "emitCeremony": { "type": "conjunction", "label": "✨ Conjunction · PMF moment", "icon": "✨" }
+        },
+        {
+          "atSeconds": 18,
+          "yamzyText": "⛰ OKR Mountain salue — un drapeau planté au sommet ! KR4 atteint, les exécutifs jubilent.",
+          "scrumText": "📋 Incoming from okr-mountain : KR4 hit at 115%. Stretch achieved. Board meeting tomorrow will be triumphant.",
+          "morphPairs": [
+            { "yamzy": "Drapeau au sommet", "scrum": "Remote KR achieved" },
+            { "yamzy": "Exécutifs jubilent", "scrum": "Board pleased" }
+          ],
+          "camera": { "position": [-6, 8, 12], "lookAt": [0, 14, 0], "duration": 2.2 },
+          "invokeMethod": {
+            "name": "simulateRemoteCeremony",
+            "args": [{ "type": "flag", "sourceRoom": "okr-mountain", "label": "KR4 hit · 115% stretch", "icon": "🏴" }]
+          }
+        },
+        {
+          "atSeconds": 22,
+          "yamzyText": "🏝 Kanban Island célèbre — sprint clôturé 10/10 DONE ! Une étoile filante traverse le ciel en hommage.",
+          "scrumText": "📋 Incoming from kanban-island : perfect sprint close. 10/10 stories DONE. Zero spillover. Shooting star tribute.",
+          "morphPairs": [
+            { "yamzy": "10/10 DONE", "scrum": "Perfect sprint" },
+            { "yamzy": "Étoile filante hommage", "scrum": "Quick tribute signal" }
+          ],
+          "camera": { "position": [6, 6, 12], "lookAt": [0, 10, 0], "duration": 2.2 },
+          "invokeMethod": {
+            "name": "simulateRemoteCeremony",
+            "args": [{ "type": "sommet", "sourceRoom": "kanban-island", "label": "Sprint · 10/10 DONE perfect", "icon": "🏁" }]
+          },
+          "emitCeremony": { "type": "celebration", "label": "🌟 Royaume en triomphe · cross-room", "icon": "🌟" }
+        }
+      ]
+    }
+  ],
+  "closingMessage": "🪶 Le ciel ne ment jamais. Reviens, jeune Mage — tu y verras toujours la vérité du Royaume."
+}

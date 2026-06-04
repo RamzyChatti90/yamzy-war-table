@@ -1,0 +1,415 @@
+{
+  "$comment": "v2 — gold-standard cinematic demo (already polished) + dual narrator upgrade",
+  "roomKey": "git-tree-room",
+  "meta": {
+    "name": "Git Tree Room",
+    "loreName": "L'Arbre des Lignées",
+    "icon": "🌳",
+    "color": "#15803d",
+    "summary": "Le code n'est pas une liste de branches — c'est un chêne sacré dont chaque branche est une lignée vivante.",
+    "introLore": "🪶 Bienvenue, jeune Mage. Devant toi, l'Arbre des Lignées — où chaque branche git devient une vraie branche physique, où chaque commit est une feuille qui scintille au vent. Pour le chef de projet, c'est ton graphe Git en 3D : `main` est le tronc, les features sont les branches, les commits sont les feuilles colorées par auteur."
+  },
+  "glossary": [
+    {
+      "tutorialId": "trunk",
+      "name": "Le Tronc Maître",
+      "loreName": "Le Tronc Ancien",
+      "scrumName": "main / master branch",
+      "desc": "Le tronc principal qui porte l'arbre entier. Toutes les branches en émergent.",
+      "yamzyExplain": "Le Tronc est le pilier sacré du Royaume. Son épaisseur croît avec chaque commit accompli. Sans lui, aucune lignée ne peut prospérer — toutes y reviennent inévitablement par la greffe.",
+      "scrumExplain": "The main (or master) branch of your Git repository. All other branches diverge from it and are eventually merged back. Its width represents accumulated commits over time.",
+      "interactions": ["clic feuille du tronc = commit historique"]
+    },
+    {
+      "tutorialId": "branch",
+      "name": "Les Branches Vivantes",
+      "loreName": "Les Lignées en Croissance",
+      "scrumName": "feature/bugfix branches",
+      "desc": "Chaque branche git devient une vraie branche 3D qui pousse depuis le tronc. Sa longueur reflète les commits ahead.",
+      "yamzyExplain": "Chaque Lignée raconte une quête : une feature à forger, un bug à terrasser. Plus longue est la branche, plus profonde sa quête. Quand elle est mûre, le Mage la greffe au Tronc — une cicatrice dorée marque la fusion.",
+      "scrumExplain": "Feature branches, bugfix branches, etc. Length is proportional to commits ahead of main. Stale branches (>30 days without push) appear dark green with moss texture.",
+      "interactions": ["drag deux branches = merge animation", "stale branch = couleur mousse foncée"]
+    },
+    {
+      "tutorialId": "leaf",
+      "name": "Les Feuilles Scintillantes",
+      "loreName": "Les Étincelles d'Effort",
+      "scrumName": "commits",
+      "desc": "Chaque feuille est un commit. Sa couleur identifie l'auteur, sa brillance la récence.",
+      "yamzyExplain": "Chaque feuille est l'effort d'un Compagnon — sa couleur révèle qui l'a forgée. Les plus jeunes brillent, les plus anciennes ternissent. Cliquer une feuille convoque le souvenir du commit.",
+      "scrumExplain": "Individual commits. Color encodes author identity, brightness ∝ recency. Click any leaf to reveal SHA + author + message + timestamp.",
+      "interactions": ["clic = ouvre fiche commit (SHA, auteur, message, date)"]
+    },
+    {
+      "tutorialId": "fruit",
+      "name": "Les Fruits Dorés",
+      "loreName": "Les Récoltes Mûries",
+      "scrumName": "git tags / releases",
+      "desc": "Au bout des branches, les fruits = releases. Doré = published, vert = draft.",
+      "yamzyExplain": "Quand une Lignée a porté ses fruits, le Mage les cueille pour offrir une nouvelle version au Royaume. Les fruits dorés sont déjà offerts, les verts attendent encore.",
+      "scrumExplain": "Tagged releases at the tip of feature branches. Gold = published (live in prod), lime green = draft (pending release).",
+      "interactions": ["clic fruit = release notes + changelog"]
+    },
+    {
+      "tutorialId": "mushroom",
+      "name": "Les Champignons des Réserves",
+      "loreName": "Les Esprits Cachés",
+      "scrumName": "git stash entries",
+      "desc": "Champignons rouges au pied de l'arbre = work-in-progress mis de côté.",
+      "yamzyExplain": "Les Champignons gardent secrètement les ébauches mises de côté. Quand le Mage veut reprendre une œuvre interrompue, il invoque le champignon — et son travail réapparaît.",
+      "scrumExplain": "Stashed changes (`git stash`). Temporary work-in-progress saved outside of any branch. Reactivate via `git stash pop`.",
+      "interactions": ["clic = git stash pop"]
+    },
+    {
+      "tutorialId": "firefly",
+      "name": "Les Lucioles d'Activité",
+      "loreName": "Les Esprits Veilleurs",
+      "scrumName": "live repo activity",
+      "desc": "Les lucioles flottent et scintillent — elles révèlent que le repo est vivant.",
+      "yamzyExplain": "Les Lucioles annoncent que d'autres Mages travaillent en ce moment même sur cet Arbre. Plus elles dansent, plus le Royaume est actif.",
+      "scrumExplain": "Ambient activity indicators. More activity = more fireflies. Represents push/fetch events from other contributors."
+    }
+  ],
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue, jeune Mage. Devant toi se dresse l'Arbre des Lignées — l'âme physique de ton repository Git. Approchons-nous du Tronc Ancien...",
+      "scrumText": "📋 Welcome to your living Git graph. The trunk = `main` branch. Each branch growing from it = an active feature. Each leaf = a commit. Trees are alive.",
+      "morphPairs": [
+        { "yamzy": "Arbre des Lignées", "scrum": "Git graph" },
+        { "yamzy": "Tronc Ancien", "scrum": "main branch" }
+      ],
+      "camera": { "position": [0, 6, 18], "lookAt": [0, 4, 0], "duration": 2 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "Voici le Tronc Maître — c'est `main`. Son épaisseur reflète les commits accomplis. Toutes les branches viennent ici se greffer un jour.",
+      "scrumText": "📋 The trunk = `main` branch. Its width grows with each commit merged. All feature branches eventually merge back here. This is your source of truth.",
+      "morphPairs": [
+        { "yamzy": "Tronc Maître", "scrum": "main branch" },
+        { "yamzy": "Greffe au tronc", "scrum": "Merge to main" }
+      ],
+      "camera": { "position": [0, 3, 6], "lookAt": [0, 4, 0], "duration": 2 },
+      "highlight": "trunk",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "Lève les yeux : chaque branche qui s'élance est une Lignée vivante. Une feature, un bugfix, une expérimentation. Sa longueur trahit son age.",
+      "scrumText": "📋 Each branch = a feature or bugfix in flight. Length = commits ahead of main. Long-lived branches (visible as mossy) signal stale work or risky merges incoming.",
+      "morphPairs": [
+        { "yamzy": "Lignée vivante", "scrum": "Feature branch" },
+        { "yamzy": "Longueur trahit son age", "scrum": "Commits ahead = staleness" }
+      ],
+      "camera": { "position": [8, 7, 8], "lookAt": [0, 5, 0], "duration": 2.5 },
+      "highlight": "branch",
+      "wait": 10
+    },
+    {
+      "step": 4,
+      "yamzyText": "Les feuilles colorées sont les commits. Vert = Ramzy, bleu = Alice, ambre = Bob... La couleur identifie l'auteur. Clique sur une feuille pour invoquer le souvenir.",
+      "scrumText": "📋 Each leaf = 1 commit. Color = author. Brightness = recency (younger leaves shine, older fade). Click any leaf to see SHA + author + message + timestamp.",
+      "morphPairs": [
+        { "yamzy": "Feuille colorée", "scrum": "Commit" },
+        { "yamzy": "Couleur = auteur", "scrum": "color encodes author" }
+      ],
+      "camera": { "position": [4, 8, 4], "lookAt": [0, 6, 0], "duration": 2 },
+      "highlight": "leaf",
+      "wait": 10
+    },
+    {
+      "step": 5,
+      "yamzyText": "🍎 Au bout des branches, regarde ces fruits dorés : ce sont les releases publiées. Les verts sont encore en draft, prêts à mûrir.",
+      "scrumText": "📋 Branch tips show fruits = git tags / releases. Gold = published to prod, lime green = draft (pending release). Click a fruit to see release notes + changelog.",
+      "morphPairs": [
+        { "yamzy": "Fruit doré", "scrum": "Published release tag" },
+        { "yamzy": "Fruit vert", "scrum": "Draft release" }
+      ],
+      "camera": { "position": [-6, 5, 4], "lookAt": [0, 5, 0], "duration": 2 },
+      "highlight": "fruit",
+      "wait": 10
+    },
+    {
+      "step": 6,
+      "yamzyText": "🍄 Et à la base, ces champignons rouges ? Ce sont les git stashes — des ébauches que tu as mises de côté. Les Esprits Cachés les gardent.",
+      "scrumText": "📋 Red mushrooms at the trunk base = `git stash` entries. WIP saved outside any branch. Click one to `git stash pop` and restore that work.",
+      "morphPairs": [
+        { "yamzy": "Champignon des Réserves", "scrum": "Git stash entry" },
+        { "yamzy": "Esprits Cachés", "scrum": "Saved WIP" }
+      ],
+      "camera": { "position": [3, 1.5, 5], "lookAt": [0, 0.5, 0], "duration": 2 },
+      "highlight": "mushroom",
+      "wait": 9
+    },
+    {
+      "step": 7,
+      "yamzyText": "Vois-tu ces lucioles qui dansent ? Elles révèlent que le Royaume vibre. D'autres Mages travaillent sur l'Arbre, en cet instant même.",
+      "scrumText": "📋 Fireflies = real-time activity from other contributors (push/fetch events). More fireflies = more active dev session. Less = quiet repo.",
+      "morphPairs": [
+        { "yamzy": "Lucioles dansent", "scrum": "Live repo activity" },
+        { "yamzy": "Royaume vibre", "scrum": "Team is active" }
+      ],
+      "camera": { "position": [0, 10, 14], "lookAt": [0, 5, 0], "duration": 2 },
+      "highlight": "firefly",
+      "wait": 9
+    },
+    {
+      "step": 8,
+      "yamzyText": "🪓 Le bouton Prune Stale ? Il élague les Lignées mortes — couvertes de mousse, oubliées. Geste sacré pour purifier l'Arbre.",
+      "scrumText": "📋 `Prune Stale` removes branches inactive >30 days. Visual : mossy branches crumble away. Equivalent to `git branch -d` + `git push --delete origin`.",
+      "morphPairs": [
+        { "yamzy": "Élaguer Lignées mortes", "scrum": "Delete stale branches" },
+        { "yamzy": "Purifier l'Arbre", "scrum": "Clean repo state" }
+      ],
+      "invokeMethod": { "name": "pruneStale" },
+      "camera": { "position": [0, 6, 16], "lookAt": [0, 4, 0], "duration": 2 },
+      "wait": 9
+    },
+    {
+      "step": 9,
+      "yamzyText": "🌸/🍂 Tu peux aussi changer la saison ! Le Printemps fait verdir l'Arbre, l'Automne le dore — pour voir le rythme de l'année.",
+      "scrumText": "📋 Season toggle = visual filter for time-based metrics. Spring = current quarter activity, Autumn = year-end summary. Pure visual : no data change.",
+      "morphPairs": [
+        { "yamzy": "Saison change", "scrum": "Time filter" },
+        { "yamzy": "Verdir / dorer", "scrum": "Recent vs historical" }
+      ],
+      "invokeMethod": { "name": "toggleSeason" },
+      "camera": { "position": [0, 8, 20], "lookAt": [0, 5, 0], "duration": 2 },
+      "wait": 9
+    },
+    {
+      "step": 10,
+      "yamzyText": "✨ Tu connais désormais tous les secrets de l'Arbre des Lignées. Quand tu cliques sur une feuille, c'est un commit que tu invoques.",
+      "scrumText": "📋 You've toured your living Git graph. Click leaves for commit details, fruits for releases, mushrooms for stashes. Prune stale to keep the tree healthy.",
+      "camera": { "position": [0, 6, 18], "lookAt": [0, 4, 0], "duration": 2 },
+      "wait": 8
+    }
+  ],
+  "playExample": {
+    "duration": 38,
+    "description": "📜 Saga d'un sprint en 38s : 4 commits forgés, 1 merge, 1 release. Observe l'Arbre évoluer.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Sprint 1, Jour 1. L'équipe se réveille — un nouvel arbre attend ses lignées.",
+        "scrumText": "📋 Sprint S1 Day 1. Repo is quiet on `main`. Team about to branch off for new features.",
+        "morphPairs": [
+          { "yamzy": "Sprint 1 jour 1", "scrum": "Sprint S1 start" },
+          { "yamzy": "Nouvel arbre", "scrum": "Fresh repo state" }
+        ],
+        "camera": { "position": [0, 6, 18], "lookAt": [0, 4, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 5,
+        "yamzyText": "🌸 Une Lignée éclôt — feature/cosmos-orrery. Ramzy y dépose son premier commit.",
+        "scrumText": "📋 Branch created : `feature/cosmos-orrery`. First commit lands. Bloom animation on the new branch.",
+        "morphPairs": [
+          { "yamzy": "Lignée éclôt", "scrum": "Branch created" },
+          { "yamzy": "Premier commit", "scrum": "Initial commit" }
+        ],
+        "camera": { "position": [5, 5, 5], "lookAt": [0, 5, 0], "duration": 2 },
+        "highlight": "branch",
+        "emitCeremony": { "type": "bloom", "label": "Nouvelle Lignée : feature/cosmos-orrery", "icon": "🌸" }
+      },
+      {
+        "atSeconds": 11,
+        "yamzyText": "🍃 Les commits affluent : Alice, Bob, Maya — chaque feuille colorée témoigne de leur effort.",
+        "scrumText": "📋 Sprint commits flow in. Each leaf = 1 commit. Color encodes author. Leaves brighten as they appear.",
+        "morphPairs": [
+          { "yamzy": "Feuille colorée", "scrum": "Commit by author" },
+          { "yamzy": "Effort des Compagnons", "scrum": "Team velocity visible" }
+        ],
+        "camera": { "position": [3, 7, 3], "lookAt": [0, 6, 0], "duration": 1.5 },
+        "highlight": "leaf"
+      },
+      {
+        "atSeconds": 16,
+        "yamzyText": "🌳 Jour 7 : une autre Lignée naît — feature/auth-oauth. Le Royaume s'agrandit.",
+        "scrumText": "📋 Day 7 : second feature branch starts : `feature/auth-oauth`. Parallel work tracks. Repo activity peaks.",
+        "morphPairs": [
+          { "yamzy": "Autre Lignée naît", "scrum": "Second branch" },
+          { "yamzy": "Royaume s'agrandit", "scrum": "Repo growing" }
+        ],
+        "camera": { "position": [-6, 6, 4], "lookAt": [0, 5, 0], "duration": 1.5 },
+        "emitCeremony": { "type": "bloom", "label": "feature/auth-oauth démarre", "icon": "🌸" }
+      },
+      {
+        "atSeconds": 21,
+        "yamzyText": "🌫 Pendant ce temps, archive/old-billing prend la mousse — personne ne l'a touchée depuis 60 jours.",
+        "scrumText": "📋 Meanwhile : `archive/old-billing` is dormant. 60 days no commits. Branch visually mossy = stale. Risk : merge conflicts grow.",
+        "morphPairs": [
+          { "yamzy": "Prend la mousse", "scrum": "Stale branch" },
+          { "yamzy": "60 jours", "scrum": "No commits >60d" }
+        ],
+        "camera": { "position": [8, 4, -2], "lookAt": [3, 3, -2], "duration": 1.5 }
+      },
+      {
+        "atSeconds": 26,
+        "yamzyText": "🪓 Le Mage stratège élague les Lignées mortes — Geste de Purification.",
+        "scrumText": "📋 Tech lead deletes stale branches via `Prune stale`. Mossy branches crumble. Repo cleanup before release.",
+        "morphPairs": [
+          { "yamzy": "Élaguer Lignées", "scrum": "Delete stale branches" },
+          { "yamzy": "Geste de Purification", "scrum": "Repo cleanup" }
+        ],
+        "invokeMethod": { "name": "pruneStale" },
+        "camera": { "position": [0, 6, 18], "lookAt": [0, 4, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 31,
+        "yamzyText": "🍎 Et voici le moment doré : cosmos-orrery porte un fruit. v1.0.144 est tagged en production !",
+        "scrumText": "📋 Release moment : `feature/cosmos-orrery` is tagged v1.0.144 in prod. Golden fruit appears. Release notes generated.",
+        "morphPairs": [
+          { "yamzy": "Fruit doré", "scrum": "Production release" },
+          { "yamzy": "v1.0.144 tagged", "scrum": "git tag v1.0.144" }
+        ],
+        "camera": { "position": [4, 6, 4], "lookAt": [0, 5, 0], "duration": 1.5 },
+        "highlight": "fruit",
+        "emitCeremony": { "type": "harvest", "label": "v1.0.144 publiée 🎉", "icon": "🍎" }
+      },
+      {
+        "atSeconds": 36,
+        "yamzyText": "🪶 Ainsi prospère le Royaume du code. Chaque Sprint, l'Arbre grandit un peu plus.",
+        "scrumText": "📋 End of sprint. Repo is healthier : new feature shipped, stale cleaned, team velocity visible. Sprint S2 starts soon.",
+        "morphPairs": [
+          { "yamzy": "Prospère le Royaume", "scrum": "Repo healthy" }
+        ],
+        "camera": { "position": [0, 8, 20], "lookAt": [0, 5, 0], "duration": 2 }
+      }
+    ]
+  },
+  "additionalDemos": [
+    {
+      "name": "🚨 Mauvais Commit",
+      "icon": "🚨",
+      "duration": 23,
+      "description": "📜 Crise sur l'Arbre · Un commit toxique sème la mousse, l'Automne tombe en pleine canicule, le Mage stashe et purifie.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 L'Arbre vibre étrangement — une feuille noire vient de pousser au milieu des vertes. Mauvais présage.",
+          "scrumText": "📋 main branch · bad commit just landed. CI starts failing on every PR. Slack alerts cascade.",
+          "morphPairs": [
+            { "yamzy": "Feuille noire", "scrum": "Bad commit" },
+            { "yamzy": "Mauvais présage", "scrum": "CI red across branches" }
+          ],
+          "camera": { "position": [0, 6, 18], "lookAt": [0, 4, 0], "duration": 2 },
+          "highlight": "leaf"
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "🍂 L'Automne s'invite hors-saison — les feuilles dorent et tombent en pluie. Le Royaume vacille.",
+          "scrumText": "📋 Forced regression. Every dependent branch shows red. Repo health drops fast. Tech lead summoned.",
+          "morphPairs": [
+            { "yamzy": "Automne hors-saison", "scrum": "Forced regression" },
+            { "yamzy": "Pluie de feuilles", "scrum": "Repo health drops" }
+          ],
+          "camera": { "position": [0, 8, 20], "lookAt": [0, 5, 0], "duration": 2 },
+          "invokeMethod": { "name": "toggleSeason" },
+          "emitCeremony": { "type": "feu", "label": "🍂 Regression cascade", "icon": "🍂" }
+        },
+        {
+          "atSeconds": 9,
+          "yamzyText": "🍄 Vite — un Compagnon planque son œuvre en cours sous un Champignon. Pas le temps de la finir, sauvons d'abord le Tronc.",
+          "scrumText": "📋 Dev panics. `git stash` saves WIP. Mushroom appears at trunk base. Then everyone pivots to incident.",
+          "morphPairs": [
+            { "yamzy": "Champignon planque", "scrum": "git stash WIP" },
+            { "yamzy": "Sauvons le Tronc", "scrum": "Pivot to incident" }
+          ],
+          "camera": { "position": [3, 1.5, 5], "lookAt": [0, 0.5, 0], "duration": 2 },
+          "highlight": "mushroom"
+        },
+        {
+          "atSeconds": 14,
+          "yamzyText": "🪓 Geste de Purification ! Le Mage élague tout ce qui pourrit — branches mortes, feuilles noires, tout doit partir.",
+          "scrumText": "📋 Tech lead reverts the bad commit + prunes stale branches that compounded the issue. Repo cleanup.",
+          "morphPairs": [
+            { "yamzy": "Élaguer la pourriture", "scrum": "Revert + prune" },
+            { "yamzy": "Purification", "scrum": "Repo cleanup" }
+          ],
+          "camera": { "position": [0, 6, 18], "lookAt": [0, 4, 0], "duration": 2 },
+          "invokeMethod": { "name": "pruneStale" },
+          "emitCeremony": { "type": "feu", "label": "🪓 Revert + prune · main saved", "icon": "🪓" }
+        },
+        {
+          "atSeconds": 19,
+          "yamzyText": "🪶 L'Arbre respire à nouveau. Le Mage écrit la leçon dans son Grimoire — jamais plus une feuille noire sur le Tronc.",
+          "scrumText": "📋 Post-incident review. Commit message convention enforced. Pre-commit hook added. Lesson logged.",
+          "morphPairs": [
+            { "yamzy": "Grimoire", "scrum": "Post-incident review" },
+            { "yamzy": "Jamais plus", "scrum": "Process hardening" }
+          ],
+          "camera": { "position": [0, 6, 18], "lookAt": [0, 4, 0], "duration": 2 }
+        }
+      ]
+    },
+    {
+      "name": "🏆 Récolte Dorée",
+      "icon": "🏆",
+      "duration": 22,
+      "description": "📜 Triomphe sur l'Arbre · Trois fruits dorés mûrissent, le Printemps explose, le Royaume célèbre une triple release.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Fin de trimestre. L'Arbre est gorgé de sève — trois Lignées ont mûri en même temps, prêtes à offrir leurs fruits.",
+          "scrumText": "📋 Quarter close · 3 feature branches all tagged release-ready. PR queue cleared. Triple release window.",
+          "morphPairs": [
+            { "yamzy": "Trois Lignées mûries", "scrum": "3 release-ready branches" },
+            { "yamzy": "Fin de trimestre", "scrum": "Quarter close" }
+          ],
+          "camera": { "position": [0, 6, 18], "lookAt": [0, 4, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "🌸 PRINTEMPS ! L'Arbre éclate en fleurs roses — sève dorée, lucioles partout. C'est la saison sacrée des Récoltes.",
+          "scrumText": "📋 Spring season toggle. Team velocity peaks. Activity indicators max out. Energy across the repo.",
+          "morphPairs": [
+            { "yamzy": "Saison des Récoltes", "scrum": "Quarterly release week" },
+            { "yamzy": "Sève dorée", "scrum": "Velocity peak" }
+          ],
+          "camera": { "position": [0, 8, 20], "lookAt": [0, 5, 0], "duration": 2 },
+          "invokeMethod": { "name": "toggleSeason" },
+          "emitCeremony": { "type": "bloom", "label": "🌸 Spring · Q-release week", "icon": "🌸" }
+        },
+        {
+          "atSeconds": 9,
+          "yamzyText": "🍎 Premier Fruit doré — cosmos-orrery v2.1 mûrit au bout de sa branche !",
+          "scrumText": "📋 Tag pushed : cosmos-orrery v2.1 → prod. First release of the day. Stakeholders notified.",
+          "morphPairs": [
+            { "yamzy": "Premier Fruit", "scrum": "Release #1" },
+            { "yamzy": "Cosmos-orrery", "scrum": "v2.1 published" }
+          ],
+          "camera": { "position": [4, 6, 4], "lookAt": [0, 5, 0], "duration": 1.5 },
+          "highlight": "fruit",
+          "emitCeremony": { "type": "harvest", "label": "🍎 v2.1 cosmos-orrery shipped", "icon": "🍎" }
+        },
+        {
+          "atSeconds": 13,
+          "yamzyText": "🍎 Deuxième et troisième Fruits — auth-oauth v1.4 et payment-stripe v3.0 tombent ensemble dans le panier !",
+          "scrumText": "📋 Two more tags pushed back-to-back : auth-oauth v1.4 + payment-stripe v3.0. Triple ship. Champagne.",
+          "morphPairs": [
+            { "yamzy": "Trois Fruits ensemble", "scrum": "Triple release" },
+            { "yamzy": "Panier", "scrum": "Production deploys" }
+          ],
+          "camera": { "position": [-6, 5, 4], "lookAt": [0, 5, 0], "duration": 2 },
+          "highlight": "fruit",
+          "emitCeremony": { "type": "harvest", "label": "🍎🍎 v1.4 + v3.0 shipped", "icon": "🍎" }
+        },
+        {
+          "atSeconds": 18,
+          "yamzyText": "🪶 L'Arbre rayonne — Royaume entier illuminé. Le Mage contemple sa Récolte la plus dorée. Que d'efforts honorés.",
+          "scrumText": "📋 Quarterly velocity record set. 3 features in prod same day. Team retro lined up. Bonus on the table.",
+          "morphPairs": [
+            { "yamzy": "Récolte la plus dorée", "scrum": "Quarter record" },
+            { "yamzy": "Royaume illuminé", "scrum": "All-team celebration" }
+          ],
+          "camera": { "position": [0, 10, 16], "lookAt": [0, 5, 0], "duration": 2 }
+        }
+      ]
+    }
+  ],
+  "closingMessage": "🪶 L'Arbre des Lignées garde tous tes secrets. Reviens-y aussi souvent que tu le souhaites, jeune Mage."
+}

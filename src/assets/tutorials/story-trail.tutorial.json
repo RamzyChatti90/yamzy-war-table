@@ -1,0 +1,251 @@
+{
+  "$comment": "v1 — Story Mapping (Jeff Patton) — 3 sentiers user journey + pierres user stories + ligne MVP + drapeau sommet. Tour 7 steps, playExample 75s.",
+  "roomKey": "story-trail",
+  "meta": {
+    "name": "Story Trail Room",
+    "title": "Story Mapping",
+    "loreName": "La Carte des Sentiers",
+    "icon": "🏔",
+    "color": "#f59e0b",
+    "oneLiner": "Story Mapping Jeff Patton : sentiers user journey + pierres stories + ligne MVP.",
+    "summary": "Ton backlog n'est plus une liste à plat — c'est une montagne avec des sentiers. Chaque sentier raconte le voyage d'un utilisateur, chaque pierre est une user story, et la ligne dorée coupe la prochaine release.",
+    "introLore": "🪶 Bienvenue, jeune Cartographe. Devant toi se dresse la Montagne des Histoires — chaque sentier qui en fait le tour est le voyage d'un utilisateur. Chaque pierre posée sur ce sentier est une user story à conter. Et la grande ligne dorée qui ceint la montagne ? C'est ton MVP."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "mountain",
+      "name": "La Montagne des Histoires",
+      "scrumName": "Product universe (Story Map)",
+      "desc": "La grande montagne à cinq strates au centre — l'univers complet du produit.",
+      "yamzyExplain": "La Montagne contient tout : ce qui est, ce qui sera, et ce qui ne sera peut-être jamais. Elle est l'univers fini du Royaume produit.",
+      "scrumExplain": "The product's complete domain visualized as a tiered mountain. The summit represents the ultimate product vision. The base represents foundational experiences."
+    },
+    {
+      "tutorialId": "trail",
+      "name": "Les Sentiers du Voyage",
+      "scrumName": "User journeys / Epics",
+      "desc": "Trois sentiers horizontaux qui font le tour de la montagne à différentes altitudes — chacun est un user journey.",
+      "yamzyExplain": "Chaque Sentier est le voyage d'un type d'utilisateur. Il en fait le tour, du début à la fin. Trois Sentiers = trois Voyages parallèles dans le Royaume.",
+      "scrumExplain": "Horizontal trails wrapping the mountain at 3 altitudes. Each = a user journey / epic (e.g., 'Discovery', 'Onboarding', 'Purchase'). Color encodes the journey identity."
+    },
+    {
+      "tutorialId": "stone",
+      "name": "Les Pierres des Histoires",
+      "scrumName": "User stories",
+      "desc": "Icosahèdres posés le long des sentiers — chaque pierre est une user story à raconter.",
+      "yamzyExplain": "Chaque Pierre est une Histoire d'utilisateur. Sa couleur dit son rang : or pour le MVP sacré, cyan pour le MVP+, gris pour le Futur lointain. Cliquer la Pierre la fait briller.",
+      "scrumExplain": "Icosahedrons along the trails representing individual user stories. Color = release level: gold (MVP), cyan (MVP+), grey (Future). Click → side panel with details.",
+      "interactions": ["clic pierre = panel détail", "pulse glow quand sélectionnée"]
+    },
+    {
+      "tutorialId": "stone-mvp",
+      "name": "Les Pierres Sacrées (MVP)",
+      "scrumName": "MVP user stories",
+      "desc": "Pierres dorées = stories du MVP, les seules à livrer dans la prochaine release.",
+      "yamzyExplain": "Les Pierres d'Or sont les Histoires les plus précieuses : sans elles, le Royaume produit ne peut naître. Elles forment le minimum viable.",
+      "scrumExplain": "Gold-coloured stones marked 'mvp'. Together they form the Minimum Viable Product — the smallest set of stories that delivers end-to-end value."
+    },
+    {
+      "tutorialId": "release-line",
+      "name": "La Ligne de Release",
+      "scrumName": "Release cut line",
+      "desc": "Grande ligne or-émissive qui coupe la montagne horizontalement — la frontière du prochain shipment.",
+      "yamzyExplain": "La Ligne Sacrée trace la limite : sous elle, ce qu'on livre ; au-dessus, ce qu'on garde pour plus tard. Quand le Cartographe baisse ou monte la Ligne, le périmètre change.",
+      "scrumExplain": "The horizontal golden ring around the mountain = release boundary. Stories below the cut ship in the next release. Above = backlog / future iterations.",
+      "interactions": ["bouton 🏁 Cut release = flash de la ligne"]
+    },
+    {
+      "tutorialId": "summit-flag",
+      "name": "Le Drapeau du Sommet",
+      "scrumName": "Product vision / North star",
+      "desc": "Drapeau orange triangle planté au sommet de la montagne — l'objectif final, la vision produit.",
+      "yamzyExplain": "L'Étendard du Sommet brille au plus haut. C'est la promesse du Royaume : la vision lointaine, l'horizon que tous les Sentiers cherchent à atteindre.",
+      "scrumExplain": "Triangle flag at the mountain summit = product vision / North Star. Not shipping next sprint — it's the directional goal toward which all journeys converge.",
+      "interactions": ["bouton 🏴 Drapeau sommet = flash triomphal"]
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue, jeune Cartographe. Devant toi, la Montagne des Histoires — l'univers complet de ton produit, gravé dans la pierre.",
+      "scrumText": "📋 Welcome to Story Mapping (Jeff Patton). This mountain is your product universe. Three trails = three user journeys. Stones along trails = user stories.",
+      "morphPairs": [
+        { "yamzy": "Montagne des Histoires", "scrum": "Product Story Map" },
+        { "yamzy": "Univers gravé", "scrum": "Complete product domain" }
+      ],
+      "camera": { "position": [12, 10, 16], "lookAt": [0, 4, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "🏔 La Montagne sacrée — chaque strate est un niveau de profondeur. Le sommet est ta Vision lointaine.",
+      "scrumText": "📋 The mountain encodes your product's full scope. Summit = vision / North Star. Strata = layers of refinement from foundational to advanced.",
+      "morphPairs": [
+        { "yamzy": "Vision lointaine", "scrum": "North Star vision" },
+        { "yamzy": "Niveaux de profondeur", "scrum": "Story Map backbone" }
+      ],
+      "camera": { "position": [8, 8, 12], "lookAt": [0, 5, 0], "duration": 2 },
+      "highlight": "mountain",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🚶 Les Sentiers du Voyage — trois user journeys qui font le tour de la Montagne. Découverte, Onboarding, Achat.",
+      "scrumText": "📋 Three horizontal trails = three user journeys (epics). Each wraps the mountain. Together they cover the full user experience left-to-right.",
+      "morphPairs": [
+        { "yamzy": "Sentiers du Voyage", "scrum": "User journeys" },
+        { "yamzy": "Trois Voyages", "scrum": "3 epics" }
+      ],
+      "camera": { "position": [10, 6, 12], "lookAt": [0, 3, 0], "duration": 2 },
+      "highlight": "trail",
+      "invokeMethod": { "name": "revealTrail1" },
+      "wait": 10
+    },
+    {
+      "step": 4,
+      "yamzyText": "🪨 Les Pierres des Histoires — chaque pierre posée sur un Sentier est une user story à conter.",
+      "scrumText": "📋 Each stone = a user story. Position along the trail encodes the chronological order of the user's experience.",
+      "morphPairs": [
+        { "yamzy": "Pierres des Histoires", "scrum": "User stories" },
+        { "yamzy": "Conter une histoire", "scrum": "Tell user value" }
+      ],
+      "camera": { "position": [6, 4, 8], "lookAt": [0, 2.5, 0], "duration": 2 },
+      "highlight": "stone",
+      "wait": 9
+    },
+    {
+      "step": 5,
+      "yamzyText": "✨ Trois Couleurs sacrées : Or pour le MVP, Cyan pour le MVP+, Gris pour le Futur. La couleur d'une Pierre dit son destin.",
+      "scrumText": "📋 Color encodes release priority. Gold = MVP (ship now), Cyan = MVP+ (next), Grey = Future (later). Vertical level on the mountain reflects this.",
+      "morphPairs": [
+        { "yamzy": "Trois Couleurs sacrées", "scrum": "3 release levels" },
+        { "yamzy": "Destin d'une Pierre", "scrum": "Ship-when prioritization" }
+      ],
+      "camera": { "position": [5, 4, 7], "lookAt": [0, 3, 0], "duration": 2 },
+      "highlight": "stone-mvp",
+      "invokeMethod": { "name": "illuminateMvp" },
+      "wait": 10
+    },
+    {
+      "step": 6,
+      "yamzyText": "🏁 La Ligne de Release — cette grande ligne dorée coupe la Montagne horizontalement. Sous elle, ce qu'on livre ; au-dessus, ce qu'on attend.",
+      "scrumText": "📋 The release cut = the golden ring. Stories below ship in the next release. Above the line = backlog. Moving the line up/down adjusts release scope.",
+      "morphPairs": [
+        { "yamzy": "Ligne de Release", "scrum": "Release cut line" },
+        { "yamzy": "Sous elle on livre", "scrum": "Below = ship now" }
+      ],
+      "camera": { "position": [6, 5, 9], "lookAt": [0, 3, 0], "duration": 2 },
+      "highlight": "release-line",
+      "invokeMethod": { "name": "cutRelease" },
+      "wait": 10
+    },
+    {
+      "step": 7,
+      "yamzyText": "🏴 Et au sommet — le Drapeau. La Vision finale, l'horizon où tous les Sentiers convergent un jour. Bonne carte, jeune Cartographe.",
+      "scrumText": "📋 The summit flag = product vision / North Star. All journeys eventually converge here. Use this map at every backlog grooming session.",
+      "morphPairs": [
+        { "yamzy": "Drapeau au sommet", "scrum": "North Star vision" },
+        { "yamzy": "Sentiers convergent", "scrum": "Journeys deliver value" }
+      ],
+      "camera": { "position": [4, 14, 8], "lookAt": [0, 12, 0], "duration": 2.5 },
+      "highlight": "summit-flag",
+      "wait": 9
+    }
+  ],
+
+  "playExample": {
+    "duration": 75,
+    "description": "📜 Construire un Story Map complet en 75s : vue de la montagne → 3 sentiers apparaissent un à un → MVP s'illumine → ligne de release → drapeau au sommet.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 La Montagne se révèle. Vide encore — pas de Sentier, pas de Pierre. Juste le futur produit en silhouette.",
+        "scrumText": "📋 Story Map starts blank. The mountain represents the empty product universe before any journey or story is mapped.",
+        "morphPairs": [
+          { "yamzy": "Montagne se révèle", "scrum": "Product domain emerges" },
+          { "yamzy": "Vide encore", "scrum": "No backlog yet" }
+        ],
+        "camera": { "position": [16, 12, 20], "lookAt": [0, 5, 0], "duration": 3 },
+        "highlight": "mountain"
+      },
+      {
+        "atSeconds": 12,
+        "yamzyText": "🚶 Premier Sentier — le voyage Découverte. L'utilisateur entre dans le Royaume, regarde, s'inscrit.",
+        "scrumText": "📋 First user journey appears : Discovery. Landing → signup → first tour. The bottom trail glows golden.",
+        "morphPairs": [
+          { "yamzy": "Voyage Découverte", "scrum": "Discovery journey" },
+          { "yamzy": "Entre dans le Royaume", "scrum": "User first contact" }
+        ],
+        "camera": { "position": [10, 5, 14], "lookAt": [0, 2, 0], "duration": 2.5 },
+        "highlight": "trail",
+        "invokeMethod": { "name": "revealTrail1" }
+      },
+      {
+        "atSeconds": 25,
+        "yamzyText": "🚀 Deuxième Sentier — le voyage Onboarding. L'utilisateur active son compte, fait sa première action.",
+        "scrumText": "📋 Second journey : Activation / Onboarding. Wizard, welcome email, first guided action. Middle trail appears in cyan.",
+        "morphPairs": [
+          { "yamzy": "Voyage Onboarding", "scrum": "Activation journey" },
+          { "yamzy": "Active son compte", "scrum": "User first value moment" }
+        ],
+        "camera": { "position": [10, 7, 14], "lookAt": [0, 4, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "revealTrail2" }
+      },
+      {
+        "atSeconds": 35,
+        "yamzyText": "💳 Troisième Sentier — le voyage Achat. L'utilisateur ouvre le Catalogue, pose son Panier, paie.",
+        "scrumText": "📋 Third journey : Purchase. Catalog → cart → Stripe checkout. Top trail appears in violet. Full user lifecycle mapped.",
+        "morphPairs": [
+          { "yamzy": "Voyage Achat", "scrum": "Purchase journey" },
+          { "yamzy": "Pose son Panier", "scrum": "Cart + checkout" }
+        ],
+        "camera": { "position": [10, 9, 14], "lookAt": [0, 6, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "revealTrail3" }
+      },
+      {
+        "atSeconds": 45,
+        "yamzyText": "✨ Les Pierres d'Or s'illuminent — voilà le MVP sacré. Sans elles, le Royaume produit ne peut naître.",
+        "scrumText": "📋 MVP stones light up across all 3 journeys. Minimum end-to-end slice : the smallest set that delivers user value from discovery → activation → first purchase.",
+        "morphPairs": [
+          { "yamzy": "Pierres d'Or", "scrum": "MVP stories (gold)" },
+          { "yamzy": "Royaume ne peut naître", "scrum": "Without these, no value" }
+        ],
+        "camera": { "position": [8, 5, 10], "lookAt": [0, 3, 0], "duration": 2.5 },
+        "highlight": "stone-mvp",
+        "invokeMethod": { "name": "illuminateMvp" },
+        "emitCeremony": { "type": "flag", "label": "✨ MVP révélé · pierres d'or illuminées", "icon": "✨" }
+      },
+      {
+        "atSeconds": 60,
+        "yamzyText": "🏁 La Ligne de Release est tracée — la frontière sacrée entre ce qu'on livre maintenant et ce qu'on garde pour plus tard.",
+        "scrumText": "📋 Release cut drawn horizontally. Everything below the line = next ship. Above = backlog for later iterations. Scope committed.",
+        "morphPairs": [
+          { "yamzy": "Ligne tracée", "scrum": "Release boundary set" },
+          { "yamzy": "Frontière sacrée", "scrum": "Scope commitment" }
+        ],
+        "camera": { "position": [10, 6, 12], "lookAt": [0, 3, 0], "duration": 2.5 },
+        "highlight": "release-line",
+        "invokeMethod": { "name": "cutRelease" },
+        "emitCeremony": { "type": "flag", "label": "🏁 Release MVP coupée · scope verrouillé", "icon": "🏁" }
+      },
+      {
+        "atSeconds": 75,
+        "yamzyText": "🏴 Et au sommet — le Drapeau brille enfin. La Vision est gravée. Le Story Map est complet. Va, jeune Cartographe.",
+        "scrumText": "📋 Vision flag raised at the summit. Story Map complete : 3 journeys, MVP defined, release cut drawn, North Star committed. Ready for sprint planning.",
+        "morphPairs": [
+          { "yamzy": "Drapeau brille", "scrum": "Vision committed" },
+          { "yamzy": "Story Map complet", "scrum": "Ready for sprint" }
+        ],
+        "camera": { "position": [4, 14, 8], "lookAt": [0, 12, 0], "duration": 3 },
+        "highlight": "summit-flag",
+        "invokeMethod": { "name": "plantSummitFlag" },
+        "emitCeremony": { "type": "sommet", "label": "🏔 Story Map complet · Vision plantée", "icon": "🏔" }
+      }
+    ]
+  },
+
+  "closingMessage": "🪶 Que ton prochain Story Map soit plus clair encore, jeune Cartographe."
+}

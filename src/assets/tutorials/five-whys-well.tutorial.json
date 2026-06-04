@@ -1,0 +1,210 @@
+{
+  "$comment": "v1 — 5 Whys Toyota workshop · descente dans le puits, 6 niveaux, root cause révélée.",
+  "roomKey": "five-whys-well",
+  "meta": {
+    "name": "Five Whys Well",
+    "title": "Five Whys Well",
+    "loreName": "Le Puits des Cinq Pourquoi",
+    "icon": "🪨",
+    "color": "#475569",
+    "oneLiner": "Root cause Toyota : descendre 5 niveaux pour la racine.",
+    "summary": "Workshop Root Cause Analysis (5 Whys méthode Toyota) — descendre dans le puits jusqu'à la racine du problème, pas son symptôme.",
+    "introLore": "🪶 Tu te tiens au bord du Puits des Cinq Pourquoi. Au fond, dans les ténèbres, gît une Rune dorée — la véritable racine de tout problème. Chaque niveau te demande la même question : 'Pourquoi ?'. Cinq descentes mènent à la vérité. Une seule contre-mesure suffit alors à éradiquer le mal."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "problem-platform",
+      "name": "La Plateforme du Problème",
+      "scrumName": "Niveau 0 / Symptôme",
+      "desc": "Au sommet du puits, la plateforme rouge où on inscrit le problème observé.",
+      "yamzyExplain": "Ici naît la quête. Le Mage pose le mal observable : 'Le déploiement a échoué'. C'est un symptôme, jamais la racine — il ne suffit pas de le traiter superficiellement.",
+      "scrumExplain": "Surface-level incident or defect. What the user/team observed. Niveau 0 = symptôme observable, pas la cause. C'est le point de départ de l'analyse RCA.",
+      "interactions": ["Lire l'énoncé du problème observable"]
+    },
+    {
+      "tutorialId": "root-platform",
+      "name": "La Plateforme de la Racine",
+      "scrumName": "Root Cause / Action de fond",
+      "desc": "Au fond du puits, la plateforme dorée où la racine et la contre-mesure sont gravées.",
+      "yamzyExplain": "Cinq descentes plus bas, la vérité éclate. La Rune dorée s'illumine. C'est l'action de fond — celle qui empêchera le mal de revenir. Pas un patch, mais une garantie systémique.",
+      "scrumExplain": "After 5 'Why?' iterations, the systemic root cause emerges. Action item here prevents recurrence (not just current incident). Often process, tooling, or architecture change.",
+      "interactions": ["Voir la contre-mesure", "Action committée au tickets"]
+    },
+    {
+      "tutorialId": "root-rock",
+      "name": "Le Rocher de la Racine",
+      "scrumName": "Systemic cause embodied",
+      "desc": "Sous la dernière plateforme, le rocher symbolise la cause systémique solide.",
+      "yamzyExplain": "Le Rocher est immuable — c'est l'origine profonde du mal. Il faut le briser ou le contourner, jamais le contester. Sa rotation lente symbolise sa permanence.",
+      "scrumExplain": "Embodies the persistent systemic factor producing the chain of failures. Solid, immovable until addressed via prevention measure.",
+      "interactions": ["Pulse magenta indique la profondeur"]
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue au Puits des Cinq Pourquoi, jeune Mage. Au sommet, le mal observé. Au fond, sa racine cachée.",
+      "scrumText": "📋 Welcome to the 5 Whys workshop. Toyota's Root Cause Analysis method. Surface symptom on top, root cause buried 5 layers below.",
+      "morphPairs": [
+        { "yamzy": "Mal observé", "scrum": "Surface incident" },
+        { "yamzy": "Racine cachée", "scrum": "Systemic root cause" }
+      ],
+      "camera": { "position": [10, 5, 12], "lookAt": [0, -10, 0], "duration": 2.5 },
+      "wait": 8
+    },
+    {
+      "step": 2,
+      "yamzyText": "🪨 Voici la plateforme du Problème — rouge comme l'alerte. Lis-la : un déploiement v1.4.0 a échoué en prod.",
+      "scrumText": "📋 Niveau 0 = the observable defect. 'Deploy v1.4.0 failed.' This is your starting incident — what the user / monitoring observed.",
+      "morphPairs": [
+        { "yamzy": "Plateforme du Problème", "scrum": "Niveau 0 / symptôme" },
+        { "yamzy": "Alerte rouge", "scrum": "Failed deploy" }
+      ],
+      "camera": { "position": [4, 2, 5], "lookAt": [0, 0, 0], "duration": 2 },
+      "highlight": "problem-platform",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "❓ Première descente : 'Pourquoi ?'. La réponse n'est pas la racine — c'est juste un niveau plus bas. Continue.",
+      "scrumText": "📋 First 'Why?': pipeline output. Smoke test 'auth-flow' came back red. Not the root yet — just one level deeper. Keep going.",
+      "morphPairs": [
+        { "yamzy": "Première descente", "scrum": "First Why" },
+        { "yamzy": "Smoke test rouge", "scrum": "Test stage failure" }
+      ],
+      "camera": { "position": [4, -2, 5], "lookAt": [0, -5, 0], "duration": 2 },
+      "wait": 8
+    },
+    {
+      "step": 4,
+      "yamzyText": "❓ Descends encore. Chaque 'Pourquoi ?' tire vers la profondeur. Le Mage patient distingue le symptôme de la cause.",
+      "scrumText": "📋 Iterate. Each Why drills deeper into the chain. Wait until 5+ levels to be confident root cause is systemic, not local.",
+      "morphPairs": [
+        { "yamzy": "Patient", "scrum": "Disciplined iteration" },
+        { "yamzy": "Profondeur", "scrum": "Cause chain depth" }
+      ],
+      "camera": { "position": [4, -8, 5], "lookAt": [0, -12, 0], "duration": 2 },
+      "wait": 8
+    },
+    {
+      "step": 5,
+      "yamzyText": "🛡 Tu touches le fond. La Rune dorée s'embrase — voici la racine, et avec elle la contre-mesure : configurer un Reloader Operator.",
+      "scrumText": "📋 Niveau 5 = root cause + action item. 'No webhook on secret rotation → configure Reloader Operator.' Prevents recurrence systemically.",
+      "morphPairs": [
+        { "yamzy": "Rune dorée", "scrum": "Root cause identified" },
+        { "yamzy": "Contre-mesure", "scrum": "Prevention action" }
+      ],
+      "camera": { "position": [3, -22, 5], "lookAt": [0, -25, 0], "duration": 2 },
+      "highlight": "root-platform",
+      "wait": 10
+    },
+    {
+      "step": 6,
+      "yamzyText": "✨ Tu maîtrises le Rituel des Cinq Pourquoi. Chaque mal observé peut être terrassé par la patience du Mage qui descend.",
+      "scrumText": "📋 You've toured the 5 Whys method. Now run it on a real incident. Don't stop at level 2-3 — go all the way down to ensure you address the root.",
+      "camera": { "position": [10, 5, 12], "lookAt": [0, -10, 0], "duration": 2.5 },
+      "wait": 7
+    }
+  ],
+
+  "playExample": {
+    "duration": 70,
+    "description": "📜 Descente complète dans le puits : pose du problème → 5 pourquoi → racine illuminée → contre-mesure gravée.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Tu surplombes le Puits des Cinq Pourquoi. Toutes les plateformes dorment — l'analyse n'a pas commencé.",
+        "scrumText": "📋 5 Whys session ouverte. Bird-eye view of the well. Levels stand silent, waiting for the team to start drilling.",
+        "morphPairs": [
+          { "yamzy": "Puits", "scrum": "5 Whys session" },
+          { "yamzy": "Plateformes dorment", "scrum": "Levels uninitialized" }
+        ],
+        "camera": { "position": [10, 5, 12], "lookAt": [0, -10, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 10,
+        "yamzyText": "🪨 Le Mage pose le Problème au sommet : 'Le déploiement v1.4.0 a échoué hier soir.' La plateforme rouge s'embrase.",
+        "scrumText": "📋 Niveau 0 documented : 'Deploy v1.4.0 failed at 18:00 yesterday.' Observable incident. Red platform glows = symptom captured.",
+        "morphPairs": [
+          { "yamzy": "Mage pose le Problème", "scrum": "Team logs incident" },
+          { "yamzy": "Plateforme rouge", "scrum": "Niveau 0 symptom" }
+        ],
+        "camera": { "position": [4, 2, 5], "lookAt": [0, 0, 0], "duration": 2 },
+        "highlight": "problem-platform",
+        "invokeMethod": { "name": "pulseProblem" }
+      },
+      {
+        "atSeconds": 20,
+        "yamzyText": "❓ Premier Pourquoi : 'Pourquoi le déploiement a-t-il échoué ?'. Réponse : le smoke test auth-flow est sorti rouge.",
+        "scrumText": "📋 Why #1 : pipeline log shows auth-flow smoke test failed. Camera descend to niveau 1. Not the root — keep going.",
+        "morphPairs": [
+          { "yamzy": "Premier Pourquoi", "scrum": "First Why iteration" },
+          { "yamzy": "Smoke rouge", "scrum": "Test stage red" }
+        ],
+        "camera": { "position": [3, -2, 5], "lookAt": [0, -5, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "zoomToLevel", "args": [1] }
+      },
+      {
+        "atSeconds": 30,
+        "yamzyText": "❓ Deuxième Pourquoi : 'Pourquoi le smoke test auth-flow a-t-il échoué ?'. Réponse : le token JWT n'était plus signé correctement.",
+        "scrumText": "📋 Why #2 : JWT token signature invalid. Auth requests rejected. Symptom drilled deeper. Niveau 2 reached.",
+        "morphPairs": [
+          { "yamzy": "Token JWT", "scrum": "JWT signature" },
+          { "yamzy": "Plus signé", "scrum": "Signature invalid" }
+        ],
+        "camera": { "position": [3, -7, 5], "lookAt": [0, -10, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "zoomToLevel", "args": [2] }
+      },
+      {
+        "atSeconds": 40,
+        "yamzyText": "❓ Troisième Pourquoi : 'Pourquoi le token n'était plus signé correctement ?'. Réponse : le secret JWT_KEY a été rotaté la veille mais le pod n'a pas reload.",
+        "scrumText": "📋 Why #3 : JWT_KEY secret rotated yesterday → pod still using old key. Operational chain visible now. Niveau 3.",
+        "morphPairs": [
+          { "yamzy": "Secret rotaté", "scrum": "Secret rotation event" },
+          { "yamzy": "Pod n'a pas reload", "scrum": "Pod missing config reload" }
+        ],
+        "camera": { "position": [3, -12, 5], "lookAt": [0, -15, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "zoomToLevel", "args": [3] }
+      },
+      {
+        "atSeconds": 50,
+        "yamzyText": "❓ Quatrième Pourquoi : 'Pourquoi le pod n'a pas reload après la rotation ?'. Réponse : le SecretManager n'envoie pas de webhook après rotation.",
+        "scrumText": "📋 Why #4 : SecretManager silent on rotation events. No mechanism notifies consumer pods. Niveau 4.",
+        "morphPairs": [
+          { "yamzy": "SecretManager silencieux", "scrum": "No webhook on rotation" }
+        ],
+        "camera": { "position": [3, -17, 5], "lookAt": [0, -20, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "zoomToLevel", "args": [4] }
+      },
+      {
+        "atSeconds": 60,
+        "yamzyText": "🛡 Cinquième Pourquoi · RACINE ! Aucun webhook n'est posé après rotation. Le Mage grave alors la contre-mesure dorée : Reloader Operator + alarme.",
+        "scrumText": "📋 Why #5 (root) : missing webhook mechanism. Prevention : configure Reloader Operator + Prometheus alarm on secret rotation. Niveau 5 reached.",
+        "morphPairs": [
+          { "yamzy": "RACINE", "scrum": "Root cause" },
+          { "yamzy": "Contre-mesure dorée", "scrum": "Prevention action" }
+        ],
+        "camera": { "position": [3, -22, 5], "lookAt": [0, -25, 0], "duration": 2.5 },
+        "highlight": "root-platform",
+        "invokeMethod": { "name": "zoomToLevel", "args": [5] },
+        "emitCeremony": { "type": "aube", "label": "🪨 Racine atteinte · niveau 5", "icon": "🪨" }
+      },
+      {
+        "atSeconds": 70,
+        "yamzyText": "✨ La Rune dorée brille — la contre-mesure est gravée dans la pierre. Action ticket créé : 'Reloader Operator + monitoring rotation'.",
+        "scrumText": "📋 Action item committed : create ticket SCRUM-1241 'Deploy Reloader Operator + rotation alarm'. Root cause documented in postmortem.",
+        "morphPairs": [
+          { "yamzy": "Rune gravée", "scrum": "Action item committed" }
+        ],
+        "camera": { "position": [5, -24, 6], "lookAt": [0, -27, 0], "duration": 2.5 },
+        "highlight": "root-rock",
+        "invokeMethod": { "name": "illuminateRoot" }
+      }
+    ]
+  },
+
+  "closingMessage": "🪶 Que chaque Pourquoi te rapproche de la racine. Le Puits t'attend pour la prochaine analyse."
+}

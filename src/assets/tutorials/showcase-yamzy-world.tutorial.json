@@ -1,0 +1,288 @@
+{
+  "$comment": "🏝 SHOWCASE TUTORIAL — Exemple d'une visite guidée publique. Joué quand un visiteur arrive sur /showcase/yamzy-world. Peut être généré par n'importe quel Mage pour son propre projet via Studio Maker.",
+  "roomKey": "showcase-yamzy-world",
+  "meta": {
+    "name": "Yamzy World — Une saga vivante",
+    "loreName": "L'Île de RamzyChatti90",
+    "icon": "🏝",
+    "color": "#fbbf24",
+    "summary": "Sprint board 3D + portfolio social — tu visites le projet yamzy-world de RamzyChatti90.",
+    "introLore": "🪶 Bienvenue, voyageur. Tu poses tes pieds sur l'Île de RamzyChatti90. Devant toi, son œuvre — yamzy-world. Suis-moi, je vais te raconter cette saga."
+  },
+  "glossary": [
+    {
+      "tutorialId": "owner-mage",
+      "name": "RamzyChatti90",
+      "scrumName": "Project owner / Solo founder",
+      "desc": "Le Mage qui forge ce projet depuis février 2024.",
+      "yamzyExplain": "Un Mage Stratège qui pense le travail comme une saga. Crée yamzy-world pour que sa propre routine devienne joyeuse.",
+      "scrumExplain": "Solo developer + product owner + designer. Builds yamzy-world as a daily companion for Scrum teams who want gamified PM tooling."
+    },
+    {
+      "tutorialId": "vision",
+      "name": "La Vision",
+      "scrumName": "Product Vision",
+      "desc": "Transformer Scrum/PM en monde vivant 3D — sprint boards, OKRs, risques, releases tous en métaphores immersives.",
+      "yamzyExplain": "Faire que le travail ait un corps poétique. Que chaque ticket soit un voyageur, chaque commit une feuille, chaque release une renaissance.",
+      "scrumExplain": "Make PM tools delightful through 3D gamification + lore narration. Each agile artifact becomes a tangible 3D object that lives, breathes, and reacts to team state."
+    },
+    {
+      "tutorialId": "stack",
+      "name": "La Stack technique",
+      "scrumName": "Tech stack",
+      "desc": "Angular 17 standalone + Three.js r128 + Spring Boot + Postgres + Excel auto-export.",
+      "yamzyExplain": "Le pilier Angular tient toute l'architecture. Three.js anime les rooms. Spring Boot persiste les sprints. Postgres garde la mémoire.",
+      "scrumExplain": "Frontend: Angular 17 with standalone components, signals, OnPush. 3D rendering via Three.js r128 (CDN). Backend: Spring Boot REST API + Postgres + Flyway migrations + Apache POI for Excel sync."
+    }
+  ],
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue sur l'Île de RamzyChatti90, voyageur. Tu poses ton regard sur l'œuvre d'un Mage solitaire. Suis-moi.",
+      "scrumText": "📋 Welcome to RamzyChatti90's portfolio island. He's a solo developer building yamzy-world since Feb 2024. Let me show you the vision.",
+      "morphPairs": [
+        { "yamzy": "Mage solitaire", "scrum": "Solo developer" },
+        { "yamzy": "Œuvre", "scrum": "Active project" }
+      ],
+      "camera": { "position": [0, 8, 24], "lookAt": [0, 4, 0], "duration": 3 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "🌳 L'Arbre des Lignées au centre — c'est yamzy-world, son projet. 247 feuilles vertes, 12 fruits dorés livrés en prod. Un champignon rouge cache un secret en cours.",
+      "scrumText": "📋 The central tree = yamzy-world repo. 247 commits, 12 production releases tagged, 1 stash with WIP. Healthy activity, no stale branches visible.",
+      "morphPairs": [
+        { "yamzy": "247 feuilles", "scrum": "247 commits" },
+        { "yamzy": "12 fruits dorés", "scrum": "12 prod releases" },
+        { "yamzy": "Champignon rouge", "scrum": "1 git stash" }
+      ],
+      "camera": { "position": [4, 6, 10], "lookAt": [0, 5, 0], "duration": 2.5 },
+      "highlight": "trunk",
+      "wait": 11
+    },
+    {
+      "step": 3,
+      "yamzyText": "🌿 Lève les yeux : les Lignées qui s'élancent — feature/cosmos-orrery, feature/portals, feature/sky-bus. Trois quêtes en cours. Aucune n'a pris la mousse.",
+      "scrumText": "📋 Active feature branches : cosmos-orrery, portals (just merged), sky-bus (just merged), public-island (in progress). All fresh, no staleness detected.",
+      "morphPairs": [
+        { "yamzy": "Lignées vivantes", "scrum": "Active feature branches" },
+        { "yamzy": "Pris la mousse", "scrum": "Gone stale (>30d)" }
+      ],
+      "camera": { "position": [8, 8, 8], "lookAt": [0, 6, 0], "duration": 2.5 },
+      "highlight": "branch",
+      "wait": 11
+    },
+    {
+      "step": 4,
+      "yamzyText": "🍎 Ces fruits dorés au bout des branches — la dernière récolte est v1.0.143. Tagged il y a 4 heures. La traînée de comète est encore visible dans le ciel.",
+      "scrumText": "📋 Latest release : v1.0.143 (4 hours ago). Recent deploy is causing the comet trail you might still see in the sky. Release cadence : ~3 per week.",
+      "morphPairs": [
+        { "yamzy": "Récolte v1.0.143", "scrum": "Latest tag v1.0.143" },
+        { "yamzy": "Traînée de comète", "scrum": "Recent deploy signal" }
+      ],
+      "camera": { "position": [-5, 5, 5], "lookAt": [0, 5, 0], "duration": 2.5 },
+      "highlight": "fruit",
+      "wait": 11
+    },
+    {
+      "step": 5,
+      "yamzyText": "✨ Les feuilles vertes vives dansent encore — Ramzy a commit il y a 12 minutes. Le Royaume vibre. Tu visites une île vivante.",
+      "scrumText": "📋 Last commit : 12 min ago. This is an actively maintained project. Background fireflies = real-time activity indicators.",
+      "morphPairs": [
+        { "yamzy": "Royaume vibre", "scrum": "Live activity" },
+        { "yamzy": "12 minutes", "scrum": "Just committed" }
+      ],
+      "camera": { "position": [3, 7, 4], "lookAt": [0, 6, 0], "duration": 2.5 },
+      "highlight": "leaf",
+      "wait": 11
+    },
+    {
+      "step": 6,
+      "yamzyText": "🌌 Tu peux maintenant explorer librement. Clique n'importe quel objet — tu ne peux rien modifier (mode visiteur), mais tu peux tout comprendre. Bonne visite.",
+      "scrumText": "📋 You're now in free-explore (visit mode). Click any element for details. Read-only — no edits possible. Use portals to visit other rooms or his other projects.",
+      "morphPairs": [
+        { "yamzy": "Mode visiteur", "scrum": "Read-only visit mode" }
+      ],
+      "camera": { "position": [0, 8, 18], "lookAt": [0, 4, 0], "duration": 2 },
+      "wait": 9
+    }
+  ],
+  "playExample": {
+    "name": "📜 Saga complète yamzy-world",
+    "icon": "📜",
+    "duration": 65,
+    "description": "L'histoire de yamzy-world racontée en 65s : de l'idée initiale à v1.0.143. Comprends le projet en une narration.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Février 2024. Un Mage solitaire ouvre son premier commit sur main. L'Arbre n'a qu'une feuille — la sienne.",
+        "scrumText": "📋 Feb 2024. RamzyChatti90 commits the first line. Repo just initialized. One commit, no releases yet.",
+        "morphPairs": [
+          { "yamzy": "Premier commit", "scrum": "Repo bootstrap" }
+        ],
+        "camera": { "position": [0, 4, 12], "lookAt": [0, 3, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 7,
+        "yamzyText": "🌱 Une première Lignée éclôt — feature/war-table. Le tronc commence à pousser.",
+        "scrumText": "📋 First feature branch : war-table (PM grid). MVP scaffolding begins.",
+        "morphPairs": [
+          { "yamzy": "Lignée éclôt", "scrum": "Branch created" }
+        ],
+        "camera": { "position": [5, 5, 8], "lookAt": [0, 5, 0], "duration": 2 },
+        "highlight": "branch",
+        "emitCeremony": { "type": "bloom", "label": "Feb 2024 · feature/war-table", "icon": "🌸" }
+      },
+      {
+        "atSeconds": 15,
+        "yamzyText": "🍎 Mai 2024. Le premier Fruit doré — v1.0.0. RamzyChatti90 a livré la première version publique.",
+        "scrumText": "📋 May 2024. v1.0.0 published. First public release of war-table grid + Excel sync.",
+        "morphPairs": [
+          { "yamzy": "Premier Fruit", "scrum": "First public release" }
+        ],
+        "camera": { "position": [-3, 6, 5], "lookAt": [0, 5, 0], "duration": 2 },
+        "highlight": "fruit",
+        "emitCeremony": { "type": "harvest", "label": "🎉 v1.0.0 published", "icon": "🍎" }
+      },
+      {
+        "atSeconds": 25,
+        "yamzyText": "🌳 Été 2024. L'Arbre s'étoffe : trois Lignées simultanées — Cosmos, Crystal, Mini-cristaux. Les feuilles bleues d'Alice, violettes de Maya s'ajoutent à celles de Ramzy.",
+        "scrumText": "📋 Summer 2024. Three parallel features : Cosmos Orrery (3D solar system), Crystal (gem mechanics), Mini-crystals (ticket avatars). Team contributors join : Alice + Maya.",
+        "morphPairs": [
+          { "yamzy": "Trois Lignées simultanées", "scrum": "Parallel feature branches" },
+          { "yamzy": "Feuilles de couleurs", "scrum": "Multi-author commits" }
+        ],
+        "camera": { "position": [6, 8, 6], "lookAt": [0, 6, 0], "duration": 2.5 },
+        "highlight": "leaf"
+      },
+      {
+        "atSeconds": 36,
+        "yamzyText": "🌌 Automne 2024. La grande vision arrive : Yamzy World, 10 rooms thématiques. L'Arbre explose en branches multiples — kanban, phoenix, okr, telescope, library, oracle…",
+        "scrumText": "📋 Fall 2024. Major pivot : Yamzy World vision crystallizes. 10 themed 3D rooms designed. Multiple parallel feature branches blooming.",
+        "morphPairs": [
+          { "yamzy": "Grande vision", "scrum": "Product vision pivot" },
+          { "yamzy": "10 rooms thématiques", "scrum": "10 cinematic UX scenes" }
+        ],
+        "camera": { "position": [10, 9, 4], "lookAt": [0, 6, 0], "duration": 2.5 },
+        "highlight": "branch"
+      },
+      {
+        "atSeconds": 47,
+        "yamzyText": "🔥 Hiver 2024. Trois Fruits dorés en succession — v1.0.50, v1.0.100, v1.0.140. Les feuilles maintenant innombrables.",
+        "scrumText": "📋 Winter 2024. Three major releases in 3 months : v1.0.50, v1.0.100, v1.0.140. Commit count exceeds 200.",
+        "morphPairs": [
+          { "yamzy": "Fruits en succession", "scrum": "Release cadence weekly" }
+        ],
+        "camera": { "position": [-5, 7, 5], "lookAt": [0, 5, 0], "duration": 2.5 },
+        "highlight": "fruit",
+        "emitCeremony": { "type": "harvest", "label": "v1.0.140 · 247 commits", "icon": "🍎" }
+      },
+      {
+        "atSeconds": 57,
+        "yamzyText": "✨ Juin 2026. Tu es ici, à v1.0.143. L'Arbre vit. Le Mage continue. Et tu peux maintenant explorer tout ce qu'il a forgé.",
+        "scrumText": "📋 Today : v1.0.143. Project active, healthy. You're now at the present moment. Free to explore the whole world.",
+        "morphPairs": [
+          { "yamzy": "L'Arbre vit", "scrum": "Project alive & active" }
+        ],
+        "camera": { "position": [0, 8, 18], "lookAt": [0, 5, 0], "duration": 3 }
+      }
+    ]
+  },
+  "additionalDemos": [
+    {
+      "name": "🌟 Tour Vision (PO voice)",
+      "icon": "🌟",
+      "duration": 30,
+      "description": "Pourquoi yamzy-world existe ? La vision en 30s, racontée comme un Product Owner aux investisseurs.",
+      "narratorMode": "scrum",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🌟 Le problème : les outils PM sont des grilles plates. Les humains ne se souviennent pas des grilles. Ils se souviennent des sagas.",
+          "scrumText": "📋 Problem : PM tools are flat grids. Humans don't remember grids — they remember stories. We forget our sprints, our retros, our wins.",
+          "morphPairs": [
+            { "yamzy": "Grilles plates", "scrum": "Flat dashboards" },
+            { "yamzy": "Humains oublient", "scrum": "No emotional memory" }
+          ],
+          "camera": { "position": [0, 6, 18], "lookAt": [0, 4, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 8,
+          "yamzyText": "🪶 La proposition : transformer chaque artefact agile en objet 3D qui vit. Un ticket = un voyageur. Un commit = une feuille. Une release = une renaissance.",
+          "scrumText": "📋 Solution : every agile artifact becomes a tangible 3D object. Ticket = traveler bottle. Commit = leaf. Release = phoenix rebirth.",
+          "morphPairs": [
+            { "yamzy": "Voyageur", "scrum": "Ticket" },
+            { "yamzy": "Feuille", "scrum": "Commit" },
+            { "yamzy": "Renaissance", "scrum": "Release deploy" }
+          ],
+          "camera": { "position": [5, 5, 8], "lookAt": [0, 5, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 16,
+          "yamzyText": "🎯 La cible : équipes Scrum de 3-15 personnes qui veulent retrouver de la joie dans leurs rituels — sans abandonner la rigueur.",
+          "scrumText": "📋 Target : Scrum teams of 3-15 wanting to gamify their rituals without losing rigor. Bridges agile discipline + creative engagement.",
+          "morphPairs": [
+            { "yamzy": "Retrouver de la joie", "scrum": "Reignite engagement" }
+          ],
+          "camera": { "position": [8, 7, 8], "lookAt": [0, 6, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 23,
+          "yamzyText": "✨ Le statut : 11 rooms livrées, 33 scénarios, 65+ méthodes cinéma. Production-ready pour squads alpha. Cherche feedback et early adopters.",
+          "scrumText": "📋 Status : 11 rooms shipped, 33 scenarios, 65+ cinematic methods. Production-ready for alpha squads. Seeking feedback + early adopter teams.",
+          "morphPairs": [
+            { "yamzy": "Production-ready", "scrum": "Alpha-ready" }
+          ],
+          "camera": { "position": [0, 8, 18], "lookAt": [0, 4, 0], "duration": 2 }
+        }
+      ]
+    },
+    {
+      "name": "🏗 Tour Tech (Architecte voice)",
+      "icon": "🏗",
+      "duration": 26,
+      "description": "La stack technique en 26s : Angular 17 + Three.js + Spring Boot. Pour les Tech Leads recruteurs.",
+      "narratorMode": "scrum",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🏗 Stack frontend : Angular 17 standalone components, signals, OnPush partout. Three.js r128 pour le 3D, chargé via CDN.",
+          "scrumText": "📋 Frontend : Angular 17 (standalone components, signals + computed, OnPush change detection). Three.js r128 via CDN. Pure procedural 3D, no heavy GLB assets except YAMZY mage avatar.",
+          "morphPairs": [
+            { "yamzy": "Signals + OnPush", "scrum": "Reactive + optimized CD" }
+          ],
+          "camera": { "position": [0, 5, 14], "lookAt": [0, 4, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 7,
+          "yamzyText": "🔥 Backend : Spring Boot 3, Postgres avec Flyway, Apache POI pour Excel sync auto. ~17 entités POS, REST API.",
+          "scrumText": "📋 Backend : Spring Boot 3 + Postgres + Flyway migrations. Apache POI for Excel auto-export. 17 POS entities, full REST CRUD, ddl-auto update for dev.",
+          "morphPairs": [
+            { "yamzy": "Forge persistante", "scrum": "Spring + Postgres" }
+          ],
+          "camera": { "position": [5, 6, 10], "lookAt": [0, 5, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 14,
+          "yamzyText": "🌌 Pattern : narrator service universel, CeremonyBus pub/sub global, factory de portails 3D partagée. Réutilisable par n'importe quelle future room.",
+          "scrumText": "📋 Pattern : universal narrator service, global CeremonyBus pub/sub, shared 3D portal factory. Adding new rooms = follow ROOM_PATTERN.md, ~3 lines of integration.",
+          "morphPairs": [
+            { "yamzy": "Pattern partagé", "scrum": "Reusable architecture" }
+          ],
+          "camera": { "position": [-5, 6, 10], "lookAt": [0, 5, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 21,
+          "yamzyText": "✨ Tests : tsc strict mode, no warning. Coverage ~70%, e2e scripts PowerShell. Build : esbuild via Angular CLI, ~12s incremental.",
+          "scrumText": "📋 Tests : TypeScript strict, ~70% coverage. E2E PowerShell scripts. Build : esbuild via Angular CLI, ~12s incremental rebuild, ~1.5MB lazy chunks.",
+          "morphPairs": [
+            { "yamzy": "Esbuild rapide", "scrum": "Fast iterative dev" }
+          ],
+          "camera": { "position": [0, 8, 18], "lookAt": [0, 4, 0], "duration": 2 }
+        }
+      ]
+    }
+  ],
+  "closingMessage": "🪶 Tu as vu l'Île de RamzyChatti90. Si tu veux créer la tienne, le Studio Maker est ouvert. Reviens visiter quand tu veux — l'Arbre continuera de pousser."
+}

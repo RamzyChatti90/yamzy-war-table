@@ -1,0 +1,450 @@
+{
+  "$comment": "v2 — dual narrator (Yamzy lore ↔ Scrum/PM Risk Register) + cinematic playExample 50s",
+  "roomKey": "star-map-risks",
+  "meta": {
+    "name": "Star Map Risks",
+    "loreName": "La Voûte Céleste des Périls",
+    "icon": "🌌",
+    "color": "#8b1a1a",
+    "summary": "Un planétarium 3D où chaque risque devient un phénomène astronomique — sa rougeur trahit la gravité, son altitude la probabilité, son ombre les oublis.",
+    "introLore": "🪶 Lève les yeux, jeune Mage. Devant toi s'étend la Voûte Céleste des Périls — chaque constellation est un risque cartographié, chaque trou noir un oubli silencieux, chaque comète une menace qui s'approche. Pour le chef de projet, c'est ton Risk Register vivant : threats identifiés, owners assignés, mitigations en cours, post-mortems passés. L'astrolabe au sol est ton outil d'analyse."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "dome",
+      "name": "La Voûte Céleste",
+      "scrumName": "Risk Register dome",
+      "desc": "L'hémisphère obscur qui surplombe la salle — toutes les constellations-risques y sont accrochées.",
+      "yamzyExplain": "La Voûte enveloppe le Mage tel un manteau de nuit. Plus tu la contemples, plus elle te révèle ses secrets. Son fond est sombre car les périls aiment l'ombre — c'est en les éclairant qu'on les apprivoise.",
+      "scrumExplain": "The full risk register visualized as an inverted celestial dome. All identified risks live on this sphere — strategic overview at a glance for the project manager.",
+      "interactions": ["drag = explore sky", "altitude visible = likelihood high"]
+    },
+    {
+      "tutorialId": "constellation",
+      "name": "Les Constellations des Risques",
+      "scrumName": "Risk entry (severity × likelihood)",
+      "desc": "Chaque risque = 3 à 5 étoiles reliées par lignes argentées. Rouge = sévère, blanc-jaune = mineur, altitude = probabilité.",
+      "yamzyExplain": "Chaque Figure raconte un péril singulier. Sa rougeur révèle la sévérité — quand le rouge profond apparaît, le Royaume tremble. Plus la constellation siège haut dans la voûte, plus le péril est probable. Clique une étoile pour invoquer la fiche du risque.",
+      "scrumExplain": "Each risk = 1 constellation (3-5 stars linked by silver lines). Color encodes severity (white-yellow → deep red). Altitude encodes likelihood. The team reviews constellations during Risk Management ceremonies."
+    },
+    {
+      "tutorialId": "blackhole",
+      "name": "Les Trous Noirs Catastrophiques",
+      "scrumName": "Catastrophic risk / Stale risk (>60d)",
+      "desc": "Sphères noires + anneau d'accrétion violet-orangé — risques de gravité maximale ou non touchés depuis 60+ jours.",
+      "yamzyExplain": "Les Trous Noirs sont les périls qu'on a cessé de regarder, ou ceux dont la gravité dépasse l'entendement. Leur attraction grandit en silence, et un jour ils dévorent la constellation voisine. Le Mage stratège doit rouvrir leur dossier avant qu'ils n'engloutissent tout le ciel.",
+      "scrumExplain": "Catastrophic risks (severity 5 + high impact) or stale risks (>60 days no review). Visual warning : these need immediate executive attention. Click to reopen the risk file.",
+      "interactions": ["forgeBlackHole() = nouveau risque catastrophique"]
+    },
+    {
+      "tutorialId": "moon",
+      "name": "Les Lunes des ADRs",
+      "scrumName": "Linked ADRs / Mitigation plans",
+      "desc": "Petites lunes pâles orbitant une constellation = ADRs (Architecture Decision Records) ou plans de mitigation documentés.",
+      "yamzyExplain": "Les Lunes témoignent que le Mage a déjà tranché. Chaque satellite est une Décision gravée dans la pierre — un ADR. Plus une constellation a de lunes, mieux le risque est cadré et documenté.",
+      "scrumExplain": "Pale moons orbiting a constellation = linked ADRs or mitigation plans. More moons = better-documented risk strategy. A risk with 0 moons is a risk without ownership of decision."
+    },
+    {
+      "tutorialId": "comet",
+      "name": "Les Comètes d'Alerte",
+      "scrumName": "New incoming threat",
+      "desc": "Comètes traversant le ciel = menaces nouvellement détectées, pas encore cataloguées en constellation.",
+      "yamzyExplain": "Quand une Comète strie la Voûte, c'est qu'un péril nouveau vient d'être pressenti. Sa queue brillante avertit le Royaume — il faut décider vite si elle deviendra une constellation pérenne ou si elle s'éteindra dans le néant.",
+      "scrumExplain": "Comets crossing the sky = newly identified threats not yet catalogued. The team must triage : add to register (becomes a constellation) or dismiss. Time-bounded alert.",
+      "interactions": ["spawnComet() = nouvelle menace incoming"]
+    },
+    {
+      "tutorialId": "astrolabe",
+      "name": "L'Astrolabe Sacré",
+      "scrumName": "Risk analysis tools / Score calculator",
+      "desc": "Disque de laiton au sol avec anneaux concentriques + aiguilles croisées. L'outil d'analyse du Mage.",
+      "yamzyExplain": "L'Astrolabe lit les périls comme d'autres lisent les étoiles. Quand ses anneaux tournent fort, le Mage est en pleine analyse — il pèse les sévérités, croise les likelihoods, jauge les owners. C'est l'outil sacré du Risk Manager.",
+      "scrumExplain": "Brass astrolabe = risk analysis tooling. Spinning rings = active risk scoring session. Used during Risk Review meetings to assess severity × likelihood matrix.",
+      "interactions": ["astrolabeSpin() = analyse en cours"]
+    },
+    {
+      "tutorialId": "cascade",
+      "name": "Les Cascades de Périls",
+      "scrumName": "Risk dependencies / Cascading impacts",
+      "desc": "Lignes argentées entre constellations = risques liés (l'un peut déclencher l'autre).",
+      "yamzyExplain": "Les Cascades relient les Figures qui s'éveillent ensemble. Si l'une tombe, l'autre suit — c'est la malédiction des périls jumeaux. Le Mage prudent les identifie tôt et coupe les chaînes avant qu'elles ne brûlent.",
+      "scrumExplain": "Silver lines between constellations = cascading risk dependencies. If risk A is realized, B and C may follow. Critical for risk modeling and contingency planning."
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue sous la Voûte Céleste des Périls, jeune Mage. Ton Risk Register n'est plus un tableur — c'est un ciel à explorer.",
+      "scrumText": "📋 Welcome to your living Risk Register. Each agile risk becomes an astronomical phenomenon — gravity, probability, age and dependencies visible in 3D.",
+      "morphPairs": [
+        { "yamzy": "Voûte Céleste des Périls", "scrum": "Risk Register" },
+        { "yamzy": "Ciel à explorer", "scrum": "Strategic overview" }
+      ],
+      "camera": { "position": [0, 2, 18], "lookAt": [0, 20, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "🌌 La Voûte au-dessus de toi — c'est l'ensemble des périls connus du Royaume. Chaque point brillant est un risque cartographié.",
+      "scrumText": "📋 The full risk register dome. Every star you see represents a documented project risk. Coverage at a glance — what's mapped vs what may still hide in the dark.",
+      "morphPairs": [
+        { "yamzy": "Voûte au-dessus", "scrum": "Risk register dome" },
+        { "yamzy": "Périls cartographiés", "scrum": "Documented risks" }
+      ],
+      "camera": { "position": [0, 5, 12], "lookAt": [0, 25, 0], "duration": 2 },
+      "highlight": "dome",
+      "wait": 10
+    },
+    {
+      "step": 3,
+      "yamzyText": "✨ Approche-toi d'une Constellation. Chaque Figure raconte un péril — sa rougeur trahit la sévérité, sa hauteur la probabilité.",
+      "scrumText": "📋 A risk constellation : 3-5 stars linked by silver lines. Severity = redness (white-yellow → deep red). Altitude = likelihood. Click any star for the full risk file.",
+      "morphPairs": [
+        { "yamzy": "Constellation", "scrum": "Risk cluster" },
+        { "yamzy": "Rougeur trahit sévérité", "scrum": "Color = severity" },
+        { "yamzy": "Hauteur = probabilité", "scrum": "Altitude = likelihood" }
+      ],
+      "camera": { "position": [8, 12, 8], "lookAt": [0, 28, 0], "duration": 2 },
+      "highlight": "constellation",
+      "wait": 10
+    },
+    {
+      "step": 4,
+      "yamzyText": "🕳 Vois-tu ce Trou Noir ? C'est un péril qu'on a cessé de regarder. Son attraction grandit dans le silence. Le Mage doit rouvrir son dossier.",
+      "scrumText": "📋 A black hole = catastrophic risk OR stale risk (>60 days no review). It silently grows — neglect compounds danger. Reopen the file, reassess, reassign owner.",
+      "morphPairs": [
+        { "yamzy": "Trou Noir", "scrum": "Catastrophic risk" },
+        { "yamzy": "Cessé de regarder", "scrum": "Stale > 60 days" },
+        { "yamzy": "Rouvrir le dossier", "scrum": "Reassess + reassign" }
+      ],
+      "camera": { "position": [10, 18, 10], "lookAt": [0, 25, 0], "duration": 2.2 },
+      "highlight": "blackhole",
+      "wait": 11
+    },
+    {
+      "step": 5,
+      "yamzyText": "🌙 Les Lunes pâles qui orbitent une Constellation — chacune est une Décision gravée. Un ADR, une mitigation documentée.",
+      "scrumText": "📋 Pale moons = linked ADRs (Architecture Decision Records) or mitigation plans. More moons = better-documented strategy. A risk with 0 moons = a risk with 0 owner of decision.",
+      "morphPairs": [
+        { "yamzy": "Lune satellite", "scrum": "ADR / Mitigation plan" },
+        { "yamzy": "Décision gravée", "scrum": "Documented decision" }
+      ],
+      "camera": { "position": [12, 14, 4], "lookAt": [0, 28, 0], "duration": 2 },
+      "highlight": "moon",
+      "wait": 10
+    },
+    {
+      "step": 6,
+      "yamzyText": "☄ Une Comète strie le ciel ! C'est une menace nouvelle qu'il faut trier — devient-elle une Constellation, ou disparaît-elle ?",
+      "scrumText": "📋 An incoming comet = newly identified threat, not yet catalogued. Triage now : add to register (it becomes a constellation) or dismiss. Time-bounded alert.",
+      "morphPairs": [
+        { "yamzy": "Comète strie le ciel", "scrum": "New incoming threat" },
+        { "yamzy": "Trier le péril", "scrum": "Triage decision" }
+      ],
+      "camera": { "position": [6, 8, 16], "lookAt": [0, 22, 0], "duration": 2 },
+      "highlight": "comet",
+      "invokeMethod": { "name": "spawnCometCinematic" },
+      "wait": 10
+    },
+    {
+      "step": 7,
+      "yamzyText": "🧭 Au sol, l'Astrolabe sacré. Ses anneaux de laiton tournent quand le Mage analyse — c'est ton outil de scoring.",
+      "scrumText": "📋 The brass astrolabe = your risk analysis tooling. Spinning rings = active scoring session. Used to weigh severity × likelihood × business impact during Risk Review meetings.",
+      "morphPairs": [
+        { "yamzy": "Astrolabe sacré", "scrum": "Risk scoring tool" },
+        { "yamzy": "Anneaux tournent", "scrum": "Analysis in progress" }
+      ],
+      "camera": { "position": [4, 1.5, 4], "lookAt": [0, 0.5, 0], "duration": 2 },
+      "highlight": "astrolabe",
+      "invokeMethod": { "name": "astrolabeSpin" },
+      "wait": 10
+    },
+    {
+      "step": 8,
+      "yamzyText": "✨ Tu connais maintenant la Voûte. Que chaque péril cartographié soit un Royaume préservé, jeune Mage.",
+      "scrumText": "📋 You've toured the Risk Register. Click any star for details, watch comets for new threats, and keep your astrolabe spinning. Yamzy will guide you through the risk ceremonies.",
+      "camera": { "position": [0, 2, 18], "lookAt": [0, 20, 0], "duration": 2.5 },
+      "wait": 8
+    }
+  ],
+
+  "playExample": {
+    "duration": 50,
+    "description": "📜 Un cycle de risque complet en 50s : ciel calme → comète d'alerte → trou noir catastrophique → constellation analysée → supernova réalisée → éclipse de mitigation → retour au calme.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Voûte sereine au-dessus du Royaume. Les Constellations veillent, les Lunes orbitent. Tout est cartographié... ou presque.",
+        "scrumText": "📋 Risk Register baseline. All known risks mapped, ADRs linked, owners assigned. Sprint S2 begins under apparent calm.",
+        "morphPairs": [
+          { "yamzy": "Voûte sereine", "scrum": "Risk register stable" },
+          { "yamzy": "Tout cartographié", "scrum": "All risks identified" }
+        ],
+        "camera": { "position": [0, 2, 18], "lookAt": [0, 20, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 6,
+        "yamzyText": "☄ Une Comète strie soudain la Voûte ! Le Guet a détecté un péril nouveau — il faut l'analyser au plus vite.",
+        "scrumText": "📋 New threat detected ! A vendor announced breaking changes. The team must triage immediately — add to register or dismiss before sprint planning.",
+        "morphPairs": [
+          { "yamzy": "Comète strie la Voûte", "scrum": "New threat detected" },
+          { "yamzy": "Guet détecte", "scrum": "Monitoring alert" }
+        ],
+        "camera": { "position": [8, 6, 14], "lookAt": [0, 22, 0], "duration": 2.5 },
+        "highlight": "comet",
+        "invokeMethod": { "name": "spawnCometCinematic" },
+        "emitCeremony": { "type": "shower", "label": "☄ Threat detected · Vendor breaking change", "icon": "☄" }
+      },
+      {
+        "atSeconds": 13,
+        "yamzyText": "🧭 Le Mage saisit l'Astrolabe. Les anneaux tournent vite — sévérité, probabilité, impact business... le scoring s'élève.",
+        "scrumText": "📋 Risk analysis session opens. The team scores : Severity 5, Likelihood 4, Business impact HIGH. The risk crosses the catastrophic threshold.",
+        "morphPairs": [
+          { "yamzy": "Astrolabe sacré", "scrum": "Risk scoring tool" },
+          { "yamzy": "Sévérité élevée", "scrum": "Catastrophic threshold crossed" }
+        ],
+        "camera": { "position": [3, 1.8, 3], "lookAt": [0, 0.5, 0], "duration": 2 },
+        "highlight": "astrolabe",
+        "invokeMethod": { "name": "astrolabeSpin" }
+      },
+      {
+        "atSeconds": 20,
+        "yamzyText": "🕳 Calamité ! Un Trou Noir surgit dans la Voûte — la sévérité dépasse l'entendement. Le Royaume tremble.",
+        "scrumText": "📋 Risk classified CATASTROPHIC. A black hole appears in the register. The PMO escalates to exec leadership — emergency mitigation plan required.",
+        "morphPairs": [
+          { "yamzy": "Trou Noir surgit", "scrum": "Catastrophic risk identified" },
+          { "yamzy": "Royaume tremble", "scrum": "Exec escalation triggered" }
+        ],
+        "camera": { "position": [4, 12, 14], "lookAt": [0, 26, 0], "duration": 2.5 },
+        "highlight": "blackhole",
+        "invokeMethod": { "name": "forgeBlackHole" },
+        "emitCeremony": { "type": "supernova", "label": "🕳 Catastrophic risk · Exec escalation", "icon": "🕳" }
+      },
+      {
+        "atSeconds": 27,
+        "yamzyText": "✨ Les Compagnons s'unissent — chaque étoile d'une Constellation s'allume tour à tour, le risque est revisité, son owner reconfirmé.",
+        "scrumText": "📋 Risk Review ceremony : the team walks through the related risk cluster. Each star lights up = each linked sub-risk is reassessed. Mitigation plans updated.",
+        "morphPairs": [
+          { "yamzy": "Compagnons s'unissent", "scrum": "Risk Review ceremony" },
+          { "yamzy": "Étoiles s'allument tour à tour", "scrum": "Sequential reassessment" }
+        ],
+        "camera": { "position": [10, 14, 6], "lookAt": [0, 28, 0], "duration": 2.2 },
+        "highlight": "constellation",
+        "invokeMethod": { "name": "constellationLight" }
+      },
+      {
+        "atSeconds": 34,
+        "yamzyText": "💥 Trop tard ! Une étoile explose — Supernova ! Le péril s'est réalisé. Le post-mortem s'ouvre, le Royaume encaisse.",
+        "scrumText": "📋 RISK REALIZED. Production incident. The team enters post-mortem mode : timeline, blast radius, RCA. The supernova marks the lesson learned.",
+        "morphPairs": [
+          { "yamzy": "Étoile explose", "scrum": "Risk realized → incident" },
+          { "yamzy": "Post-mortem s'ouvre", "scrum": "RCA + post-mortem" },
+          { "yamzy": "Royaume encaisse", "scrum": "Blast radius assessed" }
+        ],
+        "camera": { "position": [8, 14, 10], "lookAt": [0, 28, 0], "duration": 2 },
+        "highlight": "constellation",
+        "invokeMethod": { "name": "triggerSupernova" },
+        "emitCeremony": { "type": "supernova", "label": "💥 Risk realized · Post-mortem opened", "icon": "💥" }
+      },
+      {
+        "atSeconds": 41,
+        "yamzyText": "🌑 Le Mage déploie la mitigation ultime — l'Éclipse ! La Lune masque le péril, un anneau de feu protège le Royaume.",
+        "scrumText": "📋 Full mitigation deployed. Rollback executed, hotfix shipped, monitoring strengthened. The eclipse symbolizes total containment of the realized risk.",
+        "morphPairs": [
+          { "yamzy": "Éclipse de mitigation", "scrum": "Total mitigation" },
+          { "yamzy": "Lune masque le péril", "scrum": "Rollback + hotfix" },
+          { "yamzy": "Anneau de feu protège", "scrum": "Reinforced monitoring" }
+        ],
+        "camera": { "position": [0, 6, 12], "lookAt": [0, 28, 0], "duration": 2.5 },
+        "highlight": "dome",
+        "invokeMethod": { "name": "triggerEclipseCinematic" },
+        "emitCeremony": { "type": "eclipse", "label": "🌑 Mitigation total · Rollback + hotfix", "icon": "🌑" }
+      },
+      {
+        "atSeconds": 47,
+        "yamzyText": "🪶 La Voûte retrouve son calme. Une Lune nouvelle orbite — l'ADR du post-mortem. Que la prochaine Sentinelle veille pour toujours.",
+        "scrumText": "📋 Risk Register updated. New ADR linked from the post-mortem (lessons learned). Monitoring rules expanded. The team is wiser. The next vigilance begins.",
+        "morphPairs": [
+          { "yamzy": "Voûte retrouve son calme", "scrum": "Sky stabilized" },
+          { "yamzy": "Lune nouvelle = ADR", "scrum": "New ADR from post-mortem" },
+          { "yamzy": "Sentinelle veille", "scrum": "Vigilance continues" }
+        ],
+        "camera": { "position": [0, 2, 18], "lookAt": [0, 20, 0], "duration": 2 },
+        "highlight": "moon"
+      }
+    ]
+  },
+
+  "additionalDemos": [
+    {
+      "name": "🚨 Voûte Effondrée",
+      "icon": "🚨",
+      "duration": 26,
+      "description": "📜 Cataclysme céleste : trou noir géant, comètes en rafale, supernova en cascade — le Risk Register déborde.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Le silence est lourd sous la Voûte. Trop lourd. Les Constellations frémissent — quelque chose grandit dans l'ombre.",
+          "scrumText": "📋 Risk Register baseline misleadingly calm. Multiple stale risks have not been reviewed in 45+ days. Tension building.",
+          "morphPairs": [
+            { "yamzy": "Silence lourd", "scrum": "False calm" },
+            { "yamzy": "Grandit dans l'ombre", "scrum": "Stale risks accumulating" }
+          ],
+          "camera": { "position": [0, 4, 16], "lookAt": [0, 22, 0], "duration": 2 },
+          "highlight": "dome"
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "🕳 PREMIER TROU NOIR ! Un péril oublié dévore son voisinage — le Royaume hoquète.",
+          "scrumText": "📋 First catastrophic risk forged. Severity 5, likelihood realized. PMO alarm. CISO escalation triggered.",
+          "morphPairs": [
+            { "yamzy": "Trou Noir dévore", "scrum": "Catastrophic risk forged" },
+            { "yamzy": "Royaume hoquète", "scrum": "PMO alarm" }
+          ],
+          "camera": { "position": [6, 14, 12], "lookAt": [0, 26, 0], "duration": 2.2 },
+          "highlight": "blackhole",
+          "invokeMethod": { "name": "forgeBlackHole" },
+          "emitCeremony": { "type": "blackhole", "label": "🕳 Catastrophic risk #1 · CISO escalation", "icon": "🕳" }
+        },
+        {
+          "atSeconds": 9,
+          "yamzyText": "☄ Et voici les Comètes — trois à la suite ! Le Guet hurle, de nouveaux périls défoncent les portes du Royaume.",
+          "scrumText": "📋 Three new threats detected in rapid succession : vendor outage, dep CVE published, key dev resignation. Triage queue overflows.",
+          "morphPairs": [
+            { "yamzy": "Comètes en rafale", "scrum": "Threat queue overflow" },
+            { "yamzy": "Guet hurle", "scrum": "Triage alarm" }
+          ],
+          "camera": { "position": [10, 8, 14], "lookAt": [0, 22, 0], "duration": 2.2 },
+          "highlight": "comet",
+          "invokeMethod": { "name": "spawnCometCinematic" },
+          "emitCeremony": { "type": "shower", "label": "☄ 3 menaces incoming · triage overflow", "icon": "☄" }
+        },
+        {
+          "atSeconds": 14,
+          "yamzyText": "💥 SUPERNOVA ! Une Constellation explose — le premier péril vient de se réaliser en prod. Le sang court.",
+          "scrumText": "📋 RISK REALIZED in production. Customer-facing outage. War-room convened. Comms team activated. SLA at risk.",
+          "morphPairs": [
+            { "yamzy": "Supernova", "scrum": "Risk realized · outage" },
+            { "yamzy": "Sang court", "scrum": "SLA breach pending" }
+          ],
+          "camera": { "position": [8, 14, 8], "lookAt": [0, 28, 0], "duration": 2 },
+          "highlight": "constellation",
+          "invokeMethod": { "name": "triggerSupernova" },
+          "emitCeremony": { "type": "supernova", "label": "💥 Outage in prod · SLA breach", "icon": "💥" }
+        },
+        {
+          "atSeconds": 19,
+          "yamzyText": "🕳 DEUXIÈME TROU NOIR ! La cascade se déclenche — un péril en a engendré un autre. La Voûte craque.",
+          "scrumText": "📋 Cascading risk realized. Initial incident triggered dependency failure. Second catastrophic event forged. Exec board summoned.",
+          "morphPairs": [
+            { "yamzy": "Cascade se déclenche", "scrum": "Dependency cascade" },
+            { "yamzy": "Voûte craque", "scrum": "Exec board summoned" }
+          ],
+          "camera": { "position": [-6, 14, 10], "lookAt": [0, 26, 0], "duration": 2.2 },
+          "highlight": "blackhole",
+          "invokeMethod": { "name": "forgeBlackHole" },
+          "emitCeremony": { "type": "blackhole", "label": "🕳 Cascade · 2e risk catastrophique", "icon": "🕳" }
+        },
+        {
+          "atSeconds": 24,
+          "yamzyText": "🧭 Le Mage saisit enfin l'Astrolabe — il faut tout réévaluer dans l'urgence. Les anneaux tournent fou.",
+          "scrumText": "📋 Emergency risk-scoring session opens. Full register rescored under fire. Mitigation budget unfrozen. Survival mode.",
+          "morphPairs": [
+            { "yamzy": "Anneaux tournent fou", "scrum": "Emergency rescore" },
+            { "yamzy": "Tout réévaluer", "scrum": "Full register rescored" }
+          ],
+          "camera": { "position": [3, 2, 3], "lookAt": [0, 0.5, 0], "duration": 2 },
+          "highlight": "astrolabe",
+          "invokeMethod": { "name": "astrolabeSpin" }
+        }
+      ]
+    },
+    {
+      "name": "🏆 Voûte Apaisée",
+      "icon": "🏆",
+      "duration": 24,
+      "description": "📜 Triomphe de la vigilance : toutes les constellations illuminées, lunes ADR partout, éclipse de mitigation totale, astrolabe serein.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Le Royaume a bien œuvré. La Voûte est claire — chaque péril a son owner, chaque dossier sa Lune.",
+          "scrumText": "📋 Risk Register fully mature. Every risk has assigned owner, recent review, linked ADR. Audit-ready state.",
+          "morphPairs": [
+            { "yamzy": "Voûte claire", "scrum": "Mature register" },
+            { "yamzy": "Chaque péril son owner", "scrum": "Full ownership" }
+          ],
+          "camera": { "position": [0, 4, 16], "lookAt": [0, 22, 0], "duration": 2.2 },
+          "highlight": "dome"
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "✨ Première Constellation illuminée — tous ses risques ont été revisités cette semaine. Les étoiles brillent fort.",
+          "scrumText": "📋 Risk cluster A fully refreshed. All sub-risks reviewed within 7-day window. Confidence high.",
+          "morphPairs": [
+            { "yamzy": "Constellation illuminée", "scrum": "Cluster refreshed" },
+            { "yamzy": "Étoiles brillent fort", "scrum": "Confidence high" }
+          ],
+          "camera": { "position": [8, 14, 8], "lookAt": [0, 28, 0], "duration": 2 },
+          "highlight": "constellation",
+          "invokeMethod": { "name": "constellationLight" }
+        },
+        {
+          "atSeconds": 8,
+          "yamzyText": "🌙 Les Lunes orbitent en silence — chaque Constellation porte ses ADRs. Le savoir du Royaume s'accumule.",
+          "scrumText": "📋 Every risk now linked to documented mitigation plan or ADR. Knowledge base solid. Onboarding-ready.",
+          "morphPairs": [
+            { "yamzy": "Lunes orbitent", "scrum": "ADRs in place" },
+            { "yamzy": "Savoir s'accumule", "scrum": "Knowledge base solid" }
+          ],
+          "camera": { "position": [12, 14, 4], "lookAt": [0, 28, 0], "duration": 2 },
+          "highlight": "moon"
+        },
+        {
+          "atSeconds": 12,
+          "yamzyText": "✨ Deuxième Constellation s'éveille — la Cordée des Risk Owners coordonne sa veille à l'unisson.",
+          "scrumText": "📋 Second cluster lit. Cross-team risk owners syncing weekly. Pattern recognition emerging. Predictive mitigation possible.",
+          "morphPairs": [
+            { "yamzy": "Cordée à l'unisson", "scrum": "Cross-team sync" },
+            { "yamzy": "Veille coordonnée", "scrum": "Predictive mitigation" }
+          ],
+          "camera": { "position": [-8, 12, 8], "lookAt": [0, 28, 0], "duration": 2 },
+          "highlight": "constellation",
+          "invokeMethod": { "name": "constellationLight" }
+        },
+        {
+          "atSeconds": 16,
+          "yamzyText": "🌑 Éclipse de mitigation pure ! La Lune masque un péril qui n'aura jamais lieu — le Mage a tranché avant la tempête.",
+          "scrumText": "📋 Preventive mitigation deployed. A would-have-been incident neutralized at source. Architecture changed proactively. Heroes work.",
+          "morphPairs": [
+            { "yamzy": "Lune masque le péril", "scrum": "Preventive mitigation" },
+            { "yamzy": "Tranché avant tempête", "scrum": "Risk neutralized at source" }
+          ],
+          "camera": { "position": [0, 6, 12], "lookAt": [0, 28, 0], "duration": 2.2 },
+          "highlight": "dome",
+          "invokeMethod": { "name": "triggerEclipseCinematic" },
+          "emitCeremony": { "type": "eclipse", "label": "🌑 Mitigation préventive · péril évité", "icon": "🌑" }
+        },
+        {
+          "atSeconds": 20,
+          "yamzyText": "🧭 L'Astrolabe tourne avec grâce — ses anneaux dansent au rythme d'une équipe en pleine maîtrise.",
+          "scrumText": "📋 Risk scoring session steady-state. Ritualized weekly cadence. Metrics smooth. No urgency, just discipline.",
+          "morphPairs": [
+            { "yamzy": "Astrolabe danse", "scrum": "Ritualized cadence" },
+            { "yamzy": "Pleine maîtrise", "scrum": "Steady-state discipline" }
+          ],
+          "camera": { "position": [3, 2, 3], "lookAt": [0, 0.5, 0], "duration": 2 },
+          "highlight": "astrolabe",
+          "invokeMethod": { "name": "astrolabeSpin" },
+          "emitCeremony": { "type": "solstice", "label": "🧭 Risk Review · steady-state mastery", "icon": "🧭" }
+        }
+      ]
+    }
+  ],
+
+  "closingMessage": "🪶 Que ton Risk Register soit toujours cartographié, et que jamais un Trou Noir ne grandisse en silence. La Voûte t'attend pour la prochaine veillée."
+}

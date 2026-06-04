@@ -1,0 +1,419 @@
+{
+  "$comment": "v2 — dual narrator Yamzy↔Scrum + cinematic playExample 48s. Quarter sprint OKR story arc.",
+  "roomKey": "okr-mountain",
+  "meta": {
+    "name": "OKR Mountain Room",
+    "loreName": "L'Ascension du Sommet",
+    "icon": "⛰",
+    "color": "#a855f7",
+    "summary": "Ton OKR n'est plus une feuille de tableur — c'est une montagne sacrée. Ton avatar gravit physiquement le sentier, la météo trahit la santé du trimestre.",
+    "introLore": "🪶 Bienvenue, jeune Mage. Devant toi se dresse la Montagne des Sommets — chaque Objectif est un pic à conquérir, chaque Key Result un plateau jalonné de drapeaux. Pour le chef de projet, c'est ton tableau OKR vivant : 1 Objectif + 5 KRs, météo = sentiment d'équipe."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "mountain",
+      "name": "La Montagne Sacrée",
+      "scrumName": "Objective (OKR)",
+      "desc": "La grande montagne en cinq strates au centre de la scène — chaque trimestre, un sommet à conquérir.",
+      "yamzyExplain": "La Montagne est ton Objectif trimestriel rendu en pierre et en neige. Chaque saison, le Royaume choisit une Montagne — et la cordée tente l'ascension.",
+      "scrumExplain": "The current quarter's Objective rendered as a tiered 3D mountain. Five rock strata + snow cap. One mountain = one OKR cycle (typically a quarter).",
+      "interactions": ["silhouette change à chaque nouveau trimestre"]
+    },
+    {
+      "tutorialId": "trail",
+      "name": "Le Sentier en Lacets",
+      "scrumName": "Progression path",
+      "desc": "Tube marron qui monte en spirale autour de la montagne — la voie d'ascension.",
+      "yamzyExplain": "La Voie serpente en 2,4 tours autour de la Montagne. Chaque pas du Mage est un point de progression gagné. Plus haut tu montes, plus rare devient l'air.",
+      "scrumExplain": "Spiral CatmullRom curve wrapping the mountain 2.4 turns. Your avatar position along the curve = global OKR progression percentage (0-100%)."
+    },
+    {
+      "tutorialId": "plateau",
+      "name": "Les Plateaux des Drapeaux",
+      "scrumName": "Key Results (KRs)",
+      "desc": "Cinq disques en pierre le long du sentier, chacun planté d'un drapeau coloré — tes Key Results.",
+      "yamzyExplain": "Chaque Plateau est un Key Result. Cliquer un Plateau révèle son owner, sa cible et l'effort accompli. La hauteur encode la difficulté.",
+      "scrumExplain": "Five KR markers positioned along the trail by altitude_meters (0-1000m → t=0..0.98). Click = open side panel with target/current/owner.",
+      "interactions": ["clic plateau = panneau KR détail", "drapeau ondule au vent"]
+    },
+    {
+      "tutorialId": "you-avatar",
+      "name": "Ton Avatar Doré",
+      "scrumName": "Your progression marker",
+      "desc": "Petit cône jaune avec auréole tournante — c'est toi, sur le sentier.",
+      "yamzyExplain": "Ton Avatar marche physiquement le long de la Voie. Quand tu mets un KR à jour, l'Avatar gravit quelques mètres de plus.",
+      "scrumExplain": "Personal progression marker. Position on trail = progressionPct() / 100. Halo rotates with the wind animation."
+    },
+    {
+      "tutorialId": "cordee",
+      "name": "La Cordée des Compagnons",
+      "scrumName": "Team progression",
+      "desc": "Trois avatars colorés qui te suivent sur le sentier en file indienne.",
+      "yamzyExplain": "La Cordée est l'âme collective de l'ascension. Chaque Compagnon a son rythme. Si l'écart se creuse trop, le Mage doit ralentir.",
+      "scrumExplain": "Three teammates as smaller cone+sphere avatars at their own progressionPct. Visualizes contribution distribution within the squad."
+    },
+    {
+      "tutorialId": "eagle",
+      "name": "L'Aigle Royal",
+      "scrumName": "Quarterly check-in / Oversight",
+      "desc": "Aigle qui tournoie au-dessus du sommet — descend épisodiquement vers la cordée.",
+      "yamzyExplain": "L'Aigle Royal veille sur la Montagne. À mi-trimestre il plonge — c'est sa visite d'inspection. Si la cordée s'égare, l'Aigle crie.",
+      "scrumExplain": "Orbits the summit, swoops down at quarterly check-ins. Represents the leadership review : 'are we on track ?'.",
+      "interactions": ["swoop = quarterly review"]
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue sur la Montagne des Sommets, jeune Mage. Devant toi, un trimestre à conquérir.",
+      "scrumText": "📋 Welcome to the OKR mountain. Each quarter = one mountain. Your Objective is the summit. Five Key Results are the plateaus along the trail.",
+      "morphPairs": [
+        { "yamzy": "Montagne des Sommets", "scrum": "OKR Quarter" },
+        { "yamzy": "Trimestre à conquérir", "scrum": "Quarterly Objective" }
+      ],
+      "camera": { "position": [18, 14, 22], "lookAt": [0, 6, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "⛰ La Montagne sacrée — sa silhouette est ton Objectif du trimestre. Plus le sommet est haut, plus l'Objectif est ambitieux.",
+      "scrumText": "📋 The mountain shape encodes your quarterly Objective. Height = ambition. Five tiered strata from base rock → snow cap.",
+      "morphPairs": [
+        { "yamzy": "Sommet haut", "scrum": "Stretch goal" },
+        { "yamzy": "Cinq strates", "scrum": "5 levels of difficulty" }
+      ],
+      "camera": { "position": [12, 10, 12], "lookAt": [0, 6, 0], "duration": 2 },
+      "highlight": "mountain",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🪧 Le Sentier en lacets — c'est ta voie. Chaque KR validé t'avance d'un cran sur cette spirale.",
+      "scrumText": "📋 The spiral trail = your progression path. Each KR completion bumps you forward. Trail position = OKR progressionPct (0-100%).",
+      "morphPairs": [
+        { "yamzy": "Sentier en lacets", "scrum": "Progression path" },
+        { "yamzy": "Avancer d'un cran", "scrum": "KR delta on percent" }
+      ],
+      "camera": { "position": [10, 8, 10], "lookAt": [0, 4, 0], "duration": 2 },
+      "highlight": "trail",
+      "wait": 9
+    },
+    {
+      "step": 4,
+      "yamzyText": "🏴 Les Plateaux jalonnés de drapeaux — chacun est un Key Result. Cinq drapeaux, cinq mesures sacrées.",
+      "scrumText": "📋 5 plateaus = 5 Key Results. Flag color encodes owner team. Click a flag → see target/current/owner.",
+      "morphPairs": [
+        { "yamzy": "Plateau jalonné", "scrum": "Key Result milestone" },
+        { "yamzy": "Mesure sacrée", "scrum": "Measurable target" }
+      ],
+      "camera": { "position": [6, 5, 6], "lookAt": [0, 2.5, 0], "duration": 2 },
+      "highlight": "plateau",
+      "wait": 10
+    },
+    {
+      "step": 5,
+      "yamzyText": "🧑 Ton Avatar Doré — c'est toi, le Mage Stratège. Tu marches le long du Sentier au rythme de tes succès.",
+      "scrumText": "📋 The golden avatar = you (or the team lead). Position on trail = global OKR completion. Halo rotates with the breeze.",
+      "morphPairs": [
+        { "yamzy": "Avatar Doré", "scrum": "Progression marker" },
+        { "yamzy": "Rythme des succès", "scrum": "KR completion pace" }
+      ],
+      "camera": { "position": [4, 3, 5], "lookAt": [0, 2, 0], "duration": 2 },
+      "highlight": "you-avatar",
+      "wait": 9
+    },
+    {
+      "step": 6,
+      "yamzyText": "🧗 La Cordée des Compagnons — trois Compagnons reliés à toi. Si l'un ralentit, le Mage le sent dans la corde.",
+      "scrumText": "📋 The cordée = team members. Each climbs at their own pace. Gap between members = workload imbalance to address.",
+      "morphPairs": [
+        { "yamzy": "Cordée", "scrum": "Team chain" },
+        { "yamzy": "Compagnons", "scrum": "Engineers" }
+      ],
+      "camera": { "position": [5, 4, 5], "lookAt": [0, 2.5, 0], "duration": 2 },
+      "highlight": "cordee",
+      "wait": 9
+    },
+    {
+      "step": 7,
+      "yamzyText": "🦅 Et l'Aigle Royal — il tournoie haut, surveillant le trimestre. Quand il plonge, c'est le check-in stratégique.",
+      "scrumText": "📋 The eagle = quarterly check-in / leadership oversight. Eagle swoop = stakeholder review. He watches velocity.",
+      "morphPairs": [
+        { "yamzy": "Aigle Royal", "scrum": "Leadership review" },
+        { "yamzy": "Tournoie haut", "scrum": "Watches velocity" }
+      ],
+      "camera": { "position": [8, 16, 8], "lookAt": [0, 14, 0], "duration": 2 },
+      "highlight": "eagle",
+      "invokeMethod": { "name": "eagleSwoop" },
+      "wait": 10
+    },
+    {
+      "step": 8,
+      "yamzyText": "✨ Tu as parcouru la Montagne. Bonne ascension, jeune Mage — et que ton trimestre soit glorieux.",
+      "scrumText": "📋 You've toured the mountain. Update your KRs from real data, watch your avatar climb. Yamzy will narrate at quarterly check-ins.",
+      "camera": { "position": [18, 14, 22], "lookAt": [0, 6, 0], "duration": 2.5 },
+      "wait": 8
+    }
+  ],
+
+  "playExample": {
+    "duration": 48,
+    "description": "📜 Un trimestre OKR complet en 48s : Aube Q2 → check progress → tempête → review aigle → mid-quarter check-in → final push → drapeau planté au sommet.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Aube du trimestre — le Royaume ouvre Q2. La cordée se prépare au pied de la Montagne.",
+        "scrumText": "📋 Q2 kickoff · OKR cycle starts. Team gathers at base camp. Objective committed.",
+        "morphPairs": [
+          { "yamzy": "Aube du trimestre", "scrum": "Quarter kickoff" },
+          { "yamzy": "Cordée se prépare", "scrum": "Team commits" }
+        ],
+        "camera": { "position": [22, 16, 22], "lookAt": [0, 6, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "quarterDawn" },
+        "emitCeremony": { "type": "dawn", "label": "🌅 Q2 ouvert · Aube sacrée", "icon": "🌅" }
+      },
+      {
+        "atSeconds": 7,
+        "yamzyText": "🏴 Le premier Plateau brille — KR \"10 000 utilisateurs actifs\". Sa couleur dit son rang.",
+        "scrumText": "📋 First KR identified : 'Reach 10K active users'. Owner : Ramzy. Current : 6.8K. Target : 10K → 68% complete.",
+        "morphPairs": [
+          { "yamzy": "Plateau brille", "scrum": "KR1 active" },
+          { "yamzy": "Couleur dit son rang", "scrum": "Color = team owner" }
+        ],
+        "camera": { "position": [6, 4, 6], "lookAt": [0, 1.5, 0], "duration": 2 },
+        "highlight": "plateau"
+      },
+      {
+        "atSeconds": 13,
+        "yamzyText": "🚀 La Cordée s'engage — chaque Compagnon fait un pas, le Mage avance avec eux. L'effort collectif paie.",
+        "scrumText": "📋 First sprint of Q2 closes. Team velocity up : each member +7%. Avatars hop forward. KR1 progress bumps.",
+        "morphPairs": [
+          { "yamzy": "Cordée s'engage", "scrum": "Sprint completes" },
+          { "yamzy": "Pas en avant", "scrum": "+7% velocity" }
+        ],
+        "camera": { "position": [5, 4, 6], "lookAt": [0, 2, 0], "duration": 2 },
+        "highlight": "cordee",
+        "invokeMethod": { "name": "cordeeAscent" }
+      },
+      {
+        "atSeconds": 20,
+        "yamzyText": "⚡ Mais soudain — tempête sur la Montagne. Le NPS chute, le churn monte. La cordée vacille.",
+        "scrumText": "📋 Mid-quarter risk event : key churn jumps, NPS dips. Weather darkens. KR4 (churn < 3%) at risk. Lightning warns.",
+        "morphPairs": [
+          { "yamzy": "Tempête sur la Montagne", "scrum": "Risk event hits" },
+          { "yamzy": "NPS chute · churn monte", "scrum": "KR4 in red zone" }
+        ],
+        "camera": { "position": [10, 8, 10], "lookAt": [0, 6, 0], "duration": 2 },
+        "invokeMethod": { "name": "stormBlast" },
+        "emitCeremony": { "type": "storm", "label": "⚡ Tempête · KR à risque", "icon": "⚡" }
+      },
+      {
+        "atSeconds": 28,
+        "yamzyText": "🦅 L'Aigle Royal plonge — il vient inspecter la cordée. C'est le check-in du leadership.",
+        "scrumText": "📋 Quarterly leadership review : exec staff inspects OKR progress. Eagle swoops down. Adjustment opportunity.",
+        "morphPairs": [
+          { "yamzy": "Aigle plonge", "scrum": "Exec check-in" },
+          { "yamzy": "Inspecter la cordée", "scrum": "Review team progress" }
+        ],
+        "camera": { "position": [4, 6, 6], "lookAt": [0, 3, 0], "duration": 2 },
+        "highlight": "eagle",
+        "invokeMethod": { "name": "eagleSwoop" }
+      },
+      {
+        "atSeconds": 35,
+        "yamzyText": "🌌 Solstice mid-trimestre — le ciel s'éclaircit. La cordée se ressaisit, plante un nouveau jalon.",
+        "scrumText": "📋 Mid-Q checkpoint : KR3 (NPS > 60) re-baselined. Team realigns. Storm passes. KRs updated.",
+        "morphPairs": [
+          { "yamzy": "Solstice", "scrum": "Mid-Q check-in" },
+          { "yamzy": "Plante un jalon", "scrum": "KR re-baselined" }
+        ],
+        "camera": { "position": [6, 6, 6], "lookAt": [0, 4, 0], "duration": 2 },
+        "invokeMethod": { "name": "updateKR" },
+        "emitCeremony": { "type": "solstice", "label": "🌌 Solstice · check-in mid-Q", "icon": "🌌" }
+      },
+      {
+        "atSeconds": 41,
+        "yamzyText": "🚀 Sprint final — la cordée pousse de toutes ses forces vers le sommet. Les drapeaux des KR tombent un par un.",
+        "scrumText": "📋 Final sprint of Q2. Team accelerates. KR2 (MRR), KR5 (features) hit target. Final push on KR1.",
+        "morphPairs": [
+          { "yamzy": "Sprint final", "scrum": "Last sprint of Q" },
+          { "yamzy": "Drapeaux tombent", "scrum": "KRs marked done" }
+        ],
+        "camera": { "position": [8, 8, 8], "lookAt": [0, 6, 0], "duration": 2 },
+        "highlight": "you-avatar",
+        "invokeMethod": { "name": "cordeeAscent" }
+      },
+      {
+        "atSeconds": 46,
+        "yamzyText": "🏔 LE SOMMET ! Drapeau planté, étendard violet brille au vent. La Montagne est conquise.",
+        "scrumText": "📋 Q2 closed at 100% : Objective achieved. Summit flag raised. All 5 KRs hit. Team celebrates.",
+        "morphPairs": [
+          { "yamzy": "Sommet conquis", "scrum": "Q2 100% delivered" },
+          { "yamzy": "Étendard violet", "scrum": "Victory banner" }
+        ],
+        "camera": { "position": [2, 17, 5], "lookAt": [0, 14, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "summitTriumph" },
+        "emitCeremony": { "type": "summit", "label": "⛰ Q2 conquis · 100% · Drapeau planté", "icon": "🏔" }
+      }
+    ]
+  },
+
+  "additionalDemos": [
+    {
+      "name": "🚨 Tempête sur le Sommet",
+      "icon": "🚨",
+      "duration": 24,
+      "description": "📜 Catastrophe mid-trimestre : tempête déchaînée, KR en chute libre, l'Aigle inspecte une cordée en péril.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Le ciel s'obscurcit sur la Montagne. Le vent tourne — quelque chose de funeste approche.",
+          "scrumText": "📋 Mid-Q crisis warning. Velocity drops detected. KR4 (churn) crossing red threshold. Storm signals incoming.",
+          "morphPairs": [
+            { "yamzy": "Ciel s'obscurcit", "scrum": "Health metrics red" },
+            { "yamzy": "Vent funeste", "scrum": "Velocity decline" }
+          ],
+          "camera": { "position": [16, 12, 16], "lookAt": [0, 6, 0], "duration": 2 },
+          "invokeMethod": { "name": "toggleWeather" }
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "⚡ TEMPÊTE ! La foudre frappe les Plateaux — deux KRs viennent de basculer dans le rouge.",
+          "scrumText": "📋 STORM EVENT. KR2 (MRR) and KR4 (churn) drop below threshold simultaneously. Cascade risk activated.",
+          "morphPairs": [
+            { "yamzy": "Foudre sur les Plateaux", "scrum": "Multi-KR red alert" },
+            { "yamzy": "Bascule dans le rouge", "scrum": "KR threshold breach" }
+          ],
+          "camera": { "position": [8, 8, 10], "lookAt": [0, 4, 0], "duration": 2 },
+          "highlight": "plateau",
+          "invokeMethod": { "name": "stormBlast" },
+          "emitCeremony": { "type": "storm", "label": "⚡ Tempête majeure · 2 KRs effondrés", "icon": "⚡" }
+        },
+        {
+          "atSeconds": 9,
+          "yamzyText": "🦅 L'Aigle Royal plonge en urgence — il vient inspecter le désastre. Son cri résonne sur la Montagne.",
+          "scrumText": "📋 Emergency exec swoop. Leadership convenes unscheduled review. Stakeholder escalation triggered.",
+          "morphPairs": [
+            { "yamzy": "Aigle en urgence", "scrum": "Emergency exec review" },
+            { "yamzy": "Cri résonne", "scrum": "Stakeholder alarm" }
+          ],
+          "camera": { "position": [6, 10, 8], "lookAt": [0, 8, 0], "duration": 2 },
+          "highlight": "eagle",
+          "invokeMethod": { "name": "eagleSwoop" }
+        },
+        {
+          "atSeconds": 14,
+          "yamzyText": "🧗 La Cordée vacille sur le Sentier — un Compagnon glisse, les autres ralentissent. La corde se tend.",
+          "scrumText": "📋 Team destabilized. One engineer impacted, knock-on velocity loss. Capacity reshuffle needed.",
+          "morphPairs": [
+            { "yamzy": "Cordée vacille", "scrum": "Team destabilized" },
+            { "yamzy": "Compagnon glisse", "scrum": "Engineer impacted" }
+          ],
+          "camera": { "position": [5, 5, 6], "lookAt": [0, 3, 0], "duration": 2 },
+          "highlight": "cordee"
+        },
+        {
+          "atSeconds": 19,
+          "yamzyText": "📉 Le Mage descend de quelques crans — il faut re-baseliner les KRs avant que la Montagne ne nous engloutisse.",
+          "scrumText": "📋 KR rebaseline executed. Targets adjusted to reality. Recovery roadmap committed. Damage controlled.",
+          "morphPairs": [
+            { "yamzy": "Re-baseliner les KRs", "scrum": "Adjust targets" },
+            { "yamzy": "Montagne englouti", "scrum": "Scope cut" }
+          ],
+          "camera": { "position": [6, 6, 7], "lookAt": [0, 4, 0], "duration": 2 },
+          "highlight": "you-avatar",
+          "invokeMethod": { "name": "updateKR" },
+          "emitCeremony": { "type": "rebaseline", "label": "📉 KRs rebaselined · scope ajusté", "icon": "📉" }
+        }
+      ]
+    },
+    {
+      "name": "🏆 Trimestre Glorieux",
+      "icon": "🏆",
+      "duration": 25,
+      "description": "📜 Le triomphe absolu : cordée fulgurante, soleil sur la Montagne, tous les KRs dépassés, drapeau planté avec faste.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🌅 Aube glorieuse sur la Montagne. Le ciel est d'or pur — le Royaume sent que ce trimestre sera mémorable.",
+          "scrumText": "📋 Q kickoff with exceptional team energy. Roadmap clear, capacity full, stakeholders aligned. Stretch goals on the table.",
+          "morphPairs": [
+            { "yamzy": "Aube glorieuse", "scrum": "Strong kickoff" },
+            { "yamzy": "Ciel d'or", "scrum": "Team high morale" }
+          ],
+          "camera": { "position": [22, 16, 22], "lookAt": [0, 6, 0], "duration": 2.5 },
+          "invokeMethod": { "name": "quarterDawn" },
+          "emitCeremony": { "type": "dawn", "label": "🌅 Q kickoff · énergie pic", "icon": "🌅" }
+        },
+        {
+          "atSeconds": 5,
+          "yamzyText": "🧗 La Cordée s'élance comme jamais — chaque Compagnon vole sur le Sentier. La synergie est totale.",
+          "scrumText": "📋 First sprint smashes velocity records. Each engineer +18%. Pairing peaks. PR turnaround halves.",
+          "morphPairs": [
+            { "yamzy": "Cordée s'élance", "scrum": "Velocity peak" },
+            { "yamzy": "Synergie totale", "scrum": "Full team flow" }
+          ],
+          "camera": { "position": [6, 5, 7], "lookAt": [0, 3, 0], "duration": 2 },
+          "highlight": "cordee",
+          "invokeMethod": { "name": "cordeeAscent" }
+        },
+        {
+          "atSeconds": 10,
+          "yamzyText": "🏴 Premier Plateau franchi — KR1 atteint en avance ! Le drapeau bleu s'incline triomphalement.",
+          "scrumText": "📋 KR1 hit at 110% before mid-Q. Stretch goal possible. Confidence cascades to the rest of the register.",
+          "morphPairs": [
+            { "yamzy": "Plateau franchi", "scrum": "KR hit early" },
+            { "yamzy": "Drapeau triomphal", "scrum": "Stretch achieved" }
+          ],
+          "camera": { "position": [5, 4, 6], "lookAt": [0, 2, 0], "duration": 2 },
+          "highlight": "plateau",
+          "invokeMethod": { "name": "updateKR" },
+          "emitCeremony": { "type": "flag", "label": "🏴 KR1 · 110% (stretch)", "icon": "🏴" }
+        },
+        {
+          "atSeconds": 15,
+          "yamzyText": "🦅 L'Aigle Royal salue le Mage — la check-in se passe en triomphe, les exécutifs sourient enfin.",
+          "scrumText": "📋 Mid-Q review : exec board impressed. Promotion of program tier discussed. Budget unlocked.",
+          "morphPairs": [
+            { "yamzy": "Aigle salue", "scrum": "Exec endorses" },
+            { "yamzy": "Triomphe en revue", "scrum": "Budget unlocked" }
+          ],
+          "camera": { "position": [4, 12, 8], "lookAt": [0, 10, 0], "duration": 2 },
+          "highlight": "eagle",
+          "invokeMethod": { "name": "eagleSwoop" }
+        },
+        {
+          "atSeconds": 19,
+          "yamzyText": "⛰ Le Mage atteint le Sommet ! Les KR3, KR4 et KR5 tombent dans le même souffle — la Montagne est domptée.",
+          "scrumText": "📋 KR3, KR4, KR5 all close 100%+ in final sprint. Objective fully delivered with stretch. Team in flow state.",
+          "morphPairs": [
+            { "yamzy": "Sommet atteint", "scrum": "Objective delivered" },
+            { "yamzy": "Trois KRs ensemble", "scrum": "Multi-KR close" }
+          ],
+          "camera": { "position": [4, 15, 6], "lookAt": [0, 13, 0], "duration": 2 },
+          "highlight": "you-avatar",
+          "invokeMethod": { "name": "summitTriumph" }
+        },
+        {
+          "atSeconds": 23,
+          "yamzyText": "🏔 DRAPEAU PLANTÉ ! L'étendard violet claque au sommet, doré par le soleil — le trimestre entre dans la légende.",
+          "scrumText": "📋 Q closed at 118% achievement. Summit flag raised with all-team ceremony. Quarter enters company hall of fame.",
+          "morphPairs": [
+            { "yamzy": "Étendard claque", "scrum": "Q close ceremony" },
+            { "yamzy": "Entre dans la légende", "scrum": "Hall of fame Q" }
+          ],
+          "camera": { "position": [2, 18, 4], "lookAt": [0, 14, 0], "duration": 2.5 },
+          "invokeMethod": { "name": "plantSummitFlag" },
+          "emitCeremony": { "type": "summit", "label": "🏔 Q conquis · 118% · Stretch atteint", "icon": "🏔" }
+        }
+      ]
+    }
+  ],
+
+  "closingMessage": "🪶 Que ton prochain Sommet soit plus haut encore, jeune Mage stratège."
+}

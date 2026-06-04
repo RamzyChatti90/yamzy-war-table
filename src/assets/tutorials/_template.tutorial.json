@@ -1,0 +1,103 @@
+{
+  "$comment": "🪶 TEMPLATE de tutorial Yamzy World — copie ce fichier en {room-name}.tutorial.json et personnalise. Voir docs/YAMZY_WORLD_ROOMS/NARRATOR_SYSTEM.md pour le schéma complet.",
+
+  "roomKey": "MY-ROOM-NAME",
+
+  "meta": {
+    "name": "MY ROOM NAME (UPPERCASE OK)",
+    "loreName": "Le Nom Lore Yamzy (poétique)",
+    "icon": "🎯",
+    "color": "#fbbf24",
+    "summary": "1 phrase qui résume ce que fait la Room.",
+    "introLore": "🪶 Bienvenue, jeune Mage. Phrase d'introduction lore (Yamzy style mage stratège) qui annonce ce qu'on va découvrir dans la Room. 3-4 phrases max."
+  },
+
+  "$comment_glossary": "Liste TOUS les objets 3D explicables. Le tutorialId doit MATCHER une mesh.userData.tutorialId dans le composant Three.js.",
+  "glossary": [
+    {
+      "tutorialId": "object-1-kebab-case",
+      "name": "Nom Yamzy (lore)",
+      "loreName": "Nom alternatif (optionnel)",
+      "scrumName": "Terme dev/scrum officiel",
+      "desc": "1 phrase explication mixte Yamzy + dev",
+      "yamzyExplain": "Explication lore Yamzy 2-4 phrases style mage stratège",
+      "scrumExplain": "Plain English dev terminology 2-4 sentences",
+      "interactions": ["clic = action", "drag = move"]
+    },
+    {
+      "tutorialId": "object-2",
+      "name": "...",
+      "scrumName": "...",
+      "desc": "...",
+      "yamzyExplain": "...",
+      "scrumExplain": "..."
+    }
+  ],
+
+  "$comment_tour": "Visite guidée pas-à-pas (déclenchée par 🎓 How it works). Chaque step déplace la caméra, highlight un objet, narre.",
+  "tour": [
+    {
+      "step": 1,
+      "narratorMode": "yamzy",
+      "text": "🪶 Texte de la bulle pour cette étape. Style lore. Référence au lore général de la Room.",
+      "camera": {
+        "position": [0, 6, 18],
+        "lookAt": [0, 4, 0],
+        "duration": 2
+      },
+      "highlight": null,
+      "wait": 5
+    },
+    {
+      "step": 2,
+      "narratorMode": "yamzy",
+      "text": "Étape 2 : on s'approche du premier élément. Sa fonction sacrée est de...",
+      "camera": { "position": [0, 3, 6], "lookAt": [0, 4, 0], "duration": 2 },
+      "highlight": "object-1-kebab-case",
+      "wait": 6
+    },
+    {
+      "step": 3,
+      "narratorMode": "yamzy",
+      "text": "Et voici un autre élément clé...",
+      "camera": { "position": [5, 5, 5], "lookAt": [0, 5, 0], "duration": 2 },
+      "highlight": "object-2",
+      "invokeMethod": { "name": "myDemoAction" },
+      "emitCeremony": { "type": "bloom", "label": "Démonstration en cours", "icon": "🌸" },
+      "wait": 6
+    }
+  ],
+
+  "$comment_playExample": "Démo animée (déclenchée par ▶ Play example). Joue une timeline scénarisée avec narration synchronisée caméra + actions.",
+  "playExample": {
+    "duration": 30,
+    "description": "📜 Démo en 30s : décris ce qui va se passer en 1 phrase.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "narratorText": "🪶 Démarrage de la démo...",
+        "camera": { "position": [0, 6, 18], "lookAt": [0, 4, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 5,
+        "narratorText": "Action 1 — quelque chose se passe...",
+        "camera": { "position": [0, 3, 5], "lookAt": [0, 1, 0], "duration": 1.5 },
+        "highlight": "object-1-kebab-case",
+        "invokeMethod": { "name": "loadDemo" },
+        "emitCeremony": { "type": "bloom", "label": "Start de la démo", "icon": "🌸" }
+      },
+      {
+        "atSeconds": 15,
+        "narratorText": "Action 2 — un autre élément réagit...",
+        "highlight": "object-2"
+      },
+      {
+        "atSeconds": 25,
+        "narratorText": "🪶 Et voilà ! Tu as compris la mécanique. Reste libre d'explorer."
+      }
+    ]
+  },
+
+  "closingMessage": "🪶 Phrase de clôture lore pour quand le tour est terminé."
+}

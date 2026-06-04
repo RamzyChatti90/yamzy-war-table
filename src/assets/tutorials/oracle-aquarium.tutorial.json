@@ -1,0 +1,444 @@
+{
+  "$comment": "v2 — dual narrator Yamzy↔Scrum/PM (UX research) + cinematic playExample 48s. Discovery story arc.",
+  "roomKey": "oracle-aquarium",
+  "meta": {
+    "name": "Oracle Aquarium",
+    "loreName": "L'Étang des Voix",
+    "icon": "🐠",
+    "color": "#a855f7",
+    "summary": "Un aquarium géant où chaque interview utilisateur nage en poisson-parole — les bancs révèlent les patterns, les méduses crient les pain points, le coffre garde les personas.",
+    "introLore": "🪶 Bienvenue dans l'Étang des Voix, jeune Mage. Devant toi flottent les Poissons-Compagnons — chacun porte la parole d'un utilisateur interviewé. Pour le chef de produit, c'est ton tableau de bord de discovery vivant : user interviews, cohort feedback, pain points, personas et action items prennent corps en 3D."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "tank",
+      "name": "L'Étang des Voix",
+      "scrumName": "Discovery board / Research vault",
+      "desc": "Le grand aquarium volumétrique qui contient toute la recherche utilisateur en cours.",
+      "yamzyExplain": "L'Étang renferme la totalité des voix recueillies. Plus son eau est dense, plus la recherche est riche. Le Mage observe par toutes les faces — chaque angle révèle un truth.",
+      "scrumExplain": "Your entire UX discovery space. The tank volume reflects total research coverage : interviews, pain points, JTBD themes, personas. Orbit-around to surface insights from different angles.",
+      "interactions": ["mouse drag = orbit · molette = zoom"]
+    },
+    {
+      "tutorialId": "fish",
+      "name": "Les Poissons-Compagnons",
+      "scrumName": "User interviews",
+      "desc": "Chaque poisson = 1 interview utilisateur. Couleur = persona, taille = durée.",
+      "yamzyExplain": "Un Poisson-Compagnon nage pour chaque voix recueillie. Sa robe révèle sa tribu (persona), sa taille révèle son temps offert. Clique-le pour entendre sa parole-clé.",
+      "scrumExplain": "1 fish = 1 user interview transcript. Color encodes persona segment, size encodes session duration. Click for the key verbatim quote. The cohort swimming together = your research panel.",
+      "interactions": ["clic poisson = interview detail + verbatim"]
+    },
+    {
+      "tutorialId": "school",
+      "name": "Le Banc Synchronisé",
+      "scrumName": "Cohort feedback / Pattern detected",
+      "desc": "Quand 5+ poissons d'une même persona nagent à l'unisson = pattern qualitatif fort.",
+      "yamzyExplain": "Quand assez de Compagnons de même tribu se synchronisent, leur danse devient prophétie. Le Mage sait alors qu'un Insight est sur le point d'émerger.",
+      "scrumExplain": "Synchronized swim school = qualitative pattern detected (saturation reached, n>=5 same persona). Time to consolidate into a persona/archetype card.",
+      "interactions": ["watch = pattern saturation = persona-ready"]
+    },
+    {
+      "tutorialId": "jellyfish",
+      "name": "Les Méduses des Doutes",
+      "scrumName": "Pain points / Friction signals",
+      "desc": "Méduses violettes qui pulsent en haut du tank — chaque pulse = un pain point cité.",
+      "yamzyExplain": "Les Méduses des Doutes ne mentent pas. Plus elles pulsent fort et lumineux, plus la douleur des utilisateurs est aiguë. Sev 4-5 = le Mage doit agir vite.",
+      "scrumExplain": "Pain points surfaced from interview synthesis. Pulse amplitude = severity (1-5). Color burst = mention frequency. Items at sev>=4 must enter the next sprint as discovery action items.",
+      "interactions": ["clic méduse = pain point detail + mention count"]
+    },
+    {
+      "tutorialId": "coral",
+      "name": "Les Coraux des Vérités",
+      "scrumName": "JTBD themes / Positive feedback clusters",
+      "desc": "Coraux colorés au fond — chaque corail = un thème Jobs-To-Be-Done positif.",
+      "yamzyExplain": "Les Coraux poussent là où la vérité fleurit. Quand un thème reçoit des éloges, son Corail brille et grandit. C'est ce qui marche, ce que les utilisateurs adorent.",
+      "scrumExplain": "Each coral cluster = 1 JTBD theme that surfaced as a positive driver. Growth pulse during `coralBloom()` = strong validation moment in the data.",
+      "interactions": ["bloom = peak positive sentiment"]
+    },
+    {
+      "tutorialId": "treasure",
+      "name": "Le Trésor des Vérités",
+      "scrumName": "Persona discoveries / Archetype card",
+      "desc": "Coffre au sol qui s'ouvre lorsqu'une persona archétype est consolidée.",
+      "yamzyExplain": "Le Trésor ne s'ouvre que quand suffisamment de Voix s'accordent. Sa lumière dorée révèle l'Archétype — c'est l'Insight ultime que le Mage cherchait.",
+      "scrumExplain": "Persona/archetype unlock. Triggered by `treasureReveal()` after saturation. Golden particles = your persona card now ready to share with product, design, marketing. Each unlock = 1 actionable archetype.",
+      "interactions": ["clic = reveal archétype consolidé"]
+    },
+    {
+      "tutorialId": "eagle",
+      "name": "L'Aigle Plongeur",
+      "scrumName": "Action item / Discovery → Delivery",
+      "desc": "Aigle qui patrouille au-dessus du tank et plonge pour saisir une parole-clé.",
+      "yamzyExplain": "L'Aigle Plongeur veille au-dessus de l'Étang. Quand le Mage décide qu'une voix doit devenir action, l'Aigle plonge et la rapporte au Royaume. C'est la décision actionnable.",
+      "scrumExplain": "Discovery-to-delivery bridge. `eagleDive()` = a research insight is converted into a backlog action item / spike. The dive animation = the moment a research finding crosses into a sprint.",
+      "interactions": ["dive = insight → action item"]
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue dans l'Étang des Voix, jeune Mage. Ici, chaque utilisateur interviewé prend la forme d'un Poisson-Compagnon.",
+      "scrumText": "📋 Welcome to your UX Discovery Board. Each interview becomes a living fish — visualize your research panel in 3D, find patterns at a glance.",
+      "morphPairs": [
+        { "yamzy": "Étang des Voix", "scrum": "Discovery Board" },
+        { "yamzy": "Poisson-Compagnon", "scrum": "User interview" }
+      ],
+      "camera": { "position": [0, 5, 22], "lookAt": [0, 2, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "🐠 Chaque Poisson-Compagnon porte la voix d'un utilisateur. Sa robe révèle sa tribu, sa taille révèle le temps offert.",
+      "scrumText": "📋 Each fish = 1 user interview. Color encodes persona segment, size encodes session duration. Click a fish to read the verbatim quote.",
+      "morphPairs": [
+        { "yamzy": "Poisson-Compagnon", "scrum": "User interview" },
+        { "yamzy": "Robe colorée", "scrum": "Persona segment" },
+        { "yamzy": "Taille du poisson", "scrum": "Session duration" }
+      ],
+      "camera": { "position": [4, 3, 10], "lookAt": [0, 2, 0], "duration": 2 },
+      "highlight": "fish",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🐟 Quand 5 Compagnons d'une même tribu se synchronisent, c'est qu'un Insight est prêt à émerger. Le Banc parle d'une seule voix.",
+      "scrumText": "📋 Cohort feedback pattern. When 5+ same-persona interviews swim together = qualitative saturation reached. Time to write a persona card.",
+      "morphPairs": [
+        { "yamzy": "Banc synchronisé", "scrum": "Cohort feedback pattern" },
+        { "yamzy": "Saturation prophétique", "scrum": "Persona-ready signal" }
+      ],
+      "camera": { "position": [5, 4, 8], "lookAt": [0, 2, 0], "duration": 2 },
+      "highlight": "school",
+      "invokeMethod": { "name": "schoolMigration" },
+      "wait": 10
+    },
+    {
+      "step": 4,
+      "yamzyText": "🪼 Au-dessus, les Méduses des Doutes. Plus elles pulsent fort, plus la douleur des utilisateurs est vive. Sev 4-5 = urgence.",
+      "scrumText": "📋 Pain points. Jellyfish pulse intensity = severity (1-5). High-sev items must enter the next discovery → delivery cycle as action items.",
+      "morphPairs": [
+        { "yamzy": "Méduses des Doutes", "scrum": "Pain points" },
+        { "yamzy": "Pulse violent", "scrum": "Severity high" },
+        { "yamzy": "Douleur vive", "scrum": "Critical friction" }
+      ],
+      "camera": { "position": [3, 6, 6], "lookAt": [0, 4, 0], "duration": 2 },
+      "highlight": "jellyfish",
+      "invokeMethod": { "name": "jellyfishPulse" },
+      "wait": 10
+    },
+    {
+      "step": 5,
+      "yamzyText": "🪸 Au fond, les Coraux des Vérités. Chaque Corail incarne un thème JTBD positif. Ils fleurissent quand un utilisateur les loue.",
+      "scrumText": "📋 JTBD themes / positive feedback clusters. Each coral = 1 Job-To-Be-Done your product is succeeding at. Bloom = strong validation in the data.",
+      "morphPairs": [
+        { "yamzy": "Coraux des Vérités", "scrum": "JTBD themes" },
+        { "yamzy": "Corail fleurit", "scrum": "Positive validation" }
+      ],
+      "camera": { "position": [6, 2, 6], "lookAt": [0, -1, 0], "duration": 2 },
+      "highlight": "coral",
+      "invokeMethod": { "name": "coralBloom" },
+      "wait": 10
+    },
+    {
+      "step": 6,
+      "yamzyText": "💰 Au cœur du tank, le Trésor des Vérités. Il ne s'ouvre que quand assez de Voix s'accordent — alors il révèle un Archétype.",
+      "scrumText": "📋 Persona discovery vault. Treasure opens when enough cohort feedback aligns = an archetype/persona card is now ready to share with product & design.",
+      "morphPairs": [
+        { "yamzy": "Trésor des Vérités", "scrum": "Persona discovery" },
+        { "yamzy": "Archétype révélé", "scrum": "Persona card ready" }
+      ],
+      "camera": { "position": [3, 1, 5], "lookAt": [0, -1, 0], "duration": 2.2 },
+      "highlight": "treasure",
+      "invokeMethod": { "name": "treasureReveal" },
+      "wait": 11
+    },
+    {
+      "step": 7,
+      "yamzyText": "🦅 Et au-dessus, l'Aigle Plongeur. Quand une voix mérite action, il plonge et l'emporte vers le Royaume du Build.",
+      "scrumText": "📋 The discovery-to-delivery bridge. Eagle dive = a research insight crosses into a sprint as an action item. Convert findings into backlog tickets.",
+      "morphPairs": [
+        { "yamzy": "Aigle Plongeur", "scrum": "Discovery → Delivery" },
+        { "yamzy": "Plonge sur une voix", "scrum": "Action item taken" }
+      ],
+      "camera": { "position": [0, 12, 10], "lookAt": [0, 6, 0], "duration": 2 },
+      "highlight": "eagle",
+      "invokeMethod": { "name": "eagleDive" },
+      "wait": 10
+    },
+    {
+      "step": 8,
+      "yamzyText": "✨ Tu connais l'Étang. Les voix t'attendent, les vérités sommeillent dans le Trésor. Bonne discovery, jeune Mage.",
+      "scrumText": "📋 You've toured your discovery board. Click fish for quotes, watch jellyfish for severity signals, await coral bloom and treasure reveals — your insight engine is live.",
+      "camera": { "position": [0, 5, 22], "lookAt": [0, 2, 0], "duration": 2.5 },
+      "wait": 8
+    }
+  ],
+
+  "playExample": {
+    "duration": 48,
+    "description": "📜 Une matinée de discovery en 48s : aurore calme → arrivée cohorte → coraux louanges → méduses crient → trésor s'ouvre → aigle plonge → calme retour. Caméra cinéma + dual narrateur.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Aurore sur l'Étang. L'eau dort. Les Compagnons attendent que leurs voix soient appelées.",
+        "scrumText": "📋 Morning of a discovery sprint day. Research panel idle, fresh interviews scheduled. The board awaits new data.",
+        "morphPairs": [
+          { "yamzy": "Aurore sur l'Étang", "scrum": "Discovery day start" },
+          { "yamzy": "Voix qui attendent", "scrum": "Interviews scheduled" }
+        ],
+        "camera": { "position": [0, 5, 22], "lookAt": [0, 2, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 6,
+        "yamzyText": "🐠 Voici le Banc — une cohorte de Compagnons arrive ensemble. Leurs robes parlent d'une même tribu.",
+        "scrumText": "📋 Cohort feedback session. A batch of same-persona interviews lands in the board. School swim = saturation reached.",
+        "morphPairs": [
+          { "yamzy": "Banc arrive", "scrum": "Cohort delivered" },
+          { "yamzy": "Même tribu", "scrum": "Same persona segment" }
+        ],
+        "camera": { "position": [6, 4, 10], "lookAt": [0, 2, 0], "duration": 2.5 },
+        "highlight": "school",
+        "invokeMethod": { "name": "schoolMigration" },
+        "emitCeremony": { "type": "bank", "label": "🐠 Cohort feedback · n=8 interviews", "icon": "🐠" }
+      },
+      {
+        "atSeconds": 13,
+        "yamzyText": "🪸 Les Coraux des Vérités fleurissent — un thème JTBD reçoit louanges. La couleur monte, la lumière danse.",
+        "scrumText": "📋 Positive validation cluster. A JTBD theme is praised across the cohort. Coral bloom = product-market signal strong.",
+        "morphPairs": [
+          { "yamzy": "Coraux fleurissent", "scrum": "Positive cluster" },
+          { "yamzy": "Louange montante", "scrum": "PM signal validated" }
+        ],
+        "camera": { "position": [6, 3, 6], "lookAt": [0, -1, 0], "duration": 2 },
+        "highlight": "coral",
+        "invokeMethod": { "name": "coralBloom" }
+      },
+      {
+        "atSeconds": 20,
+        "yamzyText": "🪼 Mais voilà les Méduses qui crient. Une douleur aiguë traverse la cohorte — sev 5, urgence absolue.",
+        "scrumText": "📋 Pain point spike. A critical friction emerges from synthesis — sev 5, mentioned 11 times. Must enter discovery → delivery cycle now.",
+        "morphPairs": [
+          { "yamzy": "Méduses qui crient", "scrum": "Critical pain point" },
+          { "yamzy": "Sev 5 absolu", "scrum": "Sev 5 must-address" }
+        ],
+        "camera": { "position": [3, 7, 7], "lookAt": [0, 4, 0], "duration": 2 },
+        "highlight": "jellyfish",
+        "invokeMethod": { "name": "jellyfishPulse" },
+        "emitCeremony": { "type": "jelly", "label": "🪼 Pain point sev 5 · 11 mentions", "icon": "🪼" }
+      },
+      {
+        "atSeconds": 28,
+        "yamzyText": "💰 Et au cœur, le Trésor s'ouvre ! Suffisamment de voix se sont accordées — l'Archétype « PM SaaS B2B » est révélé.",
+        "scrumText": "📋 Persona unlocked. Cohort saturation reached → archetype card consolidated : « PM SaaS B2B ». Ready to share with product, design, marketing.",
+        "morphPairs": [
+          { "yamzy": "Trésor s'ouvre", "scrum": "Persona unlocked" },
+          { "yamzy": "Archétype révélé", "scrum": "Archetype card ready" }
+        ],
+        "camera": { "position": [3, 1, 5], "lookAt": [0, -1, 0], "duration": 2.5 },
+        "highlight": "treasure",
+        "invokeMethod": { "name": "treasureReveal" },
+        "emitCeremony": { "type": "treasure", "label": "💰 Archétype \"PM SaaS B2B\" consolidé", "icon": "💰" }
+      },
+      {
+        "atSeconds": 35,
+        "yamzyText": "🌊 Le Mage isole la tribu B2B — les autres robes s'éteignent. Seul le segment qui parle reste éclairé.",
+        "scrumText": "📋 Filter applied : focus on B2B SaaS segment. Other personas fade — the team zeros in on what this archetype is saying.",
+        "morphPairs": [
+          { "yamzy": "Isoler la tribu", "scrum": "Segment filter" },
+          { "yamzy": "Robes s'éteignent", "scrum": "Other segments dimmed" }
+        ],
+        "camera": { "position": [4, 4, 10], "lookAt": [0, 2, 0], "duration": 2 },
+        "highlight": "fish",
+        "invokeMethod": { "name": "filterB2B" }
+      },
+      {
+        "atSeconds": 41,
+        "yamzyText": "🦅 L'Aigle Plongeur descend — il saisit une parole-clé pour l'emporter vers le Build. Une voix devient action.",
+        "scrumText": "📋 Discovery → Delivery. Eagle dive = a key insight is converted into a backlog action item / spike. Sprint planning will pick it up.",
+        "morphPairs": [
+          { "yamzy": "Aigle Plongeur", "scrum": "Discovery → Delivery" },
+          { "yamzy": "Voix devient action", "scrum": "Insight → action item" }
+        ],
+        "camera": { "position": [4, 9, 10], "lookAt": [0, 4, 0], "duration": 2.5 },
+        "highlight": "eagle",
+        "invokeMethod": { "name": "eagleDive" },
+        "emitCeremony": { "type": "eagle", "label": "🦅 Insight → backlog action item", "icon": "🦅" }
+      },
+      {
+        "atSeconds": 46,
+        "yamzyText": "🪶 Le calme revient sur l'Étang. Les voix ont parlé, les vérités sont consignées. Le Royaume est plus sage qu'à l'aube.",
+        "scrumText": "📋 Discovery cycle complete. Cohort heard, pain points logged, persona unlocked, action item delivered. Knowledge base enriched.",
+        "morphPairs": [
+          { "yamzy": "Le calme revient", "scrum": "Discovery cycle closed" },
+          { "yamzy": "Royaume plus sage", "scrum": "Knowledge base enriched" }
+        ],
+        "camera": { "position": [0, 5, 22], "lookAt": [0, 2, 0], "duration": 2 }
+      }
+    ]
+  },
+
+  "additionalDemos": [
+    {
+      "name": "🚨 Pain Storm · Crisis",
+      "icon": "🚨",
+      "duration": 24,
+      "description": "🚨 Tempête de pain points : 3 méduses pulsent en sev 5 successifs, le banc fuit vers la sortie, l'Aigle scout d'urgence pour transformer en action items immédiats.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "⚠️ L'Étang gronde. Les Compagnons s'agitent — trop de Voix portent la même douleur. Quelque chose ne va pas.",
+          "scrumText": "📋 Discovery red flag. Cross-cohort friction signal rising — multiple interviews surfacing the same critical pain. Synthesis required now.",
+          "morphPairs": [
+            { "yamzy": "Étang gronde", "scrum": "Discovery red flag" },
+            { "yamzy": "Même douleur", "scrum": "Convergent friction" }
+          ],
+          "camera": { "position": [0, 5, 20], "lookAt": [0, 3, 0], "duration": 2 },
+          "highlight": "tank"
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "🪼 Une première Méduse explose en pulse violent — sev 5, douleur aiguë sur l'onboarding.",
+          "scrumText": "📋 Pain point #1 : onboarding friction, sev 5, mentioned by 9/12 interviews. Critical — blocks first-value moment.",
+          "morphPairs": [
+            { "yamzy": "Pulse violent", "scrum": "Sev 5 pain spike" },
+            { "yamzy": "Douleur aiguë", "scrum": "Onboarding friction" }
+          ],
+          "camera": { "position": [3, 7, 7], "lookAt": [-1, 5, 0], "duration": 2 },
+          "highlight": "jellyfish",
+          "invokeMethod": { "name": "jellyfishPulse" },
+          "emitCeremony": { "type": "jelly", "label": "🪼 Pain #1 onboarding · sev 5", "icon": "🪼" }
+        },
+        {
+          "atSeconds": 8,
+          "yamzyText": "🪼 Une seconde Méduse pulse — pricing trouble, encore sev 5. L'eau se trouble d'urgence.",
+          "scrumText": "📋 Pain point #2 : pricing confusion, sev 5, n=8 mentions. Same severity, same urgency tier — pattern consolidating fast.",
+          "morphPairs": [
+            { "yamzy": "Eau trouble", "scrum": "Pattern consolidating" },
+            { "yamzy": "Pricing trouble", "scrum": "Pricing confusion" }
+          ],
+          "camera": { "position": [-3, 7, 7], "lookAt": [1, 5, 0], "duration": 2 },
+          "highlight": "jellyfish",
+          "invokeMethod": { "name": "jellyfishPulse" },
+          "emitCeremony": { "type": "jelly", "label": "🪼 Pain #2 pricing · sev 5", "icon": "🪼" }
+        },
+        {
+          "atSeconds": 12,
+          "yamzyText": "🪼 Une troisième Méduse pulse — perf produit en chute. La tempête est complète.",
+          "scrumText": "📋 Pain point #3 : perceived slowness, sev 5, n=7. Three convergent critical friction signals — discovery → delivery must trigger immediately.",
+          "morphPairs": [
+            { "yamzy": "Tempête complète", "scrum": "Triple-sev-5 storm" },
+            { "yamzy": "Perf en chute", "scrum": "Perceived slowness" }
+          ],
+          "camera": { "position": [0, 8, 6], "lookAt": [0, 5, 0], "duration": 2 },
+          "highlight": "jellyfish",
+          "invokeMethod": { "name": "jellyfishPulse" },
+          "emitCeremony": { "type": "jelly", "label": "🪼 Pain #3 perf · sev 5", "icon": "🪼" }
+        },
+        {
+          "atSeconds": 16,
+          "yamzyText": "🐠 Le Banc panique — les Compagnons migrent vers la sortie, fuyant la douleur. Churn imminent.",
+          "scrumText": "📋 Cohort migration to exit. School swims toward tank boundary = users signaling churn intent. The board flashes red.",
+          "morphPairs": [
+            { "yamzy": "Banc panique", "scrum": "Cohort exit migration" },
+            { "yamzy": "Fuyant la douleur", "scrum": "Churn intent signal" }
+          ],
+          "camera": { "position": [8, 4, 6], "lookAt": [0, 2, 0], "duration": 2 },
+          "highlight": "school",
+          "invokeMethod": { "name": "schoolMigration" },
+          "emitCeremony": { "type": "bank", "label": "🐠 Banc fuit · churn imminent", "icon": "🐠" }
+        },
+        {
+          "atSeconds": 20,
+          "yamzyText": "🦅 L'Aigle Plongeur scout en urgence — il convertit les 3 douleurs en actions sprintables, sur l'instant.",
+          "scrumText": "📋 Emergency discovery → delivery. Eagle dive batch-converts the 3 sev-5 pains into immediate backlog spikes for next sprint planning.",
+          "morphPairs": [
+            { "yamzy": "Scout en urgence", "scrum": "Emergency dive" },
+            { "yamzy": "3 douleurs en actions", "scrum": "3 pains → backlog spikes" }
+          ],
+          "camera": { "position": [0, 10, 10], "lookAt": [0, 5, 0], "duration": 2.5 },
+          "highlight": "eagle",
+          "invokeMethod": { "name": "triggerEagleDive" },
+          "emitCeremony": { "type": "eagle", "label": "🦅 3 pains → 3 spikes sprint+1", "icon": "🦅" }
+        }
+      ]
+    },
+    {
+      "name": "🏆 Persona Unlock · Victory",
+      "icon": "🏆",
+      "duration": 24,
+      "description": "🏆 Breakthrough discovery : un Trésor s'ouvre sur un archétype, les Coraux fleurissent massivement, le filtre B2B révèle l'or, le Banc célèbre la cohésion.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "✨ L'Étang scintille — assez de Voix se sont accordées. Le Trésor des Vérités s'apprête à parler.",
+          "scrumText": "📋 Saturation breakthrough. Enough cohort feedback aligned across N=20 interviews. The discovery board is ready to consolidate an archetype.",
+          "morphPairs": [
+            { "yamzy": "Voix s'accordent", "scrum": "Cohort feedback aligned" },
+            { "yamzy": "Trésor parle", "scrum": "Archetype consolidating" }
+          ],
+          "camera": { "position": [0, 4, 16], "lookAt": [0, 1, 0], "duration": 2 },
+          "highlight": "tank"
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "💰 Le Trésor s'ouvre dans une vague dorée — l'Archétype « Ops Lead SaaS » émerge des profondeurs.",
+          "scrumText": "📋 Persona unlocked : « Ops Lead SaaS ». Treasure reveal animation = the archetype card is now ready to share with product, design, marketing.",
+          "morphPairs": [
+            { "yamzy": "Vague dorée", "scrum": "Treasure reveal pulse" },
+            { "yamzy": "Archétype émerge", "scrum": "Persona card ready" }
+          ],
+          "camera": { "position": [3, 1, 5], "lookAt": [0, -1, 0], "duration": 2.5 },
+          "highlight": "treasure",
+          "invokeMethod": { "name": "revealTreasure" },
+          "emitCeremony": { "type": "treasure", "label": "💰 Archétype \"Ops Lead SaaS\" consolidé", "icon": "💰" }
+        },
+        {
+          "atSeconds": 9,
+          "yamzyText": "🪸 Les Coraux fleurissent en masse — chaque thème JTBD positif explose en couleurs. La vérité jubile.",
+          "scrumText": "📋 Massive JTBD bloom. Multiple positive validation clusters light up simultaneously — your product is succeeding at the things this persona cares about.",
+          "morphPairs": [
+            { "yamzy": "Coraux en masse", "scrum": "Massive JTBD bloom" },
+            { "yamzy": "Vérité jubile", "scrum": "PM signal multiplied" }
+          ],
+          "camera": { "position": [6, 2, 6], "lookAt": [0, -1, 0], "duration": 2 },
+          "highlight": "coral",
+          "invokeMethod": { "name": "coralBloom" },
+          "emitCeremony": { "type": "coral", "label": "🪸 4 thèmes JTBD validés", "icon": "🪸" }
+        },
+        {
+          "atSeconds": 14,
+          "yamzyText": "🌊 Le Mage isole la tribu B2B — seules les robes de l'Archétype restent éclairées. L'or apparaît net.",
+          "scrumText": "📋 B2B segment filter applied. Other personas dim — the data crystallizes around the new archetype. Crystal-clear insight surface.",
+          "morphPairs": [
+            { "yamzy": "Isoler la tribu", "scrum": "Segment filter" },
+            { "yamzy": "Or apparaît net", "scrum": "Clean insight surface" }
+          ],
+          "camera": { "position": [4, 4, 10], "lookAt": [0, 2, 0], "duration": 2 },
+          "highlight": "fish",
+          "invokeMethod": { "name": "filterB2B" },
+          "emitCeremony": { "type": "filter", "label": "🌊 Segment B2B isolé · 12 voix nettes", "icon": "🌊" }
+        },
+        {
+          "atSeconds": 19,
+          "yamzyText": "🐠 Le Banc se rassemble en cohésion parfaite — la cohorte parle d'une seule voix, victorieuse.",
+          "scrumText": "📋 Perfect cohort cohesion. The school swims in tight formation around the persona signal — qualitative saturation peak. Insight engine victorious.",
+          "morphPairs": [
+            { "yamzy": "Cohésion parfaite", "scrum": "Perfect cohort cohesion" },
+            { "yamzy": "Une seule voix", "scrum": "Saturation peak" }
+          ],
+          "camera": { "position": [0, 5, 12], "lookAt": [0, 2, 0], "duration": 2.5 },
+          "highlight": "school",
+          "invokeMethod": { "name": "schoolMigration" },
+          "emitCeremony": { "type": "bank", "label": "🐠 Cohorte alignée · saturation pic", "icon": "🐠" }
+        }
+      ]
+    }
+  ],
+
+  "closingMessage": "🪶 Que chaque voix entendue te rapproche d'un peu plus de Vérité. L'Étang t'attend pour la prochaine cohorte."
+}

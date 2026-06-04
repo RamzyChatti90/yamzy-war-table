@@ -1,0 +1,427 @@
+{
+  "$comment": "v2 — dual narrator (Yamzy lore ↔ Scrum/PM) + cinematic playExample ~50s",
+  "roomKey": "pr-mirror-hall",
+  "meta": {
+    "name": "PR Mirror Hall",
+    "loreName": "La Galerie des Vérités",
+    "icon": "🪞",
+    "color": "#d4af37",
+    "summary": "Une cathédrale circulaire où chaque Pull Request devient un miroir doré — la pureté du reflet ne ment jamais sur la santé du code.",
+    "introLore": "🪶 Bienvenue dans la Galerie des Vérités, jeune Mage. Ici, chaque Pull Request prend la forme d'un Miroir au cadre doré, veillée par ses Statues Veilleuses. Pour le chef de projet, c'est ton tableau de bord de code review : PR ouvertes, reviewers assignés, CI gates, merge readiness — tout visible d'un seul regard depuis l'Anneau du Centre."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "mirror",
+      "name": "Les Miroirs",
+      "loreName": "Les Glaces de Vérité",
+      "scrumName": "Pull Request",
+      "desc": "Huit miroirs dorés disposés en cercle. Chaque miroir reflète une PR ouverte avec son état de review.",
+      "yamzyExplain": "Chaque Glace de Vérité est une fenêtre ouverte sur une quête en attente de jugement. Le reflet doré signe la pureté — la PR est approuvée. Les fissures sanglantes hurlent un conflit. L'ondulation trahit le doute. Le voile sombre rappelle qu'aucun reviewer n'a encore regardé.",
+      "scrumExplain": "Each mirror represents one open Pull Request. Visual encoding : bright gold = approved, cracked red = merge conflicts, wavy blue = changes requested, dark smoke = no review yet, green halo = mergeable_now.",
+      "interactions": ["clic miroir = ouvre fiche PR (titre, auteur, reviewers, diff stats, SLA)", "ripple = nouvelle review submitted"]
+    },
+    {
+      "tutorialId": "statue",
+      "name": "Les Statues Veilleuses",
+      "loreName": "Les Sentinelles de Pierre",
+      "scrumName": "Reviewers / Code reviewers",
+      "desc": "Statues debout entre les miroirs — symbolisent les reviewers assignés. Pierre grise = pending, or = approved, rouge = changes requested.",
+      "yamzyExplain": "Les Sentinelles veillent sur chaque Glace adjacente. Tant qu'elles restent de pierre, le verdict n'est pas tombé. Quand elles s'illuminent d'or, le Mage Veilleur a béni la quête. Quand elles rougeoient, c'est qu'il a vu un défaut à corriger.",
+      "scrumExplain": "Standing statues between mirrors symbolize assigned reviewers. Gray stone = pending verdict, glowing gold = approved, red glow = changes requested. Halo aura intensity reflects reviewer engagement."
+    },
+    {
+      "tutorialId": "red-carpet",
+      "name": "Le Tapis Sacré",
+      "loreName": "Le Chemin du Sacre",
+      "scrumName": "Mergeable PR pathway / Ready-to-merge",
+      "desc": "Tapis rouge bordé d'or qui s'illumine depuis le centre vers la PR prête à merger.",
+      "yamzyExplain": "Quand une Lignée a passé toutes les épreuves — approbations, tests verts, branche à jour — le Chemin du Sacre se déroule depuis l'Anneau du Centre. Il invite le Mage à venir l'embrasser une dernière fois avant la grande fusion.",
+      "scrumExplain": "A gold-bordered red carpet appears between the room center and the mirror whose PR is mergeable_now. Visual cue : all reviews passed, CI green, no conflicts. Click merge — ship it."
+    },
+    {
+      "tutorialId": "hourglass",
+      "name": "Les Sabliers du Temps",
+      "loreName": "Les Horloges du Reproche",
+      "scrumName": "SLA / Time-since-review indicator",
+      "desc": "Sabliers translucides flottant au-dessus des PRs dont le SLA est dépassé. Le sable doré pulse pour rappeler l'urgence.",
+      "yamzyExplain": "Quand une Glace reste trop longtemps sans être contemplée, une Horloge du Reproche apparaît au-dessus d'elle. Son sable scintillant ne s'arrête jamais — il murmure aux Compagnons distraits : 'Cette quête attend depuis trop longtemps.'",
+      "scrumExplain": "Floating translucent hourglasses materialize above any PR whose review SLA deadline has passed. Glowing sand sphere oscillates as a visual nag. When the cascade accelerates, the deadline is imminent."
+    },
+    {
+      "tutorialId": "chandelier",
+      "name": "Les Chandeliers",
+      "loreName": "Les Veilleuses Dorées",
+      "scrumName": "Hall ambient / CI critical alert",
+      "desc": "Cinq ampoules chaudes suspendues au plafond — pulsent doucement, flashent en blanc puis rouge sur PR critique.",
+      "yamzyExplain": "Les Veilleuses brûlent jour et nuit — symbole que les Mages ne dorment jamais sur les quêtes en attente. Mais quand un Mage détecte un défaut profond, les Veilleuses flashent blanc puis rougeoient : la Galerie tout entière sait qu'il faut s'arrêter.",
+      "scrumExplain": "Five warm point lights pulse gently in the dome ceiling — ambient cue that the review queue is being watched. They flash white then pulse red when a breaking-change PR appears, triggering team-wide attention."
+    },
+    {
+      "tutorialId": "center-circle",
+      "name": "L'Anneau du Centre",
+      "loreName": "L'Anneau du Concile",
+      "scrumName": "Reviewer focal point / Review queue dashboard",
+      "desc": "Anneau d'or gravé au sol au centre exact du hall — point d'observation rituel pour contempler toutes les PRs.",
+      "yamzyExplain": "L'Anneau marque le centre sacré du Concile. Quand le Mage s'y tient, il voit toutes les Lignées d'un seul regard et perçoit l'équilibre du Royaume. C'est ici que se prennent les décisions de merge.",
+      "scrumExplain": "Engraved golden ring at the floor center. Conceptual review queue dashboard : standing here, the release manager surveys all open PRs and prioritizes the review pipeline."
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue dans la Galerie des Vérités, jeune Mage. Tu te tiens au centre d'une cathédrale circulaire — chaque Pull Request ouverte y a son propre Miroir doré.",
+      "scrumText": "📋 Welcome to your code review dashboard. Each open Pull Request becomes a gold-framed mirror — surface visualization encodes review state at a glance.",
+      "morphPairs": [
+        { "yamzy": "Galerie des Vérités", "scrum": "PR review dashboard" },
+        { "yamzy": "Miroir doré", "scrum": "Open Pull Request" }
+      ],
+      "camera": { "position": [0, 4, 0.5], "lookAt": [8, 3, 0], "duration": 2.5 },
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "🪞 Voici les Glaces de Vérité — huit miroirs sur le mur, un par PR. Leur reflet ne ment jamais : doré pur = approved, brisé = conflits, ondulé = changes requested, sombre = no review.",
+      "scrumText": "📋 8 PR mirrors. Surface encoding : bright gold = approved, cracked red = merge conflicts, wavy blue = changes requested, dark = awaiting first review. Click any to inspect.",
+      "morphPairs": [
+        { "yamzy": "Glaces de Vérité", "scrum": "PR mirrors" },
+        { "yamzy": "Reflet doré", "scrum": "Approved status" },
+        { "yamzy": "Reflet brisé", "scrum": "Merge conflicts" }
+      ],
+      "camera": { "position": [3, 3, 0], "lookAt": [8.6, 3, 0], "duration": 2 },
+      "highlight": "mirror",
+      "invokeMethod": { "name": "mirrorRipple" },
+      "wait": 10
+    },
+    {
+      "step": 3,
+      "yamzyText": "🗿 Entre chaque Glace, les Sentinelles de Pierre. Ce sont les reviewers — pierre tant qu'ils n'ont pas tranché, dorées lorsqu'ils approuvent, rougeoyantes s'ils demandent des changements.",
+      "scrumText": "📋 Statues between mirrors = assigned reviewers. Stone = pending, gold = approved, red = changes_requested. Each PR has 1 to 3 reviewers visible as adjacent sentinels.",
+      "morphPairs": [
+        { "yamzy": "Sentinelles de Pierre", "scrum": "Code reviewers" },
+        { "yamzy": "Statue qui s'illumine", "scrum": "Reviewer approves" }
+      ],
+      "camera": { "position": [4, 2.5, 4], "lookAt": [8.2, 1.5, 0], "duration": 2 },
+      "highlight": "statue",
+      "invokeMethod": { "name": "statueIllumination" },
+      "wait": 10
+    },
+    {
+      "step": 4,
+      "yamzyText": "🟥 Vois ce Tapis Sacré qui s'élance du centre vers une Glace ? C'est le Chemin du Sacre — il indique la PR mergeable_now. Toutes ses Sentinelles l'ont bénie, les Cristaux du CI sont verts.",
+      "scrumText": "📋 The red carpet appears between the center and any PR whose status is mergeable_now : all reviews approved, CI gate green, no conflicts. Click merge — ship it now.",
+      "morphPairs": [
+        { "yamzy": "Tapis Sacré", "scrum": "Mergeable pathway" },
+        { "yamzy": "Chemin du Sacre", "scrum": "Ready-to-merge cue" },
+        { "yamzy": "Sentinelles bénies", "scrum": "All reviewers approved" }
+      ],
+      "camera": { "position": [0, 4, 0], "lookAt": [6, 0.5, 0], "duration": 2 },
+      "highlight": "red-carpet",
+      "invokeMethod": { "name": "redCarpetReveal" },
+      "wait": 10
+    },
+    {
+      "step": 5,
+      "yamzyText": "⏳ Les Horloges du Reproche flottent au-dessus des Glaces oubliées — celles dont le SLA de review a expiré. Plus le sable s'écoule vite, plus la deadline est proche.",
+      "scrumText": "📋 Hourglasses float above PRs whose review SLA is overdue. Sand cascade speed = urgency level. PM cue : pull these into the next stand-up.",
+      "morphPairs": [
+        { "yamzy": "Horloge du Reproche", "scrum": "Stale PR indicator" },
+        { "yamzy": "Sable qui s'écoule", "scrum": "Time-since-review counter" }
+      ],
+      "camera": { "position": [2, 5.5, 2], "lookAt": [7, 5, 2], "duration": 2 },
+      "highlight": "hourglass",
+      "invokeMethod": { "name": "hourglassCascade" },
+      "wait": 9
+    },
+    {
+      "step": 6,
+      "yamzyText": "🕯 Lève les yeux : les Veilleuses Dorées pulsent au plafond. Quand une PR critique apparaît — breaking change, security fix — elles flashent blanc puis rougeoient pour alerter le Concile entier.",
+      "scrumText": "📋 Ceiling chandeliers pulse warm gold by default. On critical PR detection (security, breaking change), they flash white then pulse red — team-wide attention signal.",
+      "morphPairs": [
+        { "yamzy": "Veilleuses Dorées", "scrum": "Hall ambient lights" },
+        { "yamzy": "Flash blanc", "scrum": "Breaking change alert" }
+      ],
+      "camera": { "position": [0, 3, 0], "lookAt": [3, 6.5, 3], "duration": 2.5 },
+      "highlight": "chandelier",
+      "invokeMethod": { "name": "chandelierFlash" },
+      "wait": 10
+    },
+    {
+      "step": 7,
+      "yamzyText": "✨ Et au sol, l'Anneau du Concile — point sacré d'où l'on contemple toutes les Lignées d'un seul regard. C'est ici que le Mage prend les décisions de fusion.",
+      "scrumText": "📋 Engraved golden ring at center = release manager standing point. From here, all 8 PRs visible simultaneously — perfect for prioritizing merges and dispatching reviews.",
+      "morphPairs": [
+        { "yamzy": "Anneau du Concile", "scrum": "Review queue dashboard" },
+        { "yamzy": "Décisions de fusion", "scrum": "Merge decisions" }
+      ],
+      "camera": { "position": [0, 6, 4], "lookAt": [0, 0.1, 0], "duration": 2 },
+      "highlight": "center-circle",
+      "wait": 8
+    },
+    {
+      "step": 8,
+      "yamzyText": "🎯 Avant de te laisser, un dernier rituel : je vais éveiller le Spotlight sur la PR mergeable. Un rayon doré descendra du dôme pour la couronner — l'invitation finale à la fusion.",
+      "scrumText": "📋 Final tour cue : the spotlight illuminates the next mergeable PR. Your turn to inspect, approve, and merge. Welcome to your hall.",
+      "morphPairs": [
+        { "yamzy": "Spotlight doré", "scrum": "Merge ready indicator" }
+      ],
+      "camera": { "position": [0, 4, 0.5], "lookAt": [8, 3, 0], "duration": 2 },
+      "invokeMethod": { "name": "spotlightMergeable" },
+      "wait": 8
+    }
+  ],
+
+  "playExample": {
+    "duration": 48,
+    "description": "📜 Une journée de code review en 48s : galerie calme → PR ouverte → reviewer voit → approve → 2nd reviewer requested → mergeable → critical breaking change flash → merge.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Aube du Royaume. La Galerie des Vérités sommeille — les Glaces attendent en silence, les Veilleuses pulsent doucement.",
+        "scrumText": "📋 Morning. Review queue at rest. Open PRs from yesterday wait — no fresh activity yet. Watching the ambient pulse.",
+        "morphPairs": [
+          { "yamzy": "Galerie sommeille", "scrum": "Quiet review queue" },
+          { "yamzy": "Veilleuses pulsent", "scrum": "Ambient hall lights" }
+        ],
+        "camera": { "position": [0, 5, 0.5], "lookAt": [8, 2.5, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 5,
+        "yamzyText": "🪞 Une Glace s'éveille — un Compagnon a soumis une nouvelle review. Le Miroir ondule, la pureté nouvelle se révèle.",
+        "scrumText": "📋 New review submitted on PR #412. Mirror ripples = review activity. Status shifting toward approval.",
+        "morphPairs": [
+          { "yamzy": "Glace s'éveille", "scrum": "New review submitted" },
+          { "yamzy": "Miroir ondule", "scrum": "Review activity" }
+        ],
+        "camera": { "position": [3, 3.5, 0], "lookAt": [8.6, 3, 0], "duration": 2 },
+        "highlight": "mirror",
+        "invokeMethod": { "name": "mirrorRipple", "args": [0] },
+        "emitCeremony": { "type": "approval", "label": "🪞 PR #412 · Nouvelle review", "icon": "🪞" }
+      },
+      {
+        "atSeconds": 11,
+        "yamzyText": "🗿 La Sentinelle voit la quête — elle examine les diff, pèse les choix. Son verdict s'annonce.",
+        "scrumText": "📋 Reviewer Alice opens PR #412. Reads diff, checks tests, weighs design. The verdict is forming.",
+        "morphPairs": [
+          { "yamzy": "Sentinelle voit la quête", "scrum": "Reviewer opens PR" },
+          { "yamzy": "Examine les diff", "scrum": "Reads code changes" }
+        ],
+        "camera": { "position": [4, 2.5, 4], "lookAt": [8.2, 1.5, 0], "duration": 2 },
+        "highlight": "statue"
+      },
+      {
+        "atSeconds": 16,
+        "yamzyText": "✨ Verdict ! La Sentinelle s'illumine en doré — le Mage approuve. La Glace voisine boost son reflet en pureté.",
+        "scrumText": "📋 Alice approves PR #412. Statue lights gold = approved verdict. Mirror surface emissive intensity rises = trust signal.",
+        "morphPairs": [
+          { "yamzy": "Sentinelle s'illumine", "scrum": "Reviewer approves" },
+          { "yamzy": "Mage approuve", "scrum": "LGTM submitted" }
+        ],
+        "camera": { "position": [5, 3, 3], "lookAt": [8, 2, 0], "duration": 2 },
+        "highlight": "statue",
+        "invokeMethod": { "name": "statueIllumination" },
+        "emitCeremony": { "type": "approval", "label": "✨ Alice approves #412", "icon": "✨" }
+      },
+      {
+        "atSeconds": 22,
+        "yamzyText": "⏳ Mais ! Une autre Glace réclame une seconde Sentinelle — son Horloge du Reproche commence à pulser. Le sable s'écoule.",
+        "scrumText": "📋 PR #410 still needs a second reviewer. SLA hourglass cascade accelerates — review needed today. Scrum Master nudges Bob.",
+        "morphPairs": [
+          { "yamzy": "Horloge du Reproche", "scrum": "SLA hourglass" },
+          { "yamzy": "Sable s'écoule", "scrum": "Time-since-review climbing" }
+        ],
+        "camera": { "position": [2, 5, 2], "lookAt": [7, 5, 2], "duration": 2 },
+        "highlight": "hourglass",
+        "invokeMethod": { "name": "hourglassCascade" },
+        "emitCeremony": { "type": "lightning", "label": "⏳ #410 · 2nd reviewer requis", "icon": "⏳" }
+      },
+      {
+        "atSeconds": 29,
+        "yamzyText": "🟥 Triomphe ! La PR #412 a réuni toutes ses bénédictions — le Chemin du Sacre se déroule depuis l'Anneau du Centre vers sa Glace.",
+        "scrumText": "📋 PR #412 status flips to mergeable_now : 2 approvals, CI green, no conflicts, base branch up to date. Red carpet reveals the path.",
+        "morphPairs": [
+          { "yamzy": "Chemin du Sacre déroule", "scrum": "Mergeable status" },
+          { "yamzy": "Bénédictions réunies", "scrum": "All approvals met" }
+        ],
+        "camera": { "position": [0, 3.5, 0], "lookAt": [8, 2, 0], "duration": 2 },
+        "highlight": "red-carpet",
+        "invokeMethod": { "name": "redCarpetReveal" },
+        "emitCeremony": { "type": "merge", "label": "🟥 #412 · Mergeable", "icon": "🟥" }
+      },
+      {
+        "atSeconds": 36,
+        "yamzyText": "⚠️ Calamité ! Une PR critique s'invoque — un changement qui brise les anciennes lois. Les Veilleuses flashent en blanc, puis rougeoient sur tout le Concile.",
+        "scrumText": "📋 Breaking change PR #408 (PASETO tokens) detected. Chandeliers flash white then red pulse = team-wide alert. Every reviewer redirected here.",
+        "morphPairs": [
+          { "yamzy": "Veilleuses flashent", "scrum": "Critical PR alert" },
+          { "yamzy": "Brise les anciennes lois", "scrum": "Breaking change" }
+        ],
+        "camera": { "position": [3, 4, -3], "lookAt": [0, 5, 0], "duration": 2 },
+        "highlight": "chandelier",
+        "invokeMethod": { "name": "chandelierFlash" },
+        "emitCeremony": { "type": "lightning", "label": "⚠️ #408 · Breaking change", "icon": "⚠️" }
+      },
+      {
+        "atSeconds": 43,
+        "yamzyText": "🏆 Le Mage Suprême se décide — il foule le Tapis Sacré et célèbre la fusion. Spotlight doré, Glace couronnée, PR mergée dans le Royaume.",
+        "scrumText": "📋 Release manager merges PR #412 into main. Spotlight crowns the mirror. CI runs deploy pipeline. v1.42 ships.",
+        "morphPairs": [
+          { "yamzy": "Mage Suprême décide", "scrum": "Release manager merges" },
+          { "yamzy": "Spotlight doré", "scrum": "Merge completed" },
+          { "yamzy": "Royaume", "scrum": "main branch" }
+        ],
+        "camera": { "position": [0, 4, 0], "lookAt": [8, 2.5, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "spotlightMergeable" },
+        "emitCeremony": { "type": "fame", "label": "🏆 #412 merged · v1.42 shipped", "icon": "🏆" }
+      }
+    ]
+  },
+
+  "additionalDemos": [
+    {
+      "name": "🚨 PR Maudite",
+      "icon": "🚨",
+      "duration": 25,
+      "description": "📜 Crise au Concile · Une PR brise tout, les Veilleuses flashent rouge, les Sentinelles rejettent, le Sablier hurle l'urgence.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Soir tendu dans la Galerie. Une Glace nouvelle vient d'apparaître — son cadre est terne, son reflet trouble.",
+          "scrumText": "📋 Late evening. PR #519 just opened. Massive diff (+4200 / -1800). Review queue holds its breath.",
+          "morphPairs": [
+            { "yamzy": "Cadre terne", "scrum": "Risky PR signal" },
+            { "yamzy": "Reflet trouble", "scrum": "Massive diff +4.2k" }
+          ],
+          "camera": { "position": [0, 5, 0.5], "lookAt": [8, 3, 0], "duration": 2 },
+          "highlight": "mirror"
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "⚠️ FLASH ! Les Veilleuses Dorées hurlent en blanc puis rougeoient — un changement qui brise les anciennes lois.",
+          "scrumText": "📋 Breaking change detected · API schema rewrite. Chandeliers flash red. Team-wide pager fires.",
+          "morphPairs": [
+            { "yamzy": "Veilleuses hurlent", "scrum": "Breaking change alert" },
+            { "yamzy": "Anciennes lois brisées", "scrum": "API schema rewrite" }
+          ],
+          "camera": { "position": [3, 4, -3], "lookAt": [0, 5, 0], "duration": 2 },
+          "highlight": "chandelier",
+          "invokeMethod": { "name": "chandelierFlash" },
+          "emitCeremony": { "type": "lightning", "label": "⚠️ #519 · BREAKING CHANGE", "icon": "⚠️" }
+        },
+        {
+          "atSeconds": 10,
+          "yamzyText": "💥 La Glace ondule violemment — fissures sanglantes, conflits de fusion. Le miroir saigne.",
+          "scrumText": "📋 Merge conflicts on 14 files. Base branch drifted. Mirror surface cracks red. PR unmergeable.",
+          "morphPairs": [
+            { "yamzy": "Fissures sanglantes", "scrum": "Merge conflicts" },
+            { "yamzy": "Miroir saigne", "scrum": "Unmergeable status" }
+          ],
+          "camera": { "position": [3, 3, 0], "lookAt": [8.6, 3, 0], "duration": 2 },
+          "highlight": "mirror",
+          "invokeMethod": { "name": "mirrorRipple", "args": [2] },
+          "emitCeremony": { "type": "lightning", "label": "💥 #519 · 14 conflicts", "icon": "💥" }
+        },
+        {
+          "atSeconds": 16,
+          "yamzyText": "🗿 Les Sentinelles rougeoient l'une après l'autre — toutes demandent des changements. Pas une seule bénédiction.",
+          "scrumText": "📋 3 reviewers all submit changes_requested. Statues glow red. Author needs to rework the design.",
+          "morphPairs": [
+            { "yamzy": "Sentinelles rougeoient", "scrum": "Changes requested ×3" },
+            { "yamzy": "Pas une bénédiction", "scrum": "Zero approvals" }
+          ],
+          "camera": { "position": [4, 2.5, 4], "lookAt": [8.2, 1.5, 0], "duration": 2 },
+          "highlight": "statue",
+          "invokeMethod": { "name": "statueIllumination" }
+        },
+        {
+          "atSeconds": 21,
+          "yamzyText": "⏳ Le Sablier du Reproche s'emballe — sable rouge en cascade. La deadline expire. PR fermée, l'auteur retravaillera.",
+          "scrumText": "📋 SLA breached. PR closed, author asked to split into 4 smaller PRs. Lessons captured in retro.",
+          "morphPairs": [
+            { "yamzy": "Sablier s'emballe", "scrum": "SLA breached" },
+            { "yamzy": "Auteur retravaillera", "scrum": "PR split required" }
+          ],
+          "camera": { "position": [2, 5.5, 2], "lookAt": [7, 5, 2], "duration": 2 },
+          "highlight": "hourglass",
+          "invokeMethod": { "name": "hourglassCascade" },
+          "emitCeremony": { "type": "lightning", "label": "⏳ #519 closed · split required", "icon": "⏳" }
+        }
+      ]
+    },
+    {
+      "name": "🏆 Sacre Architectural",
+      "icon": "🏆",
+      "duration": 26,
+      "description": "📜 Triomphe au Concile · PR d'architecture majeure, Sentinelles unanimes, Tapis se déroule, Spotlight couronne le merge historique.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Heure prophétisée. Une Glace inhabituelle pulse au mur — sa pureté est inédite. Le Concile retient son souffle.",
+          "scrumText": "📋 PR #600 opened : new microservices architecture. Months of design distilled. All eyes on this one.",
+          "morphPairs": [
+            { "yamzy": "Pureté inédite", "scrum": "Architectural milestone" },
+            { "yamzy": "Concile retient son souffle", "scrum": "All-team attention" }
+          ],
+          "camera": { "position": [0, 5, 0.5], "lookAt": [8, 3, 0], "duration": 2 },
+          "highlight": "mirror"
+        },
+        {
+          "atSeconds": 5,
+          "yamzyText": "🪞 La Glace ondule en or — un Mage Veilleur a déposé une revue émerveillée. Le reflet s'éclaircit.",
+          "scrumText": "📋 First reviewer (CTO) submits glowing approval. Mirror surface ripples gold. Trust signal max.",
+          "morphPairs": [
+            { "yamzy": "Revue émerveillée", "scrum": "Glowing approval" },
+            { "yamzy": "Reflet s'éclaircit", "scrum": "Trust signal max" }
+          ],
+          "camera": { "position": [3, 3.5, 0], "lookAt": [8.6, 3, 0], "duration": 2 },
+          "highlight": "mirror",
+          "invokeMethod": { "name": "mirrorRipple", "args": [0] }
+        },
+        {
+          "atSeconds": 11,
+          "yamzyText": "🗿 Les Sentinelles s'illuminent l'une après l'autre — toutes en or. L'unanimité est rare, sacrée.",
+          "scrumText": "📋 5 reviewers all approve. Every statue lights gold. Unanimous LGTM — extraordinary for an architecture PR.",
+          "morphPairs": [
+            { "yamzy": "Sentinelles en or", "scrum": "5/5 approvals" },
+            { "yamzy": "Unanimité sacrée", "scrum": "Unanimous LGTM" }
+          ],
+          "camera": { "position": [5, 3, 3], "lookAt": [8, 2, 0], "duration": 2 },
+          "highlight": "statue",
+          "invokeMethod": { "name": "statueIllumination" },
+          "emitCeremony": { "type": "approval", "label": "✨ #600 · 5/5 unanimous", "icon": "✨" }
+        },
+        {
+          "atSeconds": 17,
+          "yamzyText": "🟥 Le Tapis Sacré se déroule — bordé d'or, large comme une cathédrale. Le Chemin du Sacre invite à la fusion.",
+          "scrumText": "📋 PR #600 mergeable_now. Red carpet wider than usual = high-priority architectural merge. All gates green.",
+          "morphPairs": [
+            { "yamzy": "Chemin du Sacre", "scrum": "Mergeable mode" },
+            { "yamzy": "Cathédrale", "scrum": "High-priority merge" }
+          ],
+          "camera": { "position": [0, 3.5, 0], "lookAt": [8, 2, 0], "duration": 2 },
+          "highlight": "red-carpet",
+          "invokeMethod": { "name": "redCarpetReveal" },
+          "emitCeremony": { "type": "merge", "label": "🟥 #600 · mergeable", "icon": "🟥" }
+        },
+        {
+          "atSeconds": 22,
+          "yamzyText": "🏆 SPOTLIGHT ! Le rayon doré descend du dôme et couronne la Glace. Fusion historique — les Compagnons applaudissent à l'unisson.",
+          "scrumText": "📋 Release manager merges PR #600 to main. Spotlight crowns the mirror. Team-wide ovation in Slack. v3.0 era begins.",
+          "morphPairs": [
+            { "yamzy": "Fusion historique", "scrum": "v3.0 era begins" },
+            { "yamzy": "Compagnons applaudissent", "scrum": "Team ovation" }
+          ],
+          "camera": { "position": [0, 4, 0], "lookAt": [8, 2.5, 0], "duration": 2.5 },
+          "invokeMethod": { "name": "spotlightMergeable" },
+          "emitCeremony": { "type": "fame", "label": "🏆 #600 merged · v3.0 era", "icon": "🏆" }
+        }
+      ]
+    }
+  ],
+
+  "closingMessage": "🪶 Ainsi tourne le Concile : revue, verdict, fusion. Que tes Glaces reflètent toujours la pureté du code, jeune Mage."
+}

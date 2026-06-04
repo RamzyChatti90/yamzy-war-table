@@ -1,0 +1,211 @@
+{
+  "$comment": "🍇 Refinement Orchard tutorial — backlog grooming dans un verger. PlayExample 70s.",
+  "roomKey": "refinement-orchard",
+  "meta": {
+    "name": "Refinement Orchard",
+    "loreName": "Le Verger des Affinages",
+    "icon": "🍇",
+    "color": "#84cc16",
+    "summary": "Backlog grooming : fruits = tickets, mûrissent quand DoR OK.",
+    "oneLiner": "Backlog grooming : fruits = tickets, mûrissent quand DoR OK.",
+    "introLore": "🍇 Bienvenue au Verger des Affinages, jeune Mage. Ici poussent les Quêtes futures — chaque fruit est un ticket. Verts, ils sont encore bruts. Dorés, ils ont passé l'épreuve du Definition of Ready. Apprends à cueillir au bon moment, à scinder ce qui est trop gros, à estimer avec sagesse."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "tree",
+      "name": "Les Arbres du Verger",
+      "scrumName": "Backlog buckets (epic / theme / area)",
+      "desc": "6 arbres = catégories de backlog. Chaque arbre porte plusieurs fruits-tickets.",
+      "yamzyExplain": "Les Arbres sont les Familles de Quêtes — chacun porte une lignée de fruits qui partagent une même racine. Quand le vent souffle, leurs feuilles murmurent les priorités.",
+      "scrumExplain": "Each tree groups tickets by epic, theme, or feature area. Fruits hanging from a tree share a context. Trees sway with the team's collective focus.",
+      "interactions": ["clic arbre = scope tickets de l'arbre"]
+    },
+    {
+      "tutorialId": "fruit",
+      "name": "Les Fruits-Tickets",
+      "scrumName": "Backlog tickets (user stories)",
+      "desc": "Fruits sur les arbres = tickets. Vert = non affiné, jaune = en cours, doré = DoR OK.",
+      "yamzyExplain": "Chaque Fruit est une Quête en germe. Sa couleur révèle sa maturité : vert pâle pour les bourgeons, jaune pour ceux qu'on goûte, doré pour ceux qui sont prêts à tomber dans la sacoche.",
+      "scrumExplain": "Each fruit = 1 user story. Green=raw, yellow=being refined, gold=DoR met. Fruit size = story points (Fibonacci). Click to inspect or pluck.",
+      "interactions": ["clic fruit = détail ticket", "cueillir = sélectionner"]
+    },
+    {
+      "tutorialId": "basket",
+      "name": "Le Panier du Sprint",
+      "scrumName": "Sprint backlog basket",
+      "desc": "Panier au centre. Fruits dorés tombent dedans = sprint candidates.",
+      "yamzyExplain": "Le Panier est la Sacoche Sacrée du prochain Cycle — tout ce qui y tombe partira en Sprint. Seuls les fruits dorés ont l'honneur d'y entrer, jamais les verts.",
+      "scrumExplain": "Sprint candidates basket. Only DoR-validated (gold) tickets land here. At Sprint Planning, the team confirms which fruits make it into the actual sprint commitment.",
+      "interactions": ["clic panier = sprint scope"]
+    },
+    {
+      "tutorialId": "eagle",
+      "name": "L'Aigle Messager",
+      "scrumName": "Product Owner / Story groomer",
+      "desc": "Aigle qui survole le verger = présence du PO / facilitator.",
+      "yamzyExplain": "L'Aigle veille du ciel — il porte les nouveaux fruits aux arbres et juge depuis les hauteurs ce qui est mûr. C'est le Messager du Roi des Récoltes.",
+      "scrumExplain": "Symbolic Product Owner presence. Hovers above the orchard, watches refinement, drops new tickets onto trees. Ensures clarity from product perspective.",
+      "interactions": ["clic aigle = ouvrir PO panel"]
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🍇 Bienvenue au Verger des Affinages. Ici poussent les Quêtes futures, sur des arbres de toutes Familles.",
+      "scrumText": "📋 Welcome to the Refinement Orchard. Each tree = a backlog area. Each fruit = a user story. Time to groom.",
+      "morphPairs": [
+        { "yamzy": "Verger des Affinages", "scrum": "Backlog refinement" },
+        { "yamzy": "Quêtes futures", "scrum": "User stories" }
+      ],
+      "camera": { "position": [10, 8, 14], "lookAt": [0, 3, 0], "duration": 2.5 },
+      "wait": 8
+    },
+    {
+      "step": 2,
+      "yamzyText": "🌳 Les Arbres portent les Fruits. Chaque arbre est une Famille — une epic, un thème, un domaine.",
+      "scrumText": "📋 Trees group tickets by epic or theme. Each carries multiple fruits = user stories within that scope.",
+      "morphPairs": [
+        { "yamzy": "Arbres", "scrum": "Epics / Themes" },
+        { "yamzy": "Famille", "scrum": "Backlog area" }
+      ],
+      "camera": { "position": [-5, 5, 0], "lookAt": [-8, 3, -2], "duration": 2 },
+      "highlight": "tree",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🍏 Le Fruit vert est brut — manque d'acceptation criteria, pas de découpe, pas d'estimation.",
+      "scrumText": "📋 Green fruit = unrefined story. Missing acceptance criteria, breakdown, or estimate. Needs grooming.",
+      "morphPairs": [
+        { "yamzy": "Fruit vert", "scrum": "Unrefined story" },
+        { "yamzy": "brut", "scrum": "missing DoR criteria" }
+      ],
+      "camera": { "position": [-6, 4, 1], "lookAt": [-8, 3, -2], "duration": 2 },
+      "highlight": "fruit",
+      "wait": 9
+    },
+    {
+      "step": 4,
+      "yamzyText": "✂ Si le Fruit est trop gros — on le scinde en deux. Deux petits valent toujours mieux qu'un mastodonte.",
+      "scrumText": "📋 Stories too big (>8 pts) get split into smaller ones. Vertical slicing — each smaller story still delivers value end-to-end.",
+      "morphPairs": [
+        { "yamzy": "scinde en deux", "scrum": "split story" },
+        { "yamzy": "mastodonte", "scrum": "epic-sized story" }
+      ],
+      "camera": { "position": [-6, 4, 1], "lookAt": [-8, 3, -2], "duration": 2 },
+      "highlight": "fruit",
+      "wait": 9
+    },
+    {
+      "step": 5,
+      "yamzyText": "📏 Estimer = mesurer le Fruit. Suite de Fibonacci : 1, 2, 3, 5, 8, 13. Le Fruit grandit selon son poids.",
+      "scrumText": "📋 Planning Poker time. Estimate using Fibonacci (1,2,3,5,8,13). Fruit size visually scales with estimate.",
+      "morphPairs": [
+        { "yamzy": "mesurer le Fruit", "scrum": "estimate story" },
+        { "yamzy": "Fibonacci", "scrum": "Fibonacci scale" }
+      ],
+      "camera": { "position": [-5, 4, 1], "lookAt": [-8, 3, -2], "duration": 2 },
+      "highlight": "fruit",
+      "wait": 9
+    },
+    {
+      "step": 6,
+      "yamzyText": "✨ Quand le Fruit passe la Cérémonie du DoR, il devient Doré. Alors seulement, il peut tomber dans le Panier.",
+      "scrumText": "📋 DoR (Definition of Ready) gate : criteria, breakdown, estimate, dependencies OK. Fruit turns gold, ready for sprint planning.",
+      "morphPairs": [
+        { "yamzy": "Cérémonie du DoR", "scrum": "Definition of Ready check" },
+        { "yamzy": "Panier", "scrum": "Sprint backlog" }
+      ],
+      "camera": { "position": [4, 5, 4], "lookAt": [0, 1, 0], "duration": 2 },
+      "highlight": "basket",
+      "wait": 9
+    }
+  ],
+
+  "playExample": {
+    "duration": 70,
+    "description": "📜 Refinement complet en 70s : vue verger → cueillir → split → estimer → DoR → panier.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🍇 Le Verger s'éveille au matin. L'Aigle Messager survole — c'est l'heure de l'Affinage.",
+        "scrumText": "📋 Refinement session starts. Orchard alive. Product Owner (the eagle) circles to oversee.",
+        "morphPairs": [
+          { "yamzy": "Verger s'éveille", "scrum": "Refinement session" },
+          { "yamzy": "Aigle Messager", "scrum": "Product Owner" }
+        ],
+        "camera": { "position": [10, 8, 14], "lookAt": [0, 3, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 10,
+        "yamzyText": "🪜 Le premier Fruit est cueilli — \"User profile redesign\". On l'examine sous toutes les coutures.",
+        "scrumText": "📋 First story plucked : \"User profile redesign\". Team gathers around to clarify acceptance criteria.",
+        "morphPairs": [
+          { "yamzy": "Fruit cueilli", "scrum": "Story picked" },
+          { "yamzy": "sous toutes les coutures", "scrum": "acceptance criteria" }
+        ],
+        "camera": { "position": [-5, 4, 1], "lookAt": [-8, 3, -2], "duration": 2 },
+        "highlight": "fruit",
+        "invokeMethod": { "name": "pickFirstFruit" },
+        "emitCeremony": { "type": "harvest", "label": "🪜 Fruit cueilli", "icon": "🪜" }
+      },
+      {
+        "atSeconds": 22,
+        "yamzyText": "✂ Il est trop gros — on le scinde en deux. \"Partie A : avatar upload\", \"Partie B : profile fields\".",
+        "scrumText": "📋 Story too big (>8 pts). Split vertically : Part A=avatar upload, Part B=profile fields. Each independently shippable.",
+        "morphPairs": [
+          { "yamzy": "scinde en deux", "scrum": "vertical split" },
+          { "yamzy": "Partie A et B", "scrum": "Story A & B" }
+        ],
+        "camera": { "position": [-5, 4, 2], "lookAt": [-8, 3, -2], "duration": 2 },
+        "highlight": "fruit",
+        "invokeMethod": { "name": "splitFruit" },
+        "emitCeremony": { "type": "harvest", "label": "✂ Story split", "icon": "✂" }
+      },
+      {
+        "atSeconds": 35,
+        "yamzyText": "📏 Planning Poker — chacun annonce sa carte. Consensus à 3 points. Le Fruit grandit à sa juste taille.",
+        "scrumText": "📋 Planning Poker round. Team agrees on 3 points (Fibonacci). Fruit visually scales accordingly.",
+        "morphPairs": [
+          { "yamzy": "Planning Poker", "scrum": "Planning Poker" },
+          { "yamzy": "Consensus", "scrum": "Team estimate" }
+        ],
+        "camera": { "position": [-4, 4, 2], "lookAt": [-8, 3, -2], "duration": 2 },
+        "highlight": "fruit",
+        "invokeMethod": { "name": "estimateFibonacci" },
+        "emitCeremony": { "type": "harvest", "label": "📏 3 pts estimés", "icon": "📏" }
+      },
+      {
+        "atSeconds": 50,
+        "yamzyText": "✨ La Cérémonie du DoR — tous les critères sont là, le Fruit devient Doré. Il rayonne.",
+        "scrumText": "📋 DoR validated : criteria clear, dependencies OK, estimate set, mockups attached. Fruit turns gold.",
+        "morphPairs": [
+          { "yamzy": "Cérémonie du DoR", "scrum": "DoR check" },
+          { "yamzy": "Doré", "scrum": "Ready for sprint" }
+        ],
+        "camera": { "position": [-4, 4, 1], "lookAt": [-8, 3, -2], "duration": 2.5 },
+        "highlight": "fruit",
+        "invokeMethod": { "name": "dorCheck" },
+        "emitCeremony": { "type": "harvest", "label": "✨ DoR OK · fruit doré", "icon": "✨" }
+      },
+      {
+        "atSeconds": 65,
+        "yamzyText": "🧺 Le Fruit Doré tombe dans le Panier — il rejoindra le prochain Sprint.",
+        "scrumText": "📋 Story dropped into Sprint basket. Will be confirmed at Sprint Planning ceremony. Ready to ship.",
+        "morphPairs": [
+          { "yamzy": "Fruit Doré tombe", "scrum": "Story drops" },
+          { "yamzy": "prochain Sprint", "scrum": "Sprint backlog" }
+        ],
+        "camera": { "position": [4, 5, 4], "lookAt": [0, 1, 0], "duration": 2 },
+        "highlight": "basket",
+        "invokeMethod": { "name": "dropIntoBasket" },
+        "emitCeremony": { "type": "harvest", "label": "🧺 Sprint basket", "icon": "🧺" }
+      }
+    ]
+  },
+
+  "closingMessage": "🍇 Que tes affinages soient toujours patients, jeune Mage. Le Verger t'attend pour la prochaine récolte."
+}

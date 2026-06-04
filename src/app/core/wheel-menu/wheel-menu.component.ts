@@ -36,11 +36,22 @@ const FLOW_COLOR: Record<string, string> = {
   standalone: true,
   imports: [CommonModule, FormsModule],
   styles: [`
+    /* ── Spell-caster ADN : Henny Penny + Tinos + magenta #d54adf ─── */
+    @import url("https://fonts.googleapis.com/css2?family=Henny+Penny&family=Tinos:wght@400;700&display=swap");
+
+    :host {
+      --wm-accent: #d54adf;
+      --wm-bg: rgba(0, 0, 0, 0.86);
+      --wm-font-body: "Tinos", serif;
+      --wm-font-title: "Henny Penny", cursive;
+    }
+
     /* ── Backdrop ─────────────────────────────── */
     .wm-backdrop {
       position:fixed; inset:0; z-index:99985;
-      background:rgba(6,3,20,.44);
-      backdrop-filter:blur(4px);
+      background:rgba(0,0,0,.55);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
       animation:wm-fade .2s ease both;
     }
     @keyframes wm-fade { from{opacity:0} to{opacity:1} }
@@ -65,13 +76,14 @@ const FLOW_COLOR: Record<string, string> = {
       display:flex; align-items:center; justify-content:center;
       transform:translate(-50%,-50%);
       animation:wm-hub-in .32s cubic-bezier(.34,1.56,.64,1) both;
-      transition:box-shadow .2s, background .25s;
+      transition:box-shadow .2s, background .25s, filter .2s;
+      font-family: var(--wm-font-title);
     }
     @keyframes wm-hub-in {
       from{transform:translate(-50%,-50%) scale(0);opacity:0}
       to  {transform:translate(-50%,-50%) scale(1);opacity:1}
     }
-    .wm-hub:hover { filter:brightness(1.15); }
+    .wm-hub:hover { filter:brightness(1.2) drop-shadow(0 0 12px var(--wm-accent)); }
 
     /* ── Connector dashes ─────────────────────── */
     .wm-line {
@@ -91,6 +103,7 @@ const FLOW_COLOR: Record<string, string> = {
                scale(var(--s,0));
       opacity:var(--op,0);
       transition:transform .44s cubic-bezier(.34,1.56,.64,1), opacity .3s ease;
+      font-family: var(--wm-font-body);
     }
     .wm-orb.on { --s:1; --op:1; }
 
@@ -98,22 +111,31 @@ const FLOW_COLOR: Record<string, string> = {
       width:52px; height:52px; border-radius:50%;
       display:flex; align-items:center; justify-content:center;
       font-size:22px; border:2.5px solid transparent;
+      background-color: var(--wm-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       transition:transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s;
     }
     .wm-orb:hover .wm-avatar, .wm-orb.hov .wm-avatar {
       transform:scale(1.28);
-      box-shadow:0 6px 22px rgba(0,0,0,.4);
+      box-shadow:0 6px 22px color-mix(in srgb, var(--wm-accent) 45%, transparent);
     }
 
     .wm-label {
-      font-size:10px; font-weight:800; color:#fff;
-      background:rgba(8,4,28,.88);
-      border:1px solid rgba(255,255,255,.16);
-      padding:3px 9px; border-radius:8px;
+      font-family: var(--wm-font-body);
+      font-size:11px; font-weight:700; color:#fff;
+      background-color: var(--wm-bg);
+      border:1px solid color-mix(in srgb, var(--wm-accent) 45%, #333);
+      border-left:4px solid var(--wm-accent);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      padding:4px 10px; border-radius:8px;
       white-space:nowrap; opacity:0; pointer-events:none;
       transform:translateY(5px);
       transition:opacity .15s, transform .15s;
-      max-width:110px; overflow:hidden; text-overflow:ellipsis; text-align:center;
+      max-width:120px; overflow:hidden; text-overflow:ellipsis; text-align:center;
+      box-shadow: 0 4px 20px color-mix(in srgb, var(--wm-accent) 22%, transparent);
+      letter-spacing: 0.02em;
     }
     .wm-orb:hover .wm-label, .wm-orb.hov .wm-label {
       opacity:1; transform:translateY(0);
@@ -123,66 +145,84 @@ const FLOW_COLOR: Record<string, string> = {
     .wm-hint {
       position:fixed; z-index:99999;
       transform:translate(-50%,-50%);
-      color:rgba(255,255,255,.55); font-size:11px; font-weight:600;
+      font-family: var(--wm-font-title);
+      color: color-mix(in srgb, var(--wm-accent) 80%, #fff);
+      font-size:14px; font-weight:400;
       text-align:center; pointer-events:none; white-space:nowrap;
       animation:wm-fade .3s ease both;
+      text-shadow: 0 0 12px color-mix(in srgb, var(--wm-accent) 60%, transparent);
+      letter-spacing: 0.04em;
     }
 
     /* ── Max favorites toast ──────────────────── */
     .wm-toast {
       position:fixed; z-index:100000;
       bottom:32px; left:50%; transform:translateX(-50%);
-      background:linear-gradient(135deg,#1e0a4e,#2d1080);
-      border:1px solid rgba(139,92,246,.4);
+      background-color: var(--wm-bg);
+      border:1px solid color-mix(in srgb, var(--wm-accent) 45%, #333);
+      border-left:4px solid var(--wm-accent);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
       color:#fff; border-radius:16px;
       padding:14px 20px 16px;
       max-width:340px; width:90vw;
-      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      box-shadow:0 8px 40px color-mix(in srgb, var(--wm-accent) 22%, transparent);
       animation:wm-fade .25s ease both;
+      font-family: var(--wm-font-body);
     }
-    .wm-toast-title { font-size:12px; font-weight:800; color:#a78bfa; margin-bottom:4px; }
-    .wm-toast-msg   { font-size:11px; color:rgba(255,255,255,.75); line-height:1.5; }
+    .wm-toast-title {
+      font-family: var(--wm-font-title);
+      font-size:16px; font-weight:400;
+      color: var(--wm-accent);
+      margin-bottom:4px;
+      letter-spacing: 0.03em;
+    }
+    .wm-toast-msg   { font-size:13px; color:rgba(255,255,255,.85); line-height:1.6; font-family: var(--wm-font-body); }
     .wm-toast-close {
       position:absolute; top:10px; right:12px;
       background:none; border:none; color:rgba(255,255,255,.5);
       font-size:16px; cursor:pointer; line-height:1;
     }
+    .wm-toast-close:hover { color: var(--wm-accent); }
   `],
   template: `
 <!-- Wheel Edit Mode Panel -->
 <div *ngIf="editMode" class="wm-edit-panel" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100001;
-  background:#fff;border-radius:20px;box-shadow:0 25px 80px rgba(0,0,0,0.3);padding:24px;width:380px;max-height:80vh;overflow-y:auto;">
+  background-color:rgba(0,0,0,0.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid color-mix(in srgb, #d54adf 45%, #333);border-left:4px solid #d54adf;
+  border-radius:20px;box-shadow:0 8px 40px color-mix(in srgb, #d54adf 22%, transparent);
+  padding:24px;width:380px;max-height:80vh;overflow-y:auto;color:#f0e6f5;font-family:'Tinos',serif;">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-    <h3 style="margin:0;font-size:16px;font-weight:800;color:#1a1a2e">⚙️ Personnaliser la Wheel</h3>
-    <button (click)="editMode=false" style="background:none;border:none;font-size:18px;cursor:pointer">✕</button>
+    <h3 style="margin:0;font-family:'Henny Penny',cursive;font-size:22px;font-weight:400;color:#d54adf;letter-spacing:0.03em;text-shadow:0 0 14px color-mix(in srgb, #d54adf 45%, transparent)">⚙️ Personnaliser la Wheel</h3>
+    <button (click)="editMode=false" style="background:none;border:none;font-size:18px;cursor:pointer;color:rgba(240,230,245,0.6)">✕</button>
   </div>
   <div *ngFor="let cat of wheelCategories" style="margin-bottom:12px">
-    <p style="font-size:10px;font-weight:700;color:#6C757D;text-transform:uppercase;margin:0 0 6px">{{cat}}</p>
+    <p style="font-family:'Henny Penny',cursive;font-size:13px;font-weight:400;color:#d54adf;text-transform:uppercase;margin:0 0 6px;letter-spacing:0.08em;opacity:0.85">{{cat}}</p>
     <div *ngFor="let item of allWheelItems; let i = index">
-      <div *ngIf="item.category === cat" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;margin-bottom:4px"
-        [style.background]="item.enabled ? '#f0fdf4' : '#f9fafb'">
+      <div *ngIf="item.category === cat" style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;margin-bottom:4px;border:1px solid color-mix(in srgb, #d54adf 20%, transparent)"
+        [style.background]="item.enabled ? 'rgba(213,74,223,0.18)' : 'rgba(255,255,255,0.04)'">
         <span style="font-size:16px">{{item.icon}}</span>
-        <span style="flex:1;font-size:12px;font-weight:600">{{item.label}}</span>
-        <button (click)="moveItem(i,-1)" style="background:none;border:none;cursor:pointer;font-size:10px;opacity:0.5">↑</button>
-        <button (click)="moveItem(i,1)" style="background:none;border:none;cursor:pointer;font-size:10px;opacity:0.5">↓</button>
+        <span style="flex:1;font-family:'Tinos',serif;font-size:13px;font-weight:700;color:#f0e6f5">{{item.label}}</span>
+        <button (click)="moveItem(i,-1)" style="background:none;border:none;cursor:pointer;font-size:11px;color:rgba(240,230,245,0.55)">↑</button>
+        <button (click)="moveItem(i,1)" style="background:none;border:none;cursor:pointer;font-size:11px;color:rgba(240,230,245,0.55)">↓</button>
         <label style="position:relative;width:36px;height:20px;cursor:pointer">
           <input type="checkbox" [(ngModel)]="item.enabled" style="display:none">
-          <span [style.background]="item.enabled ? '#22c55e' : '#d1d5db'" style="position:absolute;inset:0;border-radius:10px;transition:0.2s"></span>
-          <span [style.left]="item.enabled ? '18px' : '2px'" style="position:absolute;top:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></span>
+          <span [style.background]="item.enabled ? '#d54adf' : 'rgba(255,255,255,0.18)'" style="position:absolute;inset:0;border-radius:10px;transition:0.2s"></span>
+          <span [style.left]="item.enabled ? '18px' : '2px'" style="position:absolute;top:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.4)"></span>
         </label>
       </div>
     </div>
   </div>
   <div style="display:flex;gap:8px;margin-top:16px">
-    <button (click)="saveWheelConfig()" style="flex:1;padding:8px;background:#5412fc;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer">
+    <button (click)="saveWheelConfig()" style="flex:1;padding:9px;background:color-mix(in srgb, #d54adf 85%, #000);color:#fff;border:1px solid #d54adf;border-left:4px solid #d54adf;border-radius:10px;font-family:'Henny Penny',cursive;font-weight:400;font-size:14px;letter-spacing:0.04em;cursor:pointer;box-shadow:0 4px 18px color-mix(in srgb, #d54adf 35%, transparent)">
       💾 Sauvegarder
     </button>
-    <button (click)="resetWheelConfig()" style="padding:8px 12px;background:#f3f4f6;border:none;border-radius:10px;font-size:12px;cursor:pointer">
+    <button (click)="resetWheelConfig()" style="padding:9px 14px;background:rgba(255,255,255,0.06);color:#f0e6f5;border:1px solid color-mix(in srgb, #d54adf 30%, #333);border-radius:10px;font-family:'Tinos',serif;font-size:13px;font-weight:700;cursor:pointer">
       🔄 Reset
     </button>
   </div>
 </div>
-<div *ngIf="editMode" (click)="editMode=false" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100000"></div>
+<div *ngIf="editMode" (click)="editMode=false" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:100000"></div>
 
 <ng-container *ngIf="visible">
   <div class="wm-backdrop" (click)="close()"></div>
@@ -192,7 +232,7 @@ const FLOW_COLOR: Record<string, string> = {
     class="wm-ring"
     [style.left]="cx+'px'" [style.top]="cy+'px'"
     [style.width]="r.size+'px'" [style.height]="r.size+'px'"
-    [style.border]="'1.5px solid rgba(139,92,246,'+r.op+')'"
+    [style.border]="'1.5px solid rgba(213,74,223,'+r.op+')'"
     [style.animation-delay]="(i*.32)+'s'">
   </div>
 
@@ -211,7 +251,7 @@ const FLOW_COLOR: Record<string, string> = {
     [style.width]="'60px'" [style.height]="'60px'"
     [style.background]="level>0 ? 'rgba(255,255,255,.1)' : 'linear-gradient(135deg,'+hubColor+','+hubColor+'bb)'"
     [style.border]="level>0 ? '2px solid rgba(255,255,255,.22)' : 'none'"
-    [style.box-shadow]="level>0 ? '0 4px 20px rgba(0,0,0,.3)' : '0 0 0 5px rgba(84,18,252,.2),0 8px 32px rgba(84,18,252,.5)'"
+    [style.box-shadow]="level>0 ? '0 4px 20px rgba(0,0,0,.3)' : '0 0 0 5px rgba(213,74,223,.2),0 8px 40px rgba(213,74,223,.45)'"
     (click)="onHubClick()">
     <!-- Back arrow -->
     <svg *ngIf="level>0" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -271,35 +311,35 @@ const FLOW_COLOR: Record<string, string> = {
 
 <!-- Handoff request modal -->
 <div *ngIf="handoffModal"
-  style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;">
-  <div style="background:#1a0540;border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:28px;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5);">
+  style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;font-family:'Tinos',serif;">
+  <div style="background-color:rgba(0,0,0,0.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid color-mix(in srgb, #d54adf 45%, #333);border-left:4px solid #d54adf;border-radius:20px;padding:28px;max-width:380px;width:90%;box-shadow:0 8px 40px color-mix(in srgb, #d54adf 22%, transparent);color:#f0e6f5;">
     <div style="font-size:28px;text-align:center;margin-bottom:12px;">🔀</div>
-    <div style="color:#e2d9f3;font-size:15px;font-weight:700;text-align:center;margin-bottom:6px;">
+    <div style="font-family:'Henny Penny',cursive;color:#d54adf;font-size:20px;font-weight:400;text-align:center;margin-bottom:6px;letter-spacing:0.03em;text-shadow:0 0 14px color-mix(in srgb, #d54adf 45%, transparent);">
       Demande de mise en relation
     </div>
-    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border-radius:12px;padding:12px;margin:14px 0;">
+    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid color-mix(in srgb, #d54adf 25%, transparent);border-radius:12px;padding:12px;margin:14px 0;">
       <img *ngIf="handoffModal.requesterAvatar" [src]="handoffModal.requesterAvatar"
-        style="width:40px;height:40px;border-radius:50%;border:2px solid #7c3aed;">
+        style="width:40px;height:40px;border-radius:50%;border:2px solid #d54adf;">
       <div *ngIf="!handoffModal.requesterAvatar"
-        style="width:40px;height:40px;border-radius:50%;background:#5412fc;display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>
+        style="width:40px;height:40px;border-radius:50%;background:color-mix(in srgb, #d54adf 80%, #000);display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>
       <div>
-        <div style="color:#fff;font-weight:700;font-size:14px;">{{handoffModal.requesterName}}</div>
-        <div style="color:#9d8ec8;font-size:12px;">{{handoffModal.projectName}}</div>
+        <div style="color:#fff;font-family:'Tinos',serif;font-weight:700;font-size:14px;">{{handoffModal.requesterName}}</div>
+        <div style="color:rgba(240,230,245,0.65);font-family:'Tinos',serif;font-style:italic;font-size:12px;">{{handoffModal.projectName}}</div>
       </div>
     </div>
-    <div style="color:#c4b5e8;font-size:13px;line-height:1.5;margin-bottom:16px;background:rgba(255,255,255,.04);border-radius:10px;padding:10px;">
+    <div style="color:rgba(240,230,245,0.82);font-family:'Tinos',serif;font-size:13px;line-height:1.6;margin-bottom:16px;background:rgba(255,255,255,.04);border:1px solid color-mix(in srgb, #d54adf 18%, transparent);border-radius:10px;padding:10px;">
       {{handoffModal.summary}}
     </div>
-    <div *ngIf="handoffModal.expiresAt" style="color:#f59e0b;font-size:11px;text-align:center;margin-bottom:14px;">
+    <div *ngIf="handoffModal.expiresAt" style="color:#f59e0b;font-family:'Tinos',serif;font-size:11px;font-weight:700;text-align:center;margin-bottom:14px;">
       ⏰ Expire dans 5 minutes
     </div>
     <div style="display:flex;gap:10px;">
       <button (click)="acceptHandoff(handoffModal.handoffId)"
-        style="flex:1;padding:12px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:12px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;">
+        style="flex:1;padding:12px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:12px;color:#fff;font-family:'Henny Penny',cursive;font-weight:400;font-size:15px;letter-spacing:0.04em;cursor:pointer;box-shadow:0 4px 18px rgba(34,197,94,0.35);">
         ✅ Répondre
       </button>
       <button (click)="declineHandoff(handoffModal.handoffId)"
-        style="flex:1;padding:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:12px;color:#9d8ec8;font-weight:600;font-size:14px;cursor:pointer;">
+        style="flex:1;padding:12px;background:rgba(255,255,255,.08);border:1px solid color-mix(in srgb, #d54adf 30%, #333);border-radius:12px;color:rgba(240,230,245,0.7);font-family:'Tinos',serif;font-weight:700;font-size:13px;cursor:pointer;">
         ❌ Pas disponible
       </button>
     </div>
@@ -321,7 +361,7 @@ export class WheelMenuComponent implements OnDestroy {
   radius   = 130;
   hovIdx   = -1;
   level    = 0;
-  hubColor = '#5412fc';
+  hubColor = '#d54adf';
   loading  = false;
   maxToast: string | null = null;
   editMode = false;
@@ -397,7 +437,7 @@ export class WheelMenuComponent implements OnDestroy {
   private openMainAt(x: number, y: number) {
     this.cx = x; this.cy = y;
     this.level = 0;
-    this.hubColor = '#5412fc';
+    this.hubColor = '#d54adf';
     this.loadItems(this.getMainActions());
     this.visible = true;
     document.body.style.userSelect = 'none';
@@ -506,7 +546,7 @@ export class WheelMenuComponent implements OnDestroy {
   // ── Agents sub-wheel ───────────────────────────────────────
   private openAgentsWheel() {
     this.level = 1;
-    this.hubColor = '#5412fc';
+    this.hubColor = '#d54adf';
     this.loading = true;
     this.cdr.detectChanges();
 
@@ -692,7 +732,7 @@ export class WheelMenuComponent implements OnDestroy {
   // ── Back to main ───────────────────────────────────────────
   private goBack() {
     this.level = 0;
-    this.hubColor = '#5412fc';
+    this.hubColor = '#d54adf';
     this.swapItems(this.getMainActions());
   }
 

@@ -1,0 +1,421 @@
+{
+  "$comment": "v2 — dual narrator (Yamzy lore ↔ Sales pipeline) + cinematic playExample 48s. Sales tavern story arc.",
+  "roomKey": "card-tavern",
+  "meta": {
+    "name": "Card Tavern",
+    "loreName": "La Taverne aux Cartes du Destin",
+    "icon": "🎴",
+    "color": "#fbbf24",
+    "summary": "Une taverne médiévale 3D où chaque carte sur la table est un prospect, l'aubergiste un sales coach et le drapeau hissé un contrat signé.",
+    "introLore": "🪶 Bienvenue à la Taverne aux Cartes, jeune Mage. Pose ton capuchon, approche la Table Ronde. Pour le sales manager, c'est ton CRM vivant : Lead → Qualified → Demo → Proposal → Closed. Chaque carte révélée est un prospect qualifié, chaque drapeau hissé un contrat signé."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "card",
+      "name": "Les Cartes du Destin",
+      "scrumName": "Leads / Prospects",
+      "desc": "Cartes étalées en arc sur la Table Ronde — chacune est un prospect actif du pipeline.",
+      "yamzyExplain": "Chaque Carte est un voyageur encore inconnu. Tant qu'elle est face cachée, son destin reste secret. Une fois retournée, son Tier brille — bleu pour les Apprentis, doré pour les Compagnons, violet pour les Seigneurs.",
+      "scrumExplain": "Active prospects in the sales pipeline. Face-down = unqualified lead, revealed = qualified prospect with known tier (STARTER/PRO/ENTERPRISE). Color encodes deal size.",
+      "interactions": ["clic carte = fiche prospect", "flip = qualification atteinte"]
+    },
+    {
+      "tutorialId": "innkeeper",
+      "name": "L'Aubergiste Conseiller",
+      "scrumName": "Sales Lead / Coach",
+      "desc": "PNJ moustachu derrière son bar — il lève sa chope quand un deal mérite engagement.",
+      "yamzyExplain": "L'Aubergiste a vu passer mille caravanes. Il connaît les signaux faibles, les bonnes affaires, les arnaqueurs. Quand sa chope se lève, c'est que la prochaine carte vaut le coup d'être jouée.",
+      "scrumExplain": "Sales lead / coaching avatar. His cheer (raised tankard, hop animation) signals deal engagement — moment to push outreach, demo or negotiation.",
+      "interactions": ["clic aubergiste = recommandation contextualisée", "cheer = engagement deal"]
+    },
+    {
+      "tutorialId": "treasure-map",
+      "name": "La Carte aux Trésors",
+      "scrumName": "Territory / Market segmentation",
+      "desc": "Parchemin mural à 3 régions colorées (EMEA verte, USA bleue, APAC violette) + X rouge.",
+      "yamzyExplain": "La Carte aux Trésors révèle les territoires à conquérir. Quand le Mage planifie un raid outbound, le parchemin s'illumine — chaque région pulse pour annoncer où frapper en premier.",
+      "scrumExplain": "Geographic territory / market segmentation chart. Regions glow when targeted by outbound campaigns. The X marks the next-best-territory based on TAM × penetration gap.",
+      "interactions": ["clic carte = détail région", "unfurl = territoire ciblé"]
+    },
+    {
+      "tutorialId": "tankard",
+      "name": "Les Chopes du Bar",
+      "scrumName": "Team engagement / Celebration metric",
+      "desc": "Mugs d'hydromel alignés sur le comptoir — trinquent lors d'une big win collective.",
+      "yamzyExplain": "Les Chopes attendent leur heure. Quand un grand Deal tombe, les Compagnons les saisissent et trinquent en chœur — leurs cliquetis résonnent jusqu'à la cave. C'est le rite de la victoire partagée.",
+      "scrumExplain": "Sales team morale / celebration tokens. Cheers animation triggers on big wins (>€3000 MRR). Reflects shared victory — public Slack mention, ring the gong, ARR bump visible.",
+      "interactions": ["cheers = celebration big win"]
+    },
+    {
+      "tutorialId": "banner",
+      "name": "La Bannière de Victoire",
+      "scrumName": "Contract signed flag",
+      "desc": "Drapeau d'or rangé sous le plafond — descend en majesté quand un contrat est signé.",
+      "yamzyExplain": "La Bannière dort entre les poutres jusqu'au jour fasté. Lorsqu'un Seigneur scelle un pacte avec le Royaume, elle se déroule en cascade dorée — la Taverne entière la voit, et la mémoire en garde trace.",
+      "scrumExplain": "Contract-signed flag, dramatic visual marker. Hoisted (animated lower from ceiling) on every won deal. Doubles as an ARR milestone marker — bigger flag for bigger contracts.",
+      "interactions": ["hoist = contract signed"]
+    },
+    {
+      "tutorialId": "rats",
+      "name": "Les Rats du Churn",
+      "scrumName": "Churn risk indicators",
+      "desc": "Petits rats aux yeux rouges qui rongent une carte spécifique — signal compte à risque.",
+      "yamzyExplain": "Les Rats sont la malédiction de la Taverne. Ils sortent dès qu'une carte commence à pourrir — signal usage en chute, paiement en retard. Si tu n'agis pas, ils dévorent la carte et le client s'en va.",
+      "scrumExplain": "Visual churn-risk warning. Spawn near prospects flagged churnRisk=true. Drives urgent retention plays (CSM outreach, account review)."
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue à la Taverne aux Cartes, jeune Mage. Approche la Table Ronde — ici, chaque carte est un destin, chaque pièce d'or un euro de MRR.",
+      "scrumText": "📋 Welcome to your Sales Tavern. Every card on this table = a prospect in your pipeline. From Lead to Closed, each row tells a story. CRM dashboard goes 3D.",
+      "morphPairs": [
+        { "yamzy": "Taverne aux Cartes", "scrum": "Sales pipeline" },
+        { "yamzy": "Table Ronde", "scrum": "Active deals board" }
+      ],
+      "camera": { "position": [0, 6, 12], "lookAt": [0, 1, 0], "duration": 2.5 },
+      "wait": 8
+    },
+    {
+      "step": 2,
+      "yamzyText": "🎴 Les Cartes du Destin reposent sur la table. Face cachée = lead brut. Face révélée = prospect qualifié, son Tier brille — bleu Apprenti, doré Compagnon, violet Seigneur.",
+      "scrumText": "📋 Each card = a lead. Face-down means not-yet-qualified. Flipped reveals the deal tier : STARTER (blue), PRO (gold), ENTERPRISE (purple). Color signals deal size at a glance.",
+      "morphPairs": [
+        { "yamzy": "Carte du Destin", "scrum": "Lead" },
+        { "yamzy": "Carte révélée", "scrum": "Qualified prospect" }
+      ],
+      "camera": { "position": [0, 3.5, 5], "lookAt": [0, 1, 0], "duration": 2 },
+      "highlight": "card",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "👨‍🍳 Derrière le bar, l'Aubergiste à la moustache de sage. Il observe ton jeu, lève sa chope quand un deal mérite engagement — fais-lui confiance.",
+      "scrumText": "📋 Your sales lead / coach. Watches the pipeline, signals when a deal is ripe for engagement (cheer animation = push now). His judgment compresses years of intuition.",
+      "morphPairs": [
+        { "yamzy": "Aubergiste salue", "scrum": "Sales engagement" },
+        { "yamzy": "Conseiller à la chope", "scrum": "Sales coach trigger" }
+      ],
+      "camera": { "position": [3, 3.5, 0], "lookAt": [5, 1.5, -4], "duration": 2 },
+      "highlight": "innkeeper",
+      "wait": 9
+    },
+    {
+      "step": 4,
+      "yamzyText": "🗺 Sur le mur du fond, la Carte aux Trésors — trois régions à conquérir. Quand le parchemin s'éveille, c'est qu'un raid outbound se prépare.",
+      "scrumText": "📋 Territory / market segmentation board. EMEA (green), USA (blue), APAC (purple). When regions pulse, an outbound campaign is being planned for that territory.",
+      "morphPairs": [
+        { "yamzy": "Carte aux Trésors", "scrum": "Territory map" },
+        { "yamzy": "Régions du Royaume", "scrum": "Market segments" }
+      ],
+      "camera": { "position": [-1, 4, 0], "lookAt": [-4, 3.5, -10], "duration": 2.2 },
+      "highlight": "treasure-map",
+      "invokeMethod": { "name": "treasureMapUnfurl" },
+      "wait": 10
+    },
+    {
+      "step": 5,
+      "yamzyText": "🍻 Sur le comptoir, les Chopes alignées. Elles attendent la grande victoire — quand un Seigneur signe, elles tintent et trinquent ensemble.",
+      "scrumText": "📋 The team's cheers metric. Tankards lift and clink on big wins (>€3K MRR). Mirrors a real sales floor : public gong, Slack celebration, shared morale spike.",
+      "morphPairs": [
+        { "yamzy": "Chopes trinquent", "scrum": "Team cheers" },
+        { "yamzy": "Hydromel coule", "scrum": "Big win celebrated" }
+      ],
+      "camera": { "position": [4, 3, -2], "lookAt": [6, 1.4, -5], "duration": 2 },
+      "highlight": "tankard",
+      "wait": 8
+    },
+    {
+      "step": 6,
+      "yamzyText": "🚩 Et regarde au plafond — la Bannière de Victoire dort entre les poutres. Le jour où un contrat est scellé, elle descend en majesté dorée.",
+      "scrumText": "📋 The contract-signed banner. Hoisted at every won deal. Acts as an ARR milestone marker — drama for the win moment, visible to the whole tavern.",
+      "morphPairs": [
+        { "yamzy": "Bannière de Victoire", "scrum": "Contract signed flag" },
+        { "yamzy": "Drapeau hissé", "scrum": "Contract signed" }
+      ],
+      "camera": { "position": [0, 4.5, 6], "lookAt": [0, 4, 0], "duration": 2.2 },
+      "highlight": "banner",
+      "invokeMethod": { "name": "bannerHoist" },
+      "wait": 10
+    },
+    {
+      "step": 7,
+      "yamzyText": "🐀 Mais attention aux Rats du Churn. Yeux rouges, queues frémissantes — ils rongent les comptes au bord de la chute. Agis avant qu'ils ne dévorent la carte.",
+      "scrumText": "📋 Churn-risk indicators. Vermin spawn around at-risk accounts (usage drop, late payment). Trigger retention plays before the logo is lost. Your daily SaaS reality.",
+      "morphPairs": [
+        { "yamzy": "Rats du Churn", "scrum": "Churn risk" },
+        { "yamzy": "Carte rongée", "scrum": "At-risk account" }
+      ],
+      "camera": { "position": [3, 2.5, 4], "lookAt": [1.5, 1.2, 1.4], "duration": 2 },
+      "wait": 9
+    },
+    {
+      "step": 8,
+      "yamzyText": "✨ Tu connais la Taverne. À toi de jouer tes cartes, de hisser ta bannière, et de faire trinquer tes Compagnons. Bonne chasse, jeune Mage.",
+      "scrumText": "📋 You've toured the Sales Tavern. Click any card for prospect details, watch the innkeeper cheer your wins, and let Yamzy animate a full quarter.",
+      "camera": { "position": [0, 6, 12], "lookAt": [0, 1, 0], "duration": 2.5 },
+      "wait": 7
+    }
+  ],
+
+  "playExample": {
+    "duration": 48,
+    "description": "📜 Un trimestre Q1 à la Taverne en 48s : ouverture → distribution prospects → qualification → engagement aubergiste → territoire ciblé → trump card closed → bannière hissée → célébration. Caméra cinéma + dual narrateur.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Trimestre Q1. La Taverne s'éveille — l'Aubergiste essuie ses verres, la flamme crépite. Le Mage stratège entre.",
+        "scrumText": "📋 Q1 kickoff. Sales tavern opens. Pipeline empty, team ready, coffee brewed. Time to fill the funnel.",
+        "morphPairs": [
+          { "yamzy": "Taverne s'éveille", "scrum": "Q1 kickoff" },
+          { "yamzy": "Mage stratège entre", "scrum": "Sales floor open" }
+        ],
+        "camera": { "position": [0, 6, 12], "lookAt": [0, 1, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 5,
+        "yamzyText": "🎴 Distribution sacrée — l'Aubergiste lance trois nouvelles Cartes du Destin sur la Table. Le Royaume offre ses voyageurs inconnus.",
+        "scrumText": "📋 Prospect import. 3 fresh leads land in the pipeline — outbound lists, inbound forms, referrals. Cards drop, hover, settle.",
+        "morphPairs": [
+          { "yamzy": "Distribution sacrée", "scrum": "Lead intake" },
+          { "yamzy": "Cartes du Destin", "scrum": "New leads" }
+        ],
+        "camera": { "position": [0, 3.5, 5], "lookAt": [0, 1, 0], "duration": 2 },
+        "highlight": "card",
+        "invokeMethod": { "name": "cardDeal" }
+      },
+      {
+        "atSeconds": 12,
+        "yamzyText": "🃏 Première révélation — une Carte se retourne. Le Mage découvre un Compagnon doré, prospect qualifié, son Tier brille au grand jour.",
+        "scrumText": "📋 Qualification call done. Lead → Qualified Prospect. BANT verified, demo scheduled. Card flips, golden glow reveals PRO tier.",
+        "morphPairs": [
+          { "yamzy": "Carte se retourne", "scrum": "Qualified prospect" },
+          { "yamzy": "Compagnon doré", "scrum": "PRO tier" }
+        ],
+        "camera": { "position": [1, 3, 4], "lookAt": [0, 1, 0], "duration": 2 },
+        "highlight": "card",
+        "invokeMethod": { "name": "cardFlip" }
+      },
+      {
+        "atSeconds": 19,
+        "yamzyText": "👨‍🍳 L'Aubergiste lève sa chope ! Un deal mérite engagement. Sa moustache frémit — c'est le moment de pousser, dit-il.",
+        "scrumText": "📋 Sales lead engages. Coach signals : this is the deal to push today. Demo call, ROI brief, decision-maker meeting. Action triggered.",
+        "morphPairs": [
+          { "yamzy": "Aubergiste lève sa chope", "scrum": "Sales engagement" },
+          { "yamzy": "Moustache frémit", "scrum": "Coach trigger" }
+        ],
+        "camera": { "position": [3, 3.5, 0], "lookAt": [5, 1.5, -4], "duration": 2 },
+        "highlight": "innkeeper",
+        "invokeMethod": { "name": "innkeeperReact" }
+      },
+      {
+        "atSeconds": 26,
+        "yamzyText": "🗺 La Carte aux Trésors s'éveille ! Les régions pulsent — EMEA, USA, APAC. Le Mage choisit son prochain territoire de raid.",
+        "scrumText": "📋 Territory targeted. Map glows on the next-best-segment. Outbound campaign launches : EMEA ENTERPRISE focus, 50 accounts in queue.",
+        "morphPairs": [
+          { "yamzy": "Carte s'éveille", "scrum": "Territory targeted" },
+          { "yamzy": "Régions pulsent", "scrum": "Market segments highlighted" }
+        ],
+        "camera": { "position": [-1, 4, 0], "lookAt": [-4, 3.5, -10], "duration": 2 },
+        "highlight": "treasure-map",
+        "invokeMethod": { "name": "treasureMapUnfurl" }
+      },
+      {
+        "atSeconds": 33,
+        "yamzyText": "✨ ATOUT MAGISTRAL ! La carte centrale s'embrase en or — le Seigneur a signé. Le deal est conclu, le Royaume tremble de joie.",
+        "scrumText": "📋 Deal closed-won ! Center card pulses gold. Contract executed, ARR locked. Big logo signed, sales team scores velocity points.",
+        "morphPairs": [
+          { "yamzy": "Atout magistral", "scrum": "Closed-won deal" },
+          { "yamzy": "Seigneur a signé", "scrum": "Contract executed" }
+        ],
+        "camera": { "position": [0, 3.5, 5], "lookAt": [0, 1, 0], "duration": 2.5 },
+        "highlight": "card",
+        "invokeMethod": { "name": "trumpcardTwist" },
+        "emitCeremony": { "type": "legend", "label": "✨ Deal closed · ENTERPRISE", "icon": "✨" }
+      },
+      {
+        "atSeconds": 40,
+        "yamzyText": "🚩 La Bannière de Victoire descend ! Drapeau hissé en cascade dorée — le contrat est officiellement scellé devant la Taverne entière.",
+        "scrumText": "📋 Contract signed flag hoisted. Public win visible team-wide : Slack ping, gong rung, ARR meter bumped. Morale spike confirmed.",
+        "morphPairs": [
+          { "yamzy": "Bannière descend", "scrum": "Contract signed flag" },
+          { "yamzy": "Drapeau hissé", "scrum": "Contract signed" }
+        ],
+        "camera": { "position": [0, 4.5, 6], "lookAt": [0, 3.5, 0], "duration": 2 },
+        "highlight": "banner",
+        "invokeMethod": { "name": "bannerHoist" },
+        "emitCeremony": { "type": "legend", "label": "🚩 Bannière hissée · contrat signé", "icon": "🚩" }
+      },
+      {
+        "atSeconds": 45,
+        "yamzyText": "🎉 Célébration finale — les Compagnons saisissent leurs chopes, trinquent en chœur ! L'hydromel coule, le Tonneau monte, la Taverne chante.",
+        "scrumText": "📋 Team celebration. Tankards cheers, ARR barrel rises. Quarter close announced, commission accruals visible, morale at peak.",
+        "morphPairs": [
+          { "yamzy": "Compagnons trinquent", "scrum": "Team cheers" },
+          { "yamzy": "Hydromel coule", "scrum": "ARR commission live" }
+        ],
+        "camera": { "position": [4, 3, -2], "lookAt": [6, 1.4, -5], "duration": 2 },
+        "highlight": "tankard",
+        "invokeMethod": { "name": "triggerCelebration" },
+        "emitCeremony": { "type": "legend", "label": "🎉 LÉGENDE · Big Win Q1", "icon": "🎉" }
+      }
+    ]
+  },
+
+  "additionalDemos": [
+    {
+      "name": "🚨 Crisis · Lost Whale",
+      "icon": "🚨",
+      "duration": 24,
+      "description": "🚨 Drame à la Taverne — un Seigneur quitte la table, une carte se retourne en grimace, l'Aubergiste pose sa chope. Territoire abandonné, deal perdu en fin de quarter.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🌫 Fin de soirée trouble — la Taverne est silencieuse, un voyageur s'éloigne sans signer. L'Aubergiste fronce les sourcils.",
+          "scrumText": "📋 End of Q deadline approaches. ENTERPRISE deal in final negotiation. Champion ghosted 72h. Coach sees the red flags.",
+          "morphPairs": [
+            { "yamzy": "Voyageur s'éloigne", "scrum": "Champion ghosted" },
+            { "yamzy": "Aubergiste fronce", "scrum": "Coach flags risk" }
+          ],
+          "camera": { "position": [0, 6, 12], "lookAt": [0, 1, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 5,
+          "yamzyText": "🃏 Une Carte se retourne — mais son éclat est terne, presque gris. Le Seigneur attendu ne sera pas. Le destin grince.",
+          "scrumText": "📋 Card flips to closed-LOST · ENTERPRISE deal disqualified. Reason: chose competitor pricing. €4500 MRR slipping out of pipeline.",
+          "morphPairs": [
+            { "yamzy": "Éclat terne", "scrum": "Closed-lost status" },
+            { "yamzy": "Seigneur attendu ne sera pas", "scrum": "€4500 MRR lost" }
+          ],
+          "camera": { "position": [1, 3, 4], "lookAt": [0, 1, 0], "duration": 2 },
+          "highlight": "card",
+          "invokeMethod": { "name": "cardFlip" },
+          "emitCeremony": { "type": "owl", "label": "🚨 Deal LOST · €4500 MRR", "icon": "🚨" }
+        },
+        {
+          "atSeconds": 11,
+          "yamzyText": "👨‍🍳 L'Aubergiste pose lentement sa chope, soupire dans sa moustache — pas de cheers ce soir. Le bar reste muet.",
+          "scrumText": "📋 Sales coach signals stand-down. No engagement push left to make. Pipeline review scheduled to debrief. Morale dip recorded.",
+          "morphPairs": [
+            { "yamzy": "Pose sa chope", "scrum": "Sales coach stand-down" },
+            { "yamzy": "Bar reste muet", "scrum": "No celebration triggered" }
+          ],
+          "camera": { "position": [3, 3.5, 0], "lookAt": [5, 1.5, -4], "duration": 2 },
+          "highlight": "innkeeper",
+          "invokeMethod": { "name": "innkeeperReact" }
+        },
+        {
+          "atSeconds": 16,
+          "yamzyText": "🗺 La Carte aux Trésors se déroule — mais une région s'éteint, gris cendre. Le territoire conquis vient d'être perdu.",
+          "scrumText": "📋 Territory map redraws · EMEA ENTERPRISE segment dimmed. Lost logo means lost reference, lost beachhead. Strategy reset required.",
+          "morphPairs": [
+            { "yamzy": "Région s'éteint", "scrum": "Territory segment dimmed" },
+            { "yamzy": "Territoire perdu", "scrum": "Lost beachhead account" }
+          ],
+          "camera": { "position": [-1, 4, 0], "lookAt": [-4, 3.5, -10], "duration": 2 },
+          "highlight": "treasure-map",
+          "invokeMethod": { "name": "treasureMapUnfurl" },
+          "emitCeremony": { "type": "balance", "label": "🗺 Beachhead lost · strategy reset", "icon": "🗺" }
+        },
+        {
+          "atSeconds": 22,
+          "yamzyText": "🪶 La Taverne se vide doucement — pas de bannière ce soir, pas de chopes levées. Demain, le Mage retournera ses cartes plus tôt.",
+          "scrumText": "📋 Pipeline review post-mortem · debrief logged, ICP refined, qualification criteria tightened. Coach commits to earlier disqualification next quarter.",
+          "morphPairs": [
+            { "yamzy": "Taverne se vide", "scrum": "Quarter closes red" },
+            { "yamzy": "Retournera ses cartes plus tôt", "scrum": "Tighter qualification next Q" }
+          ],
+          "camera": { "position": [0, 6, 12], "lookAt": [0, 1, 0], "duration": 2 }
+        }
+      ]
+    },
+    {
+      "name": "✨ Victory · Grand Contract",
+      "icon": "✨",
+      "duration": 26,
+      "description": "✨ Triomphe à la Taverne — atout magistral, bannière hissée majestueuse, territoire conquis, chopes trinquent en chœur. Le plus gros deal du semestre vient d'être scellé.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "🪶 Crépuscule électrique — la Taverne bourdonne, l'Aubergiste a déjà sorti la chope de fête. Quelque chose de grand se prépare.",
+          "scrumText": "📋 EOQ closing day. Mega-deal in final signature window. Champion + decision-maker aligned. Coach feels it coming.",
+          "morphPairs": [
+            { "yamzy": "Crépuscule électrique", "scrum": "EOQ closing day" },
+            { "yamzy": "Chope de fête", "scrum": "Coach senses win" }
+          ],
+          "camera": { "position": [0, 6, 12], "lookAt": [0, 1, 0], "duration": 2 }
+        },
+        {
+          "atSeconds": 5,
+          "yamzyText": "🗺 La Carte aux Trésors s'illumine — APAC violet flamboyant, le X rouge pulse sur Tokyo. Un Seigneur lointain a répondu.",
+          "scrumText": "📋 APAC ENTERPRISE territory glows · Tokyo flagship account opportunity. Strategic logo with multi-region expansion potential.",
+          "morphPairs": [
+            { "yamzy": "APAC flamboyant", "scrum": "Tokyo flagship opportunity" },
+            { "yamzy": "Seigneur lointain", "scrum": "Strategic enterprise logo" }
+          ],
+          "camera": { "position": [-1, 4, 0], "lookAt": [-4, 3.5, -10], "duration": 2 },
+          "highlight": "treasure-map",
+          "invokeMethod": { "name": "treasureMapUnfurl" }
+        },
+        {
+          "atSeconds": 11,
+          "yamzyText": "👨‍🍳 L'Aubergiste bondit ! Sa chope monte haut, sa moustache vibre — JOUE MAINTENANT, hurle-t-il, le moment est sacré.",
+          "scrumText": "📋 Sales coach engages MAX urgency. Final demo + contract redline + legal sign-off — all green. Time to ask for the close.",
+          "morphPairs": [
+            { "yamzy": "Aubergiste bondit", "scrum": "Coach MAX urgency" },
+            { "yamzy": "Joue maintenant", "scrum": "Ask for the close NOW" }
+          ],
+          "camera": { "position": [3, 3.5, 0], "lookAt": [5, 1.5, -4], "duration": 2 },
+          "highlight": "innkeeper",
+          "invokeMethod": { "name": "innkeeperReact" }
+        },
+        {
+          "atSeconds": 16,
+          "yamzyText": "✨ ATOUT MAGISTRAL ! La carte centrale s'embrase en cascade dorée — le Seigneur a tracé sa marque. Le pacte est scellé.",
+          "scrumText": "📋 DEAL CLOSED-WON · Tokyo ENTERPRISE signed. €18K MRR + 3-year commit. Biggest deal of the semester. ARR meter explodes.",
+          "morphPairs": [
+            { "yamzy": "Atout magistral", "scrum": "Mega closed-won" },
+            { "yamzy": "Seigneur a tracé sa marque", "scrum": "€18K MRR · 3-year commit" }
+          ],
+          "camera": { "position": [0, 3.5, 5], "lookAt": [0, 1, 0], "duration": 2.5 },
+          "highlight": "card",
+          "invokeMethod": { "name": "trumpcardTwist" },
+          "emitCeremony": { "type": "legend", "label": "✨ MEGA DEAL · €18K MRR Tokyo", "icon": "✨" }
+        },
+        {
+          "atSeconds": 20,
+          "yamzyText": "🚩 La Bannière de Victoire déferle ! Drapeau d'or géant en cascade depuis les poutres — la Taverne entière retient son souffle.",
+          "scrumText": "📋 Massive contract-signed banner hoisted. Full team Slack ping, gong rung thrice, CEO email sent. ARR milestone marker placed.",
+          "morphPairs": [
+            { "yamzy": "Drapeau géant", "scrum": "Massive banner milestone" },
+            { "yamzy": "Taverne retient son souffle", "scrum": "Full team celebration" }
+          ],
+          "camera": { "position": [0, 4.5, 6], "lookAt": [0, 3.5, 0], "duration": 2 },
+          "highlight": "banner",
+          "invokeMethod": { "name": "bannerHoist" },
+          "emitCeremony": { "type": "legend", "label": "🚩 Bannière géante · mega contrat", "icon": "🚩" }
+        },
+        {
+          "atSeconds": 24,
+          "yamzyText": "🎉 EXPLOSION DE JOIE ! Toutes les chopes se lèvent, l'hydromel jaillit en cascade — la Taverne chante, la Légende naît cette nuit.",
+          "scrumText": "📋 Team-wide celebration triggered. Tankards cheers maxed, ARR barrel overflows, commission accruals visible. Quarter saved, legend born.",
+          "morphPairs": [
+            { "yamzy": "Hydromel jaillit", "scrum": "ARR commission overflow" },
+            { "yamzy": "Légende naît", "scrum": "Quarter-saver deal" }
+          ],
+          "camera": { "position": [4, 3, -2], "lookAt": [6, 1.4, -5], "duration": 2 },
+          "highlight": "tankard",
+          "invokeMethod": { "name": "triggerCelebration" },
+          "emitCeremony": { "type": "legend", "label": "🎉 LÉGENDE · Quarter Saver", "icon": "🎉" }
+        }
+      ]
+    }
+  ],
+
+  "closingMessage": "🪶 Que tes cartes brillent, que ta bannière reste haute, et que tes Compagnons trinquent souvent. La Taverne attend ton retour, jeune Mage."
+}

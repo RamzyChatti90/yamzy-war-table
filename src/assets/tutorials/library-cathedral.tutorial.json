@@ -1,0 +1,450 @@
+{
+  "$comment": "v2 — dual narrator (Yamzy lore ↔ Scrum/PM) + cinematic playExample 48s",
+  "roomKey": "library-cathedral",
+  "meta": {
+    "name": "Library Cathedral",
+    "loreName": "La Bibliothèque du Conclave",
+    "icon": "🏛",
+    "color": "#fcd34d",
+    "summary": "Une cathédrale 3D où chaque article du wiki devient un Tome vivant — la documentation prend racine dans la pierre, et la connaissance se tisse en cordons dorés.",
+    "introLore": "🪶 Bienvenue, jeune Mage, dans la Bibliothèque du Conclave. Ici, ton wiki n'est plus une liste d'articles — c'est une cathédrale dont chaque livre vit, chaque vitrail respire, et chaque rayon de poussière dorée est une lecture qui retombe. Pour le chef de projet, c'est ta Knowledge Base vivante en 3D : Articles, Featured, Stale Audit, Cross-Refs, Publications, Search."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "nave",
+      "name": "La Nef et l'Allée Pourpre",
+      "scrumName": "Wiki home / browsing flow",
+      "desc": "Long couloir central avec tapis rouge sang, encadré de colonnes et de chapiteaux dorés.",
+      "yamzyExplain": "La Nef est l'épine sacrée du Conclave. Son tapis pourpre guide chaque Compagnon des portes jusqu'à l'Autel doré — c'est le parcours rituel pour qui cherche un savoir. Plus la Nef est foulée, plus le Royaume rayonne.",
+      "scrumExplain": "The cathedral's central aisle represents the wiki's main browsing flow. The red carpet marks the canonical reading path; the bookshelf walls hold the article catalog on each side.",
+      "interactions": ["marche le long de la nef pour voir l'ensemble des étagères"]
+    },
+    {
+      "tutorialId": "book",
+      "name": "Les Livres Vivants",
+      "scrumName": "Wiki articles",
+      "desc": "50 livres répartis sur 5 rayonnages de chaque côté. Largeur = popularité, couleur = catégorie, brillance = trending.",
+      "yamzyExplain": "Chaque Tome est un article du Royaume. Sa largeur trahit combien de Compagnons l'ont lu — les plus consultés s'épaississent. Sa couleur révèle sa famille : turquoise tech, rose RH, vert biz, violet légal, orange ops. Quand un Tome est sacré « featured », il s'élève et s'ouvre seul.",
+      "scrumExplain": "Each book is a wiki article. Width = read count (popularity), color = category (tech=cyan, RH=pink, biz=lime, legal=violet, ops=orange), emissive glow = trending. Featured articles float up and rotate to broadcast their elevation to the team.",
+      "interactions": ["clic livre = panel article (auteur, lectures, éditions, status)", "bookFloat = article featured du jour"]
+    },
+    {
+      "tutorialId": "stained-glass",
+      "name": "Les Vitraux du Conclave",
+      "scrumName": "Category filters / section highlight",
+      "desc": "Grandes plaques colorées émissives sur les deux murs — pulsent en cascade chromatique lors d'un highlight de section.",
+      "yamzyExplain": "Les Vitraux respirent. Leur intensité monte et descend comme un souffle — c'est l'âme du Conclave qui palpite. Quand une nouvelle section est mise à l'honneur, les Iris cascadent en une vague chromatique sacrée.",
+      "scrumExplain": "Stained-glass windows shimmer with breathing emissive intensity. A chromatic cascade ripple (vitrauxRipple) plays when a wiki section is highlighted — visual feedback for category-level events.",
+      "interactions": ["vitrauxRipple = nouveau highlight d'une section catégorie"]
+    },
+    {
+      "tutorialId": "eagle",
+      "name": "L'Aigle Messager",
+      "scrumName": "New article notification",
+      "desc": "Aigle doré perché sur le clocher. S'envole en cercle large quand un nouvel article est publié.",
+      "yamzyExplain": "L'Aigle Messager garde le clocher en silence. Quand un nouvel Article naît dans le Conclave, il s'élance, ses ailes dorées battent l'air, et il décrit un cercle solennel au-dessus de la nef — son vol annonce la nouvelle à tout le Royaume.",
+      "scrumExplain": "Golden eagle perched atop the bell tower. Triggered by newArticle() or sendEagle(): wings flap, eagle circles the nave for ~9s, then returns to perch. Visual notification that fresh content has shipped to the wiki.",
+      "interactions": ["sendEagle = annoncer un nouvel article"]
+    },
+    {
+      "tutorialId": "search-sphere",
+      "name": "La Sphère de Recherche",
+      "scrumName": "Wiki search beam",
+      "desc": "Sphère luminueuse dorée qui pulse et balaye les rayonnages en cascade lumineuse lors d'une requête.",
+      "yamzyExplain": "Quand le Mage murmure une requête, l'Orbe Chercheuse naît au-dessus de l'Autel. Elle pulse, ses rayons dorés balayent la Bibliothèque en vague, illuminant tous les Tomes dignes. C'est la recherche faite lumière vivante.",
+      "scrumExplain": "Glowing sphere that pulses and emits sweeping light rays across the bookshelves. Each book lights up in cascade — visual representation of a search query traversing the index. Non-matching books briefly dim in counter-cascade.",
+      "interactions": ["searchSphereLaunch = lancer une requête sur le Conclave"]
+    },
+    {
+      "tutorialId": "cobweb",
+      "name": "Les Voiles d'Oubli",
+      "scrumName": "Stale articles",
+      "desc": "Voiles gris translucides sur les livres qui n'ont pas été lus depuis plus de 6 mois — disparaissent en spirale lors de l'Audit.",
+      "yamzyExplain": "Quand nul Compagnon ne lit un Tome durant six lunes, le Voile d'Oubli s'y dépose. Le savoir n'est pas mort — il s'endort. Le rituel d'Audit hebdomadaire balaye ces Voiles en spirale dorée, ressuscitant l'éclat des Tomes.",
+      "scrumExplain": "Translucent cobweb planes overlay articles untouched for >6 months. Visual signal that the article needs review or archival. The weekly auditCobwebs() ceremony removes them with a spiral animation.",
+      "interactions": ["auditCobwebs = rituel hebdo de nettoyage des stale docs"]
+    },
+    {
+      "tutorialId": "gold-thread",
+      "name": "Les Cordons du Conclave",
+      "scrumName": "Cross-references",
+      "desc": "Courbes Bézier dorées suspendues qui relient les livres mutuellement cross-référencés — un nouveau cordon se tisse lors d'une publication.",
+      "yamzyExplain": "Quand deux Tomes se citent l'un l'autre, un Cordon doré naît entre eux et flotte au-dessus de la nef. Plus le Conclave tisse de Cordons, plus son savoir est entrelacé — c'est le signe d'un Royaume mûr.",
+      "scrumExplain": "Golden Bezier curves arching between book meshes represent bidirectional cross-references. New ties (goldThreadWeave) animate in over ~2s with halo anchors — visual feedback that a freshly published article wove a new link.",
+      "interactions": ["goldThreadWeave = nouvel article publié + cross-ref créée"]
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue, jeune Mage, dans la Bibliothèque du Conclave. Devant toi, la Nef sacrée et son Allée Pourpre — chemin de tout chercheur de savoir.",
+      "scrumText": "📋 Welcome to your living Knowledge Base. Each wiki article becomes a physical tome in the cathedral — visualize your documentation in 3D.",
+      "morphPairs": [
+        { "yamzy": "Bibliothèque du Conclave", "scrum": "Knowledge base" },
+        { "yamzy": "Nef sacrée", "scrum": "Wiki home" }
+      ],
+      "camera": { "position": [0, 6, 22], "lookAt": [0, 5, 0], "duration": 2.5 },
+      "highlight": "nave",
+      "wait": 9
+    },
+    {
+      "step": 2,
+      "yamzyText": "📚 Lève les yeux sur les rayonnages : cinquante Tomes vivants alignés sur cinq étages. Chaque livre est un article. Sa largeur révèle sa popularité, sa couleur sa famille.",
+      "scrumText": "📋 50 articles arranged on 5 shelves per wall. Book width = read count, color = category (tech/RH/biz/legal/ops). Featured articles glow brighter.",
+      "morphPairs": [
+        { "yamzy": "Tomes vivants", "scrum": "Wiki articles" },
+        { "yamzy": "Largeur du livre", "scrum": "Read count" },
+        { "yamzy": "Couleur de la famille", "scrum": "Category tag" }
+      ],
+      "camera": { "position": [4, 5, 6], "lookAt": [7, 7, 0], "duration": 2.5 },
+      "highlight": "book",
+      "wait": 10
+    },
+    {
+      "step": 3,
+      "yamzyText": "🌈 Tourne ton regard vers les Vitraux. Vois-tu comme ils respirent ? Chaque iris coloré projette sa teinte sur les livres en dessous — l'âme du Conclave palpite.",
+      "scrumText": "📋 Stained-glass windows breathe with emissive intensity, one per category color. When a wiki section is highlighted, the windows cascade in chromatic ripple.",
+      "morphPairs": [
+        { "yamzy": "Iris respire", "scrum": "Category filter glow" },
+        { "yamzy": "Âme palpite", "scrum": "Section highlight" }
+      ],
+      "camera": { "position": [3, 11, 4], "lookAt": [10, 11, 0], "duration": 2.5 },
+      "highlight": "stained-glass",
+      "invokeMethod": { "name": "vitrauxRipple" },
+      "wait": 10
+    },
+    {
+      "step": 4,
+      "yamzyText": "🦅 Lève les yeux vers le clocher. Là veille l'Aigle Messager, perché en silence. Quand un nouvel Article naît, il s'élance pour annoncer la nouvelle à tout le Royaume.",
+      "scrumText": "📋 Bell-tower eagle stands sentinel. When a new article is published (newArticle / sendEagle), it takes flight and circles the nave — your team's visual notification of fresh content.",
+      "morphPairs": [
+        { "yamzy": "Aigle Messager", "scrum": "Publish notification" },
+        { "yamzy": "Annonce au Royaume", "scrum": "Broadcast to team" }
+      ],
+      "camera": { "position": [0, 14, 6], "lookAt": [0, 18, -18], "duration": 2.5 },
+      "highlight": "eagle",
+      "invokeMethod": { "name": "sendEagle" },
+      "wait": 10
+    },
+    {
+      "step": 5,
+      "yamzyText": "🔍 Observe maintenant l'Orbe Chercheuse. Quand le Mage murmure une requête, elle naît au-dessus de l'Autel, pulse, et ses rayons balayent les Tomes en cascade dorée.",
+      "scrumText": "📋 The Search Sphere. Triggered by any wiki query, it pulses and emits sweeping rays that light up each matching book in cascade — visual representation of the search index sweeping the catalog.",
+      "morphPairs": [
+        { "yamzy": "Orbe Chercheuse", "scrum": "Search index" },
+        { "yamzy": "Rayons balayent", "scrum": "Query traversal" },
+        { "yamzy": "Tomes illuminés", "scrum": "Match highlights" }
+      ],
+      "camera": { "position": [0, 7, 14], "lookAt": [3, 5, 0], "duration": 2.5 },
+      "highlight": "search-sphere",
+      "invokeMethod": { "name": "searchSphereLaunch" },
+      "wait": 10
+    },
+    {
+      "step": 6,
+      "yamzyText": "🕸 Approche de ces livres ternes : un Voile gris les recouvre. Ce sont les Tomes Oubliés — six lunes sans lecture. Le rituel d'Audit les balaye en spirale.",
+      "scrumText": "📋 Cobweb veils mark stale articles (>6 months untouched). The weekly auditCobwebs() ritual sweeps them away in a spiral animation — your documentation hygiene ceremony.",
+      "morphPairs": [
+        { "yamzy": "Voiles d'Oubli", "scrum": "Stale article markers" },
+        { "yamzy": "Six lunes sans lecture", "scrum": ">6 months untouched" },
+        { "yamzy": "Rituel d'Audit", "scrum": "Docs hygiene sweep" }
+      ],
+      "camera": { "position": [-3, 5, 0], "lookAt": [-7, 5, 0], "duration": 2.5 },
+      "highlight": "cobweb",
+      "wait": 10
+    },
+    {
+      "step": 7,
+      "yamzyText": "🪙 Vois ces fils dorés qui s'élancent au-dessus de la nef en arches lumineuses ? Ce sont les Cordons du Conclave — chaque fois que deux Tomes se citent, un cordon naît.",
+      "scrumText": "📋 Golden Bezier threads = cross-references between articles. When you publish an article with cross-refs, a new thread weaves in with halo anchors. Dense network = mature, interconnected wiki.",
+      "morphPairs": [
+        { "yamzy": "Cordons du Conclave", "scrum": "Cross-references" },
+        { "yamzy": "Tomes se citent", "scrum": "Articles linked" },
+        { "yamzy": "Royaume tissé", "scrum": "Mature wiki" }
+      ],
+      "camera": { "position": [0, 10, 8], "lookAt": [0, 7, 0], "duration": 2.5 },
+      "highlight": "gold-thread",
+      "invokeMethod": { "name": "goldThreadWeave" },
+      "wait": 11
+    },
+    {
+      "step": 8,
+      "yamzyText": "✨ Tu connais maintenant les secrets du Conclave. Chaque livre que tu cliques est un article que tu invoques. Que la Bibliothèque garde tes savoirs, jeune Mage.",
+      "scrumText": "📋 You've toured the Knowledge Base. Click any book to open its article, watch the eagle for fresh publications, run audits to keep your docs clean. Yamzy guides every ceremony.",
+      "morphPairs": [
+        { "yamzy": "Bibliothèque garde tes savoirs", "scrum": "Wiki preserves knowledge" }
+      ],
+      "camera": { "position": [0, 7, 20], "lookAt": [0, 5, 0], "duration": 2.5 },
+      "wait": 8
+    }
+  ],
+
+  "playExample": {
+    "duration": 48,
+    "description": "📜 Une journée au Conclave en 48s : Aube du Mage → Recherche → Audit des Voiles → Featured Tome → Publication & Cordon → Cérémonie de clôture. Caméra cinéma + animations 3D + dual narrateur Yamzy/Scrum.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Aube au Conclave. La Bibliothèque s'éveille — un faisceau doré descend de la rosace pour bénir la journée du Mage.",
+        "scrumText": "📋 Morning at the Wiki. Documentation team starts the day — a golden light beam blesses the knowledge base from above.",
+        "morphPairs": [
+          { "yamzy": "Aube au Conclave", "scrum": "Docs day start" },
+          { "yamzy": "Bénir la journée", "scrum": "Daily wiki review" }
+        ],
+        "camera": { "position": [0, 8, 20], "lookAt": [0, 6, 0], "duration": 2.5 },
+        "highlight": "nave",
+        "invokeMethod": { "name": "dawnLight" },
+        "emitCeremony": { "type": "ouverture", "label": "🌅 Aube du Conclave · Cérémonie d'ouverture", "icon": "🌅" }
+      },
+      {
+        "atSeconds": 6,
+        "yamzyText": "📚 Les Tomes prennent place sur les rayonnages — cinquante Compagnons écrits attendent les Mages. Le Conclave est complet.",
+        "scrumText": "📋 The wiki loads — 50 articles populate the shelves across 5 categories. Knowledge base ready for the team.",
+        "morphPairs": [
+          { "yamzy": "Tomes sur rayonnages", "scrum": "Articles loaded" },
+          { "yamzy": "Compagnons écrits", "scrum": "Wiki entries" }
+        ],
+        "camera": { "position": [3, 7, 10], "lookAt": [6, 6, 0], "duration": 2 },
+        "highlight": "book",
+        "invokeMethod": { "name": "loadDemo" }
+      },
+      {
+        "atSeconds": 12,
+        "yamzyText": "🔍 Un jeune Mage murmure une requête. L'Orbe Chercheuse naît, pulse, et ses rayons dorés balayent les Tomes en cascade lumineuse.",
+        "scrumText": "📋 First search of the day. The query sphere pulses and emits sweeping rays — each book lights up in cascade as the index traverses the catalog.",
+        "morphPairs": [
+          { "yamzy": "Murmure une requête", "scrum": "Search query" },
+          { "yamzy": "Orbe Chercheuse", "scrum": "Search beam" },
+          { "yamzy": "Cascade lumineuse", "scrum": "Match traversal" }
+        ],
+        "camera": { "position": [0, 7, 14], "lookAt": [3, 5, 0], "duration": 2 },
+        "highlight": "search-sphere",
+        "invokeMethod": { "name": "searchSphereLaunch" },
+        "emitCeremony": { "type": "conclave", "label": "🔍 Requête lancée · 50 Tomes balayés", "icon": "🔍" }
+      },
+      {
+        "atSeconds": 19,
+        "yamzyText": "🕸 L'heure de l'Audit hebdomadaire sonne. Les Voiles d'Oubli, déposés depuis six lunes, sont balayés en spirale dorée.",
+        "scrumText": "📋 Weekly stale-docs audit. Articles untouched for >6 months are swept away in a spiral animation — your docs hygiene routine runs clean.",
+        "morphPairs": [
+          { "yamzy": "Voiles d'Oubli", "scrum": "Stale article veils" },
+          { "yamzy": "Six lunes", "scrum": "6 months stale" },
+          { "yamzy": "Balayés en spirale", "scrum": "Spiral audit sweep" }
+        ],
+        "camera": { "position": [-3, 6, 4], "lookAt": [-7, 5, 0], "duration": 2 },
+        "highlight": "cobweb",
+        "invokeMethod": { "name": "auditCobwebs" },
+        "emitCeremony": { "type": "audit", "label": "⏰ Rituel des Voiles · 8 stales balayés", "icon": "🕸" }
+      },
+      {
+        "atSeconds": 26,
+        "yamzyText": "📖 Un Tome est sacré « featured » du jour. Il s'élève seul de l'étagère, s'ouvre, et libère ses étincelles dorées au-dessus de la nef.",
+        "scrumText": "📋 Article of the day promoted to featured. The tome floats up, opens, and releases golden particles — your team's spotlight pick is broadcast visually.",
+        "morphPairs": [
+          { "yamzy": "Tome sacré featured", "scrum": "Article of the day" },
+          { "yamzy": "S'élève seul", "scrum": "Featured promotion" },
+          { "yamzy": "Étincelles dorées", "scrum": "Highlight particles" }
+        ],
+        "camera": { "position": [4, 6, 8], "lookAt": [7, 7, 0], "duration": 2 },
+        "highlight": "book",
+        "invokeMethod": { "name": "bookFloat" },
+        "emitCeremony": { "type": "culte", "label": "📖 Featured du jour · Tome élevé", "icon": "📖" }
+      },
+      {
+        "atSeconds": 33,
+        "yamzyText": "🦅 Un nouveau Tome naît. L'Aigle Messager déploie ses ailes dorées et s'élève du clocher pour annoncer la nouvelle au Royaume.",
+        "scrumText": "📋 Fresh article shipped. The eagle takes flight from the bell tower and circles the nave — visual notification that new content is live to the team.",
+        "morphPairs": [
+          { "yamzy": "Tome naît", "scrum": "Article published" },
+          { "yamzy": "Aigle Messager", "scrum": "Publish notification" },
+          { "yamzy": "Annoncer au Royaume", "scrum": "Broadcast to team" }
+        ],
+        "camera": { "position": [0, 13, 8], "lookAt": [0, 16, -16], "duration": 2 },
+        "highlight": "eagle",
+        "invokeMethod": { "name": "newArticle" },
+        "emitCeremony": { "type": "ouverture", "label": "🦅 Cérémonie d'Ouverture · nouvel Article", "icon": "🦅" }
+      },
+      {
+        "atSeconds": 40,
+        "yamzyText": "🪙 Le nouvel Article cite un Tome ancien — un Cordon doré se tisse au-dessus de la nef, les ancrant l'un à l'autre dans la mémoire du Royaume.",
+        "scrumText": "📋 The new article cross-references an existing one. A golden thread weaves between the two books — your wiki's knowledge graph gains a fresh edge.",
+        "morphPairs": [
+          { "yamzy": "Cordon doré se tisse", "scrum": "Cross-reference woven" },
+          { "yamzy": "Mémoire du Royaume", "scrum": "Knowledge graph" }
+        ],
+        "camera": { "position": [0, 10, 10], "lookAt": [0, 7, 0], "duration": 2 },
+        "highlight": "gold-thread",
+        "invokeMethod": { "name": "goldThreadWeave" },
+        "emitCeremony": { "type": "ouverture", "label": "🪙 Cordon tissé · cross-ref sacrée", "icon": "🪙" }
+      },
+      {
+        "atSeconds": 46,
+        "yamzyText": "🪶 La journée s'achève. Les Vitraux cascadent en un dernier hommage chromatique — le Conclave a grandi d'un savoir de plus.",
+        "scrumText": "📋 Day closes. Stained glass cascades in chromatic farewell — your knowledge base grew by one article, one cross-ref, and one cleaned hygiene pass.",
+        "morphPairs": [
+          { "yamzy": "Cascade chromatique", "scrum": "Wiki section celebration" },
+          { "yamzy": "Royaume grandit", "scrum": "Knowledge base grew" }
+        ],
+        "camera": { "position": [0, 9, 18], "lookAt": [0, 6, 0], "duration": 2.5 },
+        "highlight": "stained-glass",
+        "invokeMethod": { "name": "vitrauxRipple" },
+        "emitCeremony": { "type": "culte", "label": "🌈 Clôture du Conclave · journée tissée", "icon": "🌈" }
+      }
+    ]
+  },
+
+  "additionalDemos": [
+    {
+      "name": "🚨 Audit des Voiles · Crisis",
+      "icon": "🚨",
+      "duration": 24,
+      "description": "🚨 Crise documentaire : un audit massif révèle des dizaines de Tomes Oubliés. L'Orbe Chercheuse découvre des trous béants, l'Aigle est envoyé en urgence patrouiller le Conclave.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "⚠️ Alerte au Conclave ! Les Vitraux tremblent — trop de Tomes dorment sous des Voiles d'Oubli depuis trop de lunes.",
+          "scrumText": "📋 Docs hygiene alert. Stale-article ratio spikes past threshold — the wiki is hemorrhaging trust. Time for an emergency audit.",
+          "morphPairs": [
+            { "yamzy": "Alerte au Conclave", "scrum": "Docs hygiene alert" },
+            { "yamzy": "Trop de Voiles", "scrum": "Stale ratio critical" }
+          ],
+          "camera": { "position": [0, 8, 20], "lookAt": [0, 6, 0], "duration": 2 },
+          "highlight": "nave",
+          "invokeMethod": { "name": "loadDemo" },
+          "emitCeremony": { "type": "audit", "label": "⚠️ Audit d'urgence déclenché", "icon": "⚠️" }
+        },
+        {
+          "atSeconds": 4,
+          "yamzyText": "🕸 Le rituel d'Audit s'enclenche en force — les Voiles d'Oubli sont balayés en spirale géante, vague après vague.",
+          "scrumText": "📋 Mass stale-docs sweep. The auditCobwebs ceremony cascades across all shelves — 23 articles flagged for review or archival.",
+          "morphPairs": [
+            { "yamzy": "Spirale géante", "scrum": "Mass audit sweep" },
+            { "yamzy": "Vague après vague", "scrum": "Cascade purge" }
+          ],
+          "camera": { "position": [-4, 6, 6], "lookAt": [-7, 5, 0], "duration": 2 },
+          "highlight": "cobweb",
+          "invokeMethod": { "name": "auditStale" },
+          "emitCeremony": { "type": "audit", "label": "🕸 23 Tomes Oubliés balayés", "icon": "🕸" }
+        },
+        {
+          "atSeconds": 9,
+          "yamzyText": "🔍 L'Orbe Chercheuse se lance — ses rayons balayent en panique, cherchant les trous béants laissés par le purge.",
+          "scrumText": "📋 Coverage gap scan. The search sphere fires queries across categories to map the holes left by the purge — 7 topics now uncovered.",
+          "morphPairs": [
+            { "yamzy": "Cherche les trous béants", "scrum": "Coverage gap scan" },
+            { "yamzy": "Panique chercheuse", "scrum": "Emergency query sweep" }
+          ],
+          "camera": { "position": [0, 7, 14], "lookAt": [3, 5, 0], "duration": 2 },
+          "highlight": "search-sphere",
+          "invokeMethod": { "name": "launchSearchSphere" },
+          "emitCeremony": { "type": "conclave", "label": "🔍 7 trous de couverture détectés", "icon": "🔍" }
+        },
+        {
+          "atSeconds": 14,
+          "yamzyText": "🌈 Les Vitraux cascadent en alarme chromatique — chaque iris pointe une catégorie en péril.",
+          "scrumText": "📋 Category-level warning ripple. Stained glass shimmer-cascade highlights which sections lost the most knowledge — tech & ops bleeding worst.",
+          "morphPairs": [
+            { "yamzy": "Alarme chromatique", "scrum": "Category warning ripple" },
+            { "yamzy": "Catégorie en péril", "scrum": "Section at risk" }
+          ],
+          "camera": { "position": [3, 11, 4], "lookAt": [10, 11, 0], "duration": 2 },
+          "highlight": "stained-glass",
+          "invokeMethod": { "name": "vitrauxRipple" }
+        },
+        {
+          "atSeconds": 19,
+          "yamzyText": "🦅 L'Aigle Messager s'envole en urgence — il convoque les Mages de chaque tribu pour réécrire les Tomes manquants.",
+          "scrumText": "📋 Emergency authoring call. The eagle circles wide to broadcast : each squad must claim a gap and ship a fresh article this sprint.",
+          "morphPairs": [
+            { "yamzy": "Convoque les Mages", "scrum": "Authoring call" },
+            { "yamzy": "Réécrire les Tomes", "scrum": "Sprint authoring claim" }
+          ],
+          "camera": { "position": [0, 14, 8], "lookAt": [0, 18, -18], "duration": 2 },
+          "highlight": "eagle",
+          "invokeMethod": { "name": "newArticle" },
+          "emitCeremony": { "type": "ouverture", "label": "🦅 Aigle d'urgence · 7 squads convoqués", "icon": "🦅" }
+        }
+      ]
+    },
+    {
+      "name": "🏆 Featured & Cordons · Victory",
+      "icon": "🏆",
+      "duration": 24,
+      "description": "🏆 Pic de succès : un Tome est sacré Featured, deux Cordons dorés se tissent en cross-refs, les Vitraux cascadent en hommage, l'Aube revient pour l'ovation finale.",
+      "narratorMode": "yamzy",
+      "steps": [
+        {
+          "atSeconds": 0,
+          "yamzyText": "📖 Un Tome s'élève seul de l'étagère — le Conclave l'a sacré Featured du mois. Ses pages s'ouvrent en lévitation glorieuse.",
+          "scrumText": "📋 Article of the month promoted. Top-read tome floats up & rotates — your team's spotlight pick is broadcast with full theatricality.",
+          "morphPairs": [
+            { "yamzy": "Sacré Featured", "scrum": "Article of the month" },
+            { "yamzy": "Lévitation glorieuse", "scrum": "Spotlight broadcast" }
+          ],
+          "camera": { "position": [4, 6, 8], "lookAt": [7, 7, 0], "duration": 2 },
+          "highlight": "book",
+          "invokeMethod": { "name": "bookFloat" },
+          "emitCeremony": { "type": "culte", "label": "📖 Featured du mois · Tome sacré", "icon": "📖" }
+        },
+        {
+          "atSeconds": 5,
+          "yamzyText": "🪙 Un premier Cordon doré jaillit — le Tome featured cite un ancien Compagnon de la tribu tech.",
+          "scrumText": "📋 Cross-reference #1 woven. The featured article links to a tech-category cornerstone — your knowledge graph gains a load-bearing edge.",
+          "morphPairs": [
+            { "yamzy": "Cordon doré jaillit", "scrum": "Cross-ref woven" },
+            { "yamzy": "Tribu tech", "scrum": "Tech category" }
+          ],
+          "camera": { "position": [-2, 10, 8], "lookAt": [3, 7, 0], "duration": 2 },
+          "highlight": "gold-thread",
+          "invokeMethod": { "name": "goldThreadWeave" },
+          "emitCeremony": { "type": "ouverture", "label": "🪙 Cordon #1 · tech cross-ref", "icon": "🪙" }
+        },
+        {
+          "atSeconds": 10,
+          "yamzyText": "🪙 Un second Cordon naît — un Tome RH répond à la citation. Le tissage s'épaissit au-dessus de la nef.",
+          "scrumText": "📋 Cross-reference #2 woven. An RH-category article reciprocates the link — bidirectional graph density rises, mature wiki signal.",
+          "morphPairs": [
+            { "yamzy": "Second Cordon naît", "scrum": "Cross-ref reciprocated" },
+            { "yamzy": "Tissage s'épaissit", "scrum": "Graph density rising" }
+          ],
+          "camera": { "position": [2, 10, 8], "lookAt": [-3, 7, 0], "duration": 2 },
+          "highlight": "gold-thread",
+          "invokeMethod": { "name": "goldThreadWeave" },
+          "emitCeremony": { "type": "ouverture", "label": "🪙 Cordon #2 · RH cross-ref", "icon": "🪙" }
+        },
+        {
+          "atSeconds": 15,
+          "yamzyText": "🌈 Les Vitraux cascadent en hommage chromatique — chaque iris salue la nouvelle constellation de savoir.",
+          "scrumText": "📋 Celebratory chromatic ripple. Stained glass cascades section-by-section to honor the new knowledge constellation — team-wide visual hurrah.",
+          "morphPairs": [
+            { "yamzy": "Hommage chromatique", "scrum": "Celebratory ripple" },
+            { "yamzy": "Constellation de savoir", "scrum": "Knowledge constellation" }
+          ],
+          "camera": { "position": [0, 11, 10], "lookAt": [0, 10, 0], "duration": 2 },
+          "highlight": "stained-glass",
+          "invokeMethod": { "name": "vitrauxRipple" },
+          "emitCeremony": { "type": "culte", "label": "🌈 Vitraux en cascade d'ovation", "icon": "🌈" }
+        },
+        {
+          "atSeconds": 19,
+          "yamzyText": "🌅 L'Aube revient bénir le Conclave — un faisceau doré descend de la rosace sur le Tome featured. Le Royaume jubile.",
+          "scrumText": "📋 Dawn light blessing. A golden beam descends on the featured article — the wiki's brightest moment of the cycle. Knowledge graph thriving.",
+          "morphPairs": [
+            { "yamzy": "Aube bénit le Conclave", "scrum": "Dawn light blessing" },
+            { "yamzy": "Royaume jubile", "scrum": "Knowledge base thriving" }
+          ],
+          "camera": { "position": [0, 8, 18], "lookAt": [0, 6, 0], "duration": 2.5 },
+          "highlight": "nave",
+          "invokeMethod": { "name": "dawnLight" },
+          "emitCeremony": { "type": "culte", "label": "🌅 Ovation du Conclave · pic glorieux", "icon": "🌅" }
+        }
+      ]
+    }
+  ],
+
+  "closingMessage": "🪶 La Bibliothèque du Conclave garde tes savoirs sous ses voûtes. Reviens-y aussi souvent que tu le souhaites, jeune Mage — ses Tomes t'attendent."
+}

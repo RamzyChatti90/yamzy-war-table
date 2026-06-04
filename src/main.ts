@@ -18,10 +18,57 @@ import { environment } from './environments/environment';
 const TOKEN_KEY = 'yamzy_jwt';
 const CALLBACK_PATH = '/auth/callback';
 
+// 🪶 Routes publiques qui ne nécessitent AUCUN auth (pas de SSO bridge)
+const PUBLIC_ROUTES = [
+  '/yamzy-rooms',
+  '/yamzy-studio-maker',
+  '/yamzy-island',
+  '/orrery-viewer',
+  '/orrery-lab',
+  '/git-tree-room',
+  '/kanban-island',
+  '/pr-mirror-hall',
+  '/phoenix-forge',
+  '/okr-mountain',
+  '/library-cathedral',
+  '/star-map-risks',
+  '/oracle-aquarium',
+  '/alchemist-cellar',
+  '/card-tavern',
+  '/telescope-island',
+  '/showcase',
+  '/welcome',
+  '/mana-fountain',
+  '/retrospective-cove',
+  '/premortem-crypt',
+  '/story-trail',
+  '/lean-coffee',
+  '/refinement-orchard',
+  '/five-whys-well',
+  '/definitions-beach',
+  '/conclave-room',
+  '/island/delivery',
+  '/island/strategy',
+  '/island/knowledge',
+  '/island/commerce',
+  '/login',
+];
+
 async function preBootstrap(): Promise<void> {
   try {
     const url = new URL(window.location.href);
     const tokenFromUrl = url.searchParams.get('token');
+
+    // 🪶 SKIP entirely : routes publiques (Studio Maker + rooms 3D + login)
+    if (PUBLIC_ROUTES.some(p => url.pathname === p || url.pathname.startsWith(p + '/'))) {
+      console.log('[WAR TABLE] route publique — skip SSO');
+      return;
+    }
+    // Path '/' redirige vers /yamzy-studio-maker → c'est une route publique
+    if (url.pathname === '/' || url.pathname === '') {
+      console.log('[WAR TABLE] root path → studio maker (public)');
+      return;
+    }
 
     // CAS A1 : retour OAuth ou bridge avec ?token=
     if (tokenFromUrl && tokenFromUrl.length > 20) {

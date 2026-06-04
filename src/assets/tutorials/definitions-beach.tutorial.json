@@ -1,0 +1,227 @@
+{
+  "$comment": "v1 — DoR/DoD beach workshop · drapeaux Ready (gauche) et Done (droite), liens, export markdown.",
+  "roomKey": "definitions-beach",
+  "meta": {
+    "name": "Definitions Beach",
+    "title": "Definitions Beach",
+    "loreName": "La Plage des Définitions",
+    "icon": "🏖",
+    "color": "#fde68a",
+    "oneLiner": "DoR/DoD : drapeaux Ready/Done plantés dans le sable.",
+    "summary": "Workshop Definition of Ready / Definition of Done — drapeaux plantés dans le sable, deux zones séparées par une corde, liens DoR ↔ DoD.",
+    "introLore": "🪶 Bienvenue sur la Plage des Définitions, jeune Mage. Le sable doré sépare deux royaumes : à gauche, READY, où chaque drapeau dit 'pour entrer dans le sprint, ceci doit être vrai'. À droite, DONE, où chaque drapeau dit 'pour quitter le sprint, ceci doit être vrai'. Entre eux, la corde rituelle, et des liens d'or unissant les critères jumeaux."
+  },
+
+  "glossary": [
+    {
+      "tutorialId": "rope",
+      "name": "La Corde Rituelle",
+      "scrumName": "DoR / DoD boundary",
+      "desc": "La corde au centre sépare la zone READY de la zone DONE.",
+      "yamzyExplain": "Aucun ticket ne traverse la Corde sans avoir planté tous ses drapeaux. C'est la loi du sprint — l'entrée et la sortie sont des cérémonies égales.",
+      "scrumExplain": "Boundary between DoR (entry) and DoD (exit) criteria. Tickets cross only when all flags on their side are planted. Sprint discipline visible at glance.",
+      "interactions": ["Visual separator between zones"]
+    },
+    {
+      "tutorialId": "ready-flag",
+      "name": "Le Drapeau de Préparation",
+      "scrumName": "DoR criterion",
+      "desc": "Un drapeau vert planté côté READY = un critère pour entrer dans le sprint.",
+      "yamzyExplain": "Chaque Drapeau Vert porte une promesse : 'Pour qu'un ticket entre dans le sprint, ceci doit déjà être vrai'. Critères acceptation, estimation, dépendances levées.",
+      "scrumExplain": "Definition of Ready criterion. Each green flag = one condition required BEFORE a ticket enters sprint. Acceptance criteria written, dependencies clear, estimable, sized ≤ 8 points.",
+      "interactions": ["Plante : valide critère acceptation"]
+    },
+    {
+      "tutorialId": "done-flag",
+      "name": "Le Drapeau d'Accomplissement",
+      "scrumName": "DoD criterion",
+      "desc": "Un drapeau bleu planté côté DONE = un critère pour sortir comme terminé.",
+      "yamzyExplain": "Le Drapeau Bleu se plante au crépuscule. 'Pour qu'un ticket soit livré, ceci doit être vrai'. Tests verts, review approuvée, doc à jour, déployé staging.",
+      "scrumExplain": "Definition of Done criterion. Each blue flag = condition required to call a ticket 'done'. Unit + E2E tests green, code reviewed, docs updated, deployed to staging.",
+      "interactions": ["Plante : confirme livraison complète"]
+    },
+    {
+      "tutorialId": "umbrella",
+      "name": "Le Parasol des Compagnons",
+      "scrumName": "Common ceremony zone",
+      "desc": "Au centre, le parasol coloré marque le lieu rituel de la cérémonie partagée.",
+      "yamzyExplain": "C'est sous le Parasol que les Compagnons se réunissent pour décider quels Drapeaux planter et quels liens tracer. C'est la table commune.",
+      "scrumExplain": "Symbolic meeting point. Where the team meets to negotiate which DoR/DoD criteria apply, what they mean, what links bind them.",
+      "interactions": ["Repère visuel central"]
+    },
+    {
+      "tutorialId": "shell",
+      "name": "Les Coquillages des Anecdotes",
+      "scrumName": "Past sprint learnings",
+      "desc": "Les coquillages éparpillés sur le sable rappellent les sprints passés.",
+      "yamzyExplain": "Chaque Coquillage est un souvenir : un sprint où un critère a manqué, un ticket qui a glissé. Les regarder évite de répéter les mêmes méprises.",
+      "scrumExplain": "Visual reminders of past sprint retrospectives. Each shell = a lesson learned. Used to inform DoR/DoD refinement over time.",
+      "interactions": ["Décoration porteuse de mémoire"]
+    },
+    {
+      "tutorialId": "crab",
+      "name": "Le Crabe Gardien",
+      "scrumName": "Workshop facilitator",
+      "desc": "Le crabe se promène et surveille le respect des deux zones.",
+      "yamzyExplain": "Le Crabe Gardien ne tolère aucune triche. Si un ticket prétend être DONE sans drapeau planté, il pince. Sa marche est une vigie.",
+      "scrumExplain": "Symbolic facilitator. Reminds team to respect both DoR and DoD before moving tickets across the rope. Walking = ongoing watch.",
+      "interactions": ["Marche en boucle autour de la plage"]
+    }
+  ],
+
+  "tour": [
+    {
+      "step": 1,
+      "yamzyText": "🪶 Bienvenue sur la Plage des Définitions. À gauche, READY. À droite, DONE. Au centre, la corde rituelle.",
+      "scrumText": "📋 Welcome to the DoR/DoD workshop beach. Left zone = entry criteria (Ready). Right = exit criteria (Done). Rope = boundary.",
+      "morphPairs": [
+        { "yamzy": "Plage des Définitions", "scrum": "DoR/DoD workshop" },
+        { "yamzy": "Corde rituelle", "scrum": "Sprint boundary" }
+      ],
+      "camera": { "position": [0, 8, 14], "lookAt": [0, 1, 0], "duration": 2.5 },
+      "wait": 8
+    },
+    {
+      "step": 2,
+      "yamzyText": "🏳 Les Drapeaux Verts à gauche — chaque planté est une condition pour qu'un ticket entre dans le sprint. Critères acceptation, dépendances levées.",
+      "scrumText": "📋 Green flags = Definition of Ready criteria. Each = condition before a ticket enters sprint. Acceptance criteria written, dependencies clear, sized.",
+      "morphPairs": [
+        { "yamzy": "Drapeaux Verts", "scrum": "DoR criteria" },
+        { "yamzy": "Entrer dans le sprint", "scrum": "Sprint entry" }
+      ],
+      "camera": { "position": [-6, 4, 6], "lookAt": [-5, 1.5, 0], "duration": 2 },
+      "highlight": "ready-flag",
+      "wait": 9
+    },
+    {
+      "step": 3,
+      "yamzyText": "🏳 Les Drapeaux Bleus à droite — chaque planté est une condition pour qu'un ticket soit livré. Tests verts, review, doc, staging.",
+      "scrumText": "📋 Blue flags = Definition of Done criteria. Tests passing, code reviewed, docs updated, deployed to staging. All must be true to call a ticket 'done'.",
+      "morphPairs": [
+        { "yamzy": "Drapeaux Bleus", "scrum": "DoD criteria" },
+        { "yamzy": "Livré", "scrum": "Done / shippable" }
+      ],
+      "camera": { "position": [6, 4, 6], "lookAt": [5, 1.5, 0], "duration": 2 },
+      "highlight": "done-flag",
+      "wait": 9
+    },
+    {
+      "step": 4,
+      "yamzyText": "⛓ Et entre les zones, les liens d'or — un Drapeau READY appelle un Drapeau DONE. Estimer impose tester. Critères impose review.",
+      "scrumText": "📋 Golden links bind DoR ↔ DoD pairs. 'Estimated' (DoR) ↔ 'Code reviewed' (DoD). 'AC written' (DoR) ↔ 'AC verified' (DoD). Coherence.",
+      "morphPairs": [
+        { "yamzy": "Liens d'or", "scrum": "DoR↔DoD coherence" }
+      ],
+      "camera": { "position": [0, 6, 8], "lookAt": [0, 2.5, 0], "duration": 2 },
+      "wait": 9
+    },
+    {
+      "step": 5,
+      "yamzyText": "🦀 Le Crabe Gardien surveille — aucun ticket ne franchit la corde sans avoir planté ses drapeaux. C'est la discipline du sprint.",
+      "scrumText": "📋 Crab = workshop facilitator reminder. No ticket crosses the rope without flags planted. Sprint discipline enforced visually.",
+      "morphPairs": [
+        { "yamzy": "Crabe Gardien", "scrum": "Workshop facilitator" }
+      ],
+      "camera": { "position": [3, 3, 5], "lookAt": [0, 0.5, 2], "duration": 2 },
+      "highlight": "crab",
+      "wait": 8
+    },
+    {
+      "step": 6,
+      "yamzyText": "📤 Quand tous les Drapeaux sont plantés, le Mage exporte les Définitions en parchemin de markdown — règle gravée dans le repo.",
+      "scrumText": "📋 Final step : export DoR/DoD as markdown file (definitions.md) committed to repo. Living documentation, source of truth.",
+      "morphPairs": [
+        { "yamzy": "Parchemin de markdown", "scrum": "definitions.md export" }
+      ],
+      "camera": { "position": [0, 8, 14], "lookAt": [0, 1, 0], "duration": 2.5 },
+      "wait": 8
+    }
+  ],
+
+  "playExample": {
+    "duration": 60,
+    "description": "📜 Construction complète DoR/DoD : 2 drapeaux READY plantés, 2 drapeaux DONE plantés, lien tracé, export markdown.",
+    "narratorMode": "yamzy",
+    "steps": [
+      {
+        "atSeconds": 0,
+        "yamzyText": "🪶 Arrivée sur la Plage. Le sable est vierge, la corde tendue, les zones vides — la cérémonie peut commencer.",
+        "scrumText": "📋 DoR/DoD workshop starting. Beach empty, no flags yet. Team gathered under umbrella ready to negotiate criteria.",
+        "morphPairs": [
+          { "yamzy": "Arrivée sur la Plage", "scrum": "Workshop kickoff" },
+          { "yamzy": "Sable vierge", "scrum": "Empty criteria board" }
+        ],
+        "camera": { "position": [0, 8, 14], "lookAt": [0, 1, 0], "duration": 2 }
+      },
+      {
+        "atSeconds": 10,
+        "yamzyText": "🏳 Premier Drapeau Vert planté : 'Critères d'acceptation rédigés et compris'. Aucun ticket n'entrera sans cette promesse.",
+        "scrumText": "📋 DoR #1 planted : 'Acceptance criteria written and understood'. First entry condition logged. Sprint funnel becomes selective.",
+        "morphPairs": [
+          { "yamzy": "Drapeau Vert", "scrum": "DoR criterion" },
+          { "yamzy": "Promesse", "scrum": "Entry condition" }
+        ],
+        "camera": { "position": [-6, 3, 4], "lookAt": [-5, 1.5, -1.5], "duration": 2 },
+        "highlight": "ready-flag",
+        "invokeMethod": { "name": "plantReadyFlag", "args": [0] }
+      },
+      {
+        "atSeconds": 20,
+        "yamzyText": "🏳 Deuxième Drapeau Vert : 'Objectif business clarifié + KPI mesurable'. Le sprint ne porte que des quêtes ayant du sens.",
+        "scrumText": "📋 DoR #2 planted : 'Business goal clarified + measurable KPI'. Each ticket linked to outcome metric. Strategic alignment enforced.",
+        "morphPairs": [
+          { "yamzy": "Quêtes ayant du sens", "scrum": "Outcome-driven tickets" }
+        ],
+        "camera": { "position": [-5, 3, 0], "lookAt": [-4, 1.5, -0.3], "duration": 2 },
+        "invokeMethod": { "name": "plantReadyFlag", "args": [1] }
+      },
+      {
+        "atSeconds": 30,
+        "yamzyText": "🏳 Côté DONE — Premier Drapeau Bleu : 'Tests E2E green sur la branche'. Aucun ticket ne sort sans cette preuve.",
+        "scrumText": "📋 DoD #1 planted : 'E2E tests green on branch'. First exit condition. Quality gate for shipping. Critical for production confidence.",
+        "morphPairs": [
+          { "yamzy": "Drapeau Bleu", "scrum": "DoD criterion" },
+          { "yamzy": "Preuve", "scrum": "Quality gate evidence" }
+        ],
+        "camera": { "position": [6, 3, 4], "lookAt": [5, 1.5, -1.5], "duration": 2 },
+        "highlight": "done-flag",
+        "invokeMethod": { "name": "plantDoneFlag", "args": [1] }
+      },
+      {
+        "atSeconds": 40,
+        "yamzyText": "🏳 Deuxième Drapeau Bleu : 'Code review approved (≥ 1 reviewer)'. La sagesse partagée scelle la livraison.",
+        "scrumText": "📋 DoD #2 planted : 'Code review approved'. Pair review enforced. Knowledge spreads, bugs caught early. Mandatory before merge.",
+        "morphPairs": [
+          { "yamzy": "Sagesse partagée", "scrum": "Pair-review knowledge" }
+        ],
+        "camera": { "position": [5, 3, 1], "lookAt": [5, 1.5, -0.3], "duration": 2 },
+        "invokeMethod": { "name": "plantDoneFlag", "args": [2] }
+      },
+      {
+        "atSeconds": 50,
+        "yamzyText": "⛓ Lien d'or tracé entre 'Critères rédigés' (DoR) et 'Tests E2E green' (DoD). L'un sans l'autre est vain.",
+        "scrumText": "📋 DoR↔DoD link established : 'AC written' ↔ 'E2E tests green'. Acceptance criteria become test scenarios. Coherence enforced.",
+        "morphPairs": [
+          { "yamzy": "Lien d'or", "scrum": "DoR↔DoD link" },
+          { "yamzy": "Vain sans l'autre", "scrum": "Mutually dependent" }
+        ],
+        "camera": { "position": [0, 6, 9], "lookAt": [0, 2.5, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "highlightLink", "args": [0, 0] }
+      },
+      {
+        "atSeconds": 60,
+        "yamzyText": "📤 Le Mage scelle les Définitions dans un parchemin de markdown — definitions.md gravé dans le repo, source unique de vérité.",
+        "scrumText": "📋 Final export : definitions.md committed to repo. Living documentation. Single source of truth for sprint discipline going forward.",
+        "morphPairs": [
+          { "yamzy": "Parchemin scellé", "scrum": "Markdown exported" },
+          { "yamzy": "Source unique de vérité", "scrum": "Single source of truth" }
+        ],
+        "camera": { "position": [0, 8, 14], "lookAt": [0, 1, 0], "duration": 2.5 },
+        "invokeMethod": { "name": "exportMarkdown" },
+        "emitCeremony": { "type": "flag", "label": "📤 DoR/DoD exporté en markdown", "icon": "📤" }
+      }
+    ]
+  },
+
+  "closingMessage": "🪶 Que chaque Drapeau planté affermisse ton Sprint. La Plage t'attend pour la prochaine cérémonie."
+}

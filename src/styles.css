@@ -1,6 +1,9 @@
 /* ═══ v1.0.14 — Tooltip narratif Yamzy Guide + Scrum Guide ═══ */
 @import './app/core/tooltip/wt-tooltip.styles.css';
 
+/* ═══ FONTS WELCOME (spell-caster ADN) — globales pour toutes les rooms ═══ */
+@import url("https://fonts.googleapis.com/css2?family=Henny+Penny&family=Tinos:wght@400;700&display=swap");
+
 /* Reset minimal + base globale */
 * { box-sizing: border-box; }
 
@@ -13,6 +16,62 @@ html, body {
   background: #2b2549;
   color: #e9d5ff;
   overflow: hidden;
+}
+
+/* ═══ STYLE WELCOME GLOBAL — toutes les rooms Yamzy World ═══
+   Applique automatiquement Henny Penny (titres) + Tinos (body) à chaque
+   room. Les sélecteurs utilisent les patterns conventionnels d'attributs
+   des composants room (host class se terminant par -host, narrators,
+   sidebars, glossaires, tutorials, demos).
+
+   Composants ciblés :
+   - .*-host (host divs des rooms : .pf-host, .rc-host, .gt-host…)
+   - .rs-host (room-splash)
+   - .sto-host (spell-tutorial-overlay)
+   - wt-narrator, .narrator-*, [class*="narrator"]
+   - [class*="glossaire"], [class*="data-screen"], [class*="sidebar"]
+*/
+[class$="-host"],
+.rs-host, .sto-host,
+wt-narrator, [class*="narrator"],
+[class*="glossaire"], [class*="data-screen"], [class*="sidebar"],
+[class*="-panel"], [class*="-card"], [class*="-popup"], [class*="-modal"] {
+  font-family: "Tinos", serif !important;
+}
+
+/* Titres room en Henny Penny */
+[class$="-host"] h1, [class$="-host"] h2, [class$="-host"] h3,
+.rs-host h1, .rs-host h2, .rs-host h3,
+.sto-host h1, .sto-host h2, .sto-host h3,
+[class*="narrator"] h1, [class*="narrator"] h2, [class*="narrator"] h3,
+[class*="-title"], [class*="-heading"] {
+  font-family: "Henny Penny", cursive !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.02em;
+}
+
+/* Boutons dans le viewport room : héritent Tinos */
+[class$="-host"] button:not(.sb), [class$="-host"] a:not(.sb) {
+  font-family: "Tinos", serif;
+}
+
+/* ═══ VIEWPORT FIT — toutes les rooms Yamzy World ═══
+   Hosts de room remplissent 100vw × 100vh. Canvas 3D fit absolu.
+   La fenêtre ne scroll pas. Les sidebars/topbars flottent absolutely. */
+[class$="-host"] {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+/* Canvas 3D : full size dans son host */
+[class$="-host"] canvas[class$="-canvas"],
+[class$="-host"] > canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 a { color: inherit; text-decoration: none; }

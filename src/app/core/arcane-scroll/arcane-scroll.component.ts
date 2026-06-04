@@ -23,95 +23,220 @@ interface Scroll {
   standalone: true,
   imports: [CommonModule, FormsModule],
   styles: [`
-    /* v1.0.80 — Critical CSS pour war-table (Tailwind absent).
-       Mappe les classes Tailwind utilisées vers du CSS natif. */
+    /* ── Spell-caster ADN : Henny Penny + Tinos + magenta #d54adf ─── */
+    @import url("https://fonts.googleapis.com/css2?family=Henny+Penny&family=Tinos:wght@400;700&display=swap");
+
+    :host {
+      --as-accent: #d54adf;
+      --as-bg: rgba(0, 0, 0, 0.86);
+      --as-font-body: "Tinos", serif;
+      --as-font-title: "Henny Penny", cursive;
+      --as-ink: #f0e6f5;
+      --as-ink-soft: rgba(240, 230, 245, 0.72);
+      --as-ink-faded: rgba(240, 230, 245, 0.5);
+    }
+
+    /* v1.0.80 — Critical CSS pour war-table (Tailwind absent). */
     :host .as-overlay {
       position: fixed; inset: 0; z-index: 99990;
-      background: rgba(0, 0, 0, .55); backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, .55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       display: flex; align-items: center; justify-content: center;
       animation: as-fade-in .25s ease-out;
+      font-family: var(--as-font-body);
     }
     @keyframes as-fade-in { from { opacity: 0; } to { opacity: 1; } }
     :host .as-panel {
       width: 92vw; max-width: 1200px; height: 85vh;
-      background: #fff; border-radius: 24px;
+      background-color: var(--as-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 24px;
       display: flex; flex-direction: column; overflow: hidden;
-      border: 1px solid rgba(0, 0, 0, .1);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, .5);
+      border: 1px solid color-mix(in srgb, var(--as-accent) 45%, #333);
+      border-left: 4px solid var(--as-accent);
+      box-shadow: 0 8px 40px color-mix(in srgb, var(--as-accent) 22%, transparent);
+      color: var(--as-ink);
     }
     :host .as-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 28px; border-bottom: 1px solid #f1f1f4;
+      padding: 18px 28px;
+      border-bottom: 1px solid color-mix(in srgb, var(--as-accent) 30%, transparent);
     }
     :host .as-h-left { display: flex; align-items: center; gap: 12px; }
     :host .as-h-right { display: flex; align-items: center; gap: 12px; }
-    :host .as-title { font-size: 18px; font-weight: 900; color: #111; margin: 0; letter-spacing: -.01em; }
-    :host .as-sub { font-size: 11px; color: #5412fc; font-weight: 600; margin: 2px 0 0; }
+    :host .as-title {
+      font-family: var(--as-font-title);
+      font-size: 28px; font-weight: 400;
+      color: var(--as-accent);
+      margin: 0; letter-spacing: 0.02em;
+      text-shadow: 0 0 18px color-mix(in srgb, var(--as-accent) 50%, transparent);
+    }
+    :host .as-sub {
+      font-family: var(--as-font-body);
+      font-size: 12px;
+      color: var(--as-ink-soft);
+      font-weight: 400; font-style: italic;
+      margin: 2px 0 0;
+    }
     :host .as-cats { display: flex; gap: 4px; }
     :host .as-cat-btn {
-      padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;
-      border: 1px solid #e5e7eb; background: #f9fafb; color: #6b7280;
+      font-family: var(--as-font-body);
+      padding: 5px 11px; border-radius: 8px;
+      font-size: 12px; font-weight: 700;
+      border: 1px solid color-mix(in srgb, var(--as-accent) 30%, #333);
+      background: rgba(0, 0, 0, 0.4);
+      color: var(--as-ink-soft);
       cursor: pointer; transition: all .15s;
+      backdrop-filter: blur(6px);
     }
-    :host .as-cat-btn:hover { border-color: #5412fc; color: #5412fc; }
-    :host .as-cat-btn.is-active { background: #5412fc; color: #fff; border-color: #5412fc; }
+    :host .as-cat-btn:hover {
+      border-color: var(--as-accent);
+      color: var(--as-accent);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--as-accent) 30%, transparent);
+    }
+    :host .as-cat-btn.is-active {
+      background: color-mix(in srgb, var(--as-accent) 80%, #000);
+      color: #fff;
+      border-color: var(--as-accent);
+      box-shadow: 0 0 16px color-mix(in srgb, var(--as-accent) 50%, transparent);
+    }
     :host .as-new-btn {
-      padding: 8px 16px; background: #5412fc; color: #fff; font-size: 11px;
-      font-weight: 700; border-radius: 12px; border: none; cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+      font-family: var(--as-font-title);
+      padding: 8px 18px;
+      background: color-mix(in srgb, var(--as-accent) 85%, #000);
+      color: #fff; font-size: 14px;
+      font-weight: 400; border-radius: 12px;
+      border: 1px solid var(--as-accent);
+      border-left: 4px solid var(--as-accent);
+      cursor: pointer; letter-spacing: 0.04em;
+      box-shadow: 0 4px 20px color-mix(in srgb, var(--as-accent) 35%, transparent);
+      transition: all .18s;
     }
-    :host .as-new-btn:hover { background: #4309d9; }
+    :host .as-new-btn:hover {
+      background: var(--as-accent);
+      box-shadow: 0 6px 26px color-mix(in srgb, var(--as-accent) 55%, transparent);
+      transform: translateY(-1px);
+    }
     :host .as-close-btn {
-      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-      border-radius: 8px; background: transparent; color: #9ca3af;
-      border: none; cursor: pointer; font-size: 18px;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; background: transparent;
+      color: var(--as-ink-faded);
+      border: 1px solid color-mix(in srgb, var(--as-accent) 20%, transparent);
+      cursor: pointer; font-size: 18px;
+      transition: all .15s;
     }
-    :host .as-close-btn:hover { color: #4b5563; background: #f3f4f6; }
+    :host .as-close-btn:hover {
+      color: var(--as-accent);
+      background: rgba(0,0,0,.35);
+      border-color: var(--as-accent);
+    }
     :host .as-body {
       flex: 1; overflow-y: auto; padding: 24px 28px;
       display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 16px; align-content: start;
     }
     :host .as-card {
-      border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
+      border-radius: 16px; padding: 16px;
+      display: flex; flex-direction: column; gap: 10px;
       min-height: 180px; cursor: pointer; transition: all .2s;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      background-color: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(6px);
+      border: 1px solid color-mix(in srgb, var(--as-accent) 25%, #333);
+      border-left: 4px solid var(--as-accent);
+      color: var(--as-ink);
+      box-shadow: 0 4px 20px color-mix(in srgb, var(--as-accent) 12%, transparent);
     }
-    :host .as-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.14); }
+    :host .as-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 32px color-mix(in srgb, var(--as-accent) 35%, transparent);
+      border-color: color-mix(in srgb, var(--as-accent) 60%, #333);
+    }
     :host .as-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
     :host .as-card-title-input, :host .as-card-title {
-      font-size: 14px; font-weight: 800; color: #1f2937;
+      font-family: var(--as-font-title);
+      font-size: 17px; font-weight: 400;
+      color: var(--as-accent);
       background: transparent; border: none; outline: none; flex: 1;
-      font-family: inherit; padding: 0;
+      padding: 0; letter-spacing: 0.02em;
+      text-shadow: 0 0 10px color-mix(in srgb, var(--as-accent) 35%, transparent);
     }
     :host .as-card-actions { display: flex; gap: 4px; }
     :host .as-card-btn {
-      width: 24px; height: 24px; border-radius: 6px; border: none;
-      background: rgba(0,0,0,.06); cursor: pointer; font-size: 12px;
+      width: 24px; height: 24px; border-radius: 6px;
+      border: 1px solid color-mix(in srgb, var(--as-accent) 20%, transparent);
+      background: rgba(0,0,0,.4);
+      cursor: pointer; font-size: 12px;
+      color: var(--as-ink-soft);
       display: inline-flex; align-items: center; justify-content: center;
+      transition: all .15s;
     }
-    :host .as-card-btn:hover { background: rgba(0,0,0,.12); }
+    :host .as-card-btn:hover {
+      background: rgba(0,0,0,.65);
+      border-color: var(--as-accent);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--as-accent) 35%, transparent);
+    }
     :host .as-card-pre {
-      flex: 1; font-family: 'Courier New', monospace; font-size: 12px;
-      color: #374151; white-space: pre-wrap; word-break: break-word;
-      margin: 0; line-height: 1.5;
+      flex: 1;
+      font-family: var(--as-font-body);
+      font-size: 13px; font-weight: 400;
+      color: var(--as-ink-soft);
+      white-space: pre-wrap; word-break: break-word;
+      margin: 0; line-height: 1.65;
     }
     :host .as-card-textarea {
-      flex: 1; font-family: 'Courier New', monospace; font-size: 12px;
-      background: transparent; border: 1px dashed rgba(0,0,0,.2); border-radius: 8px;
-      padding: 8px; resize: none; outline: none; color: #374151;
+      flex: 1;
+      font-family: var(--as-font-body);
+      font-size: 13px;
+      background: rgba(0,0,0,.35);
+      border: 1px dashed color-mix(in srgb, var(--as-accent) 40%, transparent);
+      border-radius: 8px;
+      padding: 8px; resize: none; outline: none;
+      color: var(--as-ink);
     }
     :host .as-card-foot { display: flex; gap: 6px; align-items: center; }
     :host .as-card-foot select {
-      font-size: 10px; padding: 3px 6px; border-radius: 6px;
-      border: 1px solid rgba(0,0,0,.1); background: rgba(255,255,255,.7);
+      font-family: var(--as-font-body);
+      font-size: 11px; padding: 3px 6px; border-radius: 6px;
+      border: 1px solid color-mix(in srgb, var(--as-accent) 30%, #333);
+      background: rgba(0,0,0,.6);
+      color: var(--as-ink);
     }
-    :host .as-color-yellow { background: #fef3c7; border: 1px solid #fde68a; }
-    :host .as-color-blue { background: #dbeafe; border: 1px solid #bfdbfe; }
-    :host .as-color-pink { background: #fce7f3; border: 1px solid #fbcfe8; }
-    :host .as-color-green { background: #dcfce7; border: 1px solid #bbf7d0; }
-    :host .as-color-purple { background: #ede9fe; border: 1px solid #ddd6fe; }
-    :host .as-empty { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #9ca3af; }
+    /* Accent-toned color variants on dark substrate */
+    :host .as-color-yellow {
+      background-color: rgba(0, 0, 0, 0.55);
+      border-left-color: #fcd34d;
+      box-shadow: 0 4px 20px color-mix(in srgb, #fcd34d 18%, transparent);
+    }
+    :host .as-color-blue {
+      background-color: rgba(0, 0, 0, 0.55);
+      border-left-color: #60a5fa;
+      box-shadow: 0 4px 20px color-mix(in srgb, #60a5fa 18%, transparent);
+    }
+    :host .as-color-pink {
+      background-color: rgba(0, 0, 0, 0.55);
+      border-left-color: #f472b6;
+      box-shadow: 0 4px 20px color-mix(in srgb, #f472b6 18%, transparent);
+    }
+    :host .as-color-green {
+      background-color: rgba(0, 0, 0, 0.55);
+      border-left-color: #4ade80;
+      box-shadow: 0 4px 20px color-mix(in srgb, #4ade80 18%, transparent);
+    }
+    :host .as-color-purple {
+      background-color: rgba(0, 0, 0, 0.55);
+      border-left-color: #c084fc;
+      box-shadow: 0 4px 20px color-mix(in srgb, #c084fc 18%, transparent);
+    }
+    :host .as-empty {
+      grid-column: 1 / -1; text-align: center;
+      padding: 60px 20px;
+      color: var(--as-ink-faded);
+      font-family: var(--as-font-body);
+      font-size: 14px;
+    }
     /* v1.0.107 — Card auto-generee depuis WAR TABLE (read-only) */
     :host .as-card-auto {
       position: relative;
@@ -121,13 +246,15 @@ interface Scroll {
     :host .as-auto-badge {
       position: absolute;
       top: 6px; right: 8px;
-      font-size: 8px; font-weight: 900;
-      letter-spacing: 0.10em;
-      padding: 2px 6px;
+      font-family: var(--as-font-body);
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 2px 7px;
       border-radius: 999px;
-      background: rgba(0, 0, 0, 0.65);
+      background: color-mix(in srgb, var(--as-accent) 75%, #000);
       color: #fff;
       pointer-events: none;
+      box-shadow: 0 0 8px color-mix(in srgb, var(--as-accent) 45%, transparent);
     }
     :host .as-pre-auto { font-style: italic; }
   `],
@@ -213,21 +340,21 @@ interface Scroll {
           <!-- Empty state -->
           <div *ngIf="!filtered().length" class="as-empty">
             <div style="font-size:48px; margin-bottom:12px">📜</div>
-            <p style="font-size:14px; margin:0 0 16px">No scrolls yet. Create your first arcane note!</p>
+            <p style="font-family:'Henny Penny',cursive; font-size:18px; margin:0 0 16px; color:#d54adf; text-shadow:0 0 12px rgba(213,74,223,0.4); letter-spacing:0.03em">No scrolls yet. Create your first arcane note!</p>
             <button (click)="addScroll()" class="as-new-btn">＋ New Scroll</button>
           </div>
         </div>
 
         <!-- Footer hint -->
-        <div style="text-align:center; padding:10px 0; font-size:10px; color:#9ca3af; border-top:1px solid #f3f4f6">
-          <code style="background:#f3f4f6; padding:2px 6px; border-radius:4px; font-size:9px">Ctrl+Space</code> pour toggle ·
+        <div style="text-align:center; padding:10px 0; font-family:'Tinos',serif; font-size:11px; color:rgba(240,230,245,0.55); border-top:1px solid rgba(213,74,223,0.25); background:rgba(0,0,0,0.3)">
+          <code style="background:rgba(213,74,223,0.18); padding:2px 6px; border-radius:4px; font-size:10px; color:#f0e6f5; font-family:'Tinos',serif">Ctrl+Space</code> pour toggle ·
           Double-click pour éditer · 📋 pour copier
         </div>
       </div>
     </div>
 
     <!-- Copied toast -->
-    <div *ngIf="copied" style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:99999; padding:8px 16px; background:#111827; color:#fff; font-size:12px; font-weight:700; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.3)">
+    <div *ngIf="copied" style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:99999; padding:10px 18px; background:rgba(0,0,0,0.86); color:#fff; font-family:'Tinos',serif; font-size:13px; font-weight:700; border-radius:12px; border:1px solid color-mix(in srgb, #d54adf 45%, #333); border-left:4px solid #d54adf; backdrop-filter:blur(10px); box-shadow:0 8px 40px color-mix(in srgb, #d54adf 22%, transparent)">
       📋 Copied to clipboard!
     </div>
   `

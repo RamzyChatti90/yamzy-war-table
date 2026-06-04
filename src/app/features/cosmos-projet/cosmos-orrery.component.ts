@@ -32,7 +32,22 @@ export interface OrreryTicket {
   storyPoints?: number;  // scale planète (1 = neutre)
   status?: string;
   visible?: boolean;     // false → planète cachée
-  date?: Date | string;  // pour bucketer par anneau (segment de l'année)
+  date?: Date | string;  // legacy : pour bucketer par anneau
+  // ═══ Système trajectoire déterministe ═══
+  startDate?: Date | string;  // début du ticket (sinon = projectStart)
+  dueDate?: Date | string;    // fin du ticket (sinon = projectEnd)
+  sprint?: string;            // grouping pour cérémonies sprint planning/review
+  priority?: number;          // 1 (haute) → 5 (basse), pour orbit radius
+  dependsOn?: (string|number)[]; // ids des tickets bloquants (pour éclipses)
+  fusedAt?: Date | string;    // date réelle de fusion = quand status passé DONE
+}
+
+/** Évenement émis par le detector d'alignements (cérémonies). */
+export interface OrreryCeremonyEvent {
+  type: 'planning' | 'daily' | 'review' | 'retro' | 'eclipse' | 'release';
+  label: string;
+  ticketIds: (string|number)[];
+  timestamp: number;  // ms epoch
 }
 
 /** Rôle assigné à un mesh lors de l'analyse mécanique. */
@@ -110,9 +125,20 @@ export class CosmosOrreryComponent implements AfterViewInit, OnDestroy, OnChange
   @Input() tickets: OrreryTicket[] = [];
   /** URL du cristal de jeu qui remplace le soleil du GLB. */
   @Input() crystalUrl = '/assets/conclave/models/crystal.glb';
+  // ═══ Système trajectoire : timeline déterministe ═══
+  /** Date début du projet (sinon min(tickets.startDate) ou now-30j). */
+  @Input() projectStartDate: Date | string | null = null;
+  /** Date fin du projet (sinon max(tickets.dueDate) ou now+30j). */
+  @Input() projectEndDate: Date | string | null = null;
+  /** Position dans le timeline (null = temps réel `Date.now()`). */
+  @Input() simulatedTime: Date | number | null = null;
+  /** Si true, ignore la simulation et utilise l'orbital classique (legacy). */
+  @Input() useDeterministicTrajectory = true;
 
   /** Émis quand l'utilisateur clique sur une planète. Payload = ticket assigné (ou null). */
   @Output() planetClick = new EventEmitter<{ ticket: OrreryTicket | null; pairIndex: number }>();
+  /** Émis quand le detector d'alignements identifie une cérémonie. */
+  @Output() ceremonyDetected = new EventEmitter<OrreryCeremonyEvent>();
 
   loadFailed = false;
   debugInfo = '';
@@ -135,15 +161,43 @@ export class CosmosOrreryComponent implements AfterViewInit, OnDestroy, OnChange
   // WHOLE = entier (= projet 100% fini), EXPLODING = scatter aléatoire, BROKEN = morceaux dispersés,
   // REFORMING = retour vers WHOLE, ORBITING = groupes orbitent (projet en cours, N groupes = N tickets)
   private crystalState: 'WHOLE' | 'EXPLODING' | 'BROKEN' | 'REFORMING' | 'ORBITING' = 'WHOLE';
-  /** Mini-cristaux : 1 clone Ruby = 1 ticket. Orbitent autour du gros, fusionnent au play. */
+  /** Mini-cristaux : 1 clone Ruby = 1 ticket. Sur un anneau du GLB avec leur propre arm. */
   private crystalMiniInstances: Array<{
     mesh: any;               // clone du Ruby mesh
     ticket: OrreryTicket;
     orbit: { radius: number; speed: number; basePhase: number; inclination: number };
-    fused: boolean;          // true = a déjà fusionné au gros cristal
-    baseScale: number;       // taille de base (% du Ruby original)
+    fused: boolean;
+    baseScale: number;
     spinSpeed: { x: number; y: number; z: number };
+    /** Pivot group au centre qui tourne pour positionner mini + arm */
+    armPivot?: any;
+    /** Cylindre doré reliant le centre au mini (notre tige) */
+    armMesh?: any;
+    /** Ring index (mappé via date) sur lequel le mini est posé */
+    ringIndex?: number;
+    /** Ancienne in-place ref (non utilisée en mode anneaux) */
+    attachedPair?: { planet: any; support: any | null } | null;
+    originalPlanetVisible?: boolean;
+    traj?: {
+      startMs: number;
+      dueMs: number;
+      fusedMs: number | null;
+      baseR: number;
+      phase0: number;
+      inclination: number;
+    };
   }> = [];
+
+  // ═══ Cache résolu du projet pour la simulation ═══
+  private resolvedProjectStartMs = 0;
+  private resolvedProjectEndMs = 0;
+  // ═══ Tracking des meshes cachés (pour cleanup propre) ═══
+  private hiddenByOrrery = new Set<any>();
+  // 🎨 4 anneaux colorés (Q1/Q2/Q3/Q4) entre les orbites pour identifier les phases projet
+  private phaseRingGroup: any = null;
+  // ═══ Detector d'alignements : éviter de re-émettre les mêmes events ═══
+  private emittedCeremonies = new Set<string>();
+  private lastCeremonyCheckMs = 0;
   private crystalRuby: any = null;        // mesh "Ruby" = le cristal entier
   private crystalSmashItems: Array<{      // morceaux qui s'éclatent
     mesh: any;
@@ -219,11 +273,13 @@ export class CosmosOrreryComponent implements AfterViewInit, OnDestroy, OnChange
     }
   }
 
+  // ⚡ Take 01 du GLB = 256s/tour → ORBIT_SPEED_BOOST 20 → ~13s/tour (visible)
+  private static readonly ORBIT_SPEED_BOOST = 20;
   private applyVelocityToMixer() {
     const v = this.projectVelocity ?? 30;
     const speedFromVelocity = Math.max(0.2, Math.min(3, v / 30));
     if (this.mixer) {
-      this.mixer.timeScale = (this.animSpeed || 1) * speedFromVelocity;
+      this.mixer.timeScale = (this.animSpeed || 1) * speedFromVelocity * CosmosOrreryComponent.ORBIT_SPEED_BOOST;
     }
   }
 
@@ -488,118 +544,454 @@ export class CosmosOrreryComponent implements AfterViewInit, OnDestroy, OnChange
    *   - Tickets en cours → leur mini orbite avec couleur et position
    * Play → chaque mini fly to center + scale 0, et le Ruby central grossit jusqu'à 1.
    */
+  /**
+   * Étape 1 — diagnostic + hide :
+   * Walk tous les meshes du GLB. Logue le détail. Cache les "astres" et "tiges"
+   * (sphères orbitales + mesh elongés non-anneaux).
+   * Garde : dôme, socle, anneaux, soleil.
+   */
+  private hideAllOrbitalMeshes() {
+    if (!this.model || !this.THREE) return;
+    const T = this.THREE;
+    const ringSet = new Set(this.ringMeshes);
+    this.model.updateMatrixWorld(true);
+    const allMeshes: Array<{obj:any; name:string; dist:number; size:number; aspect:number; isRing:boolean; isSun:boolean; willHide:boolean; reason:string}> = [];
+    this.model.traverse((obj: any) => {
+      if (!obj.isMesh || !obj.geometry) return;
+      if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
+      const bb = obj.geometry.boundingBox;
+      if (!bb) return;
+      const size = bb.getSize(new T.Vector3());
+      const worldScale = new T.Vector3();
+      obj.getWorldScale(worldScale);
+      const sx = Math.abs(size.x * worldScale.x);
+      const sy = Math.abs(size.y * worldScale.y);
+      const sz = Math.abs(size.z * worldScale.z);
+      const sortedDims = [sx, sy, sz].sort((a, b) => a - b);
+      const minDim = sortedDims[0] || 0.001;
+      const maxDim = sortedDims[2] || 0.001;
+      const aspect = maxDim / minDim;
+      const wp = new T.Vector3();
+      obj.getWorldPosition(wp);
+      const dist = wp.length();
+      const isSun = obj === this.sunMesh;
+      const isRing = ringSet.has(obj);
+      // Critère astre : sphère-like (aspect<=2) OU tige (aspect>2), non centré, taille moyenne
+      const isOrbitalSphere = aspect <= 2.2 && dist > 0.3 && dist < 25 && maxDim < 8;
+      const isOrbitalRod    = aspect > 2.2  && dist > 0.3 && dist < 25 && maxDim < 12;
+      let willHide = false;
+      let reason = '';
+      // Politique WHITELIST : on garde EXCLUSIVEMENT
+      //   1. Le soleil (remplacé par crystal de toute façon)
+      //   2. Les anneaux identifiés
+      //   3. Les très gros meshes (≥ 12 = dôme englobant)
+      //   4. Les meshes très loin du centre (dôme background)
+      // Tout le reste = caché (astres, tiges, smash items, planètes "statiques", etc.)
+      if (isSun)                        { reason = 'SUN-keep (sera remplacé par crystal)'; }
+      else if (isRing)                  { reason = 'RING-keep'; }
+      else if (maxDim >= 12)            { reason = 'DOME-keep (huge)'; }
+      else if (dist >= 25)              { reason = 'FAR-keep (dôme distant)'; }
+      else                              { willHide = true; reason = 'ORBITAL-hide (whitelist)'; }
+      if (willHide && obj.visible) {
+        obj.visible = false;
+        this.hiddenByOrrery.add(obj);
+      }
+      allMeshes.push({ obj, name: obj.name||'(noname)', dist, size: maxDim, aspect, isRing, isSun, willHide, reason });
+    });
+    console.log('═══════════════════════════════════════════════');
+    console.log('[Orrery] 🚫 ÉTAPE 1 : Diagnostic + hide des astres');
+    console.log('═══════════════════════════════════════════════');
+    console.table(allMeshes.map(m => ({
+      name: m.name, dist: m.dist.toFixed(2), size: m.size.toFixed(2),
+      aspect: m.aspect.toFixed(2), reason: m.reason
+    })));
+    const hidden = allMeshes.filter(m => m.willHide).length;
+    const kept = allMeshes.length - hidden;
+    console.log(`[Orrery] 🚫 Résultat : ${hidden} astres/tiges cachés · ${kept} éléments gardés`);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // 🎨 PHASE RINGS — 4 disques colorés entre les orbites pour visualiser
+  //    les phases du projet (Q1 green, Q2 blue, Q3 orange, Q4 red)
+  //    Rayons en LOCAL SPACE du modèle (planètes orbitent à 0.33-0.97 du pivot)
+  // ═══════════════════════════════════════════════════════════════════
+  public createPhaseRings() {
+    if (!this.THREE || !this.model) return;
+    const T = this.THREE;
+
+    // Cleanup si déjà créé (re-appel safe)
+    if (this.phaseRingGroup) {
+      this.phaseRingGroup.parent?.remove(this.phaseRingGroup);
+      this.phaseRingGroup.traverse((c: any) => {
+        if (c.geometry) c.geometry.dispose();
+        if (c.material) c.material.dispose();
+      });
+      this.phaseRingGroup = null;
+    }
+
+    this.phaseRingGroup = new T.Group();
+    this.phaseRingGroup.name = 'PhaseRings';
+
+    // 4 phases avec couleurs gaming (orbital radii local depuis log :
+    //   mercury 0.33 / venus 0.40 / earth 0.49 / mars 0.58 / jupiter 0.67 /
+    //   saturn 0.77 / neptune 0.87 / uranus 0.97)
+    const phases = [
+      { inner: 0.05, outer: 0.40, color: 0x4ade80, opacity: 0.22, label: 'Q1 — Cadrage' },
+      { inner: 0.40, outer: 0.58, color: 0x60a5fa, opacity: 0.22, label: 'Q2 — Build' },
+      { inner: 0.58, outer: 0.77, color: 0xfb923c, opacity: 0.22, label: 'Q3 — Test' },
+      { inner: 0.77, outer: 1.05, color: 0xef4444, opacity: 0.22, label: 'Q4 — Release' },
+    ];
+
+    phases.forEach((p, idx) => {
+      const ring = new T.Mesh(
+        new T.RingGeometry(p.inner, p.outer, 96, 1),
+        new T.MeshBasicMaterial({
+          color: p.color,
+          transparent: true,
+          opacity: p.opacity,
+          side: T.DoubleSide,
+          depthWrite: false,
+        })
+      );
+      ring.name = `phaseRing_${p.label}`;
+      // En space modèle Z-up : ring flat sur XY plane. Placé z=0.20 (juste sous les planètes z=0.266)
+      ring.position.z = 0.20;
+      ring.renderOrder = -1;
+      ring.userData = { phaseLabel: p.label, phaseIdx: idx };
+      this.phaseRingGroup.add(ring);
+    });
+
+    // Add as child of model so it inherits Sketchfab_Scene transform (orientation + scale)
+    this.model.add(this.phaseRingGroup);
+    console.log('[Orrery] 🎨 4 phase rings : Q1 (green) Q2 (blue) Q3 (orange) Q4 (red)');
+  }
+
   public divideCrystalForTickets() {
     if (!this.crystal || !this.crystalRuby || !this.THREE) return;
     const T = this.THREE;
     const tickets = this.tickets || [];
     const N = tickets.length;
     if (N === 0) return;
-    // Cleanup minis existants
+
     this.cleanupMiniCrystals();
-    // Cache TOUS les smash items (on ne les utilise plus dans ce mode)
     this.crystalSmashItems.forEach(it => { it.mesh.visible = false; });
-    // Compte les tickets déjà DONE — contribue à la taille initiale du Ruby central
+
+    // ═══════════════════════════════════════════════════════════════════
+    // SOLUTION FINALE basée sur la structure RÉELLE du GLB :
+    //   • 8 pivots `pXstk` (p1stk → p8stk) ANIMÉS par Take 01
+    //   • Chaque pivot contient une planète enfant (pXmercury, pXvenus...)
+    //     à un offset (~ 0.2-0.8, ~ -0.6 à 0.9, 0.27)
+    //   • Stratégie : pour chaque ticket
+    //     1. Hide la planète child du pivot
+    //     2. Clone Ruby → ajoute comme CHILD du pivot AU MÊME OFFSET
+    //     3. Mini suit automatiquement l'animation native du GLB
+    // ═══════════════════════════════════════════════════════════════════
+    const stickPivots: any[] = [];
+    this.model.traverse((obj: any) => {
+      if (obj.name && /^p\d+stk$/.test(obj.name)) stickPivots.push(obj);
+    });
+    stickPivots.sort((a, b) => {
+      const na = parseInt(a.name.replace(/\D/g, ''), 10);
+      const nb = parseInt(b.name.replace(/\D/g, ''), 10);
+      return na - nb;
+    });
+    console.log('[Orrery] 🎯 Pivots GLB trouvés :', stickPivots.map(s => s.name).join(', '));
+    if (stickPivots.length === 0) {
+      console.warn('[Orrery] ⚠ Aucun pivot pXstk — fallback espace');
+    }
+
     const doneCount = tickets.filter(t => t.status === 'DONE' || t.status === 'CLOSED').length;
-    const donePct = doneCount / N;
-    // Ruby central : visible et scale = doneCount/N (au moins 0.001 sinon invisible)
+    const donePct = N > 0 ? doneCount / N : 0;
     this.crystalRuby.visible = donePct > 0.001;
     this.crystalRuby.scale.set(Math.max(0.001, donePct), Math.max(0.001, donePct), Math.max(0.001, donePct));
-    // Force la mise à jour de la world matrix pour avoir getWorldScale correct
     this.crystal.updateMatrixWorld(true);
-    // Calcul de la taille des minis en WORLD scale (sinon ils sont microscopiques)
-    const rubyWorldScale = new T.Vector3();
-    this.crystalRuby.getWorldScale(rubyWorldScale);
-    // Fallback : si getWorldScale retourne 0 ou pas fiable, prend crystal.scale × 1
-    const effectiveRubyScale = rubyWorldScale.x > 0.001 ? rubyWorldScale.x : (this.crystal.scale.x || 1);
-    const miniWorldScale = Math.max(0.05, effectiveRubyScale * 0.32);
-    // ⚠ Rayon d'orbite = bbox de la SCÈNE entière fitee à 12 → orbit radius en world ≈ 3-7
-    //    (totalement indépendant du rubyWorldScale qui peut être petit)
-    const orbitBaseRadius = 3.5;  // unités WORLD, visible quel que soit le scale du crystal
-    console.log('[Orrery] 💎 Ruby world scale:', rubyWorldScale.x.toFixed(3),
-                '→ effective:', effectiveRubyScale.toFixed(3),
-                '→ mini scale:', miniWorldScale.toFixed(3),
-                '→ orbit radius base:', orbitBaseRadius.toFixed(3),
-                '(WORLD units, fixed)');
+    // Taille mini : 32% du Ruby (avec fallback si Ruby scale microscopique)
+    const rubyWS = new T.Vector3();
+    this.crystalRuby.getWorldScale(rubyWS);
+    const effective = rubyWS.x > 0.001 ? rubyWS.x : (this.crystal.scale.x || 1);
+    const miniWorldScale = Math.max(0.08, effective * 0.32);
+    const orbitBaseRadius = 3.5;   // unités WORLD, indépendant du scale crystal
 
-    // Crée N mini-cristaux (clones du Ruby) pour chaque ticket NON-done
+    this.resolveProjectWindow();
+    const toMs = (d: any) => {
+      if (!d) return null;
+      if (typeof d === 'number') return d;
+      const t = (d instanceof Date) ? d.getTime() : new Date(d).getTime();
+      return isNaN(t) ? null : t;
+    };
+
+    // ═══ Hide TOUTES les planètes children des pivots pXstk ═══
+    const planetNameRegex = /^p\d+(mercury|venus|earth|mars|jupiter|saturn|neptune|uranus|rings)$/i;
+    const planetSet = new Set<any>();
+    stickPivots.forEach(stk => {
+      stk.children.forEach((child: any) => {
+        if (child.name && planetNameRegex.test(child.name)) {
+          child.traverse((sub: any) => {
+            if (sub.isMesh) { sub.visible = false; planetSet.add(sub); }
+          });
+        }
+      });
+    });
+    this.hiddenByOrrery = planetSet;
+    console.log('[Orrery] 🚫 Planètes GLB cachées :', planetSet.size, 'meshes');
+
+    // ═══ Debug offsets : voir si les planets ont une position non-nulle dans leur pivot ═══
+    stickPivots.forEach(stk => {
+      const pc = stk.children.find((c: any) => c.name && planetNameRegex.test(c.name));
+      if (pc) {
+        console.log(`[Orrery] 📐 ${stk.name} → ${pc.name} localPos = (${pc.position.x.toFixed(3)}, ${pc.position.y.toFixed(3)}, ${pc.position.z.toFixed(3)}) | scale = ${pc.scale.x.toFixed(3)}`);
+      } else {
+        console.log(`[Orrery] 📐 ${stk.name} → AUCUN planet child trouvé. Children:`, stk.children.map((c:any)=>c.name).join(', '));
+      }
+    });
+
+    // ═══ Pour chaque ticket : clone Ruby + ajoute comme child du pivot ═══
     let placed = 0;
-    const pendingCount = N - doneCount;
     for (let i = 0; i < N; i++) {
       const ticket = tickets[i];
       const isDone = ticket.status === 'DONE' || ticket.status === 'CLOSED';
-      if (isDone) continue;  // déjà compté dans doneCount → ne crée pas de mini
+      if (isDone) continue;
+      if (stickPivots.length === 0) break;
+      const stk = stickPivots[placed % stickPivots.length];
+      const planetChild = stk.children.find((c: any) => c.name && planetNameRegex.test(c.name));
+      const offset = planetChild ? planetChild.position.clone() : new T.Vector3(0.27, 0, 0);
+
       const mini = this.crystalRuby.clone(true);
-      // Clone le matériau pour pouvoir le teinter individuellement sans affecter le Ruby
       try { mini.material = this.crystalRuby.material.clone(); } catch {}
-      // ⚠ Ajout au scene root (pas au crystal) pour orbiter en WORLD space
-      mini.scale.set(miniWorldScale, miniWorldScale, miniWorldScale);
+      // ⚠ Scale CONSTANT : on est dans pXstk (parent scale 4.9 via Sketchfab_Scene)
+      // → 0.08 local × 4.9 ≈ 0.39 world (un peu plus gros que les planètes 0.2)
+      // Uniforme pour tous les minis = représentation cohérente de tickets
+      const miniLocalScale = 0.08;
+      mini.scale.set(miniLocalScale, miniLocalScale, miniLocalScale);
+      // 💎 Orientation comme le GRAND crystal : upright (pas de tilt) + identity rotation
+      mini.rotation.set(0, 0, 0);
+      mini.quaternion.identity();
       mini.visible = true;
       mini.frustumCulled = false;
-      // Force frustumCulled=false sur TOUS les enfants du clone (si Ruby est composé)
       mini.traverse((c: any) => { if (c.isMesh) c.frustumCulled = false; });
-      this.scene.add(mini);
-      // Optionnel : teinte le mini avec la couleur du ticket pour identification visuelle
+
+      // Teinte
       if (ticket.color && mini.material) {
         try {
           const col = new T.Color(ticket.color);
-          if (mini.material.color) mini.material.color.lerp(col, 0.4);
+          if (mini.material.color) mini.material.color.lerp(col, 0.5);
           if (mini.material.emissive) {
-            mini.material.emissive.copy(col).multiplyScalar(0.3);
-            if ('emissiveIntensity' in mini.material) mini.material.emissiveIntensity = 0.5;
+            mini.material.emissive.copy(col).multiplyScalar(0.4);
+            if ('emissiveIntensity' in mini.material) mini.material.emissiveIntensity = 0.7;
           }
           mini.material.needsUpdate = true;
         } catch {}
       }
-      const orbit = {
-        radius: orbitBaseRadius + (placed % 3) * (orbitBaseRadius * 0.4) + Math.random() * 0.3,
-        speed: 0.4 + (placed % 5) * 0.1 + Math.random() * 0.15,
-        basePhase: (placed / Math.max(1, pendingCount)) * Math.PI * 2,
-        inclination: 0.2 + Math.random() * 0.35,
+
+      // Position = MÊME OFFSET que la planète originale dans son pivot
+      mini.position.copy(offset);
+      // Ajout comme child du pivot → suit l'anim Take 01 automatiquement
+      stk.add(mini);
+
+      const tStartMs = toMs(ticket.startDate) || this.resolvedProjectStartMs;
+      const tDueMs   = toMs(ticket.dueDate) || toMs(ticket.date) || this.resolvedProjectEndMs;
+      const tFusedMs = toMs(ticket.fusedAt);
+      const traj = {
+        startMs: tStartMs,
+        dueMs: Math.max(tStartMs + 86400000, tDueMs),
+        fusedMs: tFusedMs,
+        baseR: offset.length(),
+        phase0: Math.atan2(offset.z, offset.x),
+        inclination: 0,
       };
-      // Position initiale sur l'orbite (sinon ils spawnent à (0,0,0) et restent là si t=0)
-      const cx = this.crystal.position.x;
-      const cy = this.crystal.position.y;
-      const cz = this.crystal.position.z;
-      mini.position.set(
-        cx + Math.cos(orbit.basePhase) * orbit.radius,
-        cy + Math.sin(orbit.basePhase * 0.5) * orbit.radius * orbit.inclination,
-        cz + Math.sin(orbit.basePhase) * orbit.radius,
-      );
+
       this.crystalMiniInstances.push({
         mesh: mini,
         ticket,
-        orbit,
+        orbit: { radius: offset.length(), speed: 0, basePhase: 0, inclination: 0 },
         fused: false,
-        baseScale: miniWorldScale,
-        spinSpeed: {
-          x: 0.3 + Math.random() * 0.4,
-          y: 0.8 + Math.random() * 0.5,
-          z: 0.2 + Math.random() * 0.3,
-        },
+        baseScale: miniLocalScale,
+        // 🌀 Spin Y-only à la même vitesse que le GRAND crystal (rotation.y = t * 0.4)
+        spinSpeed: { x: 0, y: 0.4, z: 0 },
+        traj,
+        attachedPair: planetChild ? { planet: planetChild, support: null } : null,
       });
       placed++;
     }
+
     if (this.crystalMiniInstances.length === 0) {
-      // Aucun ticket pending → cristal au complet
       this.crystalRuby.visible = true;
       this.crystalRuby.scale.set(1, 1, 1);
       this.crystalState = 'WHOLE';
     } else {
       this.crystalState = 'ORBITING';
     }
-    console.log('[Orrery] 💎 Mini-crystals créés —', this.crystalMiniInstances.length,
-                'orbitent,', doneCount, 'déjà fusés. Ruby scale:', donePct.toFixed(2));
+    console.log('[Orrery] 💎 [pXstk-attach] ' + this.crystalMiniInstances.length +
+                ' minis attachés aux pivots GLB animés, ' + doneCount + ' DONE.');
   }
 
-  /** Cleanup des mini-cristaux clones (mémoire + scene graph) */
+  // ═══════════════ TRAJECTOIRE DÉTERMINISTE (étape A) ═══════════════════
+  /**
+   * Résout la fenêtre temporelle du projet :
+   *   - projectStartDate / projectEndDate explicites, OU
+   *   - min(ticket.startDate) → max(ticket.dueDate), OU
+   *   - now-30j → now+30j
+   */
+  private resolveProjectWindow() {
+    const toMs = (d: any) => {
+      if (!d) return null;
+      if (typeof d === 'number') return d;
+      const t = (d instanceof Date) ? d.getTime() : new Date(d).getTime();
+      return isNaN(t) ? null : t;
+    };
+    let start = toMs(this.projectStartDate);
+    let end = toMs(this.projectEndDate);
+    if (!start || !end) {
+      const starts = this.tickets.map(t => toMs(t.startDate)).filter(Boolean) as number[];
+      const dues = this.tickets.map(t => toMs(t.dueDate) || toMs(t.date)).filter(Boolean) as number[];
+      if (!start && starts.length) start = Math.min(...starts);
+      if (!end && dues.length) end = Math.max(...dues);
+    }
+    const now = Date.now();
+    if (!start) start = now - 30 * 86400000;
+    if (!end) end = now + 30 * 86400000;
+    if (end <= start) end = start + 30 * 86400000;
+    this.resolvedProjectStartMs = start;
+    this.resolvedProjectEndMs = end;
+  }
+
+  /** Retourne l'instant simulé (ms epoch). Null/undefined → Date.now() */
+  private currentSimMs(): number {
+    if (this.simulatedTime == null) return Date.now();
+    if (typeof this.simulatedTime === 'number') return this.simulatedTime;
+    return this.simulatedTime.getTime();
+  }
+
+  /**
+   * Calcule la position monde d'un mini à l'instant `tMs` (déterministe).
+   * @returns {x,y,z,progress,fused} — fused=true si tMs >= dueMs ou >= fusedMs
+   */
+  private trajectoryAt(traj: any, crystalPos: any, tMs: number): { x:number; y:number; z:number; progress:number; fused:boolean } {
+    if (!traj) return { x: crystalPos.x, y: crystalPos.y, z: crystalPos.z, progress: 1, fused: true };
+    const t0 = traj.startMs, t1 = traj.fusedMs || traj.dueMs;
+    let progress = (tMs - t0) / Math.max(1, t1 - t0);
+    progress = Math.max(0, Math.min(1, progress));
+    const fused = (traj.fusedMs != null && tMs >= traj.fusedMs) || (tMs >= traj.dueMs);
+    if (fused) {
+      return { x: crystalPos.x, y: crystalPos.y, z: crystalPos.z, progress: 1, fused: true };
+    }
+    // θ(t) = θ₀ + 2π × progress  (une révolution sur la vie du ticket)
+    const theta = traj.phase0 + 2 * Math.PI * progress;
+    // R(t) = R_base × (1 − progress) → spirale convergente
+    const r = traj.baseR * (1 - progress * 0.85);
+    const x = crystalPos.x + Math.cos(theta) * r;
+    const z = crystalPos.z + Math.sin(theta) * r;
+    const y = crystalPos.y + Math.sin(2 * theta) * r * traj.inclination * 0.3;
+    return { x, y, z, progress, fused: false };
+  }
+
+  // ═══════════════ DÉTECTEUR DE CÉRÉMONIES (étape C) ═══════════════════
+  /**
+   * Détecte alignements à l'instant simulé. Émet un event par cérémonie nouvelle.
+   * Appelé périodiquement (throttled à 500 ms) depuis la boucle.
+   */
+  private detectCeremonies(tMs: number) {
+    if (tMs - this.lastCeremonyCheckMs < 500) return;
+    this.lastCeremonyCheckMs = tMs;
+    if (this.crystalMiniInstances.length === 0) return;
+
+    // Snapshot des progressions par mini
+    interface Snap {
+      mini: any; progress: number; theta: number; fused: boolean; sprint: string;
+    }
+    const snaps: Snap[] = this.crystalMiniInstances.map(m => {
+      const traj = m.traj;
+      const sprint = String(m.ticket.sprint || '_');
+      if (!traj) return { mini: m, progress: 0, theta: 0, fused: false, sprint };
+      const progress = Math.max(0, Math.min(1, (tMs - traj.startMs) / Math.max(1, traj.dueMs - traj.startMs)));
+      const theta = traj.phase0 + 2 * Math.PI * progress;
+      const fused = tMs >= traj.dueMs || (traj.fusedMs != null && tMs >= traj.fusedMs);
+      return { mini: m, progress, theta: theta % (2 * Math.PI), fused, sprint };
+    });
+
+    // 🌅 PLANNING — tous les minis d'un sprint à progress ≈ 0 (start)
+    const sprintGroups = new Map<string, Snap[]>();
+    for (const s of snaps) {
+      if (!sprintGroups.has(s.sprint)) sprintGroups.set(s.sprint, []);
+      sprintGroups.get(s.sprint)!.push(s);
+    }
+    sprintGroups.forEach((group, sprint) => {
+      if (sprint === '_' || group.length < 2) return;
+      const allAtStart = group.every(s => s.progress < 0.05);
+      if (allAtStart) this.emitCeremony('planning', `🌅 Planning ${sprint}`, group.map(s => s.mini.ticket.id), tMs);
+      const allNearDone = group.every(s => s.progress >= 0.85 && !s.fused);
+      if (allNearDone) this.emitCeremony('review', `🌖 Review ${sprint}`, group.map(s => s.mini.ticket.id), tMs);
+      const allFused = group.every(s => s.fused);
+      const someFused = group.filter(s => s.fused).length >= Math.ceil(group.length / 2);
+      if (allFused) this.emitCeremony('retro', `🌑 Retro ${sprint}`, group.map(s => s.mini.ticket.id), tMs);
+      else if (someFused && !allFused) {
+        // Retro signal subtle
+      }
+    });
+
+    // 🌞 DAILY — ≥2 minis non-fusés sont dans une fenêtre angulaire serrée (proche du sun = θ ≈ 0)
+    const nonFused = snaps.filter(s => !s.fused);
+    const closeToSun = nonFused.filter(s => Math.abs(((s.theta + Math.PI) % (2*Math.PI)) - Math.PI) < 0.3);
+    if (closeToSun.length >= 2) {
+      // Daily ID basé sur le jour du tMs (1 daily/jour max)
+      const day = Math.floor(tMs / 86400000);
+      this.emitCeremony('daily', `🌞 Daily standup`, closeToSun.map(s => s.mini.ticket.id), tMs, `daily-${day}`);
+    }
+
+    // ⊕ ÉCLIPSE — ticket A bloque ticket B et leurs angles sont voisins
+    for (const sB of nonFused) {
+      const deps = sB.mini.ticket.dependsOn || [];
+      if (!deps.length) continue;
+      for (const depId of deps) {
+        const sA = snaps.find(s => String(s.mini.ticket.id) === String(depId));
+        if (!sA || sA.fused) continue;
+        const angularDiff = Math.abs(sA.theta - sB.theta);
+        const minAngle = Math.min(angularDiff, 2 * Math.PI - angularDiff);
+        if (minAngle < 0.25 && sB.progress > sA.progress) {
+          this.emitCeremony('eclipse', `⊕ Éclipse : ${depId} bloque ${sB.mini.ticket.id}`, [depId, sB.mini.ticket.id], tMs);
+        }
+      }
+    }
+
+    // 🎉 RELEASE — tous les minis fusés
+    if (snaps.length > 0 && snaps.every(s => s.fused)) {
+      this.emitCeremony('release', `🎉 Release — projet 100% livré`, snaps.map(s => s.mini.ticket.id), tMs, `release-once`);
+    }
+  }
+
+  /** Émet une cérémonie (déduplique par clé) */
+  private emitCeremony(type: OrreryCeremonyEvent['type'], label: string, ticketIds: any[], tMs: number, customKey?: string) {
+    const key = customKey || `${type}-${label}-${Math.floor(tMs / 60000)}`;  // dédup minute par défaut
+    if (this.emittedCeremonies.has(key)) return;
+    this.emittedCeremonies.add(key);
+    // Cap mémoire : garde les 200 derniers
+    if (this.emittedCeremonies.size > 200) {
+      const arr = Array.from(this.emittedCeremonies);
+      this.emittedCeremonies = new Set(arr.slice(-150));
+    }
+    this.ceremonyDetected.emit({ type, label, ticketIds, timestamp: tMs });
+    console.log(`[Orrery] 🔮 Ceremony detected:`, label);
+  }
+
+  /** Reset l'historique des cérémonies (utile au scrubbing dans le passé). */
+  public resetCeremonyHistory() {
+    this.emittedCeremonies.clear();
+    this.lastCeremonyCheckMs = 0;
+  }
+
+  /** Cleanup des mini-cristaux (children des pXstk) + restore visibilité des planètes GLB */
   private cleanupMiniCrystals() {
     this.crystalMiniInstances.forEach(m => {
       try {
-        if (this.scene) this.scene.remove(m.mesh);
+        // Mini est CHILD d'un pivot pXstk → on le retire du parent
+        if (m.mesh && m.mesh.parent) m.mesh.parent.remove(m.mesh);
         m.mesh.geometry?.dispose?.();
         m.mesh.material?.dispose?.();
       } catch {}
     });
+    // Restore TOUTES les meshes cachées (planètes GLB)
+    this.hiddenByOrrery.forEach(obj => { try { obj.visible = true; } catch {} });
+    this.hiddenByOrrery.clear();
     this.crystalMiniInstances = [];
   }
 
@@ -1106,9 +1498,10 @@ export class CosmosOrreryComponent implements AfterViewInit, OnDestroy, OnChange
           if (gltf.animations && gltf.animations.length > 0) {
             this.mixer = new this.THREE.AnimationMixer(this.model);
             // Velocity-driven : 30 SP = vitesse normale, 60 SP = 2x plus rapide
+            // ⚡ ORBIT_SPEED_BOOST : Take 01 = 256s/tour → ×20 → ~13s/tour (visible)
             const v = this.projectVelocity ?? 30;
             const speedFromVelocity = Math.max(0.2, Math.min(3, v / 30));
-            this.mixer.timeScale = (this.animSpeed || 1) * speedFromVelocity;
+            this.mixer.timeScale = (this.animSpeed || 1) * speedFromVelocity * CosmosOrreryComponent.ORBIT_SPEED_BOOST;
             gltf.animations.forEach((clip: any) => {
               const action = this.mixer.clipAction(clip);
               action.setLoop(this.THREE.LoopRepeat, Infinity);
@@ -1125,6 +1518,8 @@ export class CosmosOrreryComponent implements AfterViewInit, OnDestroy, OnChange
           this.analyzeStructure();
           this.applySunColor();
           this.applyTicketsToPlanets();
+          // 🎨 PHASE RINGS : disques colorés Q1/Q2/Q3/Q4 entre les orbites
+          this.createPhaseRings();
           // ═══ CRISTAL : remplace le soleil du GLB ═══
           this.loadCrystalReplacement();
           // ═══ CLICK : raycaster sur planètes ═══
@@ -1560,30 +1955,51 @@ export class CosmosOrreryComponent implements AfterViewInit, OnDestroy, OnChange
             it.mesh.rotation.z += dt * it.random.z * rotateFactor * this.crystalBrokenSpin;
           });
         }
-        // ═══ Orbital motion des MINI-CRISTAUX (ORBITING state) — en WORLD space ═══
+        // ═══ Motion des MINI-CRISTAUX (mode pXstk-attach) ═══
+        // Les minis sont CHILDREN des pivots pXstk → l'animation Take 01 les bouge AUTO.
+        // On gère juste : fusion (visible=false quand traj.dueMs atteint) + rotation propre + breath.
         if (this.crystalState === 'ORBITING' && this.crystalMiniInstances.length > 0) {
-          // Centre = position WORLD courante du crystal (suit son bobbing)
-          const cx = this.crystal.position.x;
-          const cy = this.crystal.position.y;
-          const cz = this.crystal.position.z;
+          const tMs = this.currentSimMs();
+          let liveFusedCount = 0;
           this.crystalMiniInstances.forEach(m => {
-            if (m.fused) return;
-            // Skip si en cours de fusion (tween actif sur sa position ou scale)
-            const isFusing = this.tweens.some(tw => tw.target === m.mesh.position || tw.target === m.mesh.scale);
-            if (isFusing) return;
-            const angle = m.orbit.basePhase + m.orbit.speed * t;
-            // Position WORLD = centre du crystal + offset orbital
-            m.mesh.position.x = cx + Math.cos(angle) * m.orbit.radius;
-            m.mesh.position.z = cz + Math.sin(angle) * m.orbit.radius;
-            m.mesh.position.y = cy + Math.sin(angle * 0.5) * m.orbit.radius * m.orbit.inclination;
-            // Rotation propre du mini-cristal (vertical + autres axes pour vivacité)
+            if (m.fused) { liveFusedCount++; m.mesh.visible = false; return; }
+            // Fusion déterministe
+            if (this.useDeterministicTrajectory && m.traj) {
+              const shouldBeFused = (m.traj.fusedMs != null && tMs >= m.traj.fusedMs) ||
+                                    (tMs >= m.traj.dueMs);
+              if (shouldBeFused) {
+                m.fused = true;
+                m.mesh.visible = false;
+                liveFusedCount++;
+                return;
+              }
+            }
+            // Rotation propre du mini (en plus de l'anim du pivot)
             m.mesh.rotation.x += dt * m.spinSpeed.x;
             m.mesh.rotation.y += dt * m.spinSpeed.y;
             m.mesh.rotation.z += dt * m.spinSpeed.z;
-            // Léger pulse de scale pour la respiration
-            const breath = 1 + Math.sin(t * 1.5 + m.orbit.basePhase) * 0.08;
-            m.mesh.scale.set(m.baseScale * breath, m.baseScale * breath, m.baseScale * breath);
+            // Breath + excitement
+            let progressFactor = 0;
+            if (m.traj) {
+              progressFactor = Math.max(0, Math.min(1, (tMs - m.traj.startMs) / Math.max(1, m.traj.dueMs - m.traj.startMs)));
+            }
+            const baseBreath = 1 + Math.sin(t * 1.5 + m.orbit.basePhase) * 0.08;
+            const excitement = 1 + progressFactor * Math.sin(t * 4) * 0.12;
+            const finalScale = m.baseScale * baseBreath * excitement;
+            m.mesh.scale.set(finalScale, finalScale, finalScale);
           });
+
+          // Burndown live : Ruby grossit avec fusionCount/total
+          if (this.useDeterministicTrajectory && this.crystalRuby && this.crystalMiniInstances.length > 0) {
+            const targetScale = liveFusedCount / this.crystalMiniInstances.length;
+            const cur = this.crystalRuby.scale.x;
+            const next = cur + (Math.max(0.001, targetScale) - cur) * 0.08;
+            this.crystalRuby.scale.set(next, next, next);
+            this.crystalRuby.visible = next > 0.01;
+          }
+
+          // Détection cérémonies
+          this.detectCeremonies(tMs);
         }
         // Update particules (sauf en EXPLODING/BROKEN pour éviter conflit visuel)
         if (this.crystalState === 'WHOLE' || this.crystalState === 'REFORMING') {

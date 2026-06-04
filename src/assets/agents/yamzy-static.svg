@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 320" width="256" height="320" role="img" aria-label="YAMZY le Sage">
+  <title>YAMZY — Sage vert (statique, sans animation)</title>
+
+  <defs>
+    <!-- Gradient robe sage -->
+    <linearGradient id="ya-robe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#7fc94a"/>
+      <stop offset="55%" stop-color="#4f8a2a"/>
+      <stop offset="100%" stop-color="#2c5117"/>
+    </linearGradient>
+    <!-- Gradient chapeau violet nuit -->
+    <linearGradient id="ya-hat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#5d4ba6"/>
+      <stop offset="100%" stop-color="#241a4d"/>
+    </linearGradient>
+    <!-- Gradient peau / visage -->
+    <radialGradient id="ya-face" cx="0.5" cy="0.45" r="0.55">
+      <stop offset="0%"  stop-color="#f6dab1"/>
+      <stop offset="80%" stop-color="#c79a64"/>
+      <stop offset="100%" stop-color="#7c5731"/>
+    </radialGradient>
+    <!-- Gradient bâton bois -->
+    <linearGradient id="ya-staff" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#7a4a1a"/>
+      <stop offset="50%"  stop-color="#a8662a"/>
+      <stop offset="100%" stop-color="#583414"/>
+    </linearGradient>
+    <!-- Halo lueur cristal (statique : pas d'animation) -->
+    <radialGradient id="ya-glow" cx="0.5" cy="0.5" r="0.55">
+      <stop offset="0%"   stop-color="#a6f366" stop-opacity="0.95"/>
+      <stop offset="55%"  stop-color="#70b944" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#70b944" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Ombre portée au sol -->
+  <ellipse cx="128" cy="306" rx="62" ry="9" fill="#000" opacity="0.32"/>
+
+  <!-- Robe (corps trapézoïdal) -->
+  <path d="M 84 168 Q 94 268 64 296 L 192 296 Q 162 268 172 168 Z"
+        fill="url(#ya-robe)" stroke="#1e3a0c" stroke-width="2"/>
+
+  <!-- Manches (deux trapèzes lateraux) -->
+  <path d="M 84 178 L 56 232 L 76 244 L 96 198 Z"
+        fill="url(#ya-robe)" stroke="#1e3a0c" stroke-width="2"/>
+  <path d="M 172 178 L 200 232 L 180 244 L 160 198 Z"
+        fill="url(#ya-robe)" stroke="#1e3a0c" stroke-width="2"/>
+
+  <!-- Mains -->
+  <circle cx="68"  cy="240" r="11" fill="url(#ya-face)" stroke="#5a3a18" stroke-width="1.5"/>
+  <circle cx="188" cy="240" r="11" fill="url(#ya-face)" stroke="#5a3a18" stroke-width="1.5"/>
+
+  <!-- Ceinture -->
+  <rect x="92" y="188" width="72" height="10" fill="#3a2a14" stroke="#1a0f06" stroke-width="1"/>
+  <rect x="120" y="186" width="16" height="14" fill="#d99a51" stroke="#7c4f1f" stroke-width="1"/>
+
+  <!-- Cou + tête -->
+  <rect x="116" y="100" width="24" height="20" fill="url(#ya-face)" stroke="#5a3a18" stroke-width="1"/>
+  <circle cx="128" cy="82" r="44" fill="url(#ya-face)" stroke="#5a3a18" stroke-width="2"/>
+
+  <!-- Barbe blanche cascading -->
+  <path d="M 92 92 Q 90 150 128 168 Q 166 150 164 92 Q 148 130 128 132 Q 108 130 92 92 Z"
+        fill="#f6f6f8" stroke="#b9b9bf" stroke-width="1.5"/>
+
+  <!-- Moustache -->
+  <path d="M 108 88 Q 118 96 128 92 Q 138 96 148 88" fill="none" stroke="#e6e6ea" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Yeux fermés (style sage zen) -->
+  <path d="M 110 78 Q 116 82 122 78" fill="none" stroke="#2a1a08" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M 134 78 Q 140 82 146 78" fill="none" stroke="#2a1a08" stroke-width="2.4" stroke-linecap="round"/>
+
+  <!-- Sourcils -->
+  <path d="M 108 70 Q 116 66 124 70" fill="none" stroke="#f0f0f4" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 132 70 Q 140 66 148 70" fill="none" stroke="#f0f0f4" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Chapeau pointu -->
+  <path d="M 76 56 L 128 -8 L 180 56 Q 152 50 128 50 Q 104 50 76 56 Z"
+        fill="url(#ya-hat)" stroke="#15103a" stroke-width="2"/>
+  <!-- Bordure chapeau -->
+  <path d="M 70 54 Q 128 76 186 54 Q 180 70 128 72 Q 76 70 70 54 Z"
+        fill="#3b2e7a" stroke="#15103a" stroke-width="2"/>
+
+  <!-- Étoile au sommet du chapeau -->
+  <g transform="translate(128 -2)">
+    <polygon points="0,-10 3,-3 10,-3 4,2 7,9 0,5 -7,9 -4,2 -10,-3 -3,-3"
+             fill="#ffd95c" stroke="#a8772b" stroke-width="1"/>
+  </g>
+
+  <!-- Bâton / staff (à droite) -->
+  <rect x="208" y="36" width="8" height="248" rx="3"
+        fill="url(#ya-staff)" stroke="#2c1808" stroke-width="1.5"/>
+
+  <!-- Halo magique autour du cristal (lueur statique) -->
+  <circle cx="212" cy="36" r="38" fill="url(#ya-glow)"/>
+
+  <!-- Cristal vert au sommet du bâton -->
+  <polygon points="212,8 224,32 212,52 200,32"
+           fill="#a6f366" stroke="#3b6b1a" stroke-width="2"/>
+  <polygon points="212,8 218,32 212,40 206,32" fill="#dffba8" opacity="0.85"/>
+</svg>

@@ -1,0 +1,125 @@
+{
+  "roomKey": "conclave-vesper",
+  "meta": {
+    "name": "Conclave de VESPER",
+    "loreName": "Le studio du Magicien Stratège",
+    "icon": "💎",
+    "color": "#d99a51",
+    "summary": "L'orrery 3D où chaque ticket orbite autour d'un Ruby central qui grandit avec la burndown.",
+    "introLore": "🪶 Bienvenue dans le Conclave, jeune Mage. Ici, ton projet entier prend la forme d'un mécanisme céleste — un orrery vivant où chaque ticket devient un astre en orbite, et où les cérémonies Scrum se manifestent comme des alignements géométriques sacrés."
+  },
+  "glossary": [
+    {
+      "tutorialId": "crystal-ruby",
+      "name": "Le Ruby Central",
+      "loreName": "Le Cœur de Cristal du Projet",
+      "scrumName": "Burndown chart",
+      "desc": "Le cristal au centre — il grossit à mesure que les tickets sont accomplis. Sa taille = % de complétion du projet.",
+      "yamzyExplain": "Le Cœur de Cristal pulse au rythme des victoires de ton équipe. Plus tes Compagnons accomplissent de quêtes, plus il s'illumine et s'agrandit. Quand le Cristal atteint sa pleine forme, le projet est livré.",
+      "scrumExplain": "Visualization of remaining work in the sprint/release. As tickets reach DONE, the crystal scale grows proportionally. Reaches 100% when all stories are complete.",
+      "interactions": ["clic = explode crystal", "drag = rotate vue"]
+    },
+    {
+      "tutorialId": "mini-crystal",
+      "name": "Les Astres en Orbite",
+      "loreName": "Les Mini-Cristaux Voyageurs",
+      "scrumName": "Tickets / User Stories",
+      "desc": "Chaque mini-cristal qui orbite autour du Ruby = 1 ticket. Couleur = statut, taille = story points, position = date.",
+      "yamzyExplain": "Chaque Astre est une quête confiée à un Compagnon. Sa couleur révèle son état : vert pour TODO, ambre pour IN_PROGRESS, rouge pour BLOCKED. Quand l'astre fusionne avec le Cœur, la quête est terminée.",
+      "scrumExplain": "Each ticket in the sprint is a mini-crystal orbiting the central Ruby. Color = status (TODO/IN_PROGRESS/DONE/BLOCKED), scale ∝ story points, orbital position calculated from start/due dates.",
+      "interactions": ["clic = ouvre fiche ticket", "fusion auto à fusedAt"]
+    },
+    {
+      "tutorialId": "support-arm",
+      "name": "Les Bras Métalliques",
+      "loreName": "Les Tiges Sacrées",
+      "scrumName": "Sprint container",
+      "desc": "Les 8 bras dorés (pXstk) qui tournent. Animés par Take 01 du GLB — c'est la mécanique horlogère.",
+      "yamzyExplain": "Les Tiges Sacrées sont les piliers du mécanisme céleste. Forgées dans l'or doré, elles portent les Astres en leur sommet et les font danser autour du Cœur. Sans elles, aucune orbite.",
+      "scrumExplain": "8 metallic rotating arms native to the orrery.glb. Animated by the Take 01 animation track. Mini-crystals attach to these to inherit orbital motion automatically."
+    },
+    {
+      "tutorialId": "phase-ring",
+      "name": "Les Anneaux des Phases",
+      "loreName": "Les Cercles du Temps",
+      "scrumName": "Project Quarters (Q1/Q2/Q3/Q4)",
+      "desc": "4 disques colorés concentriques au sol : vert=Q1 Cadrage, bleu=Q2 Build, orange=Q3 Test, rouge=Q4 Release.",
+      "yamzyExplain": "Les Cercles du Temps divisent l'année en 4 saisons sacrées. Plus un Astre orbite loin du Cœur, plus tard dans l'année il accomplira sa quête.",
+      "scrumExplain": "4 colored disk rings (RingGeometry) on the floor representing project phases: Q1 Cadrage (green), Q2 Build (blue), Q3 Test (orange), Q4 Release (red)."
+    },
+    {
+      "tutorialId": "ceremony-flash",
+      "name": "Les Cérémonies",
+      "loreName": "Les Alignements Sacrés",
+      "scrumName": "Scrum ceremonies",
+      "desc": "6 cérémonies détectées par alignement géométrique : Planning, Daily, Review, Retro, Eclipse, Release.",
+      "yamzyExplain": "Quand les Astres s'alignent, une Cérémonie se manifeste. Le Mage stratège lit ces alignements pour savoir quand convoquer les rituels : Conseil Matinal, Cercle des Sages, Pacte de Victoire...",
+      "scrumExplain": "6 ceremonies auto-detected by geometric alignment: 🌅 Planning (tickets cluster at θ≈0), 🌞 Daily (cluster near sun), 🌖 Review (avg progress ≥0.9), 🌑 Retro (all fused), ⊕ Eclipse (deps+angle), 🎉 Release (all fused)."
+    }
+  ],
+  "tour": [
+    {
+      "step": 1,
+      "narratorMode": "yamzy",
+      "text": "🪶 Bienvenue au Conclave de VESPER, jeune Mage. Ici, ton projet entier prend la forme d'un orrery céleste — un mécanisme vivant où chaque élément a son rôle sacré.",
+      "wait": 5
+    },
+    {
+      "step": 2,
+      "narratorMode": "yamzy",
+      "text": "Au centre, le Cœur de Cristal. Sa taille révèle ta burndown — il croît à chaque victoire de l'équipe.",
+      "highlight": "crystal-ruby",
+      "wait": 6
+    },
+    {
+      "step": 3,
+      "narratorMode": "yamzy",
+      "text": "Autour, les Astres en Orbite. Chaque mini-cristal qui danse est un ticket. Sa couleur révèle son état, sa taille les story points.",
+      "highlight": "mini-crystal",
+      "wait": 6
+    },
+    {
+      "step": 4,
+      "narratorMode": "yamzy",
+      "text": "Les Bras Métalliques portent les Astres. Ils tournent au rythme céleste — l'animation horlogère native du GLB.",
+      "highlight": "support-arm",
+      "wait": 6
+    },
+    {
+      "step": 5,
+      "narratorMode": "yamzy",
+      "text": "Les Cercles du Temps au sol marquent les 4 trimestres. Plus un Astre orbite loin, plus tard il sera livré.",
+      "highlight": "phase-ring",
+      "wait": 6
+    },
+    {
+      "step": 6,
+      "narratorMode": "yamzy",
+      "text": "Les Cérémonies se manifestent par alignement — Planning, Daily, Review... Observe le ciel : chaque rituel a son signe géométrique.",
+      "highlight": "ceremony-flash",
+      "wait": 6
+    },
+    {
+      "step": 7,
+      "narratorMode": "yamzy",
+      "text": "✨ Tu comprends maintenant le langage du Conclave. Charge un Demo Projet pour voir le Sprint Magique se dérouler.",
+      "wait": 5
+    }
+  ],
+  "playExample": {
+    "duration": 60,
+    "description": "📜 Un Sprint de 3 mois condensé en 60 secondes : 30 tickets, 6 cérémonies, l'évolution complète du Cristal.",
+    "narratorMode": "yamzy",
+    "steps": [
+      { "atSeconds": 0,  "narratorText": "🪶 Sprint Magique S1, Jour 1. Le Royaume du projet s'éveille." },
+      { "atSeconds": 4,  "narratorText": "🌅 Cérémonie Planning : les Astres s'alignent à θ=0", "emitCeremony": { "type": "planning", "label": "Planning Sprint 1", "icon": "🌅" } },
+      { "atSeconds": 10, "narratorText": "🌞 Conseil Matinal — les Astres se rapprochent du Cœur" },
+      { "atSeconds": 20, "narratorText": "⊕ Éclipse : 2 dépendances bloquantes alignées", "emitCeremony": { "type": "eclipse", "label": "Éclipse de blocage", "icon": "⊕" } },
+      { "atSeconds": 30, "narratorText": "🌖 Sprint Review : 80% des Astres ont fusionné", "emitCeremony": { "type": "review", "label": "Sprint Review S1", "icon": "🌖" } },
+      { "atSeconds": 40, "narratorText": "🌑 Cercle des Sages — Retro" },
+      { "atSeconds": 50, "narratorText": "💎 Le Cristal atteint sa forme complète" },
+      { "atSeconds": 55, "narratorText": "🎉 Release v1.0 — tous les Astres sont fusionnés", "emitCeremony": { "type": "release", "label": "Release v1.0", "icon": "🎉" } }
+    ]
+  },
+  "closingMessage": "🪶 Te voilà initié au Conclave. Que tes alignements soient toujours fructueux."
+}
