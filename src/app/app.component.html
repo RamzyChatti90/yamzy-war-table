@@ -1,1 +1,12 @@
+<!-- 🪄 SpellHeader unifié — visible sur toutes les pages selon SpellNavService -->
+<wt-spell-header
+  *ngIf="nav.snap().showHeader"
+  [crumbs]="nav.snap().crumbs"
+  [backTo]="nav.snap().backTo"
+  [showQuit]="nav.snap().showQuit"
+  [accent]="nav.snap().accent" />
+
 <router-outlet></router-outlet>
+
+<!-- 🎚 SpellFooter unifié — slots dynamiques par room via SpellFooterService -->
+<wt-spell-footer />

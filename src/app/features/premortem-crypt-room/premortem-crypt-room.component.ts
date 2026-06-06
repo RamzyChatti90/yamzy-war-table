@@ -26,7 +26,7 @@ import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
 import { playIslandIntro } from '../../core/island-intro/island-intro';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellPanelComponent } from '../../core/spell-ui';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellPanelComponent, SpellFooterService } from '../../core/spell-ui';
 
 // ─── Modèles métier ──────────────────────────────────────────────────
 interface PremortemRisk {
@@ -45,7 +45,6 @@ interface PremortemRisk {
   template: `
     <div class="pmc-host">
       <header class="pmc-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#831843" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="pmc-title">
           <h1>⚰ Le Caveau des Pré-Mortems</h1>
           <p>Workshop d'imagination des scénarios d'échec — {{ risks().length }} sarcophages · {{ countLitCandles() }} bougies allumées · {{ countRunes() }} runes gravées</p>
@@ -84,13 +83,6 @@ interface PremortemRisk {
         <button class="pmc-btn pmc-btn-danger" (click)="ceremonySiren()">🚨 Risque critique</button>
         <button class="pmc-btn" (click)="resetCamera()">🎥 Reset cam</button>
       </aside>
-
-      <footer class="pmc-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#831843" (click)="loadDemo()" icon="🎬">Demo pré-mortem</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#831843" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">Tutorial</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#831843" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Drag = orbit · molette = zoom · clic sarcophage = détail</span>
-      </footer>
 
       <!-- 🪶 Narrator Yamzy overlay (bulle + glossary) -->
       <wt-narrator></wt-narrator>
@@ -133,7 +125,10 @@ interface PremortemRisk {
         color="#831843"
         oneLiner="Imaginer les scénarios d'échec : sarcophages, bougies vote, runes contre-mesures."
         [duration]="80"
+        [timeboxDurationS]="3600"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -152,7 +147,7 @@ interface PremortemRisk {
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
     .pmc-host { position: relative; width: 100%; height: 100vh; background: #08030a; color: #e8d8ef; font-family: 'Tinos', system-ui, serif; }
 
-    .pmc-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .pmc-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .pmc-topbar > * { pointer-events: auto; }
     .pmc-back { color: #d8b4fe; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #831843; border-radius: 8px; background: rgba(40,10,40,0.6); }
     .pmc-back:hover { background: rgba(131,24,67,0.55); }
@@ -263,6 +258,7 @@ export class PremortemCryptRoomComponent implements OnInit, OnDestroy {
 
   // ─── Services injectés ───
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
   private router = inject(Router);
 
@@ -306,6 +302,15 @@ export class PremortemCryptRoomComponent implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#831843',
+      hint: 'Drag = orbit · molette = zoom · clic sarcophage = détail',
+      controls: [
+        { icon: '🎬', label: 'Demo pré-mortem', action: () => this.loadDemo() },
+        { icon: '🎓', label: 'Tutorial', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -318,6 +323,7 @@ export class PremortemCryptRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -1058,5 +1064,11 @@ export class PremortemCryptRoomComponent implements OnInit, OnDestroy {
   /** Entrer (skip play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(3600, 'Pre-mortem');
   }
 }

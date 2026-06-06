@@ -21,7 +21,7 @@ import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
 import { playIslandIntro } from '../../core/island-intro/island-intro';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } from '../../core/spell-ui';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellFooterService } from '../../core/spell-ui';
 
 interface OrchardTicket {
   id: number;
@@ -40,14 +40,9 @@ interface OrchardTicket {
   template: `
     <div class="ro-host">
       <header class="ro-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#84cc16" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="ro-title">
           <h1>🍇 Le Verger des Affinages</h1>
           <p>Backlog grooming · {{ tickets().length }} fruits · {{ dorOkCount() }} dorés · {{ basketCount() }} dans le panier</p>
-        </div>
-        <div class="ro-actions">
-          <wt-spell-btn variant="primary" size="sm" accent="#84cc16" (click)="openTutorial()" icon="🎓" title="Visite guidée">Tutorial</wt-spell-btn>
-          <wt-spell-btn variant="primary" size="sm" accent="#84cc16" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
         </div>
       </header>
 
@@ -86,7 +81,10 @@ interface OrchardTicket {
         color="#84cc16"
         oneLiner="Backlog grooming : fruits = tickets, mûrissent quand DoR OK."
         [duration]="70"
+        [timeboxDurationS]="3600"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -103,10 +101,10 @@ interface OrchardTicket {
   `,
   styles: [`
     :host { display: block; position: fixed; inset: 0; }
-    .ro-host { position: relative; width: 100%; height: 100%; background: #0a1a0a; color: #d4f0d4; font-family: 'Tinos', serif; overflow: hidden; }
+    .ro-host { position: relative; width: 100%; height: 100dvh; max-height: 100dvh; background: #0a1a0a; color: #d4f0d4; font-family: "Tinos", serif; overflow: hidden; }
     .ro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-    .ro-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .ro-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .ro-topbar > * { pointer-events: auto; }
     .ro-back { color: #bef264; text-decoration: none; font-size: 13px; padding: 7px 12px; border: 1px solid #84cc16; border-radius: 8px; background: rgba(20, 40, 20, 0.75); backdrop-filter: blur(6px); }
     .ro-back:hover { background: rgba(132, 204, 22, 0.25); }
@@ -139,7 +137,7 @@ interface OrchardTicket {
     @keyframes ro-flash-pulse { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes ro-flash-grow { 0% { transform: scale(0.4); opacity: 0; } 18% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
 
-    .ro-manifesto { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 24px; background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); text-align: center; font-size: 13px; opacity: 0.75; z-index: 6; pointer-events: none; }
+    .ro-manifesto { position: absolute; bottom: 60px; left: 0; right: 0; padding: 10px 24px; background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); text-align: center; font-size: 13px; opacity: 0.75; z-index: 6; pointer-events: none; }
     .ro-manifesto em { color: #bef264; }
   `]
 })
@@ -178,6 +176,7 @@ export class RefinementOrchardRoomComponent implements OnInit, OnDestroy {
 
   // ─── DI ───
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   // ─── Three.js ───
@@ -215,7 +214,16 @@ export class RefinementOrchardRoomComponent implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════
   // LIFECYCLE
   // ═══════════════════════════════════════════════════════════════════
-  ngOnInit(): void { this.bootstrap(); }
+  ngOnInit(): void {
+    this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#84cc16',
+      controls: [
+        { icon: '🎓', label: 'Tutorial', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
+  }
 
   ngOnDestroy(): void {
     this.disposed = true;
@@ -224,6 +232,7 @@ export class RefinementOrchardRoomComponent implements OnInit, OnDestroy {
     if (this.sky) this.sky.dispose();
     if (this.renderer) { try { this.renderer.dispose(); } catch {} }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap(): Promise<void> {
@@ -657,6 +666,12 @@ export class RefinementOrchardRoomComponent implements OnInit, OnDestroy {
   /** Entrer (skip play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(3600, 'Refinement');
   }
 
   // ═══════════════════════════════════════════════════════════════════

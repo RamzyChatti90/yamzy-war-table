@@ -25,7 +25,7 @@ import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { createPortal3D, getIslandForRoom, PortalHandle } from '../../core/portal/portal.factory';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } from '../../core/spell-ui';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellFooterService } from '../../core/spell-ui';
 
 // ─── Types métier ──────────────────────────────────────────────────
 type Provider = 'aws' | 'gcp' | 'azure';
@@ -74,7 +74,6 @@ const SERVICE_COLOR: Record<ServiceKind, number> = {
   template: `
     <div class="ac-host">
       <header class="ac-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#84cc16" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="ac-title">
           <h1>⚗ ALCHEMIST CELLAR</h1>
           <p>La Cave aux Fioles —
@@ -93,17 +92,6 @@ const SERVICE_COLOR: Record<ServiceKind, number> = {
       </header>
 
       <canvas #canvas class="ac-canvas"></canvas>
-
-      <footer class="ac-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#84cc16" (click)="loadDemo()" icon="🎬">Demo billing</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#84cc16" (click)="distillRecommendation()" icon="💎">Distiller recommandation</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#84cc16" (click)="triggerAnomaly()" icon="🌋">Trigger anomalie</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#84cc16" (click)="testOwlAlert()" icon="🦉">Test owl alert</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#84cc16" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#84cc16" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#84cc16" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Souris = orbite · molette = zoom · clic fiole = service</span>
-      </footer>
 
       <wt-narrator></wt-narrator>
 
@@ -137,7 +125,10 @@ const SERVICE_COLOR: Record<ServiceKind, number> = {
         color="#84cc16"
         oneLiner="18 fioles colorées, athanor central, cristaux distillés, hibou alerte budget."
         [duration]="65"
+        [timeboxDurationS]="900"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -154,12 +145,12 @@ const SERVICE_COLOR: Record<ServiceKind, number> = {
   `,
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
-    .ac-host { position: relative; width: 100%; height: 100vh; background: #1c1410; color: #f5e8d4; font-family: system-ui, sans-serif; }
-    .ac-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .ac-host { position: relative; width: 100%; height: 100vh; background: #1c1410; color: #f5e8d4; font-family: "Tinos", serif; }
+    .ac-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .ac-topbar > * { pointer-events: auto; }
     .ac-back { color: #84cc16; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #4d7c0f; border-radius: 8px; background: rgba(20,40,10,0.4); }
     .ac-back:hover { background: rgba(77,124,15,0.4); }
-    .ac-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1px; color: #84cc16; }
+    .ac-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 1px; color: #84cc16; }
     .ac-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.85; }
     .ac-anomaly { color: #f87171; margin-left: 8px; }
     .ac-savings { color: #fbbf24; margin-left: 8px; }
@@ -212,6 +203,7 @@ export class AlchemistCellarRoomComponent implements OnInit, OnDestroy {
 
   // 🪶 Narrator Yamzy : injecté dans le footer + overlay <wt-narrator>
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   // ─── État réactif (signals) ──────────────────────────────────────
@@ -306,7 +298,22 @@ export class AlchemistCellarRoomComponent implements OnInit, OnDestroy {
   private activeFluxes: any[] = [];
 
   // ─── Lifecycle ───────────────────────────────────────────────────
-  ngOnInit() { this.bootstrap(); }
+  ngOnInit() {
+    this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#84cc16',
+      hint: 'Souris = orbite · molette = zoom · clic fiole = service',
+      controls: [
+        { icon: '🎬', label: 'Demo billing', action: () => this.loadDemo() },
+        { icon: '💎', label: 'Distiller recommandation', action: () => this.distillRecommendation() },
+        { icon: '🌋', label: 'Trigger anomalie', action: () => this.triggerAnomaly() },
+        { icon: '🦉', label: 'Test owl alert', action: () => this.testOwlAlert() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
+  }
 
   ngOnDestroy() {
     this.disposed = true;
@@ -317,6 +324,7 @@ export class AlchemistCellarRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -1689,6 +1697,12 @@ export class AlchemistCellarRoomComponent implements OnInit, OnDestroy {
   /** Entrer (skip play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(900, 'Audit coût');
   }
 
   private onResize = () => {

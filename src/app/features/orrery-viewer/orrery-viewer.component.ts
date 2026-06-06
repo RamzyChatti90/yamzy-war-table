@@ -103,7 +103,6 @@ import { CosmosOrreryComponent, OrreryTicket, OrreryCeremonyEvent } from '../cos
         <button class="ov-back" (click)="showDocs.set(!showDocs())" title="Voir le schéma du système">
           📖 Comment ça marche
         </button>
-        <a class="ov-back" routerLink="/yamzy-rooms" title="Retour Yamzy Rooms">← Yamzy Rooms</a>
       </header>
 
       <!-- 📖 Drawer documentation -->
@@ -231,7 +230,7 @@ import { CosmosOrreryComponent, OrreryTicket, OrreryCeremonyEvent } from '../cos
     }
     .ov-topbar {
       position: absolute;
-      top: 0;
+      top: 60px;
       left: 0;
       right: 0;
       z-index: 10;
@@ -239,7 +238,7 @@ import { CosmosOrreryComponent, OrreryTicket, OrreryCeremonyEvent } from '../cos
       align-items: center;
       gap: 20px;
       padding: 14px 22px;
-      background: linear-gradient(to bottom, rgba(8, 6, 20, 0.85), transparent);
+      background: transparent;
       pointer-events: none;
     }
     .ov-brand {
@@ -353,7 +352,7 @@ import { CosmosOrreryComponent, OrreryTicket, OrreryCeremonyEvent } from '../cos
     /* 🔮 Badge cérémonie centré en haut */
     .ov-ceremony {
       position: absolute;
-      top: 76px;
+      top: 136px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 25;
@@ -517,7 +516,7 @@ import { CosmosOrreryComponent, OrreryTicket, OrreryCeremonyEvent } from '../cos
     .ov-docs-list strong { color: #ffd778; }
     .ov-panel {
       position: absolute;
-      top: 70px;
+      top: 130px;
       right: 22px;
       z-index: 20;
       min-width: 280px;

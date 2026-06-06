@@ -13348,3 +13348,24 @@ body { background: #0a0820 !important; }
   from { transform: rotate(0deg); }
   to   { transform: rotate(-360deg); }
 }
+
+/* ═══ Bouton retour Yamzy Rooms (audit sweep) ═══ */
+.wt-yamzy-back {
+  margin-right: 12px;
+  color: #d54adf;
+  text-decoration: none;
+  font-family: "Tinos", serif;
+  font-size: 13px;
+  padding: 6px 12px;
+  background-color: rgba(0,0,0,0.6);
+  border: 2px solid #d54adf;
+  border-radius: 6px;
+  transition: all 0.18s;
+  display: inline-flex;
+  align-items: center;
+}
+.wt-yamzy-back:hover {
+  background-color: rgba(213,74,223,0.25);
+  box-shadow: 0 0 14px rgba(213,74,223,0.45);
+  transform: translateY(-1px);
+}

@@ -12,15 +12,16 @@
 // ═══════════════════════════════════════════════════════════════════
 import {
   ChangeDetectionStrategy, Component, ElementRef, inject, OnDestroy, OnInit,
-  ViewChild,
+  ViewChild, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { SpellButtonComponent } from '../../core/spell-ui';
 import { createPortal3D, PortalHandle, ISLANDS, getOtherIslands, IslandDef } from '../../core/portal/portal.factory';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
 import { playIslandIntro } from '../../core/island-intro/island-intro';
+import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellFooterService } from '../../core/spell-ui';
 
 interface BuildingHandle {
   group: any;
@@ -32,15 +33,26 @@ interface BuildingHandle {
 @Component({
   selector: 'wt-commerce-island-hub',
   standalone: true,
-  imports: [CommonModule, RouterLink, SpellButtonComponent],
+  imports: [CommonModule, RouterLink, RoomSplashComponent, SpellTutorialOverlayComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <wt-room-splash *ngIf="splashVisible()"
+                    [title]="splashTitle"
+                    [loreName]="splashLoreName"
+                    [oneLiner]="splashOneLiner"
+                    [color]="splashColor"
+                    [duration]="60"
+                    (onPlay)="onSplashPlay()"
+                    (onEnter)="onSplashEnter()" />
+
+    <wt-spell-tutorial-overlay *ngIf="tutorialOpen()"
+                               [steps]="tutorialSteps"
+                               [accent]="splashColor"
+                               [title]="'Comment ça marche'"
+                               (close)="closeTutorial()" />
+
     <div class="cih-host">
       <header class="cih-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#84cc16"
-                      routerLink="/yamzy-rooms"
-                      icon="←"
-                      title="Retour à la galerie Yamzy Rooms">Yamzy Rooms</wt-spell-btn>
         <div class="cih-title">
           <h1>⚗ ÎLE DU COMMERCE</h1>
           <p>La Côte d&apos;Ambre — budgets, leads, deals du Royaume</p>
@@ -49,6 +61,8 @@ interface BuildingHandle {
           <span class="cih-badge">2 ROOMS</span>
           <span class="cih-badge">3 PORTAILS</span>
         </div>
+        <button class="cih-play-btn" (click)="replaySplash()" title="Rejouer la démo timeboxée">▶ Play</button>
+        <button class="cih-howto-btn" (click)="openTutorial()" title="Comment ça marche">📖 Comment ça marche</button>
       </header>
 
       <canvas #canvas class="cih-canvas"></canvas>
@@ -72,10 +86,8 @@ interface BuildingHandle {
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
     .cih-host { position: relative; width: 100%; height: 100vh; background: #4a2a05; color: #fef3c7; font-family: system-ui, sans-serif; }
-    .cih-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(74,42,5,0.85) 0%, rgba(74,42,5,0) 100%); pointer-events: none; }
+    .cih-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: transparent; pointer-events: none; }
     .cih-topbar > * { pointer-events: auto; }
-    .cih-back { color: #fbbf24; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #b89240; border-radius: 8px; background: rgba(40,30,5,0.6); }
-    .cih-back:hover { background: rgba(251,191,36,0.3); }
     .cih-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1.5px; color: #fbbf24; text-shadow: 0 0 12px rgba(251,191,36,0.55); }
     .cih-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.8; }
     .cih-meta { display: flex; gap: 6px; font-size: 10px; }
@@ -89,11 +101,52 @@ interface BuildingHandle {
     .cih-island-chip { background: rgba(20,20,40,0.7); color: var(--accent, #fbbf24); border: 1px solid var(--accent, #fbbf24); padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; text-decoration: none; font-weight: 600; transition: all 0.15s; }
     .cih-island-chip:hover { background: rgba(0,0,0,0.5); box-shadow: 0 0 10px var(--accent, #fbbf24); }
     .cih-spacer { flex: 1 1 20px; }
+    .cih-play-btn {
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      border: 2px solid color-mix(in srgb, #fbbf24 55%, transparent);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: "Tinos", serif;
+      font-size: 14px;
+      backdrop-filter: blur(4px);
+      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
+      transition: all 0.25s ease;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+    .cih-play-btn:hover {
+      border-color: #fbbf24;
+      color: #fde68a;
+      box-shadow: 0 0 16px color-mix(in srgb, #fbbf24 55%, transparent);
+      transform: translateY(-1px);
+    }
+    .cih-howto-btn {
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      border: 2px solid color-mix(in srgb, var(--accent-color, #fbbf24) 55%, transparent);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: "Tinos", serif;
+      font-size: 14px;
+      backdrop-filter: blur(4px);
+      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
+      transition: all 0.25s ease;
+    }
+    .cih-howto-btn:hover {
+      border-color: var(--accent-color, #fbbf24);
+      color: #d68ddc;
+      box-shadow: 0 0 16px color-mix(in srgb, var(--accent-color, #fbbf24) 50%, transparent);
+      transform: translateY(-1px);
+    }
   `]
 })
 export class CommerceIslandHubComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvasEl!: ElementRef<HTMLCanvasElement>;
   private router = inject(Router);
+  private spellFooter = inject(SpellFooterService);
 
   private scene: any;
   private camera: any;
@@ -117,8 +170,35 @@ export class CommerceIslandHubComponent implements OnInit, OnDestroy {
 
   private readonly islandDef: IslandDef = ISLANDS.find(i => i.id === 'commerce')!;
 
+  // 🎬 Splash & Tutorial state
+  splashVisible = signal<boolean>(true);
+  tutorialOpen = signal<boolean>(false);
+
+  splashTitle = 'Commerce';
+  splashLoreName = 'Le Royaume Mercantile';
+  splashOneLiner = "L'île aux cartes du destin et aux oracles aquatiques — où se forge la voix du client et le pipeline commercial.";
+  splashColor = '#fbbf24';
+  tutorialSteps: TutorialStep[] = [
+    { title: 'Bienvenue', body: 'Bienvenue sur le Royaume Mercantile. Ici la voix du client résonne dans les aquariums et le pipeline commercial se lit dans les cartes.' },
+    { title: 'Card Tavern', body: '🃏 La taverne aux cartes — leads qualifiés, deals en cours, MRR. Win rate ? Cycle de vente ? Tour les cartes du destin.' },
+    { title: 'Oracle Aquarium', body: '🐠 L\'étang des voix — méduses = pain points, poissons = interviews clients, trésors = JTBD validés.' },
+    { title: 'Mana Fountain', body: '💧 La fontaine de Mana — chaque question Yamzy coûte des tokens, des mL d\'eau cooling, et des $.' },
+  ];
+
+  onSplashPlay(): void { this.splashVisible.set(false); }
+  onSplashEnter(): void { this.splashVisible.set(false); }
+  openTutorial(): void { this.tutorialOpen.set(true); }
+  closeTutorial(): void { this.tutorialOpen.set(false); }
+  /** Rejoue la démo timeboxée en réaffichant le splash welcome. */
+  replaySplash(): void { this.splashVisible.set(true); }
+
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#fbbf24',
+      controls: [],
+      hint: 'Drag = orbit · molette = zoom · clic bâtiment = entrer dans la room',
+    });
   }
 
   ngOnDestroy() {
@@ -132,6 +212,7 @@ export class CommerceIslandHubComponent implements OnInit, OnDestroy {
     }
     window.removeEventListener('resize', this.onResize);
     for (const p of this.portals) p.dispose();
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {

@@ -49,3 +49,4 @@ yamzy-extensions-local.json
 # (commenter la ligne suivante pour publier l'image)
 # src/assets/splash/war-table.png
 .claude/
+src/assets/conclave/models/water_waves.glb

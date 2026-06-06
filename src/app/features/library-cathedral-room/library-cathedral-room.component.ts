@@ -28,7 +28,7 @@ import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { createPortal3D, getIslandForRoom, PortalHandle } from '../../core/portal/portal.factory';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellButtonComponent, SpellTutorialOverlayComponent, TutorialStep } from '../../core/spell-ui';
+import { SpellButtonComponent, SpellTutorialOverlayComponent, TutorialStep, SpellFooterService } from '../../core/spell-ui';
 
 interface RuneArticle {
   id: number;
@@ -57,7 +57,6 @@ interface RuneArticle {
   template: `
     <div class="lc-host">
       <header class="lc-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#a78bfa" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="lc-title">
           <h1>🏛 LIBRARY CATHEDRAL</h1>
           <p>La Bibliothèque du Conclave — {{ articles().length }} articles · {{ trendingCount() }} trending · {{ staleCount() }} stale · {{ crossRefCount() }} fils dorés</p>
@@ -73,17 +72,6 @@ interface RuneArticle {
       </header>
 
       <canvas #canvas class="lc-canvas"></canvas>
-
-      <footer class="lc-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#a78bfa" (click)="loadDemo()" icon="🎬">Demo wiki</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#a78bfa" (click)="launchSearchSphere('react')" icon="🔍">Search "react"</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#a78bfa" (click)="sendEagle()" icon="🦅">Send eagle</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#a78bfa" (click)="newArticle()" icon="📜">New article</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#a78bfa" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#a78bfa" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#a78bfa" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Souris = orbit · molette = zoom · clic livre = article</span>
-      </footer>
 
       <!-- 🪶 Narrator Yamzy overlay (bulle + glossary) -->
       <wt-narrator></wt-narrator>
@@ -122,7 +110,10 @@ interface RuneArticle {
         color="#0891b2"
         oneLiner="50 livres procéduraux, vitraux, aigle messager, sphère de recherche luminueuse."
         [duration]="65"
+        [timeboxDurationS]="1800"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -139,12 +130,12 @@ interface RuneArticle {
   `,
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
-    .lc-host { position: relative; width: 100%; height: 100vh; background: #0a1228; color: #f4e4bc; font-family: 'Cinzel', 'Trajan Pro', Georgia, serif; }
-    .lc-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .lc-host { position: relative; width: 100%; height: 100vh; background: #0a1228; color: #f4e4bc; font-family: "Tinos", serif; }
+    .lc-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .lc-topbar > * { pointer-events: auto; }
     .lc-back { color: #fcd34d; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #0891b2; border-radius: 8px; background: rgba(8,28,40,0.6); }
     .lc-back:hover { background: rgba(8,145,178,0.4); }
-    .lc-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 2px; color: #fcd34d; text-shadow: 0 0 12px rgba(252,211,77,0.4); }
+    .lc-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 2px; color: #fcd34d; text-shadow: 0 0 12px rgba(252,211,77,0.4); }
     .lc-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.75; color: #cbd5e1; letter-spacing: 0.5px; }
     .lc-legend { display: flex; gap: 12px; font-size: 11px; align-items: center; color: #cbd5e1; }
     .lc-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
@@ -201,6 +192,7 @@ export class LibraryCathedralRoomComponent implements OnInit, OnDestroy {
 
   // 🪶 Narrator Yamzy : injecté dans le footer + overlay <wt-narrator>
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   // ─── État (signals) ───
@@ -301,6 +293,19 @@ export class LibraryCathedralRoomComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#a78bfa',
+      hint: 'Souris = orbit · molette = zoom · clic livre = article',
+      controls: [
+        { icon: '🎬', label: 'Demo wiki', action: () => this.loadDemo() },
+        { icon: '🔍', label: 'Search "react"', action: () => this.launchSearchSphere('react') },
+        { icon: '🦅', label: 'Send eagle', action: () => this.sendEagle() },
+        { icon: '📜', label: 'New article', action: () => this.newArticle() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -312,6 +317,7 @@ export class LibraryCathedralRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -1400,6 +1406,12 @@ export class LibraryCathedralRoomComponent implements OnInit, OnDestroy {
   /** Quand l'utilisateur clique "Entrer" (skip le play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(1800, 'Doc & ADR');
   }
 
   // ═══════════════════════════════════════════════════════════════════

@@ -25,7 +25,7 @@ import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { createPortal3D, getIslandForRoom, PortalHandle } from '../../core/portal/portal.factory';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellButtonComponent, SpellPanelComponent, SpellTutorialOverlayComponent, TutorialStep } from '../../core/spell-ui';
+import { SpellButtonComponent, SpellPanelComponent, SpellTutorialOverlayComponent, TutorialStep, SpellFooterService } from '../../core/spell-ui';
 
 // ─── Types ─────────────────────────────────────────────────────────
 interface StarRiskData {
@@ -53,7 +53,6 @@ interface StarRiskLink {
   template: `
     <div class="sm-host">
       <header class="sm-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#f59e0b" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="sm-title">
           <h1>🌌 STAR MAP RISKS</h1>
           <p>La Carte Céleste des Périls — {{ risks().length }} risques · {{ criticalCount() }} critiques · {{ forgottenCount() }} oubliés</p>
@@ -67,17 +66,6 @@ interface StarRiskLink {
       </header>
 
       <canvas #canvas class="sm-canvas"></canvas>
-
-      <footer class="sm-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="loadDemo()" icon="🎬">Demo risques</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="spawnComet()" icon="☄">Spawn comet</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="triggerEclipse()" icon="🌑">Trigger eclipse</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="supernovaOne()" icon="💥">Supernova one</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#f59e0b" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#f59e0b" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Drag = orbite · molette = zoom · clic étoile = détail risque</span>
-      </footer>
 
       <!-- 🪶 Narrator Yamzy overlay (bulle + glossary) -->
       <wt-narrator></wt-narrator>
@@ -122,7 +110,10 @@ interface StarRiskLink {
         color="#8b1a1a"
         oneLiner="Planétarium 3D : constellations de risques, comètes, éclipses, supernovas."
         [duration]="75"
+        [timeboxDurationS]="900"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -141,12 +132,12 @@ interface StarRiskLink {
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
     .sm-host { position: relative; width: 100%; height: 100vh;
       background: radial-gradient(ellipse at top, #1a0a2e 0%, #0a0518 50%, #000000 100%);
-      color: #e8eaf6; font-family: system-ui, sans-serif; }
-    .sm-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+      color: #e8eaf6; font-family: "Tinos", serif; }
+    .sm-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .sm-topbar > * { pointer-events: auto; }
     .sm-back { color: #f4a8a8; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #8b1a1a; border-radius: 8px; background: rgba(40,0,0,0.4); }
     .sm-back:hover { background: rgba(139,26,26,0.4); }
-    .sm-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1px; color: #f4a8a8; text-shadow: 0 0 12px rgba(139,26,26,0.6); }
+    .sm-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 1px; color: #f4a8a8; text-shadow: 0 0 12px rgba(139,26,26,0.6); }
     .sm-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.7; }
     .sm-legend { display: flex; gap: 12px; font-size: 11px; align-items: center; }
     .sm-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
@@ -206,6 +197,7 @@ export class StarMapRisksRoomComponent implements OnInit, OnDestroy {
 
   // 🪶 Narrator Yamzy : injecté dans le footer + overlay <wt-narrator>
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   // ─── State signals ────────────────────────────────────────────────
@@ -301,6 +293,19 @@ export class StarMapRisksRoomComponent implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#f59e0b',
+      hint: 'Drag = orbite · molette = zoom · clic étoile = détail risque',
+      controls: [
+        { icon: '🎬', label: 'Demo risques', action: () => this.loadDemo() },
+        { icon: '☄', label: 'Spawn comet', action: () => this.spawnComet() },
+        { icon: '🌑', label: 'Trigger eclipse', action: () => this.triggerEclipse() },
+        { icon: '💥', label: 'Supernova one', action: () => this.supernovaOne() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -312,6 +317,7 @@ export class StarMapRisksRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -1280,6 +1286,12 @@ export class StarMapRisksRoomComponent implements OnInit, OnDestroy {
   /** Quand l'utilisateur clique "Entrer" (skip le play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(900, 'Risk review');
   }
 
   // ═══════════════════════════════════════════════════════════════════

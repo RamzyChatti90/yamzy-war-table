@@ -36,7 +36,7 @@ import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
 import { playIslandIntro } from '../../core/island-intro/island-intro';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } from '../../core/spell-ui';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellFooterService } from '../../core/spell-ui';
 
 // ─── Modèles métier ───
 interface WhyLevel {
@@ -54,15 +54,9 @@ interface WhyLevel {
   template: `
     <div class="fw-host">
       <header class="fw-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#475569" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="fw-title">
           <h1>🪨 Le Puits des Cinq Pourquoi</h1>
           <p>Root Cause Analysis · 5 niveaux pour atteindre la racine</p>
-        </div>
-        <div class="fw-actions">
-          <wt-spell-btn variant="secondary" size="sm" accent="#475569" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-          <wt-spell-btn variant="primary" size="sm" accent="#475569" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-          <wt-spell-btn variant="primary" size="sm" accent="#475569" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
         </div>
       </header>
 
@@ -97,7 +91,10 @@ interface WhyLevel {
         color="#475569"
         oneLiner="Root cause Toyota : descendre 5 niveaux pour atteindre la racine."
         [duration]="70"
+        [timeboxDurationS]="1800"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -114,14 +111,14 @@ interface WhyLevel {
   `,
   styles: [`
     :host { display: block; position: fixed; inset: 0; }
-    .fw-host { position: relative; width: 100%; height: 100%; background: #0a0e18; color: #e2e8f0; font-family: system-ui, sans-serif; overflow: hidden; }
+    .fw-host { position: relative; width: 100%; height: 100dvh; max-height: 100dvh; background: #0a0e18; color: #e2e8f0; font-family: "Tinos", serif; overflow: hidden; }
     .fw-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-    .fw-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .fw-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .fw-topbar > * { pointer-events: auto; }
     .fw-back { color: #94a3b8; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #475569; border-radius: 8px; background: rgba(15,23,42,0.7); }
     .fw-back:hover { background: rgba(71,85,105,0.5); }
-    .fw-title h1 { margin: 0; font-size: 18px; font-weight: 700; color: #cbd5e1; text-shadow: 0 0 12px rgba(148,163,184,0.5); letter-spacing: 1px; }
+    .fw-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; color: #cbd5e1; text-shadow: 0 0 12px rgba(148,163,184,0.5); letter-spacing: 1px; }
     .fw-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.7; font-style: italic; }
     .fw-actions { margin-left: auto; display: flex; gap: 8px; }
     .fw-actions button { background: rgba(30,41,59,0.7); color: #cbd5e1; border: 1px solid #475569; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; }
@@ -153,6 +150,7 @@ export class FiveWhysWellRoomComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvasEl!: ElementRef<HTMLCanvasElement>;
 
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
   private router = inject(Router);
 
@@ -222,6 +220,14 @@ export class FiveWhysWellRoomComponent implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#475569',
+      controls: [
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -232,6 +238,7 @@ export class FiveWhysWellRoomComponent implements OnInit, OnDestroy {
     if (this.renderer) { try { this.renderer.dispose(); } catch {} }
     if (this.ceremonyFlashTimer) clearTimeout(this.ceremonyFlashTimer);
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -641,6 +648,12 @@ export class FiveWhysWellRoomComponent implements OnInit, OnDestroy {
   /** Entrer (skip play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(1800, '5 Whys');
   }
 
   // 🎬 Méthodes invoquées par playExample tutorial JSON

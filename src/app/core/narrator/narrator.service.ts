@@ -39,6 +39,16 @@ export class NarratorService {
   currentStepIndex = signal<number>(0);
   /** Total des étapes du tour */
   totalSteps = signal<number>(0);
+  /** Étape courante de la démo (Play Example) — pour carousel manuel */
+  currentExampleStepIdx = signal<number>(0);
+  /** Total des étapes de la démo courante */
+  totalExampleSteps = signal<number>(0);
+  /** Durée totale de la démo courante en secondes (pour le timebox HUD) */
+  currentDemoDuration = signal<number>(0);
+  /** Nom court de la démo / cérémonie courante (pour le timebox HUD) */
+  currentDemoName = signal<string>('');
+  /** Mode TIMEBOX RÉEL actif (countdown HUD sans narrateur) — différent de isExampleActive */
+  isTimeboxActive = signal<boolean>(false);
   /** Tutorial loaded pour la room courante */
   tutorial = signal<RoomTutorial | null>(null);
   /** Glossary entry actuellement highlightée (affichée dans le panel) */
@@ -231,6 +241,9 @@ export class NarratorService {
     if (step.emitCeremony) this.invokeMethod('emitCeremony', [step.emitCeremony]);
     // Invoke method
     if (step.invokeMethod) this.invokeMethod(step.invokeMethod.name, step.invokeMethod.args || []);
+    // Anim cue (style jeu : pulse, glow-ring, bounce, rotate-island, etc.)
+    if (step.animCue) this.invokeMethod('onAnimCue', [step.animCue]);
+    else this.invokeMethod('onAnimCue', [null]); // reset entre les steps
     // Auto-next si wait > 0
     if (this.tourTimer) clearTimeout(this.tourTimer);
     if (step.wait && step.wait > 0) {
@@ -286,6 +299,55 @@ export class NarratorService {
   }
 
   // ═══════════════════════════════════════════════════════════════════
+  // PLAY TIMEBOX — countdown HUD seul (vraie cérémonie chronométrée)
+  // ═══════════════════════════════════════════════════════════════════
+  /**
+   * Active le mode TIMEBOX RÉEL :
+   * - Le HUD countdown affiche la vraie durée Scrum (ex: 5min Lean Coffee, 15min Daily)
+   * - Les animations cinématiques (caméra + scène) jouent comme dans la démo guide
+   * - La narration vocale est mute (`voiceMuted`) pour ne pas distraire
+   * - Quand les animations finissent (~60s), le HUD continue de countdownner
+   *   jusqu'à la fin du timebox de cérémonie
+   */
+  startTimeboxOnly(durationS: number, ceremonyName: string): void {
+    this.stopTour();
+    this.stopPlayExample();
+    // Active le mode timebox (le HUD réagit)
+    this.isTimeboxActive.set(true);
+    this.timeboxMuteVoice = true;  // mute la voix narrateur pendant les anims
+    // Active aussi le cinematic playExample pour avoir les animations
+    const t = this.tutorial();
+    if (t?.playExample) {
+      // Lance le cinematic comme le mode démo, mais après on override la duration du HUD
+      this.activeDemoIndex.set(0);
+      this.isExampleActive.set(true);
+      this.exampleStartTime = performance.now();
+      this.exampleSteps = [...(t.playExample.steps || [])].sort((a, b) => a.atSeconds - b.atSeconds);
+      this.exampleNextStepIdx = 0;
+      this.currentExampleStepIdx.set(0);
+      this.totalExampleSteps.set(this.exampleSteps.length);
+      this.currentText.set('');  // pas de texte affiché
+      this.tickExample();
+    }
+    // OVERRIDE la duration du HUD avec la durée RÉELLE de la cérémonie
+    // (les animations finissent en ~60s mais le HUD continue jusqu'au timebox complet)
+    this.currentDemoDuration.set(durationS);
+    this.currentDemoName.set(ceremonyName);
+  }
+
+  /** Mute pour les voix pendant le mode timebox */
+  private timeboxMuteVoice = false;
+
+  /** Arrête le timebox réel — HUD disparaît + cinematic se ferme */
+  stopTimebox(): void {
+    this.isTimeboxActive.set(false);
+    this.timeboxMuteVoice = false;
+    if (this.isExampleActive()) {
+      this.isExampleActive.set(false);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
   // PLAY EXAMPLE — démo animée scénarisée
   // ═══════════════════════════════════════════════════════════════════
   /** Démarre la démo principale (idx 0) ou un scénario alternatif (idx ≥ 1 → additionalDemos[idx-1]) */
@@ -303,10 +365,54 @@ export class NarratorService {
     this.exampleStartTime = performance.now();
     this.exampleSteps = [...(demo.steps || [])].sort((a, b) => a.atSeconds - b.atSeconds);
     this.exampleNextStepIdx = 0;
+    this.currentExampleStepIdx.set(0);
+    this.totalExampleSteps.set(this.exampleSteps.length);
+    // Expose timebox metadata pour le SpellTimeboxHUD
+    this.currentDemoDuration.set(demo.duration || 60);
+    this.currentDemoName.set(demo.name || t.meta.name || 'Démo');
     if (demo.narratorMode) this.narratorMode.set(demo.narratorMode);
     this.currentText.set(demo.description);
     // Boucle de timeline
     this.tickExample();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // NAVIGATION MANUELLE de la démo (carousel : prev/next/jump)
+  // ═══════════════════════════════════════════════════════════════════
+  nextExampleStep(): void {
+    if (!this.isExampleActive() || this.exampleSteps.length === 0) return;
+    const target = Math.min(this.currentExampleStepIdx() + 1, this.exampleSteps.length - 1);
+    this.jumpToExampleStep(target);
+  }
+  prevExampleStep(): void {
+    if (!this.isExampleActive() || this.exampleSteps.length === 0) return;
+    const target = Math.max(0, this.currentExampleStepIdx() - 1);
+    this.jumpToExampleStep(target);
+  }
+  jumpToExampleStep(idx: number): void {
+    if (!this.isExampleActive() || idx < 0 || idx >= this.exampleSteps.length) return;
+    const step = this.exampleSteps[idx];
+    this.currentExampleStepIdx.set(idx);
+    this.exampleNextStepIdx = idx + 1;
+    // Avancer la timeline interne pour que le tick continue après ce step
+    const k = this.speedFactor();
+    this.exampleStartTime = performance.now() - (step.atSeconds * 1000 * k);
+    // Appliquer le step immediatement
+    if (step.yamzyText && step.scrumText) {
+      this.playDualText(step.yamzyText, step.scrumText, step.morphPairs || []);
+    } else if (step.narratorText || step.yamzyText || step.scrumText) {
+      this.cancelDualPlayback();
+      this.dualPhase.set('idle');
+      this.currentText.set(step.narratorText || step.yamzyText || step.scrumText || '');
+    }
+    if (step.camera) this.animateCamera(step.camera.position, step.camera.lookAt, step.camera.duration || 1.5);
+    if (step.highlight) {
+      this.restoreHighlights();
+      this.highlightObject(step.highlight);
+      this.highlightedEntry.set(step.highlight);
+    }
+    if (step.invokeMethod) this.invokeMethod(step.invokeMethod.name, step.invokeMethod.args || []);
+    if (step.animCue) this.invokeMethod('onAnimCue', [step.animCue]);
   }
 
   /** Retourne la liste de toutes les demos disponibles : index 0 = playExample, 1+ = additionalDemos */
@@ -362,14 +468,18 @@ export class NarratorService {
     while (this.exampleNextStepIdx < this.exampleSteps.length &&
            this.exampleSteps[this.exampleNextStepIdx].atSeconds <= elapsed) {
       const step = this.exampleSteps[this.exampleNextStepIdx];
-      // ── Texte : dual-flow si yamzyText+scrumText, sinon legacy narratorText
-      if (step.yamzyText && step.scrumText) {
+      // ── Texte : MUTÉ en mode timebox réel (sinon dual-flow ou legacy)
+      if (this.timeboxMuteVoice) {
+        // Pas de texte, pas de voix — juste animations + caméra
+        this.currentText.set('');
+      } else if (step.yamzyText && step.scrumText) {
         this.playDualText(step.yamzyText, step.scrumText, step.morphPairs || []);
       } else if (step.narratorText || step.yamzyText || step.scrumText) {
         this.cancelDualPlayback();
         this.dualPhase.set('idle');
         this.currentText.set(step.narratorText || step.yamzyText || step.scrumText || '');
       }
+      // ── Camera + highlights + animations cinématiques (toujours actives)
       if (step.camera) this.animateCamera(step.camera.position, step.camera.lookAt, step.camera.duration || 1.5);
       if (step.highlight) {
         this.restoreHighlights();
@@ -378,6 +488,11 @@ export class NarratorService {
       }
       if (step.emitCeremony) this.invokeMethod('emitCeremony', [step.emitCeremony]);
       if (step.invokeMethod) this.invokeMethod(step.invokeMethod.name, step.invokeMethod.args || []);
+      // Anim cue style jeu — jouée même en timebox pour que ça bouge !
+      if (step.animCue) this.invokeMethod('onAnimCue', [step.animCue]);
+      else this.invokeMethod('onAnimCue', [null]);
+      // Maj index courant pour le carousel
+      this.currentExampleStepIdx.set(this.exampleNextStepIdx);
       this.exampleNextStepIdx++;
     }
     if (elapsed > demo.duration) {
@@ -478,6 +593,8 @@ export class NarratorService {
   // ═══════════════════════════════════════════════════════════════════
   // INVOKE METHOD on room
   // ═══════════════════════════════════════════════════════════════════
+  /** Méthodes "soft" : pas de warn si la room ne les a pas implémentées. */
+  private readonly OPTIONAL_METHODS = new Set(['onAnimCue', 'emitCeremony']);
   private invokeMethod(name: string, args: any[]): void {
     if (!this.bridge?.roomComponent) return;
     const fn = (this.bridge.roomComponent as any)[name];
@@ -487,7 +604,7 @@ export class NarratorService {
       } catch (e) {
         console.warn(`[Narrator] ⚠ Erreur invoke ${name} :`, e);
       }
-    } else {
+    } else if (!this.OPTIONAL_METHODS.has(name)) {
       console.warn(`[Narrator] ⚠ Méthode ${name} introuvable sur la room`);
     }
   }

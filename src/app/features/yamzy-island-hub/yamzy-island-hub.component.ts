@@ -21,12 +21,12 @@
 //   🎴 Card Tavern         → Taverne médiévale
 // ═══════════════════════════════════════════════════════════════════
 import {
-  ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit,
+  ChangeDetectionStrategy, Component, effect, ElementRef, OnDestroy, OnInit,
   ViewChild, signal, inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { SpellButtonComponent, SpellTutorialOverlayComponent, TutorialStep } from '../../core/spell-ui';
+import { SpellButtonComponent, SpellTutorialOverlayComponent, SpellDayFlowComponent, TutorialStep, SpellFooterService } from '../../core/spell-ui';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
@@ -47,24 +47,41 @@ interface RoomBuilding {
 @Component({
   selector: 'wt-yamzy-island-hub',
   standalone: true,
-  imports: [CommonModule, RouterLink, SpellButtonComponent, SpellTutorialOverlayComponent, RoomSplashComponent],
+  imports: [CommonModule, RouterLink, SpellButtonComponent, SpellTutorialOverlayComponent, SpellDayFlowComponent, RoomSplashComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="hub-host">
       <header class="hub-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#d54adf"
-                      routerLink="/yamzy-rooms"
-                      icon="←"
-                      title="Retour à la galerie Yamzy Rooms">Yamzy Rooms</wt-spell-btn>
-        <div class="hub-title">
-          <h1>🏝 YAMZY ISLAND</h1>
-          <p>Le Conclave des 10 Rooms — clique sur un bâtiment pour entrer</p>
-        </div>
         <div class="hub-mode">
-          <button [class.active]="mode() === 'play'" (click)="setMode('play')">▶ PLAY</button>
-          <button [class.active]="mode() === 'edit'" (click)="setMode('edit')">✏ EDIT</button>
-          <button *ngIf="mode() === 'edit'" class="hub-mode-save" (click)="saveLayout()">💾 Save layout</button>
-          <button *ngIf="mode() === 'edit'" class="hub-mode-reset" (click)="resetLayout()">🔄 Reset</button>
+          <!-- DEMO (just le nom, pattern EXIT-style avec animations) -->
+          <button class="hub-text-btn hub-day-btn" (click)="openDayDemo()"
+                  title="Lancer la démo d'une journée Scrum complète" aria-label="Demo">
+            <span class="hub-text-label">DEMO</span>
+          </button>
+
+          <!-- PLAY -->
+          <button class="hub-text-btn hub-play-btn" [class.active]="mode() === 'play'"
+                  (click)="setMode('play')" title="Mode exploration (Play)" aria-label="Play">
+            <span class="hub-text-label">PLAY</span>
+          </button>
+
+          <!-- EDIT -->
+          <button class="hub-text-btn hub-edit-btn" [class.active]="mode() === 'edit'"
+                  (click)="setMode('edit')" title="Mode édition (Blender-way G/R/S)" aria-label="Edit">
+            <span class="hub-text-label">EDIT</span>
+          </button>
+
+          <!-- SAVE -->
+          <button *ngIf="mode() === 'edit'" class="hub-text-btn hub-mode-save"
+                  (click)="saveLayout()" title="Sauvegarder le layout" aria-label="Save">
+            <span class="hub-text-label">SAVE</span>
+          </button>
+
+          <!-- RESET -->
+          <button *ngIf="mode() === 'edit'" class="hub-text-btn hub-mode-reset"
+                  (click)="resetLayout()" title="Réinitialiser le layout" aria-label="Reset">
+            <span class="hub-text-label">RESET</span>
+          </button>
         </div>
       </header>
 
@@ -101,13 +118,6 @@ interface RoomBuilding {
         <div class="hub-edit-keys">G = translate · R = rotate · S = scale · Échap = désélectionner</div>
       </div>
 
-      <footer class="hub-controls">
-        <button (click)="resetCamera()">🎥 Vue isométrique</button>
-        <button (click)="toggleAxes()">🧭 {{ axesVisible() ? 'Hide' : 'Show' }} axes</button>
-        <button (click)="toggleGrid()">📐 {{ gridVisible() ? 'Hide' : 'Show' }} grid</button>
-        <span class="hint">Mouse drag = orbit · molette = zoom · {{ mode() === 'edit' ? 'cliquer bâtiment = sélectionner' : 'cliquer bâtiment = entrer dans la room' }}</span>
-      </footer>
-
       <!-- 🎬 Splash welcome overlay -->
       <wt-room-splash *ngIf="splashVisible()"
         title="Yamzy Island"
@@ -118,6 +128,12 @@ interface RoomBuilding {
         (onPlay)="onSplashPlay()"
         (onEnter)="onSplashEnter()" />
 
+      <!-- 🌅 DAY FLOW : timeline d'une journée Scrum à travers les rooms -->
+      <wt-spell-day-flow
+        [open]="dayDemoOpen()"
+        accent="#d54adf"
+        (close)="dayDemoOpen.set(false)" />
+
       <!-- 🎓 Tutorial overlay welcome-style -->
       <wt-spell-tutorial-overlay *ngIf="tutorialOpen()"
         title="Yamzy Island"
@@ -127,23 +143,140 @@ interface RoomBuilding {
         [currentStep]="tutorialStep()"
         [voiceLines]="tutorialVoiceLines"
         (stepChange)="tutorialStep.set($event)"
-        (close)="tutorialOpen.set(false)" />
+        (cameraViewChange)="onCameraView($event)"
+        (animCueChange)="onAnimCue($event)"
+        (close)="closeTutorial()" />
     </div>
   `,
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
     .hub-host { position: relative; width: 100%; height: 100vh; background: radial-gradient(circle at 50% 35%, #1a2348 0%, #060818 70%); color: #e8eaf6; font-family: system-ui, sans-serif; }
 
-    .hub-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    /* Topbar = juste le titre, sous la ligne SpellHeader */
+    .hub-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: transparent; pointer-events: none; }
     .hub-topbar > * { pointer-events: auto; }
+
+    /* 🪄 hub-mode RELOCALISÉE dans la ligne SpellHeader (top:0-60px) — à gauche des Glossaire/Retour/Quitter */
+    .hub-mode {
+      position: fixed !important;
+      top: 12px !important;
+      right: 500px !important;
+      left: auto !important;
+      z-index: 10501;
+      pointer-events: auto;
+    }
     .hub-back { color: #fbbf24; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #b89240; border-radius: 8px; background: rgba(40,30,5,0.5); }
     .hub-title h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 1px; color: #fbbf24; }
     .hub-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.7; }
-    .hub-mode { display: flex; gap: 8px; align-items: center; }
-    .hub-mode button { background: rgba(20,25,50,0.7); color: #e8eaf6; border: 1px solid #3b3f55; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
-    .hub-mode button.active { background: #fbbf24; color: #1a1500; border-color: #fbbf24; box-shadow: 0 0 12px rgba(251,191,36,0.5); }
-    .hub-mode-save { background: rgba(20,80,40,0.7) !important; border-color: #15803d !important; }
-    .hub-mode-reset { background: rgba(80,20,20,0.5) !important; border-color: #991b1b !important; }
+    .hub-mode { display: flex; gap: 14px; align-items: center; }
+
+    /* ━━━ TEXT button pattern (cohérent avec EXIT — juste le nom du bouton)
+       Pas de box, pas d'icône, texte stylé + animations idle blink + hover pulse ━━━ */
+    .hub-text-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 56px;
+      height: 44px;
+      padding: 0 6px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      transition: color 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+      overflow: visible;
+      font-family: inherit;
+    }
+    .hub-text-label {
+      font-family: "Tinos", "Trebuchet MS", serif;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      color: inherit;
+      text-shadow: 0 0 4px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.7);
+      transition: text-shadow 0.25s ease, letter-spacing 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+      white-space: nowrap;
+      line-height: 1;
+      /* Idle blink — comme l'EXIT, 88% on / 5% off */
+      animation: hubTextBlink 4s ease-in-out infinite;
+    }
+    @keyframes hubTextBlink {
+      0%, 88%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 4px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.7);
+      }
+      90%, 94% {
+        opacity: 0.35;
+        text-shadow: 0 0 1px rgba(255,255,255,0.2);
+      }
+      92% {
+        opacity: 1;
+        text-shadow: 0 0 6px rgba(255,255,255,0.7);
+      }
+    }
+    /* Hover : pulse + glow (couleur définie par variante) */
+    .hub-text-btn:hover .hub-text-label {
+      animation: hubTextPulse 0.7s ease-in-out infinite alternate;
+    }
+    @keyframes hubTextPulse {
+      from { letter-spacing: 0.15em; transform: scale(1); }
+      to   { letter-spacing: 0.20em; transform: scale(1.06); }
+    }
+    .hub-text-btn:active { transform: scale(0.94); }
+
+    /* État actif (PLAY/EDIT sélectionné) — couleur permanente + glow */
+    .hub-text-btn.active {
+      color: #d54adf;
+    }
+    .hub-text-btn.active .hub-text-label {
+      text-shadow:
+        0 0 6px rgba(213, 74, 223, 1),
+        0 0 12px rgba(213, 74, 223, 0.6),
+        0 1px 2px rgba(0,0,0,0.7);
+      animation: hubTextActiveGlow 2s ease-in-out infinite alternate;
+    }
+    @keyframes hubTextActiveGlow {
+      from { text-shadow: 0 0 6px rgba(213, 74, 223, 1), 0 0 12px rgba(213, 74, 223, 0.5), 0 1px 2px rgba(0,0,0,0.7); }
+      to   { text-shadow: 0 0 10px rgba(213, 74, 223, 1), 0 0 20px rgba(213, 74, 223, 0.8), 0 1px 2px rgba(0,0,0,0.7); }
+    }
+
+    /* ─── Variantes colorées au hover par fonction ─── */
+    /* DEMO : doré-orange (chaud comme le lever de soleil) */
+    .hub-day-btn:hover { color: #fbbf24; }
+    .hub-day-btn:hover .hub-text-label {
+      text-shadow:
+        0 0 6px rgba(251, 191, 36, 1),
+        0 0 14px rgba(251, 191, 36, 0.7),
+        0 1px 2px rgba(0,0,0,0.7);
+    }
+    /* PLAY/EDIT hover : magenta crystal */
+    .hub-play-btn:hover,
+    .hub-edit-btn:hover { color: #d54adf; }
+    .hub-play-btn:hover .hub-text-label,
+    .hub-edit-btn:hover .hub-text-label {
+      text-shadow:
+        0 0 6px rgba(213, 74, 223, 1),
+        0 0 14px rgba(213, 74, 223, 0.7),
+        0 1px 2px rgba(0,0,0,0.7);
+    }
+    /* SAVE : vert validation */
+    .hub-mode-save:hover { color: #22c55e; }
+    .hub-mode-save:hover .hub-text-label {
+      text-shadow:
+        0 0 6px rgba(34, 197, 94, 1),
+        0 0 14px rgba(34, 197, 94, 0.7),
+        0 1px 2px rgba(0,0,0,0.7);
+    }
+    /* RESET : rouge danger */
+    .hub-mode-reset:hover { color: #ec5e4e; }
+    .hub-mode-reset:hover .hub-text-label {
+      text-shadow:
+        0 0 6px rgba(236, 94, 78, 1),
+        0 0 14px rgba(236, 94, 78, 0.7),
+        0 1px 2px rgba(0,0,0,0.7);
+    }
 
     .hub-canvas { display: block; width: 100%; height: 100%; }
 
@@ -167,10 +300,6 @@ interface RoomBuilding {
     .hub-edit-title { font-size: 13px; font-weight: 700; color: #86efac; }
     .hub-edit-keys { font-size: 11px; opacity: 0.8; margin-top: 4px; font-family: monospace; }
 
-    .hub-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 22px; z-index: 10; display: flex; gap: 8px; align-items: center; background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); }
-    .hub-controls button { background: rgba(20,25,50,0.7); color: #e8eaf6; border: 1px solid #3b3f55; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; }
-    .hub-controls button:hover { background: rgba(60,80,150,0.5); }
-    .hub-controls .hint { margin-left: auto; font-size: 11px; opacity: 0.6; }
   `]
 })
 export class YamzyIslandHubComponent implements OnInit, OnDestroy {
@@ -212,11 +341,37 @@ export class YamzyIslandHubComponent implements OnInit, OnDestroy {
   tutorialOpen = signal<boolean>(false);
   tutorialStep = signal<number>(0);
   tutorialSteps: TutorialStep[] = [
-    { icon: '🏝', title: 'Bienvenue sur Yamzy Island', body: "Cette île 3D est le cœur du Conclave. Chaque bâtiment est une room du Royaume.", cite: "Yamzy le Conteur" },
-    { icon: '💎', title: 'Conclave VESPER au centre', body: "Le studio du stratège brille au centre — c'est ton port d'attache pour piloter tous les projets." },
-    { icon: '🌳', title: 'Onze bâtiments à explorer', body: "Git Tree, Kanban, Phoenix Forge, OKR Mountain, Library Cathedral, et bien d'autres. Chacun manipule la data autrement." },
-    { icon: '🎮', title: 'Deux modes : PLAY et EDIT', body: "En PLAY tu cliques pour entrer dans une room. En EDIT tu peux déplacer les bâtiments à la Blender (G/R/S)." },
-    { icon: '🎥', title: 'Caméra orbitale', body: "Mouse-drag = orbite, molette = zoom. Vue isométrique par défaut. Survole un bâtiment pour un aperçu." },
+    {
+      icon: '🏝', title: 'Bienvenue sur Yamzy Island',
+      body: "Cette île 3D est le cœur du Conclave. Chaque bâtiment est une room du Royaume.",
+      cite: "Yamzy le Conteur",
+      cameraView: { position: [40, 32, 40], target: [0, 2, 0], durationMs: 1800 },
+      animCue: 'pulse-all',                  // tous bâtiments pulsent doucement
+    },
+    {
+      icon: '💎', title: 'Conclave VESPER au centre',
+      body: "Le studio du stratège brille au centre — c'est ton port d'attache pour piloter tous les projets.",
+      cameraView: { position: [10, 9, 12], target: [0, 4, 0], durationMs: 1500 },
+      animCue: 'highlight-conclave',         // bâtiment central glow + crystal spin
+    },
+    {
+      icon: '🌳', title: 'Onze bâtiments à explorer',
+      body: "Git Tree, Kanban, Phoenix Forge, OKR Mountain, Library Cathedral, et bien d'autres. Chacun manipule la data autrement.",
+      cameraView: { position: [28, 14, 0], target: [0, 3, 0], durationMs: 1500 },
+      animCue: 'glow-ring',                  // couronne de bâtiments tour à tour
+    },
+    {
+      icon: '🎮', title: 'Deux modes : PLAY et EDIT',
+      body: "En PLAY tu cliques pour entrer dans une room. En EDIT tu peux déplacer les bâtiments à la Blender (G/R/S).",
+      cameraView: { position: [-20, 18, 22], target: [0, 3, 0], durationMs: 1500 },
+      animCue: 'bounce-buildings',           // bâtiments rebondissent légèrement
+    },
+    {
+      icon: '🎥', title: 'Caméra orbitale',
+      body: "Mouse-drag = orbite, molette = zoom. Vue isométrique par défaut. Survole un bâtiment pour un aperçu.",
+      cameraView: { position: [0, 45, 0.1], target: [0, 0, 0], durationMs: 1800 },
+      animCue: 'rotate-island',              // île entière tourne légèrement sur Y
+    },
   ];
   tutorialVoiceLines: string[] = [
     "Bienvenue sur Yamzy Island, le cœur battant du Royaume.",
@@ -236,6 +391,165 @@ export class YamzyIslandHubComponent implements OnInit, OnDestroy {
   openTutorial(): void {
     this.tutorialStep.set(0);
     this.tutorialOpen.set(true);
+  }
+  closeTutorial(): void {
+    this.tutorialOpen.set(false);
+    this.resetAnimCues();
+  }
+
+  // ─── 🌅 Day Demo overlay ────────────────────────────────────────
+  dayDemoOpen = signal<boolean>(false);
+  openDayDemo(): void { this.dayDemoOpen.set(true); }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // CAMERA FLY — déclenché par cameraViewChange du tutorial overlay
+  // ═══════════════════════════════════════════════════════════════════
+  private camTween: number | null = null;
+  onCameraView(view: NonNullable<TutorialStep['cameraView']>): void {
+    if (!this.camera || !this.controls) return;
+    this.flyCameraTo(view.position, view.target, view.durationMs ?? 1500, view.fov);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ANIM CUE — déclenché par animCueChange du tutorial overlay
+  // Chaque cue lance une animation specifique sur les bâtiments / île.
+  // ═══════════════════════════════════════════════════════════════════
+  private animCueState = signal<string>('');
+  private animCueT0 = 0;
+  private animCueId: number | null = null;
+
+  onAnimCue(cue: string): void {
+    this.animCueState.set(cue);
+    this.animCueT0 = performance.now();
+    // Le tick principal lit animCueState() et applique les transforms
+    // -> rien d'autre a faire ici, le RAF anime via applyAnimCue()
+  }
+
+  /** Appelé chaque frame depuis le RAF principal pour appliquer l'effet du cue actif. */
+  private applyAnimCue(_elapsed: number): void {
+    const cue = this.animCueState();
+    if (!cue || !this.rooms || this.rooms.length === 0) return;
+    const t = (performance.now() - this.animCueT0) / 1000; // secondes depuis declenchement
+
+    switch (cue) {
+      case 'pulse-all': {
+        // Tous bâtiments pulsent en Y (scale legere)
+        const s = 1 + Math.sin(t * 2) * 0.05;
+        this.rooms.forEach((r: any) => {
+          if (!r.group) return;
+          r.group.scale.y = s;
+        });
+        break;
+      }
+      case 'highlight-conclave': {
+        // Bâtiment central tourne sur Y + scale up
+        const center = this.rooms.find((r: any) =>
+          r.group && (r.id === 'conclave' || r.key === 'conclave' || r.name?.toLowerCase().includes('conclave')));
+        if (center?.group) {
+          center.group.rotation.y = t * 0.6;
+          center.group.scale.setScalar(1 + Math.sin(t * 3) * 0.08);
+        }
+        break;
+      }
+      case 'glow-ring': {
+        // Couronne de bâtiments éclaire l'un après l'autre (vague)
+        const list = this.rooms;
+        list.forEach((r: any, i: number) => {
+          if (!r.group || r.id === 'conclave') return;
+          const phase = (t * 1.5 - i * 0.25);
+          const intensity = Math.max(0, Math.sin(phase) ** 8);
+          r.group.traverse((c: any) => {
+            if (c.isMesh && c.material?.emissive) {
+              if (c.userData.baseEmissive === undefined) {
+                c.userData.baseEmissive = c.material.emissiveIntensity ?? 0;
+              }
+              c.material.emissiveIntensity = c.userData.baseEmissive + intensity * 1.5;
+            }
+          });
+        });
+        break;
+      }
+      case 'bounce-buildings': {
+        // Petit rebond vertical en cascade
+        this.rooms.forEach((r: any, i: number) => {
+          if (!r.group) return;
+          if (r.group.userData.baseY === undefined) r.group.userData.baseY = r.group.position.y;
+          const offset = Math.max(0, Math.sin(t * 3 - i * 0.4)) * 0.4;
+          r.group.position.y = r.group.userData.baseY + offset;
+        });
+        break;
+      }
+      case 'rotate-island': {
+        // L'île entière tourne lentement sur Y (via tous les rooms group rotation)
+        const angle = Math.sin(t * 0.5) * 0.3;
+        this.rooms.forEach((r: any) => {
+          if (!r.group) return;
+          if (r.group.userData.baseRotY === undefined) r.group.userData.baseRotY = r.group.rotation.y;
+          r.group.rotation.y = r.group.userData.baseRotY + angle;
+        });
+        break;
+      }
+    }
+  }
+
+  /** Reset animations (appelé quand tutorial se ferme). */
+  private resetAnimCues(): void {
+    if (!this.rooms) return;
+    this.animCueState.set('');
+    this.rooms.forEach((r: any) => {
+      if (!r.group) return;
+      if (r.group.userData.baseY !== undefined) r.group.position.y = r.group.userData.baseY;
+      r.group.scale.setScalar(1);
+      r.group.rotation.y = r.group.userData.baseRotY ?? 0;
+      r.group.traverse((c: any) => {
+        if (c.isMesh && c.userData.baseEmissive !== undefined && c.material?.emissive) {
+          c.material.emissiveIntensity = c.userData.baseEmissive;
+        }
+      });
+    });
+  }
+
+  private flyCameraTo(
+    posTarget: [number, number, number],
+    lookTarget: [number, number, number],
+    durationMs = 1500,
+    fovTarget?: number,
+  ): void {
+    if (this.camTween) cancelAnimationFrame(this.camTween);
+    const THREE = (window as any).THREE;
+    if (!THREE) return;
+
+    const startPos    = this.camera.position.clone();
+    const startTarget = this.controls.target.clone();
+    const startFov    = this.camera.fov;
+    const endPos      = new THREE.Vector3(...posTarget);
+    const endTarget   = new THREE.Vector3(...lookTarget);
+    const endFov      = fovTarget ?? startFov;
+    const t0 = performance.now();
+
+    // Désactiver damping pendant l'animation pour pas de fight
+    const prevDamping = this.controls.enableDamping;
+    this.controls.enableDamping = false;
+
+    const tick = () => {
+      const t = Math.min(1, (performance.now() - t0) / durationMs);
+      // ease-in-out cubic
+      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      this.camera.position.lerpVectors(startPos, endPos, e);
+      this.controls.target.lerpVectors(startTarget, endTarget, e);
+      if (fovTarget !== undefined) {
+        this.camera.fov = startFov + (endFov - startFov) * e;
+        this.camera.updateProjectionMatrix();
+      }
+      this.controls.update();
+      if (t < 1) {
+        this.camTween = requestAnimationFrame(tick);
+      } else {
+        this.controls.enableDamping = prevDamping;
+        this.camTween = null;
+      }
+    };
+    this.camTween = requestAnimationFrame(tick);
   }
 
   // ═══════════════════════════════════════════════════════════════════
@@ -261,8 +575,25 @@ export class YamzyIslandHubComponent implements OnInit, OnDestroy {
   private sky: SkyOrnamentsHandle | null = null;
   private unsubCeremony: (() => void) | null = null;
   private ceremonyBus = inject(CeremonyBusService);
+  private spellFooter = inject(SpellFooterService);
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    // 🪄 Footer global réactif : 3 actions + hint qui change avec le mode play/edit
+    effect(() => {
+      const m = this.mode();
+      const a = this.axesVisible();
+      const g = this.gridVisible();
+      this.spellFooter.setSlots({
+        accent: '#d54adf',
+        controls: [
+          { icon: '🎥', label: 'Vue isométrique', variant: 'secondary', action: () => this.resetCamera(), title: 'Reset caméra' },
+          { icon: '🧭', label: `${a ? 'Hide' : 'Show'} axes`, variant: 'secondary', action: () => this.toggleAxes(), title: 'Toggle axes helper' },
+          { icon: '📐', label: `${g ? 'Hide' : 'Show'} grid`, variant: 'secondary', action: () => this.toggleGrid(), title: 'Toggle grid helper' },
+        ],
+        hint: `Mouse drag = orbit · molette = zoom · ${m === 'edit' ? 'cliquer bâtiment = sélectionner' : 'cliquer bâtiment = entrer dans la room'}`,
+      });
+    });
+  }
 
   ngOnInit() { this.bootstrap(); }
 
@@ -279,6 +610,7 @@ export class YamzyIslandHubComponent implements OnInit, OnDestroy {
     }
     if (this.keyHandler) window.removeEventListener('keydown', this.keyHandler);
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -948,6 +1280,9 @@ export class YamzyIslandHubComponent implements OnInit, OnDestroy {
 
     // 🌌 Animer le ciel universel (étoiles, lune, aurore, comète, filantes)
     this.sky?.tick(dt, t);
+
+    // 🎬 Animation cue per tutorial step (highlight, pulse, glow, rotate...)
+    if (this.tutorialOpen()) this.applyAnimCue(t);
 
     if (this.controls) this.controls.update();
     this.renderer.render(this.scene, this.camera);

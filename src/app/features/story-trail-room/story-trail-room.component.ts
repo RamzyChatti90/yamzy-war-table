@@ -31,7 +31,7 @@ import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
 import { playIslandIntro } from '../../core/island-intro/island-intro';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } from '../../core/spell-ui';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellFooterService } from '../../core/spell-ui';
 
 // ─── Modèles métier ───
 type ReleaseLevel = 'mvp' | 'mvp-plus' | 'future';
@@ -60,7 +60,6 @@ interface UserJourney {
   template: `
     <div class="st-host">
       <header class="st-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#f59e0b" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="st-title">
           <h1>🏔 La Carte des Sentiers — Story Mapping</h1>
           <p>
@@ -78,17 +77,6 @@ interface UserJourney {
       </header>
 
       <canvas #canvas class="st-canvas"></canvas>
-
-      <footer class="st-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="loadDemo()" icon="🎬">Demo Story Map</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="traceWalkingSkeleton()" icon="🦴">Walking skeleton</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="cutRelease()" icon="🏁">Cut release MVP</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="plantSummitFlag()" icon="🏴">Drapeau sommet</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#f59e0b" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#f59e0b" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Drag = orbit · molette = zoom · clic pierre = user story</span>
-      </footer>
 
       <!-- 🪶 Narrator overlay -->
       <wt-narrator></wt-narrator>
@@ -150,7 +138,10 @@ interface UserJourney {
         color="#f59e0b"
         oneLiner="Story Mapping Jeff Patton : sentiers user journey + pierres user stories."
         [duration]="75"
+        [timeboxDurationS]="3600"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -169,15 +160,15 @@ interface UserJourney {
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
     .st-host {
       position: relative; width: 100%; height: 100vh; color: #f1f5f9;
-      font-family: system-ui, sans-serif;
+      font-family: "Tinos", serif;
       background: linear-gradient(180deg, #1e293b 0%, #475569 60%, #94a3b8 100%);
     }
 
-    .st-topbar { position: absolute; top: 0; left: 0; right: 320px; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .st-topbar { position: absolute; top: 60px; left: 0; right: 320px; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .st-topbar > * { pointer-events: auto; }
     .st-back { color: #fde68a; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #f59e0b; border-radius: 8px; background: rgba(60,40,5,0.45); }
     .st-back:hover { background: rgba(245,158,11,0.35); }
-    .st-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1px; color: #fde68a; text-shadow: 0 0 12px rgba(245,158,11,0.5); }
+    .st-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 1px; color: #fde68a; text-shadow: 0 0 12px rgba(245,158,11,0.5); }
     .st-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.8; }
     .st-legend { display: flex; gap: 10px; font-size: 11px; align-items: center; flex-wrap: wrap; }
     .st-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
@@ -197,7 +188,7 @@ interface UserJourney {
     .st-controls .hint { margin-left: auto; font-size: 11px; opacity: 0.6; }
 
     /* Sidebar journeys */
-    .st-sidebar { position: absolute; top: 0; right: 0; bottom: 0; width: 320px; padding: 18px 14px; background: rgba(18,14,8,0.92); border-left: 1px solid rgba(245,158,11,0.3); backdrop-filter: blur(8px); overflow-y: auto; z-index: 9; font-size: 12px; }
+    .st-sidebar { position: absolute; top: 60px; right: 0; bottom: 0; width: 320px; padding: 18px 14px; background: rgba(18,14,8,0.92); border-left: 1px solid rgba(245,158,11,0.3); backdrop-filter: blur(8px); overflow-y: auto; z-index: 9; font-size: 12px; }
     .st-sidebar-head { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #fbbf24; text-transform: uppercase; margin-bottom: 12px; }
     .st-journey { margin-bottom: 14px; padding: 10px 12px; background: rgba(35,25,8,0.5); border: 1px solid var(--jcolor, #f59e0b); border-radius: 10px; }
     .st-journey-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -242,6 +233,7 @@ export class StoryTrailRoomComponent implements OnInit, OnDestroy {
   // ─── Services ───
   narrator = inject(NarratorService);
   private ceremonyBus = inject(CeremonyBusService);
+  private spellFooter = inject(SpellFooterService);
 
   // ─── State signals ───
   journeys = signal<UserJourney[]>([]);
@@ -310,7 +302,22 @@ export class StoryTrailRoomComponent implements OnInit, OnDestroy {
   // ───────────────────────────────────────────────────────────────
   // LIFECYCLE
   // ───────────────────────────────────────────────────────────────
-  ngOnInit(): void { this.bootstrap(); }
+  ngOnInit(): void {
+    this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#f59e0b',
+      hint: 'Drag = orbit · molette = zoom · clic pierre = user story',
+      controls: [
+        { icon: '🎬', label: 'Demo Story Map', action: () => this.loadDemo() },
+        { icon: '🦴', label: 'Walking skeleton', action: () => this.traceWalkingSkeleton() },
+        { icon: '🏁', label: 'Cut release MVP', action: () => this.cutRelease() },
+        { icon: '🏴', label: 'Drapeau sommet', action: () => this.plantSummitFlag() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
+  }
 
   ngOnDestroy(): void {
     this.disposed = true;
@@ -322,6 +329,7 @@ export class StoryTrailRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap(): Promise<void> {
@@ -1109,5 +1117,11 @@ export class StoryTrailRoomComponent implements OnInit, OnDestroy {
   /** Entrer (skip play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(3600, 'Story Mapping');
   }
 }

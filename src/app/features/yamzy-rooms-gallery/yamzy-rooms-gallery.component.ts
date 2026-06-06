@@ -6,10 +6,13 @@
 // Chaque card a un bouton "Go to" qui navigue comme si on cliquait
 // sur le bâtiment depuis l'île.
 // ═══════════════════════════════════════════════════════════════════
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  AfterViewInit, ChangeDetectionStrategy, Component, effect, ElementRef, OnDestroy,
+  ViewChild, computed, inject, signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { SpellButtonComponent, SpellChoicesComponent, SpellChoice } from '../../core/spell-ui';
+import { SpellButtonComponent, SpellChoicesComponent, SpellChoice, SpellFooterService } from '../../core/spell-ui';
 
 type GalleryFilter = 'all' | 'hub' | 'studio' | 'room' | 'workshop';
 
@@ -30,9 +33,13 @@ interface SceneCard {
   standalone: true,
   imports: [CommonModule, RouterLink, SpellButtonComponent, SpellChoicesComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { 'class': 'yrg-bg-host' },
   template: `
     <div class="yrg-host">
-      <!-- ═══ TOPBAR identique Studio Maker ═══ -->
+      <!-- 🌌 Canvas 3D ambient (stars + crystal flottant — DNA Yamzy World) -->
+      <canvas #bgCanvas class="yrg-bg-canvas"></canvas>
+
+      <!-- ═══ TOPBAR Studio Maker (sans back, le SpellHeader global le gère) ═══ -->
       <header class="yrg-topbar">
         <div class="yrg-brand">
           <span class="yrg-brand-icon">🏝</span>
@@ -46,18 +53,44 @@ interface SceneCard {
             (selectedChange)="setFilter($event)" />
         </nav>
         <div class="yrg-actions">
-          <wt-spell-btn variant="primary" size="sm" accent="#c084fc"
-                        routerLink="/showcase/yamzy-world"
-                        icon="🎓"
-                        title="Visite guidée animée — Yamzy raconte le projet">Guide animé</wt-spell-btn>
-          <wt-spell-btn variant="secondary" size="sm" accent="#d54adf"
-                        routerLink="/yamzy-island"
-                        icon="🏝"
-                        title="Vue île 3D">Vue île</wt-spell-btn>
-          <wt-spell-btn variant="primary" size="sm" accent="#fbbf24"
-                        routerLink="/yamzy-studio-maker"
-                        icon="🏗"
-                        title="Studio Maker">Studio Maker</wt-spell-btn>
+          <!-- 🎓 Guide animé (graduation cap SVG) -->
+          <a class="yrg-svg-icon yrg-guide-btn"
+             routerLink="/showcase/yamzy-world"
+             title="Visite guidée animée — Yamzy raconte le projet"
+             aria-label="Guide animé">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+          </a>
+
+          <!-- 🏝 Vue île 3D (palm tree island SVG) -->
+          <a class="yrg-svg-icon yrg-island-btn"
+             routerLink="/yamzy-island"
+             title="Vue île 3D — Le Conclave"
+             aria-label="Vue île 3D">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <!-- Palmier -->
+              <path d="M12 22V12"/>
+              <path d="M12 12c0-3-2-5-5-5 0 3 2 5 5 5z"/>
+              <path d="M12 12c0-3 2-5 5-5 0 3-2 5-5 5z"/>
+              <path d="M12 12c-1.5 0-3-1-3-3 1.5 0 3 1 3 3z"/>
+              <path d="M12 12c1.5 0 3-1 3-3-1.5 0-3 1-3 3z"/>
+              <!-- Ile (vague) -->
+              <path d="M2 20c2-1 4-1 6 0s4 1 6 0 4-1 6 0 4 1 4 0"/>
+            </svg>
+          </a>
+
+          <!-- 🏗 Studio Maker (tools / wrench SVG) -->
+          <a class="yrg-svg-icon yrg-studio-btn"
+             routerLink="/yamzy-studio-maker"
+             title="Studio Maker — Créer une scène"
+             aria-label="Studio Maker">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <!-- Clé à molette croisée + tournevis -->
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+            </svg>
+          </a>
         </div>
       </header>
 
@@ -93,22 +126,33 @@ interface SceneCard {
         </section>
       </main>
 
-      <!-- ═══ FOOTER ═══ -->
-      <footer class="yrg-footer">
-        <span>{{ filtered().length }} / {{ cards.length }} scènes</span>
-        <span class="yrg-spacer"></span>
-        <span class="yrg-tip">💡 Astuce : tu peux aussi explorer l'île en 3D depuis 🏝 Vue île</span>
-      </footer>
     </div>
   `,
   styles: [`
-    :host { display: block; width: 100%; min-height: 100vh; }
+    :host {
+      display: block;
+      position: fixed; inset: 0;
+      width: 100vw; height: 100vh; height: 100dvh;
+      overflow: hidden;       /* page jamais scrollable, seulement les cards à l'intérieur */
+    }
+    .yrg-bg-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      display: block;
+      z-index: 0;
+      pointer-events: none;
+    }
 
     /* Variables = Studio Maker palette */
-    .yrg-host { display: flex; flex-direction: column; min-height: 100vh; background: #0a0e1c; color: #e8eaf6; font-family: system-ui, sans-serif; font-size: 13px; }
+    .yrg-host { display: flex; flex-direction: column; height: 100%; max-height: 100dvh; background: transparent; color: #e8eaf6; font-family: system-ui, sans-serif; font-size: 13px; overflow: hidden; position: relative; z-index: 1; }
 
     /* ═══ TOPBAR (identique Studio Maker) ═══ */
-    .yrg-topbar { display: flex; align-items: center; gap: 14px; padding: 10px 22px; background: linear-gradient(90deg, #131830 0%, #1a1f3a 100%); border-bottom: 1px solid #2a3055; flex: 0 0 auto; min-height: 56px; flex-wrap: wrap; }
+    /* Topbar en panneau de verre : semi-opaque pour que les filtres + actions soient bien visibles contre la scène 3D */
+    .yrg-topbar { display: flex; align-items: center; gap: 14px; padding: 10px 22px; background: rgba(7, 4, 26, 0.65); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(213,74,223,0.35); flex: 0 0 auto; min-height: 56px; flex-wrap: wrap; margin-top: 60px; box-shadow: 0 4px 16px rgba(0,0,0,0.45); }
+    /* Override des chips spell-choices via ::ng-deep (pierce View Encapsulation) */
+    .yrg-topbar ::ng-deep .sc-chip { background-color: rgba(0,0,0,0.45) !important; border-color: rgba(213,74,223,0.5) !important; backdrop-filter: blur(4px); }
+    .yrg-topbar ::ng-deep .sc-chip:hover { border-color: #d54adf !important; background-color: rgba(0,0,0,0.65) !important; box-shadow: 0 0 12px rgba(213,74,223,0.45) !important; transform: translateY(-1px); }
+    .yrg-topbar ::ng-deep .sc-chip.is-active { background-color: rgba(213,74,223,0.18) !important; border-color: #d54adf !important; color: #fff !important; box-shadow: 0 0 16px rgba(213,74,223,0.55) !important; }
     .yrg-brand { display: flex; align-items: center; gap: 10px; }
     .yrg-brand-icon { font-size: 28px; filter: drop-shadow(0 0 8px rgba(251,191,36,0.4)); }
     .yrg-brand-text { font-weight: 800; letter-spacing: 2px; color: #fbbf24; font-size: 16px; }
@@ -116,10 +160,50 @@ interface SceneCard {
     .yrg-nav button { background: rgba(20,25,50,0.7); color: #e8eaf6; border: 1px solid #3b3f55; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; font-family: inherit; }
     .yrg-nav button:hover { background: rgba(60,80,150,0.5); }
     .yrg-nav button.active { background: #fbbf24; color: #1a1500; border-color: #fbbf24; }
-    .yrg-actions { display: flex; gap: 6px; margin-left: auto; }
-    .yrg-quick { background: rgba(40,30,5,0.7); color: #fbbf24; border: 1px solid #b89240; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; }
-    .yrg-quick:hover { background: rgba(251,191,36,0.3); }
-    .yrg-quick-primary { background: #fbbf24; color: #1a1500; border-color: #fbbf24; }
+    .yrg-actions { display: flex; gap: 4px; margin-left: auto; align-items: center; }
+
+    /* ━━━ SVG icon buttons (cohérent avec SpellHeader / hub) ━━━ */
+    .yrg-svg-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+      overflow: visible;
+    }
+    .yrg-svg-icon svg {
+      width: 28px;
+      height: 28px;
+      transition: transform 0.25s ease;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 1px rgba(0,0,0,0.9));
+    }
+    .yrg-svg-icon:hover svg { transform: scale(1.12); }
+    .yrg-svg-icon:active { transform: scale(0.92); }
+
+    /* 🎓 Guide animé : violet clair (sagesse) */
+    .yrg-guide-btn:hover {
+      color: #c084fc;
+      filter: drop-shadow(0 0 10px rgba(192, 132, 252, 0.7));
+    }
+    /* 🏝 Vue île : magenta crystal */
+    .yrg-island-btn:hover {
+      color: #d54adf;
+      filter: drop-shadow(0 0 10px rgba(213, 74, 223, 0.7));
+    }
+    /* 🏗 Studio Maker : doré-construction */
+    .yrg-studio-btn:hover {
+      color: #fbbf24;
+      filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.7));
+    }
+    .yrg-studio-btn:hover svg { transform: scale(1.12) rotate(-15deg); }
     .yrg-quick-primary:hover { background: #f5b923; }
     .yrg-quick-guide {
       background: linear-gradient(135deg, rgba(168,85,247,0.4) 0%, rgba(96,165,250,0.4) 100%);
@@ -149,7 +233,7 @@ interface SceneCard {
     }
 
     /* ═══ MAIN ═══ */
-    .yrg-main { flex: 1; padding: 28px 32px 60px; max-width: 1400px; width: 100%; margin: 0 auto; }
+    .yrg-main { flex: 1 1 auto; min-height: 0; padding: 28px 32px 60px; max-width: 1400px; width: 100%; margin: 0 auto; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; }
 
     .yrg-hero { text-align: center; margin-bottom: 32px; }
     .yrg-hero-title { font-size: 38px; font-weight: 800; letter-spacing: 1.5px; color: #fbbf24; margin: 0 0 8px; text-shadow: 0 0 24px rgba(251,191,36,0.3); }
@@ -219,20 +303,189 @@ interface SceneCard {
     .yrg-card-cta-arrow { font-size: 14px; transition: transform 0.2s; }
     .yrg-card:hover .yrg-card-cta-arrow { transform: translate(2px, -2px); }
 
-    /* ═══ FOOTER ═══ */
-    .yrg-footer { display: flex; align-items: center; padding: 10px 24px; background: #0a0e1c; border-top: 1px solid #1f2540; font-size: 11px; opacity: 0.7; flex: 0 0 auto; height: 36px; }
-    .yrg-spacer { flex: 1; }
-    .yrg-tip { color: #93c5fd; }
-
     /* ═══ Variations par catégorie ═══ */
     .yrg-card[data-cat="hub"] { background: linear-gradient(135deg, rgba(40,40,70,0.85) 0%, rgba(40,30,5,0.4) 100%); }
     .yrg-card[data-cat="studio"] { background: linear-gradient(135deg, rgba(20,40,80,0.7) 0%, rgba(30,50,90,0.7) 100%); }
   `]
 })
-export class YamzyRoomsGalleryComponent {
+export class YamzyRoomsGalleryComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('bgCanvas', { static: true }) bgCanvasRef!: ElementRef<HTMLCanvasElement>;
   private router = inject(Router);
+  private spellFooter = inject(SpellFooterService);
   filter = signal<GalleryFilter>('all');
   setFilter(v: GalleryFilter) { this.filter.set(v); }
+
+  constructor() {
+    // 🪄 Pousse les stats vers le SpellFooter global, réactif au filtre courant.
+    effect(() => {
+      const shown = this.filtered().length;
+      const total = this.cards.length;
+      this.spellFooter.setSlots({
+        accent: '#d54adf',
+        controls: [],
+        hint: `${shown} / ${total} scènes · 💡 Astuce : tu peux aussi explorer l'île en 3D depuis 🏝 Vue île`,
+      });
+    });
+  }
+
+  // ─── Three.js ambient scene (stars + crystal flottant) ──────────────
+  private bgScene: any;
+  private bgCamera: any;
+  private bgRenderer: any;
+  private bgClock: any;
+  private bgRafId: number = 0;
+  private bgDisposed = false;
+  private bgCrystal: any;
+  private bgStars: any;
+
+  async ngAfterViewInit(): Promise<void> {
+    await this.ensureThree();
+    if (this.bgDisposed) return;
+    this.initBgScene();
+    this.animateBg();
+    window.addEventListener('resize', this.onResize);
+  }
+
+  ngOnDestroy(): void {
+    this.bgDisposed = true;
+    cancelAnimationFrame(this.bgRafId);
+    window.removeEventListener('resize', this.onResize);
+    try {
+      if (this.bgRenderer) { this.bgRenderer.dispose(); }
+      if (this.bgCrystal?.geometry) this.bgCrystal.geometry.dispose();
+      if (this.bgCrystal?.material) this.bgCrystal.material.dispose();
+    } catch {}
+    this.spellFooter.clearSlots();
+  }
+
+  private async ensureThree(): Promise<void> {
+    if ((window as any).THREE) return;
+    return new Promise<void>((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+      script.onload = () => resolve();
+      script.onerror = () => reject();
+      document.head.appendChild(script);
+    });
+  }
+
+  private initBgScene(): void {
+    const T = (window as any).THREE;
+    const canvas = this.bgCanvasRef.nativeElement;
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+
+    this.bgScene = new T.Scene();
+    this.bgScene.background = new T.Color(0x07041a);  // nuit violette profonde
+    this.bgScene.fog = new T.FogExp2(0x07041a, 0.015);
+
+    // Camera
+    this.bgCamera = new T.PerspectiveCamera(40, w / h, 0.1, 200);
+    this.bgCamera.position.set(0, 1.5, 6);
+    this.bgCamera.lookAt(0, 0, 0);
+
+    // Renderer
+    this.bgRenderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    this.bgRenderer.setSize(w, h, false);
+    this.bgRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.bgRenderer.outputEncoding = T.sRGBEncoding;
+    this.bgRenderer.toneMapping = T.ACESFilmicToneMapping;
+    this.bgRenderer.toneMappingExposure = 1.3;
+
+    this.bgClock = new T.Clock();
+
+    // Lights
+    const ambient = new T.AmbientLight(0x4a3a8a, 0.55);
+    this.bgScene.add(ambient);
+    const point1 = new T.PointLight(0xd54adf, 1.8, 18);
+    point1.position.set(0, 1.5, 0);
+    this.bgScene.add(point1);
+    const point2 = new T.PointLight(0x9b6cff, 0.8, 14);
+    point2.position.set(-3, 2, 1);
+    this.bgScene.add(point2);
+
+    // ⭐ 300 étoiles statiques (BufferGeometry points)
+    const starsGeom = new T.BufferGeometry();
+    const positions = new Float32Array(300 * 3);
+    for (let i = 0; i < 300; i++) {
+      const r = 50 + Math.random() * 40;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      positions[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      positions[i * 3 + 2] = r * Math.cos(phi);
+    }
+    starsGeom.setAttribute('position', new T.BufferAttribute(positions, 3));
+    const starsMat = new T.PointsMaterial({ color: 0xffffff, size: 0.18, transparent: true, opacity: 0.85, sizeAttenuation: true });
+    this.bgStars = new T.Points(starsGeom, starsMat);
+    this.bgScene.add(this.bgStars);
+
+    // 💎 Crystal icosahedron magenta émissif au centre
+    const crystalGeom = new T.IcosahedronGeometry(1.05, 0);
+    const crystalMat = new T.MeshStandardMaterial({
+      color: 0xd54adf,
+      emissive: 0xd54adf,
+      emissiveIntensity: 0.55,
+      metalness: 0.4,
+      roughness: 0.15,
+      transparent: true,
+      opacity: 0.85,
+      flatShading: true,
+    });
+    this.bgCrystal = new T.Mesh(crystalGeom, crystalMat);
+    this.bgCrystal.position.set(0, 0.4, 0);
+    this.bgScene.add(this.bgCrystal);
+
+    // Halo cristal (sphère plus grande, transparente)
+    const haloGeom = new T.SphereGeometry(2.2, 24, 24);
+    const haloMat = new T.MeshBasicMaterial({
+      color: 0xd54adf,
+      transparent: true,
+      opacity: 0.07,
+      side: T.BackSide,
+    });
+    const halo = new T.Mesh(haloGeom, haloMat);
+    halo.position.copy(this.bgCrystal.position);
+    this.bgScene.add(halo);
+
+    // Ground island (cylindre plat sombre)
+    const islandGeom = new T.CylinderGeometry(4, 4.5, 0.4, 32);
+    const islandMat = new T.MeshStandardMaterial({
+      color: 0x1a1530, emissive: 0x0a0420, emissiveIntensity: 0.2,
+      metalness: 0.3, roughness: 0.8,
+    });
+    const island = new T.Mesh(islandGeom, islandMat);
+    island.position.set(0, -1.5, 0);
+    this.bgScene.add(island);
+  }
+
+  private animateBg = (): void => {
+    if (this.bgDisposed || !this.bgRenderer) return;
+    const dt = this.bgClock.getDelta();
+    const t = this.bgClock.elapsedTime;
+    // Crystal rotation lente
+    if (this.bgCrystal) {
+      this.bgCrystal.rotation.y += dt * 0.4;
+      this.bgCrystal.rotation.x += dt * 0.15;
+      this.bgCrystal.position.y = 0.4 + Math.sin(t * 0.6) * 0.18;  // float vertical
+      this.bgCrystal.material.emissiveIntensity = 0.5 + Math.sin(t * 1.5) * 0.15;  // pulse
+    }
+    // Stars rotation tres lente
+    if (this.bgStars) {
+      this.bgStars.rotation.y += dt * 0.015;
+    }
+    this.bgRenderer.render(this.bgScene, this.bgCamera);
+    this.bgRafId = requestAnimationFrame(this.animateBg);
+  };
+
+  private onResize = (): void => {
+    if (!this.bgRenderer || !this.bgCanvasRef) return;
+    const canvas = this.bgCanvasRef.nativeElement;
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    this.bgCamera.aspect = w / h;
+    this.bgCamera.updateProjectionMatrix();
+    this.bgRenderer.setSize(w, h, false);
+  };
+
 
   filterChoices: SpellChoice<GalleryFilter>[] = [
     { value: 'all',      label: 'Tout' },

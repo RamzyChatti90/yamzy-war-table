@@ -32,7 +32,7 @@ import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
 import { createPortal3D, getIslandForRoom, PortalHandle } from '../../core/portal/portal.factory';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
-import { SpellButtonComponent, SpellTutorialOverlayComponent, TutorialStep } from '../../core/spell-ui';
+import { SpellButtonComponent, SpellTutorialOverlayComponent, TutorialStep, SpellFooterService } from '../../core/spell-ui';
 
 type PrStatus = 'approved' | 'changes_requested' | 'conflicts' | 'no_review' | 'mergeable_now';
 
@@ -64,7 +64,6 @@ interface PrMirrorData {
   template: `
     <div class="ph-host">
       <header class="ph-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#67e8f9" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="ph-title">
           <h1>🪞 PR MIRROR HALL</h1>
           <p>La Galerie des Vérités — {{ prs().length }} miroirs · {{ approvedCount() }} approved · {{ blockedCount() }} bloqués · {{ staleCount() }} en retard</p>
@@ -79,16 +78,6 @@ interface PrMirrorData {
       </header>
 
       <canvas #canvas class="ph-canvas"></canvas>
-
-      <footer class="ph-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="loadDemo()" icon="🎬">Demo PRs (8 miroirs)</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="spotlightMergeable()" icon="🎯">Spotlight mergeable</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="triggerLightning()" icon="⚡">Trigger éclair (security)</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#67e8f9" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#67e8f9" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Drag = orbiter · molette = zoom · clic miroir = ouvrir PR</span>
-      </footer>
 
       <!-- 🪶 Narrator Yamzy overlay (bulle + glossary) -->
       <wt-narrator></wt-narrator>
@@ -142,7 +131,10 @@ interface PrMirrorData {
         color="#a3e9ff"
         oneLiner="Hall circulaire avec 8 miroirs PR + statues reviewers + tapis rouge mergeable."
         [duration]="65"
+        [timeboxDurationS]="1800"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -159,12 +151,12 @@ interface PrMirrorData {
   `,
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
-    .ph-host { position: relative; width: 100%; height: 100vh; background: #0a0e1f; color: #e8eaf6; font-family: system-ui, sans-serif; }
-    .ph-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .ph-host { position: relative; width: 100%; height: 100vh; background: #0a0e1f; color: #e8eaf6; font-family: "Tinos", serif; }
+    .ph-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .ph-topbar > * { pointer-events: auto; }
     .ph-back { color: #7dd3fc; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #0369a1; border-radius: 8px; background: rgba(2,30,55,0.4); }
     .ph-back:hover { background: rgba(3,105,161,0.4); }
-    .ph-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1.5px; color: #7dd3fc; text-shadow: 0 0 12px rgba(125,211,252,0.4); }
+    .ph-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 1.5px; color: #7dd3fc; text-shadow: 0 0 12px rgba(125,211,252,0.4); }
     .ph-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.75; }
     .ph-legend { display: flex; gap: 12px; font-size: 11px; align-items: center; flex-wrap: wrap; }
     .ph-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
@@ -231,6 +223,7 @@ export class PrMirrorHallRoomComponent implements OnInit, OnDestroy {
 
   // 🪶 Narrator Yamzy : injecté dans le footer + overlay <wt-narrator>
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   // ─── Signals state ───
@@ -316,6 +309,18 @@ export class PrMirrorHallRoomComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#67e8f9',
+      hint: 'Drag = orbiter · molette = zoom · clic miroir = ouvrir PR',
+      controls: [
+        { icon: '🎬', label: 'Demo PRs (8 miroirs)', action: () => this.loadDemo() },
+        { icon: '🎯', label: 'Spotlight mergeable', action: () => this.spotlightMergeable() },
+        { icon: '⚡', label: 'Trigger éclair (security)', action: () => this.triggerLightning() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -327,6 +332,7 @@ export class PrMirrorHallRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -1070,6 +1076,12 @@ export class PrMirrorHallRoomComponent implements OnInit, OnDestroy {
   /** Quand l'utilisateur clique "Entrer" (skip le play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(1800, 'Code Review');
   }
 
   // ═══════════════════════════════════════════════════════════════════

@@ -67,8 +67,10 @@ export const routes: Routes = [
   { path: 'alchemist-cellar', loadComponent: () => import('./features/alchemist-cellar-room/alchemist-cellar-room.component').then(m => m.AlchemistCellarRoomComponent) },
   // 🎴 CARD TAVERN — La Taverne aux Cartes du Destin
   { path: 'card-tavern', loadComponent: () => import('./features/card-tavern-room/card-tavern-room.component').then(m => m.CardTavernRoomComponent) },
-  // 🏝 YAMZY ISLAND — Hub central (vue isométrique de toutes les rooms)
-  { path: 'yamzy-island', loadComponent: () => import('./features/yamzy-island-hub/yamzy-island-hub.component').then(m => m.YamzyIslandHubComponent) },
+  // 🏝 YAMZY ISLAND — Mode walkable RPG (port dashboard-beta, clavier ZQSD/WASD)
+  { path: 'yamzy-island', loadComponent: () => import('./features/yamzy-explore-island/yamzy-explore-island.component').then(m => m.YamzyExploreIslandComponent) },
+  // 🏝 YAMZY ISLAND HUB (ancienne route conservée pour backward compat)
+  { path: 'yamzy-island-hub', loadComponent: () => import('./features/yamzy-island-hub/yamzy-island-hub.component').then(m => m.YamzyIslandHubComponent) },
   // 🏗 YAMZY STUDIO MAKER — Application complète pour créer et éditer les rooms
   //   3D editor + library + inspector + GLB import/export + tutorial JSON form-builder
   { path: 'yamzy-studio-maker', loadComponent: () => import('./features/yamzy-studio-maker/yamzy-studio-maker.component').then(m => m.YamzyStudioMakerComponent) },
@@ -80,6 +82,12 @@ export const routes: Routes = [
   { path: 'showcase/:projectKey', loadComponent: () => import('./features/yamzy-showcase/yamzy-showcase.component').then(m => m.YamzyShowcaseComponent) },
   // 🌍 WELCOME — Splash + tour vocal du Royaume (Yamzy le Conteur, voice-driven)
   { path: 'welcome', loadComponent: () => import('./features/yamzy-world-entry/yamzy-world-entry.component').then(m => m.YamzyWorldEntryComponent) },
+  // 🎬 INTRO STUDIO — Playback frame-by-frame de l'anim intro + caméra réglable
+  { path: 'intro-studio', loadComponent: () => import('./features/intro-studio/intro-studio.component').then(m => m.IntroStudioComponent) },
+  // 🗺 WORLD MAP — Île au trésor animée + 7 drapeaux cliquables (composant DÉDIÉ léger)
+  { path: 'world-map', loadComponent: () => import('./features/world-map/world-map.component').then(m => m.WorldMapComponent) },
+  // 🛠 WORLD MAP — Éditeur par zone : import GLB → translate/rotate/scale → save
+  { path: 'world-map/edit/:zoneKey', loadComponent: () => import('./features/world-map/world-map-zone-editor.component').then(m => m.WorldMapZoneEditorComponent) },
   // 💧 MANA FOUNTAIN — Sensibilisation eau magique / tokens IA / coût $
   { path: 'mana-fountain', loadComponent: () => import('./features/mana-fountain-room/mana-fountain-room.component').then(m => m.ManaFountainRoomComponent) },
   // ⛵ RETROSPECTIVE COVE — Sprint retro Sailboat (vent / ancres / récifs / île)

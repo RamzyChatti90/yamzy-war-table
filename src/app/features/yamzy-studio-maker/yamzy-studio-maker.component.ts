@@ -22,15 +22,15 @@
 // Route : /yamzy-studio-maker
 // ═══════════════════════════════════════════════════════════════════
 import {
-  ChangeDetectionStrategy, Component, computed, ElementRef, inject,
+  ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject,
   OnDestroy, OnInit, signal, ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { NarratorService } from '../../core/narrator/narrator.service';
 import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { TutorialGlossaryEntry, TutorialTourStep, RoomTutorial, NarratorMode, Vec3 } from '../../core/narrator/narrator.types';
+import { SpellFooterService } from '../../core/spell-ui';
 
 interface ObjectMeta {
   id: string;
@@ -68,14 +68,13 @@ interface LibraryTemplate {
 @Component({
   selector: 'wt-yamzy-studio-maker',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NarratorComponent],
+  imports: [CommonModule, FormsModule, NarratorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="ysm-host">
       <!-- ═══ TOPBAR ═══ -->
       <header class="ysm-topbar">
         <div class="ysm-brand">
-          <a routerLink="/yamzy-rooms" class="ysm-back" title="Retour à la galerie">←</a>
           <span class="ysm-brand-icon">🏗</span>
           <span class="ysm-brand-text">YAMZY STUDIO MAKER</span>
         </div>
@@ -398,28 +397,17 @@ interface LibraryTemplate {
         </aside>
       </main>
 
-      <!-- ═══ FOOTER STATUS ═══ -->
-      <footer class="ysm-footer">
-        <span class="ysm-status">{{ status() }}</span>
-        <span class="ysm-spacer"></span>
-        <span class="ysm-help">
-          Drag-drop GLB · {{ mode() === 'edit' ? 'G/R/S = move/rot/scale' : '' }}
-        </span>
-      </footer>
-
       <!-- Narrator overlay (preview live) -->
       <wt-narrator></wt-narrator>
     </div>
   `,
   styles: [`
-    :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
-    .ysm-host { display: flex; flex-direction: column; width: 100%; height: 100vh; background: #0a0e1c; color: #e8eaf6; font-family: system-ui, sans-serif; font-size: 13px; }
+    :host { display: block; width: 100%; height: 100vh; padding-top: 60px; box-sizing: border-box; overflow: hidden; }
+    .ysm-host { display: flex; flex-direction: column; width: 100%; height: 100%; background: #0a0e1c; color: #e8eaf6; font-family: system-ui, sans-serif; font-size: 13px; }
 
     /* ═══ TOPBAR — flex-wrap pour pas déborder sur petit viewport ═══ */
-    .ysm-topbar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: linear-gradient(90deg, #131830 0%, #1a1f3a 100%); border-bottom: 1px solid #2a3055; flex: 0 0 auto; min-height: 48px; flex-wrap: wrap; }
+    .ysm-topbar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: transparent; border-bottom: 1px solid #2a3055; flex: 0 0 auto; min-height: 48px; flex-wrap: wrap; }
     .ysm-brand { display: flex; align-items: center; gap: 8px; }
-    .ysm-back { color: #fbbf24; text-decoration: none; padding: 4px 10px; border: 1px solid #b89240; border-radius: 6px; font-size: 14px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; min-width: 28px; }
-    .ysm-back:hover { background: rgba(251,191,36,0.2); }
     .ysm-brand-icon { font-size: 24px; }
     .ysm-brand-text { font-weight: 800; letter-spacing: 1.5px; color: #fbbf24; }
     .ysm-scenes, .ysm-project, .ysm-mode, .ysm-actions { display: flex; align-items: center; gap: 4px; }
@@ -524,9 +512,6 @@ interface LibraryTemplate {
     .ysm-test-tour, .ysm-export-json { width: 100%; background: #fbbf24; color: #1a1500; border: 1px solid #fbbf24; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 800; }
     .ysm-test-tour:hover, .ysm-export-json:hover { background: #f5b923; }
 
-    /* ═══ FOOTER ═══ */
-    .ysm-footer { flex: 0 0 auto; height: 28px; display: flex; align-items: center; padding: 0 16px; background: #0a0e1c; border-top: 1px solid #1f2540; font-size: 11px; opacity: 0.7; }
-    .ysm-spacer { flex: 1; }
   `]
 })
 export class YamzyStudioMakerComponent implements OnInit, OnDestroy {
@@ -666,6 +651,20 @@ export class YamzyStudioMakerComponent implements OnInit, OnDestroy {
   private nextId = 1;
 
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
+
+  constructor() {
+    // 🪄 Footer global : reflète status + mode courant (drag-drop GLB + raccourcis G/R/S)
+    effect(() => {
+      const m = this.mode();
+      const st = this.status();
+      this.spellFooter.setSlots({
+        accent: '#fbbf24',
+        controls: [],
+        hint: `${st} · Drag-drop GLB${m === 'edit' ? ' · G/R/S = move/rot/scale' : ''}`,
+      });
+    });
+  }
 
   // ═══════════════════════════════════════════════════════════════════
   // LIFECYCLE
@@ -690,6 +689,7 @@ export class YamzyStudioMakerComponent implements OnInit, OnDestroy {
     }
     if (this.keyHandler) window.removeEventListener('keydown', this.keyHandler);
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {

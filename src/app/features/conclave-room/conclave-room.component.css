@@ -32,7 +32,7 @@
 /* ───────── Sound toggle (top-right, toujours visible) ───────── */
 .conclave-sound-btn {
   position: absolute;
-  top: 24px;
+  top: 84px;
   right: 24px;
   z-index: 1000;
   width: 44px;
@@ -241,7 +241,7 @@
 /* ───────── HUD (in-room overlay) ───────── */
 .conclave-hud-top {
   position: absolute;
-  top: 0;
+  top: 60px;
   left: 0;
   right: 0;
   padding: 22px 28px;
@@ -249,7 +249,7 @@
   align-items: center;
   justify-content: space-between;
   z-index: 20;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent);
+  background: transparent;
 }
 .conclave-hud-btn {
   font-family: 'Spectral SC', 'Cormorant SC', serif;
@@ -294,3 +294,4 @@
   .conclave-content { padding: 30px 24px; }
   .conclave-hud-label { display: none; }
 }
+

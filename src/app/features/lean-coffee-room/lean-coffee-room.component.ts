@@ -20,7 +20,7 @@ import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
 import { playIslandIntro } from '../../core/island-intro/island-intro';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } from '../../core/spell-ui';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellFooterService } from '../../core/spell-ui';
 
 interface LeanTopic {
   id: number;
@@ -38,14 +38,9 @@ interface LeanTopic {
   template: `
     <div class="lc-host">
       <header class="lc-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#6b4423" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="lc-title">
           <h1>☕ La Brûlerie Lean</h1>
           <p>Agenda démocratique · {{ topics().length }} sujets · {{ totalVotes() }} sucres distribués</p>
-        </div>
-        <div class="lc-actions">
-          <wt-spell-btn variant="primary" size="sm" accent="#6b4423" (click)="openTutorial()" icon="🎓" title="Visite guidée">Tutorial</wt-spell-btn>
-          <wt-spell-btn variant="primary" size="sm" accent="#6b4423" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
         </div>
       </header>
 
@@ -95,7 +90,10 @@ interface LeanTopic {
         color="#6b4423"
         oneLiner="Agenda démocratique : tasses-sujets dans 4 zones, dot voting, timer 5min."
         [duration]="65"
+        [timeboxDurationS]="300"
+        [timeboxLabel]="'Play (1 sujet)'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -115,7 +113,7 @@ interface LeanTopic {
     .lc-host { position: relative; width: 100%; height: 100%; background: #1a0d05; color: #fde6c8; font-family: 'Tinos', serif; overflow: hidden; }
     .lc-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-    .lc-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .lc-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .lc-topbar > * { pointer-events: auto; }
     .lc-back { color: #fdba74; text-decoration: none; font-size: 13px; padding: 7px 12px; border: 1px solid #6b4423; border-radius: 8px; background: rgba(40, 22, 10, 0.75); backdrop-filter: blur(6px); }
     .lc-back:hover { background: rgba(107, 68, 35, 0.55); }
@@ -152,7 +150,7 @@ interface LeanTopic {
     @keyframes lc-flash-pulse { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes lc-flash-grow { 0% { transform: scale(0.4); opacity: 0; } 18% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
 
-    .lc-manifesto { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 24px; background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); text-align: center; font-size: 13px; opacity: 0.75; z-index: 6; pointer-events: none; }
+    .lc-manifesto { position: absolute; bottom: 60px; left: 0; right: 0; padding: 10px 24px; background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); text-align: center; font-size: 13px; opacity: 0.75; z-index: 6; pointer-events: none; }
     .lc-manifesto em { color: #fde68a; }
   `]
 })
@@ -197,6 +195,7 @@ export class LeanCoffeeRoomComponent implements OnInit, OnDestroy {
 
   // ─── DI ───
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   // ─── Three.js ───
@@ -229,7 +228,16 @@ export class LeanCoffeeRoomComponent implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════
   // LIFECYCLE
   // ═══════════════════════════════════════════════════════════════════
-  ngOnInit(): void { this.bootstrap(); }
+  ngOnInit(): void {
+    this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#6b4423',
+      controls: [
+        { icon: '🎓', label: 'Tutorial', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
+  }
 
   ngOnDestroy(): void {
     this.disposed = true;
@@ -238,6 +246,7 @@ export class LeanCoffeeRoomComponent implements OnInit, OnDestroy {
     if (this.sky) this.sky.dispose();
     if (this.renderer) { try { this.renderer.dispose(); } catch {} }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap(): Promise<void> {
@@ -762,6 +771,12 @@ export class LeanCoffeeRoomComponent implements OnInit, OnDestroy {
   /** Entrer (skip play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(300, 'Lean Coffee');
   }
 
   // ═══════════════════════════════════════════════════════════════════

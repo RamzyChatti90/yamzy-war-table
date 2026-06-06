@@ -32,6 +32,18 @@ export interface TutorialStep {
   title: string;
   body: string;
   cite?: string;
+  /** Optional camera pose for this step - host listens to (cameraViewChange) */
+  cameraView?: {
+    position: [number, number, number];
+    target:   [number, number, number];
+    /** Optional zoom (FOV) override */
+    fov?: number;
+    /** Transition duration in ms (default 1500) */
+    durationMs?: number;
+  };
+  /** Optional animation cue for this step - host listens to (animCueChange).
+   *  Ex : 'highlight-conclave', 'spin-crystal', 'raise-islands', 'glow-east-row' */
+  animCue?: string;
 }
 
 @Component({
@@ -48,31 +60,40 @@ export interface TutorialStep {
 
       <button class="sto-close" (click)="emitClose()" aria-label="Fermer">×</button>
 
-      <!-- Bandeau bas-centré façon welcome conte -->
+      <!-- Bandeau FULLSCREEN 3 zones : header / body / footer -->
       <div class="sto-banner" [attr.data-step]="currentStep">
-        <div class="sto-suptitle">— {{ loreName }} —</div>
-        <h1 class="sto-title">{{ title }}</h1>
-        <p class="sto-step-counter">Page {{ currentStep + 1 }} / {{ steps.length }}</p>
 
-        <p class="sto-body">{{ currentStepObj?.body }}</p>
-        <p *ngIf="currentStepObj?.cite" class="sto-cite">— {{ currentStepObj?.cite }}</p>
+        <!-- ═══ HEADER : suptitle + title + page counter ═══ -->
+        <header class="sto-header">
+          <div class="sto-suptitle">— {{ loreName }} —</div>
+          <h1 class="sto-title">{{ title }}</h1>
+          <p class="sto-step-counter">Page {{ currentStep + 1 }} / {{ steps.length }}</p>
+        </header>
 
-        <!-- Navigation discrète façon welcome -->
-        <nav class="sto-nav">
-          <button class="sto-arrow" [disabled]="currentStep === 0" (click)="prev()" aria-label="Précédent">←</button>
-          <div class="sto-dots">
-            <span *ngFor="let s of steps; let i = index"
-                  class="sto-dot"
-                  [class.is-active]="i === currentStep"
-                  (click)="jump(i)"></span>
-          </div>
-          <button class="sto-arrow" [disabled]="currentStep === steps.length - 1" (click)="next()" aria-label="Suivant">→</button>
-        </nav>
+        <!-- ═══ BODY : texte central + citation ═══ -->
+        <section class="sto-content">
+          <p class="sto-body">{{ currentStepObj?.body }}</p>
+          <p *ngIf="currentStepObj?.cite" class="sto-cite">— {{ currentStepObj?.cite }}</p>
+        </section>
 
-        <ul class="sto-actions">
-          <li><button class="sto-link" (click)="replayVoice()">🔊 Re-jouer</button></li>
-          <li><button class="sto-link" (click)="emitClose()">Fermer</button></li>
-        </ul>
+        <!-- ═══ FOOTER : carousel nav + actions ═══ -->
+        <footer class="sto-footer">
+          <nav class="sto-nav">
+            <button class="sto-arrow" [disabled]="currentStep === 0" (click)="prev()" aria-label="Précédent">←</button>
+            <div class="sto-dots">
+              <span *ngFor="let s of steps; let i = index"
+                    class="sto-dot"
+                    [class.is-active]="i === currentStep"
+                    (click)="jump(i)"></span>
+            </div>
+            <button class="sto-arrow" [disabled]="currentStep === steps.length - 1" (click)="next()" aria-label="Suivant">→</button>
+          </nav>
+
+          <ul class="sto-actions">
+            <li><button class="sto-link" (click)="replayVoice()">🔊 Re-jouer</button></li>
+            <li><button class="sto-link" (click)="emitClose()">Fermer</button></li>
+          </ul>
+        </footer>
       </div>
     </div>
   `,
@@ -111,27 +132,71 @@ export interface TutorialStep {
     }
     .sto-close:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 40%, transparent); }
 
-    /* ═══ Banner conte : CENTRÉ pleine page (façon welcome) ═══
-       Le texte occupe le centre vertical+horizontal de l'écran,
-       comme le conte du welcome quand on lance "Lancer le conte". */
+    /* ═══ Banner FULLSCREEN — vraiment responsive ═══
+       3 zones distribuees : header pinned top, footer pinned bottom,
+       contenu central qui prend tout l'espace restant. Adapte a
+       toute taille d'ecran (mobile, desktop, large). */
     .sto-banner {
       pointer-events: auto;
-      position: absolute;
-      left: 50%; top: 50%;
-      transform: translate(-50%, -50%);
-      width: min(880px, calc(100vw - 60px));
-      max-width: 880px;
-      padding: 0 4vmin;
+      position: fixed;                  /* viewport-relative, pas parent */
+      inset: 0;                         /* fullscreen */
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;                   /* dynamic viewport - mobile-safe */
+      padding: clamp(16px, 3.5vmin, 48px) clamp(20px, 5vmin, 70px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;   /* header top / body center / footer bottom */
+      align-items: stretch;
       text-align: center;
       color: #f9f9f9;
       font-family: var(--font-body);
       animation: stoBannerIn 0.7s ease-out;
+      box-sizing: border-box;
+      overflow: hidden;                 /* pas de scroll global */
     }
     @keyframes stoBannerIn {
-      from { opacity: 0; transform: translate(-50%, calc(-50% + 30px)); }
-      to   { opacity: 1; transform: translate(-50%, -50%); }
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    .sto-banner > *:not(:last-child) { margin-bottom: clamp(14px, 2vmin, 22px); }
+
+    /* ─── Zone HEADER (pinned top) ─── */
+    .sto-header {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(6px, 1.2vmin, 14px);
+      align-items: center;
+      flex-shrink: 0;                   /* ne se compresse jamais */
+    }
+
+    /* ─── Zone CONTENT (flex grow, centre) ─── */
+    .sto-content {
+      flex: 1 1 auto;
+      min-height: 0;                    /* permet flex-shrink + overflow */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(8px, 1.6vmin, 18px);
+      padding: clamp(8px, 2vmin, 24px) 0;
+      overflow-y: auto;                 /* scroll interne si texte trop long */
+      overflow-x: hidden;
+    }
+    /* Scrollbar discrete */
+    .sto-content::-webkit-scrollbar { width: 4px; }
+    .sto-content::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--accent) 40%, transparent);
+      border-radius: 4px;
+    }
+
+    /* ─── Zone FOOTER (pinned bottom) ─── */
+    .sto-footer {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(6px, 1.2vmin, 14px);
+      align-items: center;
+      flex-shrink: 0;                   /* ne se compresse jamais */
+    }
 
     .sto-suptitle {
       font-size: clamp(13px, 1.8vmin, 17px);
@@ -139,16 +204,19 @@ export interface TutorialStep {
       color: var(--accent);
       text-transform: uppercase;
     }
-    /* Titre conte : Henny Penny XXL façon welcome (très grand, central) */
+    /* Titre conte : Henny Penny - clamp serre pour pas deborder petits ecrans */
     .sto-title {
       font-family: var(--font-heading);
       font-weight: 400;
-      font-size: clamp(40px, 9vmin, 90px);
-      line-height: 1; margin: 0;
+      font-size: clamp(36px, 8vmin, 110px);
+      line-height: 1;
+      margin: 0;
       color: #fff;
-      text-shadow: 0 0 30px color-mix(in srgb, var(--accent) 55%, transparent),
-                   0 0 80px color-mix(in srgb, var(--accent) 28%, transparent),
-                   0 2px 10px rgba(0,0,0,0.85);
+      text-shadow: 0 0 40px color-mix(in srgb, var(--accent) 60%, transparent),
+                   0 0 100px color-mix(in srgb, var(--accent) 32%, transparent),
+                   0 2px 14px rgba(0,0,0,0.9);
+      max-width: 100%;
+      word-break: break-word;
     }
     .sto-step-counter {
       font-size: clamp(12px, 1.5vmin, 15px);
@@ -158,12 +226,12 @@ export interface TutorialStep {
       color: var(--accent);
     }
 
-    /* Body text : Tinos serif XL, façon welcome conte */
+    /* Body text : Tinos serif - clamp serre pour fit petits ecrans */
     .sto-body {
       font-family: var(--font-body);
-      font-size: clamp(17px, 2.6vmin, 24px);
-      line-height: 1.55;
-      max-width: 720px;
+      font-size: clamp(15px, 2.4vmin, 26px);
+      line-height: 1.5;
+      max-width: min(900px, 90vw);
       margin: 0 auto;
       color: #f5f5f5;
       text-shadow: 0 2px 8px rgba(0,0,0,0.9);
@@ -250,6 +318,10 @@ export class SpellTutorialOverlayComponent implements OnChanges, OnDestroy {
   @Input() autoSpeak = true;
   @Output() stepChange = new EventEmitter<number>();
   @Output() close = new EventEmitter<void>();
+  /** Émis quand le step change ET qu'une cameraView est définie sur ce step. */
+  @Output() cameraViewChange = new EventEmitter<NonNullable<TutorialStep['cameraView']>>();
+  /** Émis quand le step change ET qu'un animCue est défini sur ce step. */
+  @Output() animCueChange = new EventEmitter<string>();
 
   private voice = inject(VoiceNarratorService);
   private sounds = inject(SpellSoundsService);
@@ -259,7 +331,18 @@ export class SpellTutorialOverlayComponent implements OnChanges, OnDestroy {
   ngOnChanges(ch: SimpleChanges): void {
     if (ch['currentStep'] || (ch['steps'] && this.steps.length > 0)) {
       this.speakIfEnabled();
+      this.emitCameraView();
+      this.emitAnimCue();
     }
+  }
+
+  private emitCameraView(): void {
+    const cv = this.currentStepObj?.cameraView;
+    if (cv) this.cameraViewChange.emit(cv);
+  }
+  private emitAnimCue(): void {
+    const cue = this.currentStepObj?.animCue;
+    if (cue) this.animCueChange.emit(cue);
   }
 
   ngOnDestroy(): void {

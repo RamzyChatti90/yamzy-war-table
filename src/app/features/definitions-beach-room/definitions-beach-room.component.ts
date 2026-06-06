@@ -31,7 +31,7 @@ import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
 import { playIslandIntro } from '../../core/island-intro/island-intro';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } from '../../core/spell-ui';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellFooterService } from '../../core/spell-ui';
 
 // ─── Modèles métier ───
 interface BeachFlag {
@@ -49,16 +49,9 @@ interface BeachFlag {
   template: `
     <div class="db-host">
       <header class="db-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#fde68a" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="db-title">
           <h1>🏖 La Plage des Définitions</h1>
           <p>DoR / DoD · drapeaux Ready & Done plantés dans le sable</p>
-        </div>
-        <div class="db-actions">
-          <wt-spell-btn variant="secondary" size="sm" accent="#fde68a" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-          <wt-spell-btn variant="secondary" size="sm" accent="#fde68a" (click)="exportMarkdown()" icon="📤">Export markdown</wt-spell-btn>
-          <wt-spell-btn variant="primary" size="sm" accent="#fde68a" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-          <wt-spell-btn variant="primary" size="sm" accent="#fde68a" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
         </div>
       </header>
 
@@ -109,20 +102,23 @@ interface BeachFlag {
         color="#fde68a"
         oneLiner="DoR/DoD : drapeaux Ready/Done plantés dans le sable, liens, export markdown."
         [duration]="60"
+        [timeboxDurationS]="600"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
     </div>
   `,
   styles: [`
     :host { display: block; position: fixed; inset: 0; }
-    .db-host { position: relative; width: 100%; height: 100%; background: #87ceeb; color: #1e293b; font-family: system-ui, sans-serif; overflow: hidden; }
+    .db-host { position: relative; width: 100%; height: 100dvh; max-height: 100dvh; background: #87ceeb; color: #1e293b; font-family: "Tinos", serif; overflow: hidden; }
     .db-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-    .db-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(13,32,55,0.65) 0%, rgba(13,32,55,0) 100%); pointer-events: none; color: #f8fafc; }
+    .db-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(13,32,55,0.65) 0%, rgba(13,32,55,0) 100%); pointer-events: none; color: #f8fafc; }
     .db-topbar > * { pointer-events: auto; }
     .db-back { color: #fde68a; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #fbbf24; border-radius: 8px; background: rgba(120,53,15,0.45); }
     .db-back:hover { background: rgba(251,191,36,0.4); }
-    .db-title h1 { margin: 0; font-size: 18px; font-weight: 700; color: #fff; text-shadow: 0 0 12px rgba(13,32,55,0.7); letter-spacing: 1px; }
+    .db-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; color: #fff; text-shadow: 0 0 12px rgba(13,32,55,0.7); letter-spacing: 1px; }
     .db-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.85; font-style: italic; }
     .db-actions { margin-left: auto; display: flex; gap: 8px; }
     .db-actions button { background: rgba(15,23,42,0.6); color: #f1f5f9; border: 1px solid rgba(253, 230, 138, 0.45); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; }
@@ -156,6 +152,7 @@ export class DefinitionsBeachRoomComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvasEl!: ElementRef<HTMLCanvasElement>;
 
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
   private router = inject(Router);
 
@@ -231,6 +228,15 @@ export class DefinitionsBeachRoomComponent implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#fde68a',
+      controls: [
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '📤', label: 'Export markdown', action: () => this.exportMarkdown() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -241,6 +247,7 @@ export class DefinitionsBeachRoomComponent implements OnInit, OnDestroy {
     if (this.renderer) { try { this.renderer.dispose(); } catch {} }
     if (this.ceremonyFlashTimer) clearTimeout(this.ceremonyFlashTimer);
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -710,6 +717,12 @@ export class DefinitionsBeachRoomComponent implements OnInit, OnDestroy {
   /** Entrer (skip play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(600, 'DoR/DoD review');
   }
 
   // 🎬 Méthodes invoquées par playExample tutorial JSON

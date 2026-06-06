@@ -89,6 +89,7 @@ export const DAILY_FLOW_STEPS: DayFlowStep[] = [
           <p class="sdf-subtitle">L'enchaînement des cérémonies Scrum à travers les rooms du Royaume Yamzy. Clique sur une étape pour t'y téléporter.</p>
         </header>
 
+        <div class="sdf-timeline-wrap">
         <ol class="sdf-timeline">
           <li *ngFor="let step of steps; let i = index"
               class="sdf-step"
@@ -107,6 +108,7 @@ export const DAILY_FLOW_STEPS: DayFlowStep[] = [
             </a>
           </li>
         </ol>
+        </div>
 
         <footer class="sdf-foot">
           <wt-spell-btn variant="ghost" size="sm" [accent]="accent" (click)="emitClose()">Fermer</wt-spell-btn>
@@ -133,32 +135,36 @@ export const DAILY_FLOW_STEPS: DayFlowStep[] = [
       backdrop-filter: blur(10px);
     }
     .sdf-card {
-      position: relative;
-      width: min(720px, calc(100vw - 40px));
-      max-height: 90vh;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
       overflow-y: auto;
-      padding: clamp(28px, 4vmin, 44px);
+      padding: clamp(20px, 4vmin, 56px) clamp(20px, 6vmin, 80px);
       background-color: rgba(0,0,0,0.92);
-      border: 1px solid color-mix(in srgb, var(--accent) 45%, #333);
+      border: none;
       border-top: 4px solid var(--accent);
       color: #f0f0f0;
       font-family: "Tinos", serif;
-      box-shadow: 0 16px 60px color-mix(in srgb, var(--accent) 30%, transparent);
       animation: sdfCard 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-sizing: border-box;
     }
     @keyframes sdfCard { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
     .sdf-close {
-      position: absolute; top: 18px; right: 22px;
-      background: transparent; border: 2px solid #555; color: #fff;
-      width: 38px; height: 38px; border-radius: 50%;
-      font-size: 22px; line-height: 1; cursor: pointer;
+      position: fixed; top: 22px; right: 22px;
+      background: rgba(0,0,0,0.5); border: 2px solid #555; color: #fff;
+      width: 46px; height: 46px; border-radius: 50%;
+      font-size: 26px; line-height: 1; cursor: pointer;
       transition: all 0.18s;
+      z-index: 10;
+      backdrop-filter: blur(6px);
     }
     .sdf-close:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 40%, transparent); }
 
     /* Header */
-    .sdf-head { text-align: center; margin-bottom: 30px; }
+    .sdf-head { text-align: center; margin-bottom: clamp(20px, 3vmin, 40px); max-width: 1100px; margin-left: auto; margin-right: auto; }
     .sdf-suptitle {
       font-size: clamp(11px, 1.5vmin, 14px);
       letter-spacing: 0.4em;
@@ -186,6 +192,7 @@ export const DAILY_FLOW_STEPS: DayFlowStep[] = [
     }
 
     /* Timeline */
+    .sdf-timeline-wrap { max-width: 1100px; margin: 0 auto; }
     .sdf-timeline {
       list-style: none; margin: 0; padding: 0;
     }

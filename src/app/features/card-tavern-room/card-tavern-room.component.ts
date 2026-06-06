@@ -25,7 +25,7 @@ import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { createPortal3D, getIslandForRoom, PortalHandle } from '../../core/portal/portal.factory';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } from '../../core/spell-ui';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellFooterService } from '../../core/spell-ui';
 
 interface ProspectCard {
   id: number;
@@ -53,7 +53,6 @@ interface Trophy {
   template: `
     <div class="ct-host">
       <header class="ct-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#84cc16" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="ct-title">
           <h1>🎴 CARD TAVERN</h1>
           <p>La Taverne aux Cartes · {{ prospects().length }} prospects · MRR €{{ mrr() }} · Win rate {{ winRate() }}%</p>
@@ -67,17 +66,6 @@ interface Trophy {
       </header>
 
       <canvas #canvas class="ct-canvas"></canvas>
-
-      <footer class="ct-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#84cc16" (click)="loadDemo()" icon="🎬">Demo deals</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#84cc16" (click)="toastWin()" icon="🍻">Toast (win deal)</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#84cc16" (click)="compareCards()" icon="⚔">Compare 2 cards</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#84cc16" (click)="castOutbound()" icon="🪄">Cast outbound</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#84cc16" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#84cc16" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#84cc16" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Mouse drag = orbit · molette = zoom · clic carte = info</span>
-      </footer>
 
       <!-- 🪶 Narrator Yamzy overlay (bulle + glossary) -->
       <wt-narrator></wt-narrator>
@@ -112,7 +100,10 @@ interface Trophy {
         color="#fbbf24"
         oneLiner="Taverne médiévale, cartes prospects, aubergiste NPC, carte aux trésors."
         [duration]="65"
+        [timeboxDurationS]="1200"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -129,12 +120,12 @@ interface Trophy {
   `,
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
-    .ct-host { position: relative; width: 100%; height: 100vh; background: #1a0d05; color: #fef3c7; font-family: 'Cinzel', 'Times New Roman', serif; }
-    .ct-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .ct-host { position: relative; width: 100%; height: 100vh; background: #1a0d05; color: #fef3c7; font-family: "Tinos", serif; }
+    .ct-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .ct-topbar > * { pointer-events: auto; }
     .ct-back { color: #fbbf24; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #92400e; border-radius: 8px; background: rgba(40,20,0,0.5); }
     .ct-back:hover { background: rgba(92,40,0,0.6); }
-    .ct-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 2px; color: #fbbf24; text-shadow: 0 0 12px rgba(251,191,36,0.4); }
+    .ct-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 2px; color: #fbbf24; text-shadow: 0 0 12px rgba(251,191,36,0.4); }
     .ct-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.75; color: #fde68a; }
     .ct-legend { display: flex; gap: 12px; font-size: 11px; align-items: center; color: #fde68a; }
     .ct-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
@@ -186,6 +177,7 @@ export class CardTavernRoomComponent implements OnInit, OnDestroy {
 
   // 🪶 Narrator Yamzy : injecté dans le footer + overlay <wt-narrator>
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   // ─── État signals ───
@@ -276,6 +268,19 @@ export class CardTavernRoomComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#84cc16',
+      hint: 'Mouse drag = orbit · molette = zoom · clic carte = info',
+      controls: [
+        { icon: '🎬', label: 'Demo deals', action: () => this.loadDemo() },
+        { icon: '🍻', label: 'Toast (win deal)', action: () => this.toastWin() },
+        { icon: '⚔', label: 'Compare 2 cards', action: () => this.compareCards() },
+        { icon: '🪄', label: 'Cast outbound', action: () => this.castOutbound() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -287,6 +292,7 @@ export class CardTavernRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -1624,6 +1630,12 @@ export class CardTavernRoomComponent implements OnInit, OnDestroy {
   /** Entrer (skip play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(1200, 'Pipeline review');
   }
 
   private onResize = () => {

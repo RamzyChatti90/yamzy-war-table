@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 
 /**
  * 🧪 ORRERY LAB — page d'isolation
@@ -21,12 +20,11 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'wt-orrery-lab',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="lab-page">
       <header class="lab-hud">
-        <a routerLink="/orrery-viewer" class="lab-back">← Retour orrery-viewer (GLB)</a>
         <div class="lab-title">
           <h1>🧪 ORRERY LAB</h1>
           <p>Scène 3D pure (no GLB) · valide la mécanique ici avant adaptation</p>
@@ -52,14 +50,12 @@ import { RouterLink } from '@angular/router';
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
     .lab-page { position: relative; width: 100%; height: 100vh; background: #060818; color: #e8eaf6; font-family: system-ui, sans-serif; }
     .lab-hud {
-      position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10;
+      position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10;
       display: flex; justify-content: space-between; align-items: center; gap: 18px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+      background: transparent;
       pointer-events: none;
     }
     .lab-hud > * { pointer-events: auto; }
-    .lab-back { color: #9ca3ff; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #3b3f55; border-radius: 8px; background: rgba(0,0,0,0.4); }
-    .lab-back:hover { background: rgba(60,80,150,0.4); }
     .lab-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1px; }
     .lab-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.7; }
     .lab-legend { display: flex; gap: 12px; font-size: 11px; align-items: center; }

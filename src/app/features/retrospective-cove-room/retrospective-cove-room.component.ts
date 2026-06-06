@@ -33,7 +33,7 @@ import { RoomSplashComponent } from '../../core/room-splash/room-splash.componen
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
 import { playIslandIntro } from '../../core/island-intro/island-intro';
-import { SpellButtonComponent, SpellTutorialOverlayComponent, TutorialStep } from '../../core/spell-ui';
+import { SpellButtonComponent, SpellTutorialOverlayComponent, TutorialStep, SpellFooterService } from '../../core/spell-ui';
 
 // ─── Modèles métier (sticky notes par zone) ───
 type SailboatZone = 'wind' | 'anchor' | 'reef' | 'island';
@@ -72,16 +72,9 @@ interface FlagHandle {
   template: `
     <div class="rc-host">
       <header class="rc-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#67e8f9" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="rc-title">
           <h1>⛵ Le Cercle du Rétroviseur — Retrospective Sailboat</h1>
           <p>Rétro Sailboat — vent ({{ noteCount('wind') }}) · ancres ({{ noteCount('anchor') }}) · récifs ({{ noteCount('reef') }}) · île ({{ noteCount('island') }})</p>
-        </div>
-        <div class="rc-actions">
-          <wt-spell-btn variant="primary" size="sm" accent="#67e8f9" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">Tutorial</wt-spell-btn>
-          <wt-spell-btn variant="primary" size="sm" accent="#67e8f9" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-          <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="loadDemo()" icon="🎬">Demo notes</wt-spell-btn>
-          <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
         </div>
       </header>
 
@@ -164,7 +157,10 @@ interface FlagHandle {
         color="#67e8f9"
         oneLiner="Sprint retro Sailboat : vent (Glad), ancres (Sad), récifs (Mad), île (Actions)."
         [duration]="75"
+        [timeboxDurationS]="5400"
+        [timeboxLabel]="'Lancer Retro'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -181,14 +177,14 @@ interface FlagHandle {
   `,
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
-    .rc-host { position: relative; width: 100%; height: 100vh; background: #061626; color: #cffafe; font-family: system-ui, sans-serif; }
+    .rc-host { position: relative; width: 100%; height: 100vh; background: #061626; color: #cffafe; font-family: "Tinos", serif; }
 
     /* ═══ Topbar ═══ */
-    .rc-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .rc-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .rc-topbar > * { pointer-events: auto; }
     .rc-back { color: #67e8f9; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #155e75; border-radius: 8px; background: rgba(6,30,48,0.55); }
     .rc-back:hover { background: rgba(21,94,117,0.65); }
-    .rc-title h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: 0.6px; color: #67e8f9; text-shadow: 0 0 12px rgba(103,232,249,0.45); }
+    .rc-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 17px; letter-spacing: 0.6px; color: #67e8f9; text-shadow: 0 0 12px rgba(103,232,249,0.45); }
     .rc-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.75; }
     .rc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .rc-btn { background: rgba(6,30,48,0.7); color: #cffafe; border: 1px solid #155e75; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; }
@@ -235,6 +231,7 @@ export class RetrospectiveCoveRoomComponent implements OnInit, OnDestroy {
 
   // ─── Injects ───
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
   private router = inject(Router);
 
@@ -308,6 +305,15 @@ export class RetrospectiveCoveRoomComponent implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#67e8f9',
+      controls: [
+        { icon: '🎓', label: 'Tutorial', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+        { icon: '🎬', label: 'Demo notes', action: () => this.loadDemo() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -317,6 +323,7 @@ export class RetrospectiveCoveRoomComponent implements OnInit, OnDestroy {
     if (this.sky) this.sky.dispose();
     if (this.renderer) { try { this.renderer.dispose(); } catch {} }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -846,6 +853,12 @@ export class RetrospectiveCoveRoomComponent implements OnInit, OnDestroy {
   /** Quand l'utilisateur clique "Entrer" (skip le play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(5400, 'Sprint Retrospective');
   }
 
   // ═══════════════════════════════════════════════════════════════════

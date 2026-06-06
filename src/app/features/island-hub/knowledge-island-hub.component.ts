@@ -13,15 +13,16 @@
 // ═══════════════════════════════════════════════════════════════════
 import {
   ChangeDetectionStrategy, Component, ElementRef, inject, OnDestroy, OnInit,
-  ViewChild,
+  ViewChild, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { SpellButtonComponent } from '../../core/spell-ui';
 import { createPortal3D, PortalHandle, ISLANDS, getOtherIslands, IslandDef } from '../../core/portal/portal.factory';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
 import { playIslandIntro } from '../../core/island-intro/island-intro';
+import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellFooterService } from '../../core/spell-ui';
 
 interface BuildingHandle {
   group: any;
@@ -33,15 +34,26 @@ interface BuildingHandle {
 @Component({
   selector: 'wt-knowledge-island-hub',
   standalone: true,
-  imports: [CommonModule, RouterLink, SpellButtonComponent],
+  imports: [CommonModule, RouterLink, RoomSplashComponent, SpellTutorialOverlayComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <wt-room-splash *ngIf="splashVisible()"
+                    [title]="splashTitle"
+                    [loreName]="splashLoreName"
+                    [oneLiner]="splashOneLiner"
+                    [color]="splashColor"
+                    [duration]="60"
+                    (onPlay)="onSplashPlay()"
+                    (onEnter)="onSplashEnter()" />
+
+    <wt-spell-tutorial-overlay *ngIf="tutorialOpen()"
+                               [steps]="tutorialSteps"
+                               [accent]="splashColor"
+                               [title]="'Comment ça marche'"
+                               (close)="closeTutorial()" />
+
     <div class="kih-host">
       <header class="kih-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#a78bfa"
-                      routerLink="/yamzy-rooms"
-                      icon="←"
-                      title="Retour à la galerie Yamzy Rooms">Yamzy Rooms</wt-spell-btn>
         <div class="kih-title">
           <h1>🏛 ÎLE DU SAVOIR</h1>
           <p>Le Sanctuaire des Voix — capter et conserver la sagesse</p>
@@ -50,6 +62,8 @@ interface BuildingHandle {
           <span class="kih-badge">2 ROOMS</span>
           <span class="kih-badge">3 PORTAILS</span>
         </div>
+        <button class="kih-play-btn" (click)="replaySplash()" title="Rejouer la démo timeboxée">▶ Play</button>
+        <button class="kih-howto-btn" (click)="openTutorial()" title="Comment ça marche">📖 Comment ça marche</button>
       </header>
 
       <canvas #canvas class="kih-canvas"></canvas>
@@ -73,10 +87,8 @@ interface BuildingHandle {
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
     .kih-host { position: relative; width: 100%; height: 100vh; background: #042f4a; color: #cffafe; font-family: system-ui, sans-serif; }
-    .kih-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(4,47,74,0.85) 0%, rgba(4,47,74,0) 100%); pointer-events: none; }
+    .kih-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: transparent; pointer-events: none; }
     .kih-topbar > * { pointer-events: auto; }
-    .kih-back { color: #67e8f9; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #06b6d4; border-radius: 8px; background: rgba(8,60,90,0.6); }
-    .kih-back:hover { background: rgba(6,182,212,0.4); }
     .kih-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1.5px; color: #67e8f9; text-shadow: 0 0 12px rgba(103,232,249,0.55); }
     .kih-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.8; }
     .kih-meta { display: flex; gap: 6px; font-size: 10px; }
@@ -90,11 +102,52 @@ interface BuildingHandle {
     .kih-island-chip { background: rgba(20,20,40,0.7); color: var(--accent, #fbbf24); border: 1px solid var(--accent, #fbbf24); padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; text-decoration: none; font-weight: 600; transition: all 0.15s; }
     .kih-island-chip:hover { background: rgba(0,0,0,0.5); box-shadow: 0 0 10px var(--accent, #fbbf24); }
     .kih-spacer { flex: 1 1 20px; }
+    .kih-play-btn {
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      border: 2px solid color-mix(in srgb, #06b6d4 55%, transparent);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: "Tinos", serif;
+      font-size: 14px;
+      backdrop-filter: blur(4px);
+      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
+      transition: all 0.25s ease;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+    .kih-play-btn:hover {
+      border-color: #06b6d4;
+      color: #67e8f9;
+      box-shadow: 0 0 16px color-mix(in srgb, #06b6d4 55%, transparent);
+      transform: translateY(-1px);
+    }
+    .kih-howto-btn {
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      border: 2px solid color-mix(in srgb, var(--accent-color, #06b6d4) 55%, transparent);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: "Tinos", serif;
+      font-size: 14px;
+      backdrop-filter: blur(4px);
+      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
+      transition: all 0.25s ease;
+    }
+    .kih-howto-btn:hover {
+      border-color: var(--accent-color, #06b6d4);
+      color: #d68ddc;
+      box-shadow: 0 0 16px color-mix(in srgb, var(--accent-color, #06b6d4) 50%, transparent);
+      transform: translateY(-1px);
+    }
   `]
 })
 export class KnowledgeIslandHubComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvasEl!: ElementRef<HTMLCanvasElement>;
   private router = inject(Router);
+  private spellFooter = inject(SpellFooterService);
 
   private scene: any;
   private camera: any;
@@ -118,8 +171,35 @@ export class KnowledgeIslandHubComponent implements OnInit, OnDestroy {
 
   private readonly islandDef: IslandDef = ISLANDS.find(i => i.id === 'knowledge')!;
 
+  // 🎬 Splash & Tutorial state
+  splashVisible = signal<boolean>(true);
+  tutorialOpen = signal<boolean>(false);
+
+  splashTitle = 'Savoir';
+  splashLoreName = 'Le Royaume du Savoir';
+  splashOneLiner = "L'île des vitraux et des fioles — où se conservent les leçons apprises et les sorts du Mage Alchimiste.";
+  splashColor = '#06b6d4';
+  tutorialSteps: TutorialStep[] = [
+    { title: 'Bienvenue', body: 'Bienvenue sur le Royaume du Savoir. Ici se gardent les leçons apprises, les ADRs et les fioles alchimiques d\'IA.' },
+    { title: 'Library Cathedral', body: '📚 La bibliothèque sacrée — vitraux = décisions, runbooks = grimoires, RFC = parchemins éternels.' },
+    { title: 'Alchemist Cellar', body: '⚗ La cave aux fioles — chaque fiole colorée = un coût (compute, storage, IA). Le mana magique a son prix.' },
+    { title: 'Five Whys Well', body: '🪨 Le Puits des Cinq Pourquoi — descend 5 niveaux pour trouver la racine d\'un incident, pas le symptôme.' },
+  ];
+
+  onSplashPlay(): void { this.splashVisible.set(false); }
+  onSplashEnter(): void { this.splashVisible.set(false); }
+  openTutorial(): void { this.tutorialOpen.set(true); }
+  closeTutorial(): void { this.tutorialOpen.set(false); }
+  /** Rejoue la démo timeboxée en réaffichant le splash welcome. */
+  replaySplash(): void { this.splashVisible.set(true); }
+
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#06b6d4',
+      controls: [],
+      hint: 'Drag = orbit · molette = zoom · clic bâtiment = entrer dans la room',
+    });
   }
 
   ngOnDestroy() {
@@ -133,6 +213,7 @@ export class KnowledgeIslandHubComponent implements OnInit, OnDestroy {
     }
     window.removeEventListener('resize', this.onResize);
     for (const p of this.portals) p.dispose();
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {

@@ -27,7 +27,7 @@ import { RoomSplashComponent } from '../../core/room-splash/room-splash.componen
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { createPortal3D, getIslandForRoom, PortalHandle } from '../../core/portal/portal.factory';
 import { SpellTutorialOverlayComponent, TutorialStep } from '../../core/spell-ui';
-import { SpellButtonComponent, SpellPanelComponent } from '../../core/spell-ui';
+import { SpellButtonComponent, SpellPanelComponent, SpellFooterService } from '../../core/spell-ui';
 
 type IslandZone =
   | 'beach'           // 🌊 Plage de l'Aurore — Backlog
@@ -58,7 +58,6 @@ interface IslandTicket {
   template: `
     <div class="ki-host">
       <header class="ki-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#67e8f9" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="ki-title">
           <h1>🏝 KANBAN ISLAND ROOM</h1>
           <p>L'Archipel des Quêtes — {{ tickets().length }} voyageurs · {{ zoneCount('summit_done') }} drapeaux plantés · {{ zoneCount('cliff_blocked') }} bloqués</p>
@@ -74,17 +73,6 @@ interface IslandTicket {
       </header>
 
       <canvas #canvas class="ki-canvas"></canvas>
-
-      <footer class="ki-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="loadDemo()" icon="🎬">Demo project (30 tickets)</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="triggerTide()" icon="🌊">Trigger Marée</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="toggleStorm()">{{ stormActive() ? '☀️ Stop Tempête' : '⛈ Tempête' }}</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="toggleVolcano()">{{ volcanoActive() ? '🧊 Calmer Volcan' : '🌋 Volcan' }}</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#67e8f9" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#67e8f9" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Mouse drag = orbit · molette = zoom · clic ticket = détail</span>
-      </footer>
 
       <!-- 🪶 Narrator Yamzy overlay (bulle + glossary) -->
       <wt-narrator></wt-narrator>
@@ -132,7 +120,10 @@ interface IslandTicket {
         color="#7dd3fc"
         oneLiner="Île 3D où les tickets voyagent de la plage au sommet du volcan."
         [duration]="70"
+        [timeboxDurationS]="900"
+        [timeboxLabel]="'Lancer Daily'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -149,12 +140,12 @@ interface IslandTicket {
   `,
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
-    .ki-host { position: relative; width: 100%; height: 100vh; background: #051a2e; color: #e0f2fe; font-family: system-ui, sans-serif; }
-    .ki-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .ki-host { position: relative; width: 100%; height: 100vh; background: #051a2e; color: #e0f2fe; font-family: "Tinos", serif; }
+    .ki-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .ki-topbar > * { pointer-events: auto; }
     .ki-back { color: #7dd3fc; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #0c4a6e; border-radius: 8px; background: rgba(8,30,55,0.5); }
     .ki-back:hover { background: rgba(12,74,110,0.6); }
-    .ki-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1px; color: #7dd3fc; }
+    .ki-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 1px; color: #7dd3fc; }
     .ki-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.75; }
     .ki-legend { display: flex; gap: 10px; font-size: 11px; align-items: center; flex-wrap: wrap; }
     .ki-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
@@ -205,6 +196,7 @@ export class KanbanIslandRoomComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvasEl!: ElementRef<HTMLCanvasElement>;
 
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   tickets = signal<IslandTicket[]>([]);
@@ -282,6 +274,19 @@ export class KanbanIslandRoomComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#67e8f9',
+      hint: 'Mouse drag = orbit · molette = zoom · clic ticket = détail',
+      controls: [
+        { icon: '🎬', label: 'Demo project (30 tickets)', action: () => this.loadDemo() },
+        { icon: '🌊', label: 'Trigger Marée', action: () => this.triggerTide() },
+        { label: this.stormActive() ? '☀️ Stop Tempête' : '⛈ Tempête', action: () => this.toggleStorm() },
+        { label: this.volcanoActive() ? '🧊 Calmer Volcan' : '🌋 Volcan', action: () => this.toggleVolcano() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -293,6 +298,7 @@ export class KanbanIslandRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -973,6 +979,12 @@ export class KanbanIslandRoomComponent implements OnInit, OnDestroy {
   /** Quand l'utilisateur clique "Entrer" (skip le play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(900, 'Daily Standup');
   }
 
   triggerTide() {

@@ -41,7 +41,7 @@ import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { createPortal3D, getIslandForRoom, PortalHandle } from '../../core/portal/portal.factory';
 import { CeremonyBusService, GlobalCeremony, SkyPhenomenon } from '../../core/ceremony-bus/ceremony-bus.service';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } from '../../core/spell-ui';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellFooterService } from '../../core/spell-ui';
 
 interface ActivePhenomenon {
   type: string;
@@ -60,7 +60,6 @@ interface ActivePhenomenon {
   template: `
     <div class="ti-host">
       <header class="ti-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#f59e0b" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="ti-title">
           <h1>🔭 TELESCOPE ISLAND</h1>
           <p>L&apos;Observatoire des Phénomènes — état actuel: {{ currentSkyState() }}</p>
@@ -75,20 +74,6 @@ interface ActivePhenomenon {
       </header>
 
       <canvas #canvas class="ti-canvas"></canvas>
-
-      <footer class="ti-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="loadDemo()" icon="🎬">Demo</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="triggerComet()" icon="☄">Comet</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="triggerEclipse()" icon="🌑">Eclipse</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="triggerAurora()" icon="🌌">Aurora</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="triggerMeteorShower()" icon="⭐">Meteor</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="triggerSupernova()" icon="💥">Supernova</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="triggerNebula()" icon="🌫">Nebula</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#f59e0b" (click)="clearSky()" icon="✨">Reset sky</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#f59e0b" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#f59e0b" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Mouse drag = orbit · molette = zoom · clic télescope = viser le ciel</span>
-      </footer>
 
       <!-- 🪶 Narrator Yamzy overlay (bulle + glossary) -->
       <wt-narrator></wt-narrator>
@@ -108,7 +93,10 @@ interface ActivePhenomenon {
         color="#c4b5fd"
         oneLiner="Ciel dynamique reflétant TOUS les événements projet — comète, éclipse, aurora."
         [duration]="80"
+        [timeboxDurationS]="600"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -125,13 +113,13 @@ interface ActivePhenomenon {
   `,
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
-    .ti-host { position: relative; width: 100%; height: 100vh; background: #05030f; color: #e9d5ff; font-family: system-ui, sans-serif; }
+    .ti-host { position: relative; width: 100%; height: 100vh; background: #05030f; color: #e9d5ff; font-family: "Tinos", serif; }
 
-    .ti-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .ti-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .ti-topbar > * { pointer-events: auto; }
     .ti-back { color: #c4b5fd; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #7c3aed; border-radius: 8px; background: rgba(30,15,60,0.5); }
     .ti-back:hover { background: rgba(124,58,237,0.45); }
-    .ti-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1.5px; color: #c4b5fd; text-shadow: 0 0 12px rgba(196,181,253,0.55); }
+    .ti-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 1.5px; color: #c4b5fd; text-shadow: 0 0 12px rgba(196,181,253,0.55); }
     .ti-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.8; }
     .ti-legend { display: flex; gap: 10px; font-size: 11px; align-items: center; flex-wrap: wrap; }
     .ti-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
@@ -174,6 +162,7 @@ export class TelescopeIslandRoomComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvasEl!: ElementRef<HTMLCanvasElement>;
 
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
   private ceremonyBusUnsub: (() => void) | null = null;
 
@@ -252,6 +241,22 @@ export class TelescopeIslandRoomComponent implements OnInit, OnDestroy {
     this.bootstrap();
     // 🌌 S'abonner au bus global — le ciel devient le radar universel
     this.ceremonyBusUnsub = this.ceremonyBus.subscribe(c => this.handleRemoteCeremony(c));
+    this.spellFooter.setSlots({
+      accent: '#f59e0b',
+      hint: 'Mouse drag = orbit · molette = zoom · clic télescope = viser le ciel',
+      controls: [
+        { icon: '🎬', label: 'Demo', action: () => this.loadDemo() },
+        { icon: '☄', label: 'Comet', action: () => this.triggerComet() },
+        { icon: '🌑', label: 'Eclipse', action: () => this.triggerEclipse() },
+        { icon: '🌌', label: 'Aurora', action: () => this.triggerAurora() },
+        { icon: '⭐', label: 'Meteor', action: () => this.triggerMeteorShower() },
+        { icon: '💥', label: 'Supernova', action: () => this.triggerSupernova() },
+        { icon: '🌫', label: 'Nebula', action: () => this.triggerNebula() },
+        { icon: '✨', label: 'Reset sky', action: () => this.clearSky() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -265,6 +270,7 @@ export class TelescopeIslandRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -1487,6 +1493,12 @@ export class TelescopeIslandRoomComponent implements OnInit, OnDestroy {
   /** Quand l'utilisateur clique "Entrer" (skip le play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(600, 'Daily wrap-up');
   }
 
   // ═══════════════════════════════════════════════════════════════════

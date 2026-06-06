@@ -24,7 +24,7 @@ import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
 import { createPortal3D, getIslandForRoom, PortalHandle } from '../../core/portal/portal.factory';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
-import { SpellButtonComponent, SpellPanelComponent, SpellTutorialOverlayComponent, TutorialStep } from '../../core/spell-ui';
+import { SpellButtonComponent, SpellPanelComponent, SpellTutorialOverlayComponent, TutorialStep, SpellFooterService } from '../../core/spell-ui';
 
 // ─── Modèles métier ───
 interface PlannedRelease {
@@ -63,7 +63,6 @@ interface PastRelease {
   template: `
     <div class="pf-host">
       <header class="pf-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#67e8f9" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="pf-title">
           <h1>🔥 PHOENIX FORGE</h1>
           <p>L'Atelier des Renaissances — {{ plannedReleases().length }} œufs · {{ commits().length }} commits depuis dernière release · {{ pastReleases().length }} cendres</p>
@@ -77,17 +76,6 @@ interface PastRelease {
       </header>
 
       <canvas #canvas class="pf-canvas"></canvas>
-
-      <footer class="pf-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="loadDemo()" icon="🎬">Demo project</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="triggerReleaseRitual()" icon="🐦">Release ritual</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="triggerHotfix()" icon="⚡">Hotfix express</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="rollbackLast()" icon="🔧">Rollback last</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#67e8f9" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#67e8f9" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Drag = orbit · molette = zoom · clic plume = commit · clic œuf = release</span>
-      </footer>
 
       <!-- 🪶 Narrator Yamzy overlay (bulle + glossary) -->
       <wt-narrator></wt-narrator>
@@ -145,7 +133,10 @@ interface PastRelease {
         color="#ea580c"
         oneLiner="Athanor + phénix vivant + 600 flammes. Chaque release = un œuf qui éclôt."
         [duration]="75"
+        [timeboxDurationS]="1800"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -162,13 +153,13 @@ interface PastRelease {
   `,
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
-    .pf-host { position: relative; width: 100%; height: 100vh; background: #0d0a14; color: #fde6c8; font-family: system-ui, sans-serif; }
+    .pf-host { position: relative; width: 100%; height: 100vh; background: #0d0a14; color: #fde6c8; font-family: "Tinos", serif; }
 
-    .pf-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .pf-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .pf-topbar > * { pointer-events: auto; }
     .pf-back { color: #fdba74; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #ea580c; border-radius: 8px; background: rgba(60,20,0,0.5); }
     .pf-back:hover { background: rgba(234,88,12,0.45); }
-    .pf-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1.5px; color: #fdba74; text-shadow: 0 0 12px rgba(234,88,12,0.6); }
+    .pf-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 1.5px; color: #fdba74; text-shadow: 0 0 12px rgba(234,88,12,0.6); }
     .pf-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.75; }
     .pf-legend { display: flex; gap: 12px; font-size: 11px; align-items: center; }
     .pf-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
@@ -267,6 +258,7 @@ export class PhoenixForgeRoomComponent implements OnInit, OnDestroy {
 
   // 🪶 Narrator Yamzy : injecté dans le footer + overlay <wt-narrator>
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   // Méthode publique pour le narrator (emit ceremony from JSON tutorial)
@@ -315,6 +307,19 @@ export class PhoenixForgeRoomComponent implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#67e8f9',
+      hint: 'Drag = orbit · molette = zoom · clic plume = commit · clic œuf = release',
+      controls: [
+        { icon: '🎬', label: 'Demo project', action: () => this.loadDemo() },
+        { icon: '🐦', label: 'Release ritual', action: () => this.triggerReleaseRitual() },
+        { icon: '⚡', label: 'Hotfix express', action: () => this.triggerHotfix() },
+        { icon: '🔧', label: 'Rollback last', action: () => this.rollbackLast() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -326,6 +331,7 @@ export class PhoenixForgeRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -956,6 +962,12 @@ export class PhoenixForgeRoomComponent implements OnInit, OnDestroy {
   /** Quand l'utilisateur clique "Entrer" (skip le play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(1800, 'Release ritual');
   }
 
   // ═══════════════════════════════════════════════════════════════════

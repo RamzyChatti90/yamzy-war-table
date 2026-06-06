@@ -27,7 +27,7 @@ import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { createPortal3D, getIslandForRoom, PortalHandle } from '../../core/portal/portal.factory';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellButtonComponent, SpellTutorialOverlayComponent, TutorialStep } from '../../core/spell-ui';
+import { SpellButtonComponent, SpellTutorialOverlayComponent, TutorialStep, SpellFooterService } from '../../core/spell-ui';
 
 interface MountainKR {
   id: number;
@@ -68,7 +68,6 @@ type WeatherState = 'sunny' | 'rainy' | 'stormy' | 'snowy';
   template: `
     <div class="om-host">
       <header class="om-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#fde68a" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="om-title">
           <h1>⛰ OKR MOUNTAIN ROOM</h1>
           <p>
@@ -87,17 +86,6 @@ type WeatherState = 'sunny' | 'rainy' | 'stormy' | 'snowy';
       </header>
 
       <canvas #canvas class="om-canvas"></canvas>
-
-      <footer class="om-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#fde68a" (click)="loadDemo()" icon="🎬">Demo OKR</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#fde68a" (click)="updateKR()" icon="⬆">Update KR</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#fde68a" (click)="toggleWeather()" icon="🌤">{{ weatherLabel() }}</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#fde68a" (click)="plantSummitFlag()" [disabled]="progressionPct() < 100" icon="🏴">Plant flag (summit reached!)</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#fde68a" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#fde68a" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#fde68a" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Mouse drag = orbit · molette = zoom · clic plateau = KR détail</span>
-      </footer>
 
       <!-- 🪶 Narrator Yamzy overlay (bulle + glossary) -->
       <wt-narrator></wt-narrator>
@@ -134,7 +122,10 @@ type WeatherState = 'sunny' | 'rainy' | 'stormy' | 'snowy';
         color="#a855f7"
         oneLiner="Montagne 3D avec sentier spiral, cordée d'équipe et 4 météos."
         [duration]="70"
+        [timeboxDurationS]="1800"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -153,14 +144,14 @@ type WeatherState = 'sunny' | 'rainy' | 'stormy' | 'snowy';
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
     .om-host {
       position: relative; width: 100%; height: 100vh; color: #f1f5f9;
-      font-family: system-ui, sans-serif;
+      font-family: "Tinos", serif;
       background: linear-gradient(180deg, #1e293b 0%, #475569 60%, #94a3b8 100%);
     }
-    .om-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .om-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .om-topbar > * { pointer-events: auto; }
     .om-back { color: #c4b5fd; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #a855f7; border-radius: 8px; background: rgba(40,20,60,0.4); }
     .om-back:hover { background: rgba(168,85,247,0.4); }
-    .om-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1px; color: #c4b5fd; }
+    .om-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 1px; color: #c4b5fd; }
     .om-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.8; }
     .om-title strong { color: #fff; }
     .om-legend { display: flex; gap: 12px; font-size: 11px; align-items: center; }
@@ -213,6 +204,7 @@ export class OkrMountainRoomComponent implements OnInit, OnDestroy {
 
   // 🪶 Narrator Yamzy : injecté dans le footer + overlay <wt-narrator>
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   // ─── State signals ───
@@ -305,7 +297,22 @@ export class OkrMountainRoomComponent implements OnInit, OnDestroy {
   // ───────────────────────────────────────────────────────────────
   // LIFECYCLE
   // ───────────────────────────────────────────────────────────────
-  ngOnInit() { this.bootstrap(); }
+  ngOnInit() {
+    this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#fde68a',
+      hint: 'Mouse drag = orbit · molette = zoom · clic plateau = KR détail',
+      controls: [
+        { icon: '🎬', label: 'Demo OKR', action: () => this.loadDemo() },
+        { icon: '⬆', label: 'Update KR', action: () => this.updateKR() },
+        { icon: '🌤', label: this.weatherLabel(), action: () => this.toggleWeather() },
+        { icon: '🏴', label: 'Plant flag (summit reached!)', action: () => this.plantSummitFlag() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
+  }
 
   ngOnDestroy() {
     this.disposed = true;
@@ -316,6 +323,7 @@ export class OkrMountainRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -1056,6 +1064,12 @@ export class OkrMountainRoomComponent implements OnInit, OnDestroy {
   /** Quand l'utilisateur clique "Entrer" (skip le play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(1800, 'OKR check-in');
   }
 
   // ═══════════════════════════════════════════════════════════════════

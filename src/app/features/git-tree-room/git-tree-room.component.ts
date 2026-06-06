@@ -24,7 +24,7 @@ import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
 import { createPortal3D, getIslandForRoom, PortalHandle } from '../../core/portal/portal.factory';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
-import { SpellButtonComponent, SpellPanelComponent, SpellTutorialOverlayComponent, TutorialStep } from '../../core/spell-ui';
+import { SpellButtonComponent, SpellPanelComponent, SpellTutorialOverlayComponent, TutorialStep, SpellFooterService } from '../../core/spell-ui';
 
 interface GitBranchData {
   name: string;
@@ -52,7 +52,6 @@ interface GitTreeCommit {
   template: `
     <div class="gt-host">
       <header class="gt-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#67e8f9" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="gt-title">
           <h1>🌳 GIT TREE ROOM</h1>
           <p>L'Arbre des Lignées — {{ branches().length }} branches · {{ totalCommits() }} commits · {{ releases().length }} fruits</p>
@@ -66,16 +65,6 @@ interface GitTreeCommit {
       </header>
 
       <canvas #canvas class="gt-canvas"></canvas>
-
-      <footer class="gt-controls">
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="loadDemo()" icon="🎬">Demo repo (8 branches)</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="toggleSeason()">{{ season() === 'spring' ? '🍂 Autumn' : '🌸 Spring' }}</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="resetCamera()" icon="🎥">Reset cam</wt-spell-btn>
-        <wt-spell-btn variant="secondary" size="sm" accent="#67e8f9" (click)="pruneStale()" icon="🪓">Prune stale</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#67e8f9" (click)="openTutorial()" icon="🎓" title="Visite guidée par Yamzy">How it works</wt-spell-btn>
-        <wt-spell-btn variant="primary" size="sm" accent="#67e8f9" (click)="narrator.startPlayExample()" icon="▶" title="Démo animée">Play example</wt-spell-btn>
-        <span class="hint">Mouse drag = orbit · molette = zoom · clic feuille = commit</span>
-      </footer>
 
       <!-- 🪶 Narrator Yamzy overlay (bulle + glossary) -->
       <wt-narrator></wt-narrator>
@@ -114,7 +103,10 @@ interface GitTreeCommit {
         color="#15803d"
         oneLiner="Chêne 3D : commits = feuilles, releases = fruits dorés, branches = vraies branches git."
         [duration]="60"
+        [timeboxDurationS]="1500"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -131,12 +123,12 @@ interface GitTreeCommit {
   `,
   styles: [`
     :host { display: block; width: 100%; height: 100vh; overflow: hidden; }
-    .gt-host { position: relative; width: 100%; height: 100vh; background: #0a1612; color: #e8eaf6; font-family: system-ui, sans-serif; }
-    .gt-topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
+    .gt-host { position: relative; width: 100%; height: 100vh; background: #0a1612; color: #e8eaf6; font-family: "Tinos", serif; }
+    .gt-topbar { position: absolute; top: 60px; left: 0; right: 0; padding: 14px 22px; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 18px; background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); pointer-events: none; }
     .gt-topbar > * { pointer-events: auto; }
     .gt-back { color: #86efac; text-decoration: none; font-size: 13px; padding: 6px 12px; border: 1px solid #15803d; border-radius: 8px; background: rgba(0,40,20,0.4); }
     .gt-back:hover { background: rgba(20,128,61,0.4); }
-    .gt-title h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1px; color: #86efac; }
+    .gt-title h1 { margin: 0; font-family: "Henny Penny", cursive; font-weight: 400; font-size: 18px; letter-spacing: 1px; color: #86efac; }
     .gt-title p { margin: 2px 0 0; font-size: 11px; opacity: 0.7; }
     .gt-legend { display: flex; gap: 12px; font-size: 11px; align-items: center; }
     .gt-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
@@ -182,6 +174,7 @@ export class GitTreeRoomComponent implements OnInit, OnDestroy {
 
   // 🪶 Narrator Yamzy : injecté dans le footer + overlay <wt-narrator>
   narrator = inject(NarratorService);
+  private spellFooter = inject(SpellFooterService);
   private ceremonyBus = inject(CeremonyBusService);
 
   // Méthode publique pour le narrator (emit ceremony from JSON tutorial)
@@ -250,6 +243,18 @@ export class GitTreeRoomComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#67e8f9',
+      hint: 'Mouse drag = orbit · molette = zoom · clic feuille = commit',
+      controls: [
+        { icon: '🎬', label: 'Demo repo (8 branches)', action: () => this.loadDemo() },
+        { label: this.season() === 'spring' ? '🍂 Autumn' : '🌸 Spring', action: () => this.toggleSeason() },
+        { icon: '🎥', label: 'Reset cam', action: () => this.resetCamera() },
+        { icon: '🪓', label: 'Prune stale', variant: 'danger', action: () => this.pruneStale() },
+        { icon: '🎓', label: 'How it works', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée par Yamzy' },
+        { icon: '▶', label: 'Play example', variant: 'primary', action: () => this.narrator.startPlayExample(), title: 'Démo animée' },
+      ],
+    });
   }
 
   ngOnDestroy() {
@@ -261,6 +266,7 @@ export class GitTreeRoomComponent implements OnInit, OnDestroy {
       this.canvasEl.nativeElement.removeEventListener('click', this.clickHandler);
     }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap() {
@@ -621,6 +627,12 @@ export class GitTreeRoomComponent implements OnInit, OnDestroy {
   /** Quand l'utilisateur clique "Entrer" (skip le play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(1500, 'Coding (Pomodoro)');
   }
 
   // ═══════════════════════════════════════════════════════════════════

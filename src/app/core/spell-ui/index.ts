@@ -23,6 +23,11 @@ export * from './spell-modal.component';
 export * from './spell-toast.component';
 export * from './spell-loading.component';
 export * from './spell-day-flow.component';
+export * from './spell-header.component';
+export * from './spell-timebox-hud.component';
+export * from './spell-footer.service';
+export * from './spell-footer.component';
+export * from './spell-nav.service';
 
 // Directives
 export * from './spell-tooltip.directive';

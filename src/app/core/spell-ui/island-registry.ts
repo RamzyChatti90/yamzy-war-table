@@ -61,7 +61,7 @@ export function clearIslandRegistry(): void { REGISTRY.clear(); }
 
 // ─── Seed initial : 4 îles du Royaume + Yamzy Hub + Welcome ─────────
 const SEED_ISLANDS: IslandDescriptor[] = [
-  { key: 'welcome', name: 'Welcome', loreName: 'Le Seuil du Royaume', route: '/welcome', kind: 'hub', icon: '🌍', accent: '#d54adf', oneLiner: 'Conte vocal d\'entrée : qui est Yamzy, quels temples, quel pacte avec le ciel.', durationSec: 120, level: 0 },
+  { key: 'chez-yamzy', name: 'Yamzy World', loreName: 'Le Seuil du Royaume', route: '/chez-yamzy', kind: 'hub', icon: '🌍', accent: '#d54adf', oneLiner: 'Page d\'accueil de Yamzy World — map 3D des îles + accès direct aux rooms.', durationSec: 120, level: 0 },
   { key: 'yamzy-island', name: 'Yamzy Island', loreName: 'Le Cœur du Royaume', route: '/yamzy-island', kind: 'hub', icon: '🏝', accent: '#d54adf', oneLiner: 'Hub central — passerelle vers les 4 îles thématiques.', durationSec: 30, level: 0 },
   { key: 'delivery',  name: 'Île Livraison',  loreName: 'Le Port des Quêtes',    route: '/island/delivery',  kind: 'delivery',  icon: '🌿', accent: '#67e8f9', oneLiner: 'Flux delivery : git tree, kanban, PR, phoenix forge.', level: 1, rooms: ['git-tree-room', 'kanban-island', 'pr-mirror-hall', 'phoenix-forge'] },
   { key: 'strategy',  name: 'Île Stratégie',  loreName: 'L\'Observatoire',       route: '/island/strategy',  kind: 'strategy',  icon: '🌌', accent: '#f59e0b', oneLiner: 'OKR, risques, télescope — pilotage stratégique.', level: 2, rooms: ['okr-mountain', 'star-map-risks', 'telescope-island'] },

@@ -4415,7 +4415,7 @@ export class WarTableComponent implements OnInit, AfterViewInit, OnDestroy {
   openNewProject(): void {
     this.newProjectDraft = {
       code: '', name: '',
-      hoursPerDay: 7, daysPerSprint: 5, sprintCapacityHours: 35,
+      hoursPerDay: 8, daysPerSprint: 5, sprintCapacityHours: 40,
       status: 'En cours',
     };
     this.newProjectError.set('');
@@ -4769,7 +4769,7 @@ export class WarTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ── Capacity
   addCapacity(): void {
-    this.withProject({}, pid => this.api.createCapacity(pid, { memberName: 'Nouveau membre', role: '', allocationPercent: 100, hoursPerDay: 7 }));
+    this.withProject({}, pid => this.api.createCapacity(pid, { memberName: 'Nouveau membre', role: '', allocationPercent: 100, hoursPerDay: 8 }));
   }
   delCapacity(c: any): void { this.delEntity(() => this.api.deleteCapacity(c.id)); }
   saveCapacity(c: any, field: string, value: any): void { this.patchEntity(this.api.updateCapacity.bind(this.api), c, field, value); }

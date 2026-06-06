@@ -69,6 +69,9 @@ export interface TutorialTourStep {
   emitCeremony?: { type: string; label: string; icon: string };
   /** Appeler une méthode de la room (par nom) — ex: 'loadDemo', 'toggleWeather' */
   invokeMethod?: { name: string; args?: any[] };
+  /** Anim cue style jeu (pulse-all, glow-ring, bounce, rotate, etc.).
+   *  La room écoute via méthode onAnimCue(cue: string). */
+  animCue?: string;
   /** Temps d'attente avant auto-next (secondes) — 0 = manuel via bouton Next */
   wait?: number;
 }
@@ -93,6 +96,9 @@ export interface TutorialExampleStep {
   highlight?: string;
   /** Cérémonie à émettre */
   emitCeremony?: { type: string; label: string; icon: string };
+  /** Anim cue style jeu (pulse-all, glow-ring, bounce, rotate, etc.).
+   *  La room écoute via méthode onAnimCue(cue: string). */
+  animCue?: string;
 }
 
 /** La démo animée complète (Play example) */

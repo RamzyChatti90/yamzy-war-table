@@ -56,12 +56,24 @@ wt-narrator, [class*="narrator"],
 }
 
 /* ═══ VIEWPORT FIT — toutes les rooms Yamzy World ═══
-   Hosts de room remplissent 100vw × 100vh. Canvas 3D fit absolu.
-   La fenêtre ne scroll pas. Les sidebars/topbars flottent absolutely. */
+   Hosts de room remplissent 100vw × 100dvh (mobile-safe).
+   La fenêtre ne scroll JAMAIS. Les sidebars/topbars flottent absolutely.
+   Les data scrollables doivent scroll INTERNE via .xx-content/.xx-data/[class*="scroll"]. */
 [class$="-host"] {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;        /* mobile-safe : exclut la barre URL mobile */
+  max-height: 100dvh;
+  overflow: hidden;      /* 🔒 verrouillé — pas de scroll au niveau host */
+}
+/* Les routes Angular wrappées dans router-outlet : le composant lui-même prend le viewport */
+router-outlet + * {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
   overflow: hidden;
 }
 /* Canvas 3D : full size dans son host */

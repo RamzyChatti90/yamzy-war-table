@@ -33,6 +33,7 @@ import { NarratorComponent } from '../../core/narrator/narrator.component';
 import { YamzyAvatar3dComponent } from '../war-table/yamzy-avatar-3d.component';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
 import { SpellButtonComponent, SpellChoicesComponent, SpellChoice } from '../../core/spell-ui';
+import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
 
 type ShowcaseTour = 'vision' | 'tech' | 'lore' | 'metrics';
 
@@ -56,17 +57,24 @@ interface ProjectMeta {
   standalone: true,
   imports: [
     CommonModule, RouterLink, NarratorComponent, YamzyAvatar3dComponent,
-    SpellButtonComponent, SpellChoicesComponent,
+    SpellButtonComponent, SpellChoicesComponent, RoomSplashComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="ys-host">
-      <!-- ─── TOP BAR : retour + banner owner + tour selector + actions read-only ─── -->
-      <header class="ys-topbar">
-        <wt-spell-btn variant="back" size="sm" accent="#d54adf"
-                      routerLink="/yamzy-rooms"
-                      title="Retour à la galerie">← Retour</wt-spell-btn>
+      <!-- 🎬 SPLASH welcome (style spell-caster, contexte visite read-only) -->
+      <wt-room-splash *ngIf="splashVisible()"
+                      [title]="'L\\'Île de ' + ownerName()"
+                      [loreName]="projectMeta().name"
+                      [oneLiner]="projectMeta().subtitle + ' — Visite guidée par Yamzy, mode lecture seule.'"
+                      [color]="'#d54adf'"
+                      [duration]="60"
+                      (onPlay)="onSplashPlay()"
+                      (onEnter)="onSplashEnter()" />
 
+      <!-- ─── TOP BAR : banner owner + tour selector + actions read-only
+           (le ← Retour est géré par le SpellHeader global, pas de doublon ici) ─── -->
+      <header class="ys-topbar">
         <div class="ys-banner">
           <span class="ys-avatar-glb">
             <app-yamzy-avatar-3d
@@ -140,14 +148,14 @@ interface ProjectMeta {
     .ys-host { position: relative; width: 100%; height: 100vh; background: #07041a; color: #fbd2a0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
     .ys-canvas { display: block; width: 100%; height: 100%; }
 
-    /* ─── TOP BAR ─── */
+    /* ─── TOP BAR : sous la ligne SpellHeader (top: 60px) ─── */
     .ys-topbar {
-      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      position: absolute; top: 60px; left: 0; right: 420px; z-index: 10;
       padding: 12px 22px;
       display: flex; align-items: center; gap: 18px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
-      backdrop-filter: blur(6px);
+      background: transparent;
       pointer-events: none;
+      flex-wrap: wrap;
     }
     .ys-topbar > * { pointer-events: auto; }
 
@@ -276,9 +284,25 @@ export class YamzyShowcaseComponent implements OnInit, OnDestroy {
   ];
 
   // ─── State signals ───
+  splashVisible = signal<boolean>(true);   // 🎬 splash welcome au chargement
   projectKey = signal<string>('yamzy-world');
   currentTour = signal<ShowcaseTour>('lore');
   ownerName = signal<string>('RamzyChatti90');
+
+  /** Clic "▶ Lancer le play" → ferme le splash + démarre la visite guidée narrée (lore). */
+  onSplashPlay(): void {
+    this.splashVisible.set(false);
+    this.currentTour.set('lore');
+    // Lance le tour explicitement après un court délai pour laisser l'anim de fermeture
+    setTimeout(() => {
+      if (!this.disposed) this.launchTour('lore');
+    }, 300);
+  }
+  /** Clic "🌍 Entrer dans la room" → ferme le splash, PAS de narration, exploration libre. */
+  onSplashEnter(): void {
+    this.splashVisible.set(false);
+    // Pas de launchTour() — l'utilisateur explore librement
+  }
   projectMeta = signal<ProjectMeta>({
     name: 'yamzy-world',
     subtitle: 'Sprint board 3D + portfolio social',
@@ -437,9 +461,11 @@ export class YamzyShowcaseComponent implements OnInit, OnDestroy {
       roomComponent: this,
       roomKey,
     });
-    // Auto-launch du tour selon le rôle sélectionné
+    // ⚠ Auto-launch désactivé : le narrator démarre seulement quand l'utilisateur
+    // clique "▶ Lancer le play" sur le splash (cf. onSplashPlay).
+    // Si jamais le splash est sauté/désactivé manuellement, on lance après 600ms.
     setTimeout(() => {
-      if (!this.disposed) this.launchTour(this.currentTour());
+      if (!this.disposed && !this.splashVisible()) this.launchTour(this.currentTour());
     }, 600);
   }
 

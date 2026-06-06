@@ -20,12 +20,13 @@
 //                   (onEnter)="onSplashEnter()" />
 // ═══════════════════════════════════════════════════════════════════
 import {
-  ChangeDetectionStrategy, Component, EventEmitter, Input, Output,
-  inject, signal,
+  ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit,
+  Output, inject, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VoiceNarratorService, VoicePersona } from '../voice-narrator/voice-narrator.service';
 import { SpellSoundsService } from '../spell-sounds/spell-sounds.service';
+import { SpellFooterService } from '../spell-ui/spell-footer.service';
 
 @Component({
   selector: 'wt-room-splash',
@@ -33,75 +34,115 @@ import { SpellSoundsService } from '../spell-sounds/spell-sounds.service';
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <!-- 🎬 Layout 3-zones fullscreen : HEADER pinned top / CONTENT flex:1 / FOOTER pinned bottom -->
     <div class="rs-host" [style.--accent]="color">
+      <!-- ─── HEADER : lore badge + room icon (laisse 60px en haut pour le SpellHeader global) ─── -->
+      <header class="rs-header" data-fade>
+        <span class="rs-suptitle">— {{ loreName }} —</span>
+      </header>
+
+      <!-- ─── CONTENT : Body fullscreen avec padding lat. 5vmin (titre + subtitle + actions) ─── -->
       <div class="rs-content">
-        <!-- Lore name comme supitle -->
-        <div class="rs-suptitle" data-fade>— {{ loreName }} —</div>
-
-        <!-- Title in Henny Penny -->
         <h1 class="rs-title" data-fade>{{ title }}</h1>
-
-        <!-- One-liner subtitle -->
         <p class="rs-subtitle" data-fade>{{ oneLiner }}</p>
-
-        <!-- Action buttons (style spell-caster) -->
         <div class="rs-actions" data-fade>
-          <button class="rs-btn-primary" (click)="play()" [attr.aria-label]="'Lancer le play de ' + title">
-            ▶ Lancer le play
-            <em class="rs-btn-duration">~ {{ duration }}s</em>
+          <!-- ▶ Play (TIMEBOX RÉEL) — exécute la cérémonie avec son vrai timeboxing -->
+          <button *ngIf="timeboxDurationS > 0"
+                  class="rs-btn-primary rs-btn-timebox" (click)="playTimebox()"
+                  [attr.aria-label]="'Lancer le timebox réel de ' + title"
+                  title="Exécute la cérémonie en temps réel avec son timebox">
+            ▶ {{ timeboxLabel }}
+            <em class="rs-btn-duration">⏱ {{ formatTimeboxDuration() }}</em>
           </button>
+          <!-- 🌍 Entrer dans la room (exploration libre, ancien comportement) -->
           <button class="rs-btn-secondary" (click)="enter()" [attr.aria-label]="'Entrer dans ' + title">
             🌍 Entrer dans la room
           </button>
+          <!-- ▶ Play demo (narrator cinematic, ancien "Lancer le play" renommé) -->
+          <button class="rs-btn-secondary rs-btn-demo" (click)="play()"
+                  [attr.aria-label]="'Lancer la démo cinématique de ' + title"
+                  title="Démo cinématique avec narration Yamzy">
+            ▶ Play demo
+            <em class="rs-btn-duration">⏱ {{ duration }}s</em>
+          </button>
         </div>
+      </div>
 
-        <!-- Voice persona selector + test -->
-        <ul class="rs-voice-row" data-fade>
+      <!-- ─── FOOTER : voice selector + skip link (pinned bas) ─── -->
+      <footer class="rs-footer" data-fade>
+        <ul class="rs-voice-row">
           <li><button class="rs-voice" [class.is-active]="voice.persona() === 'cute-creature'" (click)="pickVoice('cute-creature')">🐭 Mignonne</button></li>
           <li><button class="rs-voice" [class.is-active]="voice.persona() === 'old-sage'" (click)="pickVoice('old-sage')">🧙 Vieux sage</button></li>
           <li><button class="rs-voice" [class.is-active]="voice.persona() === 'enthusiastic-elf'" (click)="pickVoice('enthusiastic-elf')">🧚 Lutin</button></li>
           <li><button class="rs-voice rs-voice-test" (click)="testVoice()">🔊 Test</button></li>
         </ul>
-
-        <!-- Secondary mini buttons -->
-        <ul class="rs-button-row" data-fade>
-          <li><button class="rs-simple" (click)="enter()">Passer le play et explorer</button></li>
-        </ul>
-      </div>
+        <button class="rs-simple" (click)="enter()">Passer le play et explorer</button>
+      </footer>
     </div>
   `,
   styles: [`
     @import url("https://fonts.googleapis.com/css2?family=Henny+Penny&family=Tinos:wght@400;700&display=swap");
 
     :host {
-      position: fixed; inset: 0; z-index: 9500;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;          /* mobile-safe viewport unit */
+      z-index: 9500;
+      overflow: hidden;        /* 🔒 jamais de scroll au niveau host */
       --accent: #d54adf;
       --font-body: "Tinos", serif;
       --font-heading: "Henny Penny", cursive;
     }
 
+    /* ═══ Layout 3 zones fullscreen — header pinned top / content flex:1 / footer pinned bottom ═══ */
     .rs-host {
       position: absolute; inset: 0;
+      width: 100%;
+      height: 100%;
       background-color: rgba(0, 0, 0, 0.88);
       backdrop-filter: blur(10px);
-      display: grid;
-      grid-template-areas: "content";
+      display: flex; flex-direction: column;
       animation: rsFadeIn 0.6s ease-out;
+      color: #f9f9f9;
+      font-family: var(--font-body);
+      overflow: hidden;        /* 🔒 le host ne scrolle JAMAIS */
     }
     @keyframes rsFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+    /* HEADER — au-dessus du body, laisse 64px en haut pour le SpellHeader global */
+    .rs-header {
+      flex: 0 0 auto;
+      padding: clamp(70px, 9vmin, 100px) 5vmin clamp(8px, 1.5vmin, 16px);
+      display: flex;
+      align-items: center; justify-content: center;
+      text-align: center;
+    }
+
+    /* CONTENT — Body fullscreen avec padding lat. 5vmin (le titre + actions s'étalent dessus)
+       Seule zone scrollable : si la data dépasse, elle scrolle INTERNE — le host reste fixe. */
     .rs-content {
-      grid-area: content;
+      flex: 1 1 auto;
+      min-height: 0;              /* 🔑 important pour flex children scrollables */
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       padding: 0 5vmin;
-      max-width: 900px;
-      margin: 0 auto;
       text-align: center;
-      color: #f9f9f9;
-      font-family: var(--font-body);
+      gap: clamp(20px, 4vmin, 36px);
+      width: 100%;
+      box-sizing: border-box;
+      overflow-y: auto;           /* scroll interne uniquement ici */
     }
-    .rs-content > *:not(:last-child) { margin-bottom: clamp(20px, 4vmin, 36px); }
+
+    /* FOOTER — voice + skip pinned bas */
+    .rs-footer {
+      flex: 0 0 auto;
+      padding: clamp(10px, 1.6vmin, 18px) 5vmin clamp(20px, 3vmin, 36px);
+      display: flex; flex-direction: column;
+      align-items: center;
+      gap: clamp(10px, 1.4vmin, 16px);
+    }
 
     .rs-suptitle {
       font-size: clamp(13px, 1.8vmin, 17px);
@@ -159,6 +200,20 @@ import { SpellSoundsService } from '../spell-sounds/spell-sounds.service';
     }
     .rs-btn-secondary { --border-color: #767474; }
     .rs-btn-secondary:hover { --border-color: var(--accent); }
+    /* ⏱ Timebox button (PRIMARY style mais plus dramatique avec halo pulsing) */
+    .rs-btn-timebox {
+      animation: rsTimeboxPulse 2.2s ease-in-out infinite alternate;
+    }
+    @keyframes rsTimeboxPulse {
+      from { box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 30%, transparent); }
+      to   { box-shadow: 0 0 36px color-mix(in srgb, var(--accent) 60%, transparent),
+                          0 0 80px color-mix(in srgb, var(--accent) 25%, transparent); }
+    }
+    /* ▶ Demo button (secondary mais avec petite touche d'accent pour distinguer) */
+    .rs-btn-demo {
+      --border-color: color-mix(in srgb, var(--accent) 35%, #555);
+    }
+    .rs-btn-demo:hover { --border-color: var(--accent); }
     .rs-btn-duration {
       font-style: normal;
       font-size: 0.6em;
@@ -232,7 +287,7 @@ import { SpellSoundsService } from '../spell-sounds/spell-sounds.service';
     }
   `]
 })
-export class RoomSplashComponent {
+export class RoomSplashComponent implements OnInit, OnDestroy {
   /** Titre principal de la room (affiché en Henny Penny énorme) */
   @Input() title = 'Yamzy Room';
   /** Lore name affiché en supitle */
@@ -241,19 +296,29 @@ export class RoomSplashComponent {
   @Input() color = '#d54adf';
   /** One-liner descriptif sous le titre */
   @Input() oneLiner = '';
-  /** Durée estimée du play en secondes (affichée sur le bouton) */
+  /** Durée du PLAY DEMO (narrator cinematic) en secondes — affichée sur le bouton demo */
   @Input() duration = 60;
+  /** Durée RÉELLE de la cérémonie pour le timebox (ex: 300 = 5 min Lean Coffee, 900 = 15 min Daily) — 0 = pas de bouton timebox */
+  @Input() timeboxDurationS = 0;
+  /** Label du bouton timebox (défault "Play") */
+  @Input() timeboxLabel = 'Play';
 
-  /** Émis quand l'utilisateur clique "Lancer le play" */
+  /** Émis quand l'utilisateur clique "▶ Play demo" (cinematic narrator) */
   @Output() onPlay = new EventEmitter<void>();
-  /** Émis quand l'utilisateur clique "Entrer dans la room" (skip play) */
+  /** Émis quand l'utilisateur clique "🌍 Entrer dans la room" (skip = exploration libre) */
   @Output() onEnter = new EventEmitter<void>();
+  /** Émis quand l'utilisateur clique "▶ Play" timebox (vraie cérémonie chronométrée) */
+  @Output() onPlayTimebox = new EventEmitter<void>();
 
   voice = inject(VoiceNarratorService);
   sounds = inject(SpellSoundsService);
+  private spellFooter = inject(SpellFooterService);
+
+  /** Pendant que le splash est monté → on cache le SpellFooter pour éviter le chevauchement avec les boutons du splash. */
+  ngOnInit(): void { this.spellFooter.splashActive.set(true); }
+  ngOnDestroy(): void { this.spellFooter.splashActive.set(false); }
 
   play(): void {
-    // Premier interaction = autorisation Web Speech + Web Audio API
     this.sounds.play('ping-1', { volume: 0.4 });
     this.onPlay.emit();
   }
@@ -261,6 +326,21 @@ export class RoomSplashComponent {
   enter(): void {
     this.sounds.play('ping-2', { volume: 0.35 });
     this.onEnter.emit();
+  }
+
+  /** Lance la cérémonie en mode timebox réel (countdown HUD sans narration) */
+  playTimebox(): void {
+    this.sounds.play('ping-2', { volume: 0.45 });
+    this.onPlayTimebox.emit();
+  }
+
+  /** Formate la durée du timebox en MM:SS pour l'affichage */
+  formatTimeboxDuration(): string {
+    const m = Math.floor(this.timeboxDurationS / 60);
+    const s = this.timeboxDurationS % 60;
+    if (m === 0) return `${s}s`;
+    if (s === 0) return `${m}min`;
+    return `${m}min${s}s`;
   }
 
   pickVoice(p: VoicePersona): void {

@@ -26,8 +26,9 @@ import { Router, RouterLink } from '@angular/router';
 import { MagicWaterService, PRESETS } from '../../core/magic-water/magic-water.service';
 import { buildSkyOrnaments, SkyOrnamentsHandle } from '../../core/sky-ornaments/sky-ornaments';
 import { CeremonyBusService } from '../../core/ceremony-bus/ceremony-bus.service';
+import { NarratorService } from '../../core/narrator/narrator.service';
 import { RoomSplashComponent } from '../../core/room-splash/room-splash.component';
-import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } from '../../core/spell-ui';
+import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent, SpellFooterService } from '../../core/spell-ui';
 
 @Component({
   selector: 'wt-mana-fountain-room',
@@ -40,7 +41,6 @@ import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } fro
 
       <!-- Topbar -->
       <header class="mfr-top">
-        <wt-spell-btn variant="back" size="sm" accent="#d54adf" [routerLink]="'/yamzy-island'" icon="←">Yamzy Island</wt-spell-btn>
         <div class="mfr-title">
           <h1>💧 La Fontaine de Mana</h1>
           <p>La source qui mesure ce que coûte la magie</p>
@@ -113,7 +113,10 @@ import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } fro
         color="#d54adf"
         oneLiner="Sensibilisation IA/Eau/$ : chaque sort consomme tokens + mL d'eau + dollars."
         [duration]="60"
+        [timeboxDurationS]="600"
+        [timeboxLabel]="'Play'"
         (onPlay)="onSplashPlay()"
+        (onPlayTimebox)="onSplashTimebox()"
         (onEnter)="onSplashEnter()" />
 
       <!-- 🎓 Tutorial overlay (How it works) -->
@@ -133,14 +136,14 @@ import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } fro
     .mfr-host { position: relative; width: 100%; height: 100%; background: #02010a; color: #e8eaf6; font-family: 'Tinos', serif; overflow: hidden; }
     .mfr-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-    .mfr-top { position: absolute; top: 16px; left: 22px; right: 380px; z-index: 5; display: flex; align-items: center; gap: 18px; pointer-events: none; }
+    .mfr-top { position: absolute; top: 76px; left: 22px; right: 380px; z-index: 5; display: flex; align-items: center; gap: 18px; pointer-events: none; }
     .mfr-top > * { pointer-events: auto; }
     .mfr-back { color: #d68ddc; text-decoration: none; font-size: 13px; padding: 7px 12px; border: 1px solid #d54adf; border-radius: 8px; background: rgba(20, 10, 35, 0.7); backdrop-filter: blur(8px); }
     .mfr-back:hover { background: rgba(213, 74, 223, 0.2); }
     .mfr-title h1 { margin: 0; font-family: 'Henny Penny', cursive; font-size: 32px; color: #d54adf; text-shadow: 0 0 20px rgba(213, 74, 223, 0.5); }
     .mfr-title p { margin: 4px 0 0; font-size: 13px; opacity: 0.75; font-style: italic; }
 
-    .mfr-stats { position: absolute; top: 16px; right: 16px; width: 350px; max-height: calc(100vh - 220px); overflow-y: auto; background: rgba(15, 8, 30, 0.88); border: 1px solid rgba(213, 74, 223, 0.4); border-radius: 14px; backdrop-filter: blur(12px); padding: 16px; z-index: 8; }
+    .mfr-stats { position: absolute; top: 76px; right: 16px; width: 350px; max-height: calc(100vh - 220px); overflow-y: auto; background: rgba(15, 8, 30, 0.88); border: 1px solid rgba(213, 74, 223, 0.4); border-radius: 14px; backdrop-filter: blur(12px); padding: 16px; z-index: 8; }
     .mfr-section { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid rgba(213, 74, 223, 0.15); }
     .mfr-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .mfr-section-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #d54adf; text-transform: uppercase; margin-bottom: 10px; }
@@ -173,7 +176,7 @@ import { SpellTutorialOverlayComponent, TutorialStep, SpellButtonComponent } fro
     .mfr-h-cost { font-variant-numeric: tabular-nums; opacity: 0.65; color: #fbbf24; }
     .mfr-history-empty { font-size: 12px; opacity: 0.6; text-align: center; font-style: italic; padding: 12px; line-height: 1.6; }
 
-    .mfr-manifesto { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 24px; background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); text-align: center; font-size: 13px; opacity: 0.75; z-index: 6; pointer-events: none; }
+    .mfr-manifesto { position: absolute; bottom: 60px; left: 0; right: 0; padding: 12px 24px; background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); text-align: center; font-size: 13px; opacity: 0.75; z-index: 6; pointer-events: none; }
     .mfr-manifesto em { color: #d68ddc; }
   `]
 })
@@ -183,6 +186,8 @@ export class ManaFountainRoomComponent implements OnInit, OnDestroy {
   water = inject(MagicWaterService);
   private router = inject(Router);
   private ceremonyBus = inject(CeremonyBusService);
+  private spellFooter = inject(SpellFooterService);
+  narrator = inject(NarratorService);
 
   // ─── 3D refs ───
   private scene: any;
@@ -231,6 +236,13 @@ export class ManaFountainRoomComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.bootstrap();
+    this.spellFooter.setSlots({
+      accent: '#d54adf',
+      controls: [
+        { icon: '🎓', label: 'Tutorial', variant: 'primary', action: () => this.openTutorial(), title: 'Visite guidée' },
+        { icon: '🔄', label: 'Reset sprint', variant: 'secondary', action: () => this.resetAll(), title: 'Reset compteurs' },
+      ],
+    });
   }
 
   ngOnDestroy(): void {
@@ -240,6 +252,7 @@ export class ManaFountainRoomComponent implements OnInit, OnDestroy {
     if (this.sky) this.sky.dispose();
     if (this.renderer) { try { this.renderer.dispose(); } catch {} }
     window.removeEventListener('resize', this.onResize);
+    this.spellFooter.clearSlots();
   }
 
   private async bootstrap(): Promise<void> {
@@ -544,5 +557,11 @@ export class ManaFountainRoomComponent implements OnInit, OnDestroy {
   /** Entrer (skip play) */
   onSplashEnter(): void {
     this.splashVisible.set(false);
+  }
+
+  /** ⏱ Lance le mode TIMEBOX RÉEL — HUD countdown avec la vraie durée Scrum, sans narration. */
+  onSplashTimebox(): void {
+    this.splashVisible.set(false);
+    this.narrator.startTimeboxOnly(600, 'Mana audit');
   }
 }

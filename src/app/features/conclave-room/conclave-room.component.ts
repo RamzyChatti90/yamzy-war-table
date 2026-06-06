@@ -9,14 +9,14 @@ import {
   Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject, signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 type ConclaveScreen = 'LOADING' | 'TITLE' | 'INSTRUCTIONS' | 'ROOM';
 
 @Component({
   selector: 'app-conclave-room',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './conclave-room.component.html',
   styleUrls: ['./conclave-room.component.css']
 })

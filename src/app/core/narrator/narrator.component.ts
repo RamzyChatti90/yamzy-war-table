@@ -16,15 +16,28 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { NarratorService } from './narrator.service';
 import { YamzyAvatar3dComponent } from '../../features/war-table/yamzy-avatar-3d.component';
+import { SpellTimeboxHudComponent } from '../spell-ui/spell-timebox-hud.component';
 
 @Component({
   selector: 'wt-narrator',
   standalone: true,
-  imports: [CommonModule, YamzyAvatar3dComponent],
+  imports: [CommonModule, YamzyAvatar3dComponent, SpellTimeboxHudComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <!-- ⏱ SPELL TIMEBOX HUD — machine-arcade countdown actif pendant :
+         - la démo cinématique (isExampleActive) avec la durée de la démo
+         - le timebox réel (isTimeboxActive) avec la durée de la vraie cérémonie -->
+    <wt-spell-timebox-hud
+      [active]="narrator.isExampleActive() || narrator.isTimeboxActive()"
+      [durationS]="narrator.currentDemoDuration()"
+      [ceremonyName]="narrator.currentDemoName()"
+      accent="#d54adf"
+      (timeUp)="onTimeboxTimeUp()"
+      (close)="onTimeboxClose()" />
+
     <!-- Bulle narrateur (visible si tour ou example en cours) -->
-    @if (narrator.isTourActive() || narrator.isExampleActive()) {
+    <!-- En mode TIMEBOX RÉEL : on cache le bubble narrator pour ne montrer QUE le HUD + scène 3D -->
+    @if ((narrator.isTourActive() || narrator.isExampleActive()) && !narrator.isTimeboxActive()) {
       <div class="nr-bubble"
            [class.nr-mode-scrum]="narrator.narratorMode() === 'scrum'"
            [class.nr-morphing]="narrator.isMorphing()"
@@ -87,7 +100,16 @@ import { YamzyAvatar3dComponent } from '../../features/war-table/yamzy-avatar-3d
             </div>
           }
           @if (narrator.isExampleActive()) {
+            <!-- ═══ Carousel manuel pour la démo (prev/dots/next + stop) ═══ -->
             <div class="nr-controls">
+              <button (click)="narrator.prevExampleStep()"
+                      [disabled]="narrator.currentExampleStepIdx() === 0">← Précédent</button>
+              <span class="nr-step">{{ narrator.currentExampleStepIdx() + 1 }} / {{ narrator.totalExampleSteps() }}</span>
+              <button class="nr-next" (click)="narrator.nextExampleStep()"
+                      [disabled]="narrator.currentExampleStepIdx() >= narrator.totalExampleSteps() - 1">Suivant →</button>
+              <button class="nr-stop" (click)="narrator.stopPlayExample()">✕ Arrêter la démo</button>
+            </div>
+            <div class="nr-controls nr-controls-meta">
               <span class="nr-phase-badge" [attr.data-phase]="narrator.dualPhase()">
                 @switch (narrator.dualPhase()) {
                   @case ('yamzy') { 🪄 Mode lore }
@@ -96,7 +118,11 @@ import { YamzyAvatar3dComponent } from '../../features/war-table/yamzy-avatar-3d
                   @default { ⏵ Démo en cours }
                 }
               </span>
-              <button class="nr-stop" (click)="narrator.stopPlayExample()">✕ Arrêter la démo</button>
+            </div>
+            <!-- Dots cliquables pour jump direct -->
+            <div class="nr-progress">
+              <div class="nr-progress-bar"
+                   [style.width.%]="((narrator.currentExampleStepIdx() + 1) / narrator.totalExampleSteps()) * 100"></div>
             </div>
           }
         </div>
@@ -142,17 +168,36 @@ import { YamzyAvatar3dComponent } from '../../features/war-table/yamzy-avatar-3d
       </aside>
     }
 
-    <!-- Toggle glossary button -->
+    <!-- Glossaire (pancarte SVG patched + text "GLOSS" CSS overlay) -->
     @if (narrator.tutorial() && !showGlossary()) {
-      <button class="nr-toggle-glossary" (click)="openGlossary()" title="Voir le glossaire des éléments">
-        📖 Glossaire
+      <button class="nr-toggle-glossary nr-pancarte-btn" (click)="openGlossary()" title="Voir le glossaire des éléments" aria-label="Glossaire">
+        <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="193.857" y="95.902" transform="matrix(-0.7071 -0.7071 0.7071 -0.7071 234.6735 414.1124)"
+                fill="currentColor" opacity="0.45" width="18.49" height="125.104"/>
+          <rect x="247.076" y="149.209" transform="matrix(-0.7071 -0.7071 0.7071 -0.7071 416.523 489.4382)"
+                fill="currentColor" opacity="0.45" width="125.104" height="18.49"/>
+          <circle fill="currentColor" opacity="0.8" cx="256.003" cy="109.907" r="23.458"/>
+          <path fill="currentColor" opacity="0.85"
+                d="M485.252,425.551H26.748C11.975,425.551,0,413.575,0,398.803V224.446 c0-14.772,11.975-26.748,26.748-26.748h458.504c14.772,0,26.748,11.975,26.748,26.748v174.358 C512,413.575,500.025,425.551,485.252,425.551z"/>
+        </svg>
+        <span class="nr-pancarte-text" aria-hidden="true">GLOSS</span>
       </button>
     }
 
-    <!-- ▶ Demos menu : liste des scénarios disponibles -->
+    <!-- Démos menu (pancarte SVG patched + text "DEMO" + badge) -->
     @if (narrator.tutorial() && narrator.availableDemos().length > 1) {
-      <button class="nr-demos-toggle" (click)="toggleDemosMenu()" [class.is-open]="showDemosMenu()" title="Choisir un scénario">
-        🎬 {{ narrator.availableDemos().length }} scénarios
+      <button class="nr-demos-toggle nr-pancarte-btn" (click)="toggleDemosMenu()" [class.is-open]="showDemosMenu()" title="Choisir un scénario" aria-label="Scénarios démo">
+        <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="193.857" y="95.902" transform="matrix(-0.7071 -0.7071 0.7071 -0.7071 234.6735 414.1124)"
+                fill="currentColor" opacity="0.45" width="18.49" height="125.104"/>
+          <rect x="247.076" y="149.209" transform="matrix(-0.7071 -0.7071 0.7071 -0.7071 416.523 489.4382)"
+                fill="currentColor" opacity="0.45" width="125.104" height="18.49"/>
+          <circle fill="currentColor" opacity="0.8" cx="256.003" cy="109.907" r="23.458"/>
+          <path fill="currentColor" opacity="0.85"
+                d="M485.252,425.551H26.748C11.975,425.551,0,413.575,0,398.803V224.446 c0-14.772,11.975-26.748,26.748-26.748h458.504c14.772,0,26.748,11.975,26.748,26.748v174.358 C512,413.575,500.025,425.551,485.252,425.551z"/>
+        </svg>
+        <span class="nr-pancarte-text" aria-hidden="true">DEMO</span>
+        <span class="nr-svg-badge">{{ narrator.availableDemos().length }}</span>
       </button>
       @if (showDemosMenu()) {
         <div class="nr-demos-menu">
@@ -179,58 +224,58 @@ import { YamzyAvatar3dComponent } from '../../features/war-table/yamzy-avatar-3d
   styles: [`
     :host { display: contents; }
 
-    /* ═══ Narrator bubble — ADN WELCOME (Henny Penny + magenta crystal) ═══
-       Position : bottom-center, wide card façon conte welcome.
-       Background : noir avec backdrop blur, bordure magenta/cyan selon mode.
-       Fonts : Tinos pour le body, Henny Penny pour les labels. */
+    /* ═══ Narrator FULLSCREEN — 3 zones (header avatar / body texte / footer controls) ═══
+       Couvre toute la viewport, 3D reste visible derriere via vignette translucide. */
     .nr-bubble {
       position: fixed;
-      bottom: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(880px, calc(100vw - 40px));
-      max-width: 880px;
-      background-color: rgba(0, 0, 0, 0.78);
-      border: 1px solid color-mix(in srgb, #fbbf24 50%, #333);
-      border-left: 4px solid #fbbf24;
-      border-radius: 4px;
-      padding: clamp(16px, 2.4vmin, 24px) clamp(20px, 3vmin, 30px);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 40px color-mix(in srgb, #fbbf24 18%, transparent),
-                  0 0 0 1px rgba(251,191,36,0.12);
-      z-index: 100;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;                       /* mobile-safe */
+      background-color: transparent;        /* 🌌 la scène 3D reste visible derrière */
+      border: none;
+      border-radius: 0;
+      padding: clamp(70px, 9vmin, 100px) clamp(20px, 5vmin, 70px) clamp(16px, 3.5vmin, 48px);  /* top élargi pour SpellHeader */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: stretch;
       color: #f0f0f0;
       font-family: "Tinos", serif;
       animation: nr-bubble-in 0.6s ease-out;
+      z-index: 9600;
+      pointer-events: none;                 /* le bubble laisse passer les clics — */
+      overflow: hidden;
+      box-sizing: border-box;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.95);  /* lisibilité sur scène 3D */
     }
-    .nr-bubble.nr-mode-scrum {
-      border-color: color-mix(in srgb, #60a5fa 50%, #333);
-      border-left-color: #60a5fa;
-      box-shadow: 0 8px 40px color-mix(in srgb, #60a5fa 18%, transparent),
-                  0 0 0 1px rgba(96,165,250,0.12);
-    }
+    /* — sauf les enfants interactifs */
+    .nr-bubble > * { pointer-events: auto; }
+    /* Indicateur de mode supprimé (border-top évincé puisque transparent) */
+    .nr-bubble { border-top: none; }
+    .nr-bubble.nr-mode-scrum { border-top: none; }
     @keyframes nr-bubble-in {
-      from { transform: translate(-50%, 24px); opacity: 0; }
-      to   { transform: translate(-50%, 0);    opacity: 1; }
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    /* On retire la flèche pointing — pas welcome */
     .nr-bubble::before { display: none; }
 
+    /* ═══ HEADER : avatar centre + mode toggle ═══ */
     .nr-avatar {
-      position: absolute;
-      top: -34px;
-      left: 14px;
-      width: 86px;
-      height: 86px;
+      position: static;
+      margin: 0 auto;
+      width: clamp(80px, 11vmin, 130px);
+      height: clamp(80px, 11vmin, 130px);
       background: radial-gradient(circle at 30% 30%, #fbbf24 0%, #b89240 80%, rgba(184,146,64,0.6) 100%);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.5), inset 0 -2px 4px rgba(0,0,0,0.2), 0 0 20px rgba(251,191,36,0.4);
-      border: 2px solid #fbbf24;
+      font-size: clamp(28px, 5vmin, 48px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.6), inset 0 -2px 4px rgba(0,0,0,0.2), 0 0 30px rgba(251,191,36,0.5);
+      border: 3px solid #fbbf24;
       overflow: hidden;
+      flex-shrink: 0;
     }
     .nr-avatar.nr-avatar-3d {
       /* Mode Yamzy : YAMZY 3D rendered inside the golden disc */
@@ -251,21 +296,31 @@ import { YamzyAvatar3dComponent } from '../../features/war-table/yamzy-avatar-3d
       line-height: 1;
     }
 
-    .nr-body { padding-top: 6px; }
+    /* ═══ BODY (flex grow, centre vertical) ═══ */
+    .nr-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      padding-top: clamp(16px, 2.5vmin, 28px);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
 
     .nr-mode-toggle {
       display: flex;
-      gap: 4px;
-      margin-bottom: 8px;
-      margin-left: 60px;
+      gap: 8px;
+      margin: 0 auto clamp(12px, 2vmin, 22px);
+      margin-left: auto;
+      justify-content: center;
+      flex-shrink: 0;
     }
     .nr-mode-toggle button {
       background: rgba(0,0,0,0.3);
       color: rgba(255,255,255,0.5);
       border: 1px solid rgba(255,255,255,0.15);
-      padding: 3px 10px;
-      border-radius: 6px;
-      font-size: 11px;
+      padding: clamp(6px, 1vmin, 10px) clamp(14px, 2vmin, 22px);
+      border-radius: 8px;
+      font-size: clamp(12px, 1.6vmin, 16px);
       cursor: pointer;
       font-weight: 600;
     }
@@ -280,18 +335,27 @@ import { YamzyAvatar3dComponent } from '../../features/war-table/yamzy-avatar-3d
       border-color: #60a5fa;
     }
 
-    /* Body texte du narrator — façon welcome conte */
+    /* Body texte XXL fullscreen — facon welcome conte */
     .nr-text {
       font-family: "Tinos", serif;
-      font-size: clamp(15px, 2vmin, 19px);
-      line-height: 1.55;
-      margin: 10px 0 14px;
-      padding: 4px 0;
+      font-size: clamp(20px, 3.4vmin, 38px);
+      line-height: 1.5;
+      max-width: min(1100px, 92vw);
+      margin: 0 auto;
+      padding: clamp(12px, 2.5vmin, 30px) 0;
       color: #f5e3ad;
-      min-height: 50px;
       transition: color 0.4s, opacity 0.3s;
       text-align: center;
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.85);
     }
+    /* Scrollbar discrete */
+    .nr-text::-webkit-scrollbar { width: 4px; }
+    .nr-text::-webkit-scrollbar-thumb { background: rgba(251,191,36,0.4); border-radius: 4px; }
     .nr-mode-scrum .nr-text { color: #c7daff; }
     .nr-text.nr-fade-in { animation: nr-text-fade-in 0.6s ease-out; }
     @keyframes nr-text-fade-in {
@@ -429,64 +493,78 @@ import { YamzyAvatar3dComponent } from '../../features/war-table/yamzy-avatar-3d
     .nr-phase-badge[data-phase="scrum"] { background: rgba(96,165,250,0.2); color: #93c5fd; border-color: rgba(96,165,250,0.4); }
 
     /* Controls — façon welcome spell-btn */
+    /* ═══ FOOTER : controls pinned bottom ═══ */
     .nr-controls {
       display: flex;
-      gap: 8px;
+      gap: clamp(8px, 1.4vmin, 16px);
       align-items: center;
-      margin-top: 12px;
+      margin-top: clamp(8px, 1.4vmin, 14px);
       justify-content: center;
+      flex-wrap: wrap;
+      flex-shrink: 0;
     }
+    .nr-controls-meta { margin-top: clamp(4px, 0.8vmin, 8px); }
+    /* ═══ Carousel narrator — style spell-caster violet unifié (même DNA que welcome) ═══ */
     .nr-controls button {
       background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
       color: #f0f0f0;
-      border: 2px solid #767474;
-      padding: 0.3em 1em;
+      border: 2px solid color-mix(in srgb, #d54adf 35%, transparent);
+      padding: clamp(8px, 1.2vmin, 12px) clamp(16px, 2.2vmin, 26px);
       font-family: "Tinos", serif;
-      font-size: clamp(13px, 1.6vmin, 16px);
+      font-size: clamp(14px, 1.8vmin, 18px);
       cursor: pointer;
       transition: all 0.18s ease;
+      border-radius: 6px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
     }
     .nr-controls button:hover:not(:disabled) {
-      border-color: #fbbf24;
-      box-shadow: 0 0 14px color-mix(in srgb, #fbbf24 35%, transparent);
-    }
-    .nr-controls button:disabled { opacity: 0.4; cursor: not-allowed; }
-    .nr-controls button.nr-next {
-      background-color: color-mix(in srgb, #fbbf24 22%, rgba(0,0,0,0.6));
-      border-color: #fbbf24;
+      border-color: #d54adf;
+      box-shadow: 0 0 18px color-mix(in srgb, #d54adf 45%, transparent);
       color: #fff;
-      box-shadow: 0 0 18px color-mix(in srgb, #fbbf24 30%, transparent);
+      transform: translateY(-1px);
+    }
+    .nr-controls button:disabled { opacity: 0.35; cursor: not-allowed; }
+    .nr-controls button.nr-next {
+      background-color: color-mix(in srgb, #d54adf 22%, rgba(0,0,0,0.6));
+      border-color: #d54adf;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      box-shadow: 0 0 20px color-mix(in srgb, #d54adf 35%, transparent);
     }
     .nr-controls button.nr-next:hover {
-      background-color: color-mix(in srgb, #fbbf24 35%, rgba(0,0,0,0.6));
+      background-color: color-mix(in srgb, #d54adf 40%, rgba(0,0,0,0.6));
+      box-shadow: 0 0 28px color-mix(in srgb, #d54adf 55%, transparent);
       transform: translateY(-2px);
     }
     .nr-controls button.nr-stop {
-      background: transparent;
-      border: none;
-      text-decoration: underline;
-      text-decoration-color: #767474;
-      text-decoration-thickness: 2px;
-      text-underline-offset: 4px;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      border: 2px solid color-mix(in srgb, #ec5e4e 35%, transparent);
+      color: #f0f0f0;
+      text-decoration: none;
       margin-left: 12px;
-      padding: 0.3em 0.6em;
+      padding: clamp(8px, 1.2vmin, 12px) clamp(16px, 2.2vmin, 26px);
+      border-radius: 6px;
     }
     .nr-controls button.nr-stop:hover {
-      text-decoration-color: #fbbf24;
-      color: color-mix(in srgb, #fbbf24 70%, #fff);
-      box-shadow: none;
+      border-color: #ec5e4e;
+      box-shadow: 0 0 16px rgba(236, 94, 78, 0.45);
+      color: #ec5e4e;
+      transform: translateY(-1px);
     }
 
-    /* Step counter — façon welcome "Étape X / Y" */
+    /* Step counter — style Henny Penny violet (au lieu de jaune) */
     .nr-step {
       font-family: "Henny Penny", cursive;
       font-size: clamp(14px, 1.9vmin, 18px);
-      color: #fbbf24;
+      color: #d68ddc;
       letter-spacing: 0.02em;
       padding: 0 10px;
-      text-shadow: 0 0 12px color-mix(in srgb, #fbbf24 40%, transparent);
+      text-shadow: 0 0 14px color-mix(in srgb, #d54adf 50%, transparent);
     }
-    .nr-mode-scrum .nr-step { color: #60a5fa; text-shadow: 0 0 12px color-mix(in srgb, #60a5fa 40%, transparent); }
+    .nr-mode-scrum .nr-step { color: #d68ddc; text-shadow: 0 0 14px color-mix(in srgb, #d54adf 50%, transparent); }
 
     .nr-progress {
       margin-top: 8px;
@@ -497,11 +575,12 @@ import { YamzyAvatar3dComponent } from '../../features/war-table/yamzy-avatar-3d
     }
     .nr-progress-bar {
       height: 100%;
-      background: linear-gradient(90deg, #fbbf24 0%, #f5e3ad 100%);
+      background: linear-gradient(90deg, #d54adf 0%, #d68ddc 100%);
       transition: width 0.4s ease-out;
+      box-shadow: 0 0 12px rgba(213, 74, 223, 0.5);
     }
     .nr-mode-scrum .nr-progress-bar {
-      background: linear-gradient(90deg, #60a5fa 0%, #93c5fd 100%);
+      background: linear-gradient(90deg, #d54adf 0%, #d68ddc 100%);
     }
 
     /* ═══ Glossary panel — ADN spell-caster welcome ═══
@@ -652,48 +731,121 @@ import { YamzyAvatar3dComponent } from '../../features/war-table/yamzy-avatar-3d
       letter-spacing: 0.04em;
     }
 
-    /* Bouton toggle Glossaire — façon spell-btn ghost */
-    .nr-toggle-glossary {
+    /* ━━━ PANCARTE button pattern (identique au EXIT du SpellHeader)
+       SVG = pôle + ampoule + plaque rectangle, texte CSS overlay + blink ━━━ */
+    .nr-pancarte-btn {
       position: fixed;
-      top: 80px;
-      right: 22px;
-      background-color: rgba(0, 0, 0, 0.65);
+      top: 6px;
+      width: 56px;
+      height: 56px;
+      padding: 0;
+      background: transparent;
+      border: none;
       color: #fff;
-      border: 2px solid color-mix(in srgb, #fbbf24 45%, #555);
-      padding: 0.4em 1.1em;
-      font-family: "Tinos", serif;
-      font-size: clamp(13px, 1.7vmin, 15px);
       cursor: pointer;
-      z-index: 11;
-      backdrop-filter: blur(8px);
-      transition: all 0.18s ease;
+      z-index: 10501;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+      overflow: visible;
     }
-    .nr-toggle-glossary:hover {
-      border-color: #fbbf24;
-      box-shadow: 0 0 18px color-mix(in srgb, #fbbf24 40%, transparent);
-      transform: translateY(-1px);
+    .nr-pancarte-btn svg {
+      width: 46px;
+      height: 46px;
+      transition: transform 0.25s ease;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 1px rgba(0,0,0,0.9));
+    }
+    .nr-pancarte-btn:hover,
+    .nr-pancarte-btn.is-open {
+      color: #d54adf;                      /* magenta crystal */
+      filter: drop-shadow(0 0 10px rgba(213, 74, 223, 0.7));
+    }
+    .nr-pancarte-btn:hover svg,
+    .nr-pancarte-btn.is-open svg {
+      transform: scale(1.05);
+    }
+    .nr-pancarte-btn:active {
+      transform: scale(0.92);
+    }
+    /* ─── Texte CSS overlay (GLOSS / DEMO) sur la pancarte ─── */
+    .nr-pancarte-text {
+      position: absolute;
+      top: 61%;                            /* centre du sign rectangle (= EXIT) */
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: "Tinos", "Trebuchet MS", serif;
+      font-weight: 900;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: #fff;                         /* lettres toujours blanches */
+      text-shadow: 0 0 3px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.5);
+      pointer-events: none;
+      white-space: nowrap;
+      line-height: 1;
+      animation: nrPancarteBlink 4s ease-in-out infinite;
+    }
+    @keyframes nrPancarteBlink {
+      0%, 88%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 3px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.5);
+      }
+      90%, 94% {
+        opacity: 0.35;
+        text-shadow: 0 0 1px rgba(255,255,255,0.25);
+      }
+      92% {
+        opacity: 1;
+        text-shadow: 0 0 5px rgba(255,255,255,0.7);
+      }
+    }
+    /* Hover : pulse + glow intense (comme EXIT) */
+    .nr-pancarte-btn:hover .nr-pancarte-text,
+    .nr-pancarte-btn.is-open .nr-pancarte-text {
+      animation: nrPancartePulse 0.7s ease-in-out infinite alternate;
+      text-shadow:
+        0 0 6px rgba(255,255,255,1),
+        0 0 12px rgba(255,255,255,0.7),
+        0 0 18px rgba(255,255,255,0.4);
+    }
+    @keyframes nrPancartePulse {
+      from { transform: translate(-50%, -50%) scale(1); letter-spacing: 0.1em; }
+      to   { transform: translate(-50%, -50%) scale(1.06); letter-spacing: 0.14em; }
     }
 
-    /* ─── 🎬 DEMOS MENU ─── */
-    .nr-demos-toggle {
-      position: fixed;
-      top: 80px;
-      right: 130px;
-      background-color: rgba(0, 0, 0, 0.65);
+    /* Badge numérique (Demos count) — repositionné pour la pancarte */
+    .nr-svg-badge {
+      position: absolute;
+      top: 2px;
+      right: 0px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #d54adf, #b34acc);
       color: #fff;
-      border: 2px solid color-mix(in srgb, #fbbf24 45%, #555);
-      padding: 0.4em 1.1em;
       font-family: "Tinos", serif;
-      font-size: clamp(13px, 1.7vmin, 15px);
-      cursor: pointer;
-      z-index: 11;
-      backdrop-filter: blur(8px);
-      transition: all 0.18s ease;
+      font-size: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      line-height: 1;
     }
-    .nr-demos-toggle:hover, .nr-demos-toggle.is-open {
-      border-color: #fbbf24;
-      box-shadow: 0 0 18px color-mix(in srgb, #fbbf24 40%, transparent);
-      transform: translateY(-1px);
+
+    /* Positionnement DANS la ligne SpellHeader (à gauche de back+quit) */
+    .nr-toggle-glossary {
+      right: 120px;                         /* juste à gauche du quit */
+    }
+    .nr-demos-toggle {
+      right: 184px;                         /* à gauche du glossaire */
+    }
+
+    /* Mobile : on déplace sous le SpellHeader */
+    @media (max-width: 720px) {
+      .nr-toggle-glossary { top: 76px; right: 16px; }
+      .nr-demos-toggle    { top: 76px; right: 80px; }
     }
     /* Demos menu = side-drawer style spell-caster */
     .nr-demos-menu {
@@ -807,6 +959,16 @@ export class NarratorComponent {
   openGlossary(): void { this.showGlossary.set(true); }
   closeGlossary(): void { this.showGlossary.set(false); }
   toggleDemosMenu(): void { this.showDemosMenu.update(v => !v); }
+  /** Émis par le HUD quand le timebox arrive à 0 — on coupe le mode actif. */
+  onTimeboxTimeUp(): void {
+    if (this.narrator.isTimeboxActive()) this.narrator.stopTimebox();
+    // Pour le mode exampleActive, le narrateur gère lui-même la fin
+  }
+  /** ✕ Terminer clic sur HUD — coupe les 2 modes possibles pour fermer immédiatement le widget */
+  onTimeboxClose(): void {
+    if (this.narrator.isTimeboxActive()) this.narrator.stopTimebox();
+    if (this.narrator.isExampleActive()) this.narrator.stopPlayExample();
+  }
   playDemo(idx: number): void {
     // Stop any current demo then start the selected one
     if (this.narrator.isExampleActive()) this.narrator.stopPlayExample();
